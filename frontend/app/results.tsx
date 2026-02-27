@@ -435,7 +435,7 @@ function NutritionTab({ analysis, onShopPress, lang }: { analysis: any; onShopPr
   );
 }
 
-function RecipesTab({ analysis, router }: { analysis: any; router: any }) {
+function RecipesTab({ analysis, router, lang }: { analysis: any; router: any; lang: string }) {
   if (!analysis.recipes?.length) {
     return (
       <View style={styles.emptyState}>
