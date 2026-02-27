@@ -17,11 +17,12 @@ VitaGuide ist eine kostenlose Gesundheits-Informations-App, die über eine KI-An
 ### 1. Zweisprachigkeit (DE/IT) - NEU 27.02.2026
 - **Sprachumschaltung**: DE/IT Toggle im Header des Homescreens und Disclaimer
 - **LangContext**: React Context für app-weite Sprachverwaltung mit AsyncStorage-Persistenz
-- **i18n System**: Übersetzungsdatei (`i18n.ts`) mit allen UI-Texten
+- **i18n System**: Übersetzungsdatei (`i18n.ts`) mit allen UI-Texten inkl. Tagebuch
 - **Separater IT System-Prompt**: Kompletter italienischer KI-Prompt mit Sicherheitshinweisen
 - **Italiano Produktkatalog**: 61 Einzelprodukte von joachimkaeser.it (gescraped)
 - **Produkt-Videos**: 8 italienische Produkte mit YouTube-Video-Links
 - **Video-Button**: "Guarda il video" / "Video ansehen" Button auf Produktkarten
+- **Tagebuch zweisprachig**: Alle Labels, Rating-Beschriftungen, Alerts, Trend-Ansicht auf IT übersetzt
 
 ### 2. Produktkataloge
 - **Deutsch**: 30 Produkte von joachim-kaeser.de mit offiziellen Anwendungshinweisen
