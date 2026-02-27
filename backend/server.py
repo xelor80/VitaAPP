@@ -349,9 +349,45 @@ PRODUCT_IMAGES = {
     "visio-pro": "https://joachim-kaeser.de/cdn/shop/files/VisioPro.webp?v=1762437282&width=300",
 }
 
+# ===================== APPLICATION INSTRUCTIONS (scraped from shop) =====================
+APPLICATION_INSTRUCTIONS = {
+    "gelenk-kraft": "1 Messlöffel (12 g) pro Tag in 200 ml Wasser. Nach der Einnahme 30 Minuten warten, bevor Kaffee, Tee, Milch, Alkohol und Medikamente konsumiert werden.",
+    "weihrauch-2-0": "Nehmen Sie täglich 1 Kapsel mit reichlich Wasser ein. Nach der Einnahme 30 Minuten warten, bevor Kaffee, Tee, Milch, Alkohol und Medikamente konsumiert werden.",
+    "kurkuma-komplex": "0,5 ml pro Tag (= 10 Tropfen) mit ca. 100 ml Wasser einnehmen, vor Gebrauch gut schütteln. Nach der Einnahme 30 Minuten warten, bevor Kaffee, Tee, Milch, Alkohol und Medikamente konsumiert werden.",
+    "microbiom-complex": "Nehmen Sie täglich 1 Kapsel mit reichlich Wasser ein. Nach der Einnahme 30 Minuten warten, bevor Kaffee, Tee, Milch, Alkohol und Medikamente konsumiert werden.",
+    "leber-vital": "Nehmen Sie täglich 1 Kapsel mit reichlich Wasser ein. Nach der Einnahme 30 Minuten warten, bevor Kaffee, Tee, Milch, Alkohol und Medikamente konsumiert werden.",
+    "gruene-entgiftung": "Nehmen Sie täglich 1 Kapsel mit reichlich Wasser ein. Nach der Einnahme 30 Minuten warten, bevor Kaffee, Tee, Milch, Alkohol und Medikamente konsumiert werden.",
+    "immunkraft": "Nehmen Sie täglich 2 Kapseln mit reichlich Wasser ein. Nach der Einnahme 30 Minuten warten, bevor Kaffee, Tee, Milch, Alkohol und Medikamente konsumiert werden.",
+    "echinacea-kolloidal": "Sprühen Sie einmal täglich 15 Sprühstöße oder zweimal täglich 7-8 Sprühstöße direkt unter die Zunge. Überschreiten Sie nicht die empfohlene Tagesdosis.",
+    "vitamin-c-retard": "Nehmen Sie täglich 1 Kapsel mit reichlich Wasser ein. Nach der Einnahme 30 Minuten warten, bevor Kaffee, Tee, Milch, Alkohol und Medikamente konsumiert werden.",
+    "kolloidales-zink": "Sprühen Sie einmal täglich 15 Sprühstöße direkt unter die Zunge oder direkt auf die Haut. Überschreiten Sie nicht die empfohlene Tagesdosis.",
+    "b-komplex-kolloid": "Sprühen Sie einmal täglich 15 Sprühstöße direkt unter die Zunge. Überschreiten Sie nicht die empfohlene Tagesdosis.",
+    "eisen": "Sprühen Sie einmal täglich 15 Sprühstöße direkt unter die Zunge. Überschreiten Sie nicht die empfohlene Tagesdosis.",
+    "nadh": "Nehmen Sie täglich 1 Kapsel mit reichlich Wasser ein. Nach der Einnahme 30 Minuten warten, bevor Kaffee, Tee, Milch, Alkohol und Medikamente konsumiert werden.",
+    "q10-power": "Nehmen Sie täglich 2 Kapseln mit reichlich Wasser ein. Nach der Einnahme 30 Minuten warten, bevor Kaffee, Tee, Milch, Alkohol und Medikamente konsumiert werden.",
+    "factor-d": "Nehmen Sie täglich 1 Kapsel mit ausreichend Flüssigkeit ein. Nach der Einnahme 30 Minuten warten, bevor Kaffee, Tee, Milch, Alkohol und Medikamente konsumiert werden.",
+    "essentials-direct": "1 ml pro Tag (etwa 1 Pipette) pur unter der Zunge oder verdünnt in Wasser, Smoothie oder Joghurt. Nach der Einnahme 30 Minuten warten, bevor Kaffee, Tee, Alkohol und Medikamente konsumiert werden.",
+    "magnesium-direct": "1 ml pro Tag (etwa 1 Pipette) pur unter der Zunge oder verdünnt in Wasser, Smoothie oder Joghurt. Nach der Einnahme 30 Minuten warten, bevor Kaffee, Tee, Alkohol und Medikamente konsumiert werden.",
+    "mental-kraft": "Nehmen Sie täglich 2 Kapseln mit reichlich Wasser ein. Nach der Einnahme 30 Minuten warten, bevor Kaffee, Tee, Milch, Alkohol und Medikamente konsumiert werden.",
+    "haut-factor": "Nehmen Sie täglich 3 Tabletten mit reichlich Wasser ein. Nach der Einnahme 30 Minuten warten, bevor Kaffee, Tee, Milch, Alkohol und Medikamente konsumiert werden.",
+    "collagen-bi-caps": "Nehmen Sie täglich 1 Kapsel mit reichlich Wasser ein. Nach der Einnahme 30 Minuten warten, bevor Kaffee, Tee, Milch, Alkohol und Medikamente konsumiert werden.",
+    "hyaluronsaeure": "Nehmen Sie täglich 2 Kapseln mit reichlich Wasser ein. Nach der Einnahme 30 Minuten warten, bevor Kaffee, Tee, Milch, Alkohol und Medikamente konsumiert werden.",
+    "haar-aktiv": "Nehmen Sie täglich 1 Kapsel mit reichlich Wasser ein. Nach der Einnahme 30 Minuten warten, bevor Kaffee, Tee, Milch, Alkohol und Medikamente konsumiert werden.",
+    "schwarzkuemmeloel": "Nehmen Sie täglich 3 Kapseln mit ausreichend Flüssigkeit ein. Nach der Einnahme 30 Minuten warten, bevor Kaffee, Tee, Milch, Alkohol und Medikamente konsumiert werden.",
+    "omega-3": "Nehmen Sie täglich 1 Kapsel mit reichlich Wasser ein. Nach der Einnahme 30 Minuten warten, bevor Kaffee, Tee, Milch, Alkohol und Medikamente konsumiert werden.",
+    "kreislauf-vital": "Nehmen Sie täglich 2 Kapseln mit reichlich Wasser ein. Nach der Einnahme 30 Minuten warten, bevor Kaffee, Tee, Milch, Alkohol und Medikamente konsumiert werden.",
+    "metabol-control": "Nehmen Sie täglich 1 Kapsel mit reichlich Wasser ein. Nach der Einnahme 30 Minuten warten, bevor Kaffee, Tee, Milch, Alkohol und Medikamente konsumiert werden.",
+    "atem-kraft": "Nehmen Sie täglich 1 Kapsel mit reichlich Wasser ein. Nach der Einnahme 30 Minuten warten, bevor Kaffee, Tee, Milch, Alkohol und Medikamente konsumiert werden.",
+    "knochen-direct": "2 ml pro Tag (etwa 2 Pipetten) pur unter der Zunge oder verdünnt in Wasser, Smoothie oder Joghurt. Nach der Einnahme 30 Minuten warten, bevor Kaffee, Tee, Alkohol und Medikamente konsumiert werden.",
+    "glutathion-plus": "Nehmen Sie täglich 1 Kapsel mit reichlich Wasser ein. Nach der Einnahme 30 Minuten warten, bevor Kaffee, Tee, Milch, Alkohol und Medikamente konsumiert werden.",
+    "visio-pro": "Nehmen Sie täglich 1 Kapsel mit reichlich Wasser ein. Nach der Einnahme 30 Minuten warten, bevor Kaffee, Tee, Milch, Alkohol und Medikamente konsumiert werden.",
+}
+
 for _p in PRODUCT_CATALOG:
     if _p["product_id"] in PRODUCT_IMAGES:
         _p["image_url"] = PRODUCT_IMAGES[_p["product_id"]]
+    if _p["product_id"] in APPLICATION_INSTRUCTIONS:
+        _p["application_instructions"] = APPLICATION_INSTRUCTIONS[_p["product_id"]]
 
 
 # ===================== SYSTEM PROMPT =====================
