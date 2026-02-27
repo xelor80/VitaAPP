@@ -629,7 +629,7 @@ async def analyze_symptoms(data: SymptomInput, request: Request):
         chat = LlmChat(
             api_key=os.environ['EMERGENT_LLM_KEY'],
             session_id=session_id,
-            system_message=SYSTEM_PROMPT
+            system_message=prompt
         ).with_model("openai", "gpt-4o")
 
         response_text = await chat.send_message(UserMessage(text=user_text))
