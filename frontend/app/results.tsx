@@ -442,6 +442,22 @@ function RecipesTab({ analysis, router, lang }: { analysis: any; router: any; la
   const { width: screenWidth } = useWindowDimensions();
   const imageWidth = screenWidth - 32; // account for content padding
 
+  // Inject CSS for recipe images (bypasses RN Web style processing)
+  React.useEffect(() => {
+    if (Platform.OS === 'web') {
+      const existing = document.getElementById('recipe-img-styles');
+      if (!existing) {
+        const style = document.createElement('style');
+        style.id = 'recipe-img-styles';
+        style.textContent = `
+          .recipe-img-wrap { position:relative; width:100%; height:180px; overflow:hidden; border-top-left-radius:16px; border-top-right-radius:16px; background:#E8F5E9; }
+          .recipe-img { position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; }
+        `;
+        document.head.appendChild(style);
+      }
+    }
+  }, []);
+
   React.useEffect(() => {
     const inputTags = analysis?.input_tags || [];
     const tagParam = inputTags.join(',');
