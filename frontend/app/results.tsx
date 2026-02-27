@@ -460,8 +460,13 @@ function RecipesTab({ analysis, router, lang }: { analysis: any; router: any; la
 
   React.useEffect(() => {
     const inputTags = analysis?.input_tags || [];
+    if (inputTags.length === 0) {
+      // No symptom chips selected - only show LLM-generated recipes
+      setCatalogRecipes([]);
+      return;
+    }
     const tagParam = inputTags.join(',');
-    fetch(`${API_URL}/api/recipes?lang=${lang}${tagParam ? `&tags=${tagParam}` : ''}`)
+    fetch(`${API_URL}/api/recipes?lang=${lang}&tags=${tagParam}`)
       .then(r => r.json())
       .then(data => setCatalogRecipes(data))
       .catch(() => {});
