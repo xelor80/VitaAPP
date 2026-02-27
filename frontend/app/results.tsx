@@ -392,7 +392,7 @@ function NutritionTab({ analysis, onShopPress }: { analysis: any; onShopPress: (
                       onPress={() => onShopPress(item.product_id || '', item.affiliate_url)}
                     >
                       <MaterialCommunityIcons name="open-in-new" size={13} color="#4A8B71" />
-                      <Text style={styles.scheduleShopText}>  Im Shop ansehen</Text>
+                      <Text style={styles.scheduleShopText}>  {t(lang, 'shop_link')}</Text>
                     </TouchableOpacity>
                   ) : null}
                 </View>
