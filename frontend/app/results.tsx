@@ -120,7 +120,7 @@ export default function ResultsScreen() {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {activeTab === 'overview' && <OverviewTab analysis={analysis} onShopPress={trackClick} />}
         {activeTab === 'supplements' && <SupplementsTab analysis={analysis} onShopPress={trackClick} />}
-        {activeTab === 'nutrition' && <NutritionTab analysis={analysis} />}
+        {activeTab === 'nutrition' && <NutritionTab analysis={analysis} onShopPress={trackClick} />}
         {activeTab === 'recipes' && <RecipesTab analysis={analysis} router={router} />}
 
         {/* Disclaimer */}
