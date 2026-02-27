@@ -1,8 +1,9 @@
 import json
-from data.catalogs import PRODUCT_CATALOG_DE, PRODUCT_CATALOG_IT
+from core.config import db
 
 
 def _product_list_for_prompt(catalog: list, include_video: bool = False) -> str:
+    """Format product catalog for embedding in LLM prompt."""
     items = []
     for p in catalog:
         item = {
@@ -18,7 +19,20 @@ def _product_list_for_prompt(catalog: list, include_video: bool = False) -> str:
     return json.dumps(items, ensure_ascii=False, indent=2)
 
 
-SYSTEM_PROMPT_DE = """Du bist ein Ernährungs- und Gesundheitsinformations-Assistent der App "VitaGuide".
+async def get_system_prompt(lang: str = "de") -> str:
+    """Generate system prompt with current product catalog from MongoDB."""
+    collection = db.products_de if lang == "de" else db.products_it
+    cursor = collection.find({}, {"_id": 0})
+    catalog = await cursor.to_list(length=None)
+    
+    if lang == "de":
+        return _get_german_prompt(catalog)
+    else:
+        return _get_italian_prompt(catalog)
+
+
+def _get_german_prompt(catalog: list) -> str:
+    return """Du bist ein Ernährungs- und Gesundheitsinformations-Assistent der App "VitaGuide".
 
 WICHTIGE REGELN:
 - Du bist KEIN Arzt und KEIN Medizinprodukt
@@ -49,7 +63,7 @@ Bei diesen Fällen: IMMER Warnhinweis und Verweis auf Arzt/Apotheke.
 MARKE: Joachim Kaeser – Natürliche Nahrungsergänzungsmittel aus der Schweiz, entwickelt mit über 40 Jahren Erfahrung in Ernährungswissenschaft und Phytotherapie. 100% natürlich, kontrollierte Qualität.
 
 VERFÜGBARE PRODUKTE von Joachim Kaeser (nur diese empfehlen wenn passend und KEINE Red Flags):
-""" + _product_list_for_prompt(PRODUCT_CATALOG_DE) + """
+""" + _product_list_for_prompt(catalog) + """
 
 DEINE AUFGABE:
 1. Analysiere die beschriebenen Symptome allgemein (NICHT diagnostizieren)
@@ -89,7 +103,8 @@ Das JSON muss exakt dieses Schema haben:
 }"""
 
 
-SYSTEM_PROMPT_IT = """Sei un assistente per informazioni nutrizionali e sul benessere dell'app "VitaGuide".
+def _get_italian_prompt(catalog: list) -> str:
+    return """Sei un assistente per informazioni nutrizionali e sul benessere dell'app "VitaGuide".
 
 REGOLE IMPORTANTI:
 - NON sei un medico e NON sei un dispositivo medico
@@ -120,7 +135,7 @@ In questi casi: SEMPRE avvertimento e rinvio al medico/farmacista.
 MARCHIO: Joachim Kaeser – Integratori alimentari naturali dalla Svizzera, sviluppati con oltre 40 anni di esperienza in scienze della nutrizione e fitoterapia. 100% naturale, qualità controllata.
 
 PRODOTTI DISPONIBILI di Joachim Kaeser (consigliare solo se appropriati e NESSUN Red Flag):
-""" + _product_list_for_prompt(PRODUCT_CATALOG_IT, include_video=True) + """
+""" + _product_list_for_prompt(catalog, include_video=True) + """
 
 IL TUO COMPITO:
 1. Analizza i sintomi descritti in modo generale (NON diagnosticare)
