@@ -192,8 +192,8 @@ function OverviewTab({ analysis, onShopPress }: { analysis: any; onShopPress: (i
         <View style={styles.featuredProductCard}>
           <View style={styles.featuredHeader}>
             <MaterialCommunityIcons name="star-outline" size={18} color="#4A8B71" />
-            <Text style={styles.featuredLabel}>Passend für Sie</Text>
-            <Text style={styles.featuredAdLabel}>Werbung</Text>
+            <Text style={styles.featuredLabel}>{lang === 'de' ? 'Passend für Sie' : 'Adatto a te'}</Text>
+            <Text style={styles.featuredAdLabel}>{lang === 'de' ? 'Werbung' : 'Pubblicità'}</Text>
           </View>
           <View style={styles.featuredContent}>
             {featuredProduct.image_url ? (
