@@ -390,6 +390,14 @@ for _p in PRODUCT_CATALOG:
     if _p["product_id"] in APPLICATION_INSTRUCTIONS:
         _p["application_instructions"] = APPLICATION_INSTRUCTIONS[_p["product_id"]]
 
+# ===================== ITALIAN PRODUCT CATALOG =====================
+
+_it_products_path = ROOT_DIR / "products_it.json"
+if _it_products_path.exists():
+    with open(_it_products_path, "r", encoding="utf-8") as _f:
+        PRODUCT_CATALOG_IT = json.load(_f)
+else:
+    PRODUCT_CATALOG_IT = []
 
 # ===================== SYSTEM PROMPT =====================
 
