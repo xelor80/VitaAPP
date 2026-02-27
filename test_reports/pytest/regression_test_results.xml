@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="3" failures="0" skipped="0" tests="3" time="0.145" timestamp="2026-02-27T21:45:52.325081+00:00" hostname="agent-env-a5846c26-5ccc-4696-a810-80d624977b18"><testcase classname="" name="tests.test_diary_api" time="0.000"><error message="collection failure">tests/test_diary_api.py:12: in &lt;module&gt;
+    raise ValueError("EXPO_PUBLIC_BACKEND_URL not found in environment")
+E   ValueError: EXPO_PUBLIC_BACKEND_URL not found in environment</error></testcase><testcase classname="" name="tests.test_recipes_products_api" time="0.000"><error message="collection failure">tests/test_recipes_products_api.py:11: in &lt;module&gt;
+    raise ValueError("EXPO_PUBLIC_BACKEND_URL not found in environment")
+E   ValueError: EXPO_PUBLIC_BACKEND_URL not found in environment</error></testcase><testcase classname="" name="tests.test_vitaguide_api" time="0.000"><error message="collection failure">tests/test_vitaguide_api.py:12: in &lt;module&gt;
+    raise ValueError("EXPO_PUBLIC_BACKEND_URL not found in environment")
+E   ValueError: EXPO_PUBLIC_BACKEND_URL not found in environment</error></testcase></testsuite></testsuites>
