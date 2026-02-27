@@ -7,20 +7,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { setCurrentAnalysis } from '../src/store';
+import { useLang } from './LangContext';
+import { t } from './i18n';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
-const SYMPTOM_CHIPS = [
-  { label: 'Müdigkeit', icon: 'sleep' },
-  { label: 'Kopfschmerzen', icon: 'head-flash-outline' },
-  { label: 'Verdauung', icon: 'stomach' },
-  { label: 'Gelenkschmerzen', icon: 'bone' },
-  { label: 'Schlafprobleme', icon: 'weather-night' },
-  { label: 'Stress', icon: 'lightning-bolt-outline' },
-  { label: 'Erkältung', icon: 'thermometer' },
-  { label: 'Hautprobleme', icon: 'hand-front-right-outline' },
-  { label: 'Rückenschmerzen', icon: 'human' },
-  { label: 'Konzentration', icon: 'head-cog-outline' },
+const CHIP_ICONS = [
+  'sleep', 'head-flash-outline', 'stomach', 'bone', 'weather-night',
+  'lightning-bolt-outline', 'thermometer', 'hand-front-right-outline', 'human', 'head-cog-outline',
 ];
 
 // ==================== DISCLAIMER SCREEN ====================
