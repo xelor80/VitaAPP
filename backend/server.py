@@ -399,6 +399,15 @@ if _it_products_path.exists():
 else:
     PRODUCT_CATALOG_IT = []
 
+# ===================== RECIPE CATALOG =====================
+
+_recipes_path = ROOT_DIR / "recipes.json"
+if _recipes_path.exists():
+    with open(_recipes_path, "r", encoding="utf-8") as _f:
+        RECIPE_CATALOG = json.load(_f)
+else:
+    RECIPE_CATALOG = []
+
 # ===================== SYSTEM PROMPT =====================
 
 SYSTEM_PROMPT = """Du bist ein Ernährungs- und Gesundheitsinformations-Assistent der App "VitaGuide".
