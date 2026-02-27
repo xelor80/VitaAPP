@@ -268,6 +268,19 @@ const styles = StyleSheet.create({
   logoText: { fontSize: 28, fontWeight: '700', color: '#1A2D26' },
   headerSubtitle: { fontSize: 15, color: '#5C7A6F', marginTop: 4 },
 
+  // Diary Button
+  diaryButton: {
+    flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF',
+    borderRadius: 16, padding: 14, marginBottom: 20, gap: 12,
+    borderWidth: 1, borderColor: '#D4E7DC',
+  },
+  diaryIconWrap: {
+    width: 44, height: 44, borderRadius: 12, backgroundColor: '#E3F0F7',
+    justifyContent: 'center', alignItems: 'center',
+  },
+  diaryBtnTitle: { fontSize: 16, fontWeight: '700', color: '#1A2D26' },
+  diaryBtnSub: { fontSize: 13, color: '#5C7A6F', marginTop: 2 },
+
   // Card
   card: {
     backgroundColor: '#FFFFFF', borderRadius: 16, padding: 16, marginBottom: 20,
