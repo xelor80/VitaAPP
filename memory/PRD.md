@@ -150,13 +150,19 @@ VitaGuide ist eine kostenlose Gesundheits-Informations-App, die uber eine KI-Anb
 - src/store.ts: In-memory Store fur Analyse-Daten
 
 ## Testing Status (27.02.2026)
-- Backend: 13/13 Tests bestanden (iteration_6.json - Tab Refactoring Regression)
-- Frontend: 90% bestanden (iteration_7.json - Home Refactoring Regression)
-- Test Files: backend/tests/test_modular_refactor_regression.py
+- Backend: 20/20 Tests bestanden (iteration_8.json - MongoDB Migration)
+- Frontend: 95% bestanden (E2E-Flow funktioniert)
+- Test Files: backend/tests/test_mongodb_migration.py
+
+## MongoDB Collections (seit 27.02.2026)
+- **products_de:** 30 Dokumente (German products with indexes: product_id, tags)
+- **products_it:** 61 Dokumente (Italian products with video_url field)
+- **recipes:** 30 zweisprachige Rezepte (indexes: id, symptom_tags)
+- Migration Script: backend/migrate_to_mongodb.py
 
 ## Geplante Features (Post-MVP)
 - [x] **P1:** index.tsx (Home-Screen) in kleinere Komponenten aufteilen - DONE (27.02.2026)
-- [ ] **P2:** Produktkatalog -> MongoDB migrieren
+- [x] **P2:** Produktkatalog -> MongoDB migrieren - DONE (27.02.2026)
 - [ ] **P3:** Suchbare/filterbare Rezepte UI
 - [ ] **P4:** Englisch-Support (3. Sprache)
 - [ ] Benutzer-History
