@@ -1,0 +1,121 @@
+// i18n translations for VitaGuide app
+export type Lang = 'de' | 'it';
+
+const translations = {
+  de: {
+    // Disclaimer
+    disclaimer_title: 'Wichtiger Hinweis',
+    disclaimer_1_title: 'Kein Medizinprodukt',
+    disclaimer_1_text: 'Diese App ist kein Medizinprodukt und ersetzt keine ärztliche Beratung, Diagnose oder Behandlung.',
+    disclaimer_2_title: 'Allgemeine Informationen',
+    disclaimer_2_text: 'Die bereitgestellten Informationen dienen nur der allgemeinen Gesundheitsinformation und Ernährungsberatung.',
+    disclaimer_3_title: 'Im Zweifel zum Arzt',
+    disclaimer_3_text: 'Bei Beschwerden oder Symptomen wenden Sie sich bitte an einen Arzt oder qualifizierte Fachperson.',
+    disclaimer_accept: 'Verstanden & Zustimmen',
+
+    // Home
+    home_title: 'VitaGuide',
+    home_subtitle: 'Natürliche Gesundheitsinformationen',
+    symptom_placeholder: 'Beschreiben Sie Ihre Symptome oder Ihr Anliegen...',
+    symptom_chips: ['Müdigkeit', 'Kopfschmerzen', 'Verdauung', 'Gelenkschmerzen', 'Schlafprobleme', 'Stress', 'Erkältung', 'Hautprobleme', 'Rückenschmerzen', 'Konzentration'],
+    analyze_btn: 'Analyse starten',
+    analyzing: 'Analyse läuft...',
+    diary_btn: 'Symptom-Tagebuch',
+
+    // Results
+    results_title: 'Ihre Ergebnisse',
+    tab_overview: 'Übersicht',
+    tab_supplements: 'Supplements',
+    tab_nutrition: 'Ernährung',
+    tab_recipes: 'Rezepte',
+    featured_product: 'Empfohlenes Produkt',
+    quick_tips: 'Schnell-Tipps',
+    red_flag_title: 'Bitte beachten Sie:',
+    see_doctor: 'Bitte suchen Sie einen Arzt auf',
+    shop_link: 'Im Shop ansehen',
+    evidence: 'Evidenz',
+    cautions: 'Vorsicht',
+    natural_sources: 'Natürliche Quellen',
+    schedule_title: 'Einnahmeplan',
+    schedule_subtitle: 'Offizielle Anwendungshinweise des Herstellers',
+    schedule_disclaimer: 'Dosierung laut Etikett. Rücksprache mit Arzt oder Apotheke wird empfohlen.',
+    nutrition_tips_title: 'Ernährungstipps',
+    recipe_time: 'Min.',
+    recipe_ingredients: 'Zutaten',
+    recipe_steps: 'Zubereitung',
+    disclaimer_footer: 'Dieser Inhalt dient nur der allgemeinen Information und ersetzt keine ärztliche Beratung.',
+    watch_video: 'Video ansehen',
+
+    // Diary
+    diary_title: 'Symptom-Tagebuch',
+    diary_save: 'Eintrag speichern',
+    diary_trends: 'Trends anzeigen',
+    diary_mood: 'Befinden',
+    diary_sleep: 'Schlaf',
+    diary_stress: 'Stress',
+    diary_water: 'Wasser (Gläser)',
+    diary_exercise: 'Bewegung (Min.)',
+    diary_notes: 'Notizen',
+  },
+  it: {
+    // Disclaimer
+    disclaimer_title: 'Avviso importante',
+    disclaimer_1_title: 'Non è un dispositivo medico',
+    disclaimer_1_text: 'Questa app non è un dispositivo medico e non sostituisce la consulenza, la diagnosi o il trattamento medico.',
+    disclaimer_2_title: 'Informazioni generali',
+    disclaimer_2_text: 'Le informazioni fornite servono solo a scopo informativo sulla salute e la nutrizione.',
+    disclaimer_3_title: 'In caso di dubbio, consultare il medico',
+    disclaimer_3_text: 'In caso di disturbi o sintomi, rivolgersi a un medico o a un professionista qualificato.',
+    disclaimer_accept: 'Ho capito e accetto',
+
+    // Home
+    home_title: 'VitaGuide',
+    home_subtitle: 'Informazioni naturali per la salute',
+    symptom_placeholder: 'Descrivi i tuoi sintomi o la tua preoccupazione...',
+    symptom_chips: ['Stanchezza', 'Mal di testa', 'Digestione', 'Dolori articolari', 'Problemi di sonno', 'Stress', 'Raffreddore', 'Problemi di pelle', 'Mal di schiena', 'Concentrazione'],
+    analyze_btn: 'Avvia analisi',
+    analyzing: 'Analisi in corso...',
+    diary_btn: 'Diario dei sintomi',
+
+    // Results
+    results_title: 'I tuoi risultati',
+    tab_overview: 'Panoramica',
+    tab_supplements: 'Integratori',
+    tab_nutrition: 'Nutrizione',
+    tab_recipes: 'Ricette',
+    featured_product: 'Prodotto consigliato',
+    quick_tips: 'Consigli rapidi',
+    red_flag_title: 'Si prega di notare:',
+    see_doctor: 'Si prega di consultare un medico',
+    shop_link: 'Vedi nello shop',
+    evidence: 'Evidenza',
+    cautions: 'Precauzioni',
+    natural_sources: 'Fonti naturali',
+    schedule_title: 'Piano di assunzione',
+    schedule_subtitle: 'Istruzioni ufficiali del produttore',
+    schedule_disclaimer: 'Dosaggio secondo l\'etichetta. Si consiglia di consultare il medico o il farmacista.',
+    nutrition_tips_title: 'Consigli nutrizionali',
+    recipe_time: 'Min.',
+    recipe_ingredients: 'Ingredienti',
+    recipe_steps: 'Preparazione',
+    disclaimer_footer: 'Questo contenuto è solo a scopo informativo e non sostituisce il parere medico.',
+    watch_video: 'Guarda il video',
+
+    // Diary
+    diary_title: 'Diario dei sintomi',
+    diary_save: 'Salva voce',
+    diary_trends: 'Mostra tendenze',
+    diary_mood: 'Stato d\'animo',
+    diary_sleep: 'Sonno',
+    diary_stress: 'Stress',
+    diary_water: 'Acqua (bicchieri)',
+    diary_exercise: 'Attività (min.)',
+    diary_notes: 'Note',
+  },
+};
+
+export function t(lang: Lang, key: keyof typeof translations.de): any {
+  return translations[lang]?.[key] ?? translations.de[key] ?? key;
+}
+
+export default translations;
