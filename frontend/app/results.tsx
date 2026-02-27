@@ -267,7 +267,7 @@ function SupplementsTab({ analysis, onShopPress }: { analysis: any; onShopPress:
           ) : null}
           {s.food_sources?.length > 0 && (
             <View style={styles.sourcesWrap}>
-              <Text style={styles.sourcesLabel}>Natürliche Quellen:</Text>
+              <Text style={styles.sourcesLabel}>{t(lang, 'natural_sources')}:</Text>
               <Text style={styles.sourcesText}>{s.food_sources.join(', ')}</Text>
             </View>
           )}
