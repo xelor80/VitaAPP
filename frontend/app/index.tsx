@@ -14,6 +14,7 @@ import { SymptomChips } from '../components/home/SymptomChips';
 import { AnalyzeButton } from '../components/home/AnalyzeButton';
 import { DiaryButton } from '../components/home/DiaryButton';
 import { FooterDisclaimer } from '../components/home/FooterDisclaimer';
+import { AdminButton } from '../components/home/AdminButton';
 import { styles } from '../components/home/homeStyles';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
