@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from core.config import db, logger
 from core.helpers import check_rate_limit, parse_llm_response
 from models.schemas import SymptomInput
-from data.prompts import SYSTEM_PROMPT_DE, SYSTEM_PROMPT_IT
+from data.prompts import get_system_prompt
 
 router = APIRouter()
 
@@ -27,7 +27,7 @@ async def analyze_symptoms(data: SymptomInput, request: Request):
 
     lang = data.lang if data.lang in ("de", "it") else "de"
     catalog = await get_product_catalog(lang)
-    prompt = SYSTEM_PROMPT_DE if lang == "de" else SYSTEM_PROMPT_IT
+    prompt = await get_system_prompt(lang)
 
     symptom_text = data.text.strip()
     tag_text = ", ".join(data.tags) if data.tags else ""
@@ -70,7 +70,7 @@ async def analyze_symptoms(data: SymptomInput, request: Request):
     try:
         await db.llm_responses.insert_one({
             "id": str(uuid.uuid4()), "endpoint": "symptoms/analyze", "model": "gpt-4o",
-            "prompt_version": "1.2", "lang": lang, "input_text": user_text,
+            "prompt_version": "1.3", "lang": lang, "input_text": user_text,
             "input_tags": data.tags,
             "raw_output": response_text[:5000] if isinstance(response_text, str) else "",
             "success": llm_success, "latency_ms": latency_ms,
@@ -114,7 +114,7 @@ async def analyze_symptoms(data: SymptomInput, request: Request):
         "input_tags": data.tags,
         "lang": lang,
         "created_at": datetime.now(timezone.utc).isoformat(),
-        "prompt_version": "1.2",
+        "prompt_version": "1.3",
         "model": "gpt-4o"
     }
 
