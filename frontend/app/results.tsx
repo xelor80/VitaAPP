@@ -6,6 +6,8 @@ import {
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { getCurrentAnalysis } from '../src/store';
+import { useLang } from './LangContext';
+import { t } from './i18n';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
