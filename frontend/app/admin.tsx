@@ -60,7 +60,7 @@ export default function AdminScreen() {
   // Fetch stats
   const fetchStats = useCallback(async () => {
     try {
-      const res = await fetch(`${API_URL}/api/stats`);
+      const res = await fetch(`${API_URL}/api/admin/stats`);
       const data = await res.json();
       setStats(data);
     } catch (e) {
