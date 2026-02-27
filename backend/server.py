@@ -34,6 +34,7 @@ class SymptomInput(BaseModel):
     tags: List[str] = []
     duration: str = ""
     intensity: str = ""
+    lang: str = "de"
 
 class ClickEventInput(BaseModel):
     product_id: str
