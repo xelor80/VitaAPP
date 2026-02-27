@@ -653,24 +653,25 @@ async def analyze_symptoms(data: SymptomInput, request: Request):
     # Enrich brand_products with catalog data
     enriched_products = []
     for p in parsed.get("brand_products", []):
-        cat = next((c for c in PRODUCT_CATALOG if c["product_id"] == p.get("product_id")), None)
+        cat = next((c for c in catalog if c["product_id"] == p.get("product_id")), None)
         if cat:
             enriched_products.append({
                 "product_id": cat["product_id"],
                 "name": cat["name"],
                 "reason": p.get("reason", ""),
-                "affiliate_url": cat["affiliate_url"],
+                "affiliate_url": cat.get("affiliate_url", ""),
                 "note": p.get("note", ""),
                 "price": cat.get("price", ""),
                 "description": cat.get("description", ""),
                 "image_url": cat.get("image_url", ""),
-                "rating": cat.get("rating", "")
+                "rating": cat.get("rating", ""),
+                "video_url": cat.get("video_url", ""),
             })
 
     # Enrich supplement_schedule with product images and official instructions
     enriched_schedule = []
     for item in parsed.get("supplement_schedule", []):
-        cat = next((c for c in PRODUCT_CATALOG if c["product_id"] == item.get("product_id")), None)
+        cat = next((c for c in catalog if c["product_id"] == item.get("product_id")), None)
         schedule_entry = {
             "time": item.get("time", ""),
             "product_name": item.get("product_name", ""),
