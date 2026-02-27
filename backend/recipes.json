@@ -1,0 +1,542 @@
+[
+  {
+    "id": "gruener-energie-smoothie",
+    "symptom_tags": ["müdigkeit", "stanchezza", "energie", "energia"],
+    "image_url": "https://images.unsplash.com/photo-1654084767590-a38c7f0f5bd3?w=600&h=400&fit=crop",
+    "time_min": 5,
+    "de": {
+      "title": "Grüner Energie-Smoothie",
+      "ingredients": ["1 Handvoll Spinat", "1 Banane", "1 EL Chiasamen", "200 ml Hafermilch", "1 TL Honig"],
+      "steps": ["Spinat waschen und in den Mixer geben.", "Banane schälen und dazugeben.", "Chiasamen, Hafermilch und Honig hinzufügen.", "Alles 30 Sekunden auf höchster Stufe mixen.", "In ein Glas füllen und sofort genießen."],
+      "tags": ["vegan", "schnell", "eisenreich"]
+    },
+    "it": {
+      "title": "Smoothie Verde Energizzante",
+      "ingredients": ["1 manciata di spinaci", "1 banana", "1 cucchiaio di semi di chia", "200 ml latte d'avena", "1 cucchiaino di miele"],
+      "steps": ["Lavare gli spinaci e metterli nel frullatore.", "Sbucciare la banana e aggiungerla.", "Aggiungere semi di chia, latte d'avena e miele.", "Frullare tutto per 30 secondi alla massima velocità.", "Versare in un bicchiere e gustare subito."],
+      "tags": ["vegano", "veloce", "ricco di ferro"]
+    }
+  },
+  {
+    "id": "quinoa-power-bowl",
+    "symptom_tags": ["müdigkeit", "stanchezza", "energie", "energia"],
+    "image_url": "https://images.unsplash.com/photo-1623428187969-5da2dcea5ebf?w=600&h=400&fit=crop",
+    "time_min": 25,
+    "de": {
+      "title": "Quinoa Power Bowl",
+      "ingredients": ["150g Quinoa", "1 Avocado", "100g Kichererbsen (Dose)", "1 Handvoll Spinat", "2 EL Tahini", "Saft einer Zitrone", "Salz, Pfeffer"],
+      "steps": ["Quinoa nach Packungsanweisung kochen und abkühlen lassen.", "Kichererbsen abspülen und abtropfen lassen.", "Avocado halbieren und in Scheiben schneiden.", "Spinat waschen und auf einem Teller anrichten.", "Quinoa, Kichererbsen und Avocado darauf verteilen.", "Tahini mit Zitronensaft verrühren und darüber geben."],
+      "tags": ["proteinreich", "sättigend", "eisenreich"]
+    },
+    "it": {
+      "title": "Bowl Energetica alla Quinoa",
+      "ingredients": ["150g quinoa", "1 avocado", "100g ceci (in scatola)", "1 manciata di spinaci", "2 cucchiai di tahini", "succo di un limone", "sale, pepe"],
+      "steps": ["Cuocere la quinoa secondo le istruzioni e lasciar raffreddare.", "Sciacquare e scolare i ceci.", "Tagliare l'avocado a fette.", "Lavare gli spinaci e disporli su un piatto.", "Distribuire quinoa, ceci e avocado sopra.", "Mescolare tahini con succo di limone e versare sopra."],
+      "tags": ["ricco di proteine", "saziante", "ricco di ferro"]
+    }
+  },
+  {
+    "id": "spinat-powersalat",
+    "symptom_tags": ["müdigkeit", "stanchezza", "energie", "energia"],
+    "image_url": "https://images.unsplash.com/photo-1607532941433-304659e8198a?w=600&h=400&fit=crop",
+    "time_min": 10,
+    "de": {
+      "title": "Spinat-Powersalat mit Kernen",
+      "ingredients": ["200g frischer Spinat", "2 EL Kürbiskerne", "2 EL Sonnenblumenkerne", "50g Feta", "1 EL Olivenöl", "1 EL Balsamico"],
+      "steps": ["Spinat waschen und trocken schleudern.", "Auf einem Teller anrichten.", "Kürbiskerne und Sonnenblumenkerne darüber streuen.", "Feta zerbröseln und verteilen.", "Mit Olivenöl und Balsamico beträufeln."],
+      "tags": ["eisenreich", "schnell", "low-carb"]
+    },
+    "it": {
+      "title": "Insalata di Spinaci con Semi",
+      "ingredients": ["200g spinaci freschi", "2 cucchiai di semi di zucca", "2 cucchiai di semi di girasole", "50g feta", "1 cucchiaio di olio d'oliva", "1 cucchiaio di balsamico"],
+      "steps": ["Lavare e asciugare gli spinaci.", "Disporli su un piatto.", "Cospargere con semi di zucca e girasole.", "Sbriciolare la feta e distribuirla.", "Condire con olio d'oliva e balsamico."],
+      "tags": ["ricco di ferro", "veloce", "low-carb"]
+    }
+  },
+  {
+    "id": "ingwer-kurkuma-tee",
+    "symptom_tags": ["kopfschmerzen", "mal di testa", "entzündung", "infiammazione"],
+    "image_url": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=600&h=400&fit=crop",
+    "time_min": 10,
+    "de": {
+      "title": "Ingwer-Kurkuma-Tee",
+      "ingredients": ["3 cm frischer Ingwer", "1 TL Kurkuma-Pulver", "1 TL Honig", "Saft einer halben Zitrone", "300 ml heißes Wasser"],
+      "steps": ["Ingwer schälen und in dünne Scheiben schneiden.", "In eine Tasse geben und mit heißem Wasser übergießen.", "Kurkuma einrühren.", "5 Minuten ziehen lassen.", "Zitronensaft und Honig hinzufügen und umrühren."],
+      "tags": ["entzündungshemmend", "wärmend", "schnell"]
+    },
+    "it": {
+      "title": "Tè allo Zenzero e Curcuma",
+      "ingredients": ["3 cm zenzero fresco", "1 cucchiaino di curcuma in polvere", "1 cucchiaino di miele", "succo di mezzo limone", "300 ml acqua calda"],
+      "steps": ["Sbucciare lo zenzero e tagliarlo a fettine.", "Mettere in una tazza e versare l'acqua calda.", "Mescolare la curcuma.", "Lasciare in infusione per 5 minuti.", "Aggiungere succo di limone e miele, mescolare."],
+      "tags": ["antinfiammatorio", "riscaldante", "veloce"]
+    }
+  },
+  {
+    "id": "magnesium-schoko-smoothie",
+    "symptom_tags": ["kopfschmerzen", "mal di testa", "stress"],
+    "image_url": "https://images.unsplash.com/photo-1649069041246-457021025dea?w=600&h=400&fit=crop",
+    "time_min": 5,
+    "de": {
+      "title": "Magnesium-Schoko-Smoothie",
+      "ingredients": ["1 Banane", "2 EL Kakaopulver (roh)", "1 EL Mandelmus", "200 ml Mandelmilch", "1 EL Leinsamen"],
+      "steps": ["Alle Zutaten in den Mixer geben.", "30 Sekunden auf höchster Stufe mixen.", "Bei Bedarf mehr Milch hinzufügen.", "In ein Glas füllen und genießen."],
+      "tags": ["magnesiumreich", "schnell", "schokoladig"]
+    },
+    "it": {
+      "title": "Smoothie al Cacao e Magnesio",
+      "ingredients": ["1 banana", "2 cucchiai di cacao in polvere (crudo)", "1 cucchiaio di crema di mandorle", "200 ml latte di mandorla", "1 cucchiaio di semi di lino"],
+      "steps": ["Mettere tutti gli ingredienti nel frullatore.", "Frullare per 30 secondi alla massima velocità.", "Aggiungere più latte se necessario.", "Versare in un bicchiere e gustare."],
+      "tags": ["ricco di magnesio", "veloce", "cioccolatoso"]
+    }
+  },
+  {
+    "id": "wassermelone-minze-salat",
+    "symptom_tags": ["kopfschmerzen", "mal di testa"],
+    "image_url": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&h=400&fit=crop",
+    "time_min": 10,
+    "de": {
+      "title": "Wassermelonen-Minze-Salat",
+      "ingredients": ["300g Wassermelone", "100g Feta", "Frische Minzblätter", "1 EL Olivenöl", "Saft einer Limette", "Prise Salz"],
+      "steps": ["Wassermelone in Würfel schneiden.", "Feta zerbröseln.", "Minzblätter waschen und grob hacken.", "Alles in einer Schüssel vermengen.", "Mit Olivenöl, Limettensaft und Salz abschmecken."],
+      "tags": ["erfrischend", "hydratisierend", "sommerlich"]
+    },
+    "it": {
+      "title": "Insalata di Anguria e Menta",
+      "ingredients": ["300g anguria", "100g feta", "foglie di menta fresca", "1 cucchiaio di olio d'oliva", "succo di un lime", "pizzico di sale"],
+      "steps": ["Tagliare l'anguria a cubetti.", "Sbriciolare la feta.", "Lavare e tritare le foglie di menta.", "Mescolare tutto in una ciotola.", "Condire con olio d'oliva, succo di lime e sale."],
+      "tags": ["rinfrescante", "idratante", "estivo"]
+    }
+  },
+  {
+    "id": "joghurt-granola-bowl",
+    "symptom_tags": ["verdauung", "digestione", "darm"],
+    "image_url": "https://images.unsplash.com/photo-1615865417491-9941019fbc00?w=600&h=400&fit=crop",
+    "time_min": 5,
+    "de": {
+      "title": "Joghurt-Granola-Bowl",
+      "ingredients": ["200g Naturjoghurt", "3 EL Granola", "1 Handvoll Blaubeeren", "1 EL Honig", "1 TL Leinsamen"],
+      "steps": ["Joghurt in eine Schüssel geben.", "Granola darüber verteilen.", "Blaubeeren waschen und dazugeben.", "Leinsamen darüber streuen.", "Mit Honig beträufeln."],
+      "tags": ["probiotisch", "ballaststoffreich", "schnell"]
+    },
+    "it": {
+      "title": "Bowl di Yogurt e Granola",
+      "ingredients": ["200g yogurt naturale", "3 cucchiai di granola", "1 manciata di mirtilli", "1 cucchiaio di miele", "1 cucchiaino di semi di lino"],
+      "steps": ["Mettere lo yogurt in una ciotola.", "Distribuire la granola sopra.", "Lavare i mirtilli e aggiungerli.", "Cospargere con semi di lino.", "Aggiungere il miele."],
+      "tags": ["probiotico", "ricco di fibre", "veloce"]
+    }
+  },
+  {
+    "id": "fenchel-suppe",
+    "symptom_tags": ["verdauung", "digestione", "darm"],
+    "image_url": "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=600&h=400&fit=crop",
+    "time_min": 30,
+    "de": {
+      "title": "Beruhigende Fenchelsuppe",
+      "ingredients": ["2 Fenchelknollen", "1 Kartoffel", "1 Zwiebel", "500 ml Gemüsebrühe", "2 EL Olivenöl", "Salz, Pfeffer, Muskat"],
+      "steps": ["Zwiebel schälen und würfeln, in Olivenöl glasig dünsten.", "Fenchel putzen und klein schneiden, Kartoffel würfeln.", "Gemüse zur Zwiebel geben und 3 Minuten mitdünsten.", "Mit Gemüsebrühe aufgießen und 20 Minuten köcheln.", "Alles pürieren und mit Salz, Pfeffer und Muskat abschmecken."],
+      "tags": ["beruhigend", "wärmend", "verdauungsfördernd"]
+    },
+    "it": {
+      "title": "Zuppa di Finocchio Lenitiva",
+      "ingredients": ["2 finocchi", "1 patata", "1 cipolla", "500 ml brodo vegetale", "2 cucchiai di olio d'oliva", "sale, pepe, noce moscata"],
+      "steps": ["Sbucciare e tagliare la cipolla, soffriggere nell'olio.", "Pulire il finocchio e tagliarlo, tagliare la patata a cubetti.", "Aggiungere le verdure e cuocere 3 minuti.", "Versare il brodo e cuocere 20 minuti.", "Frullare tutto e condire con sale, pepe e noce moscata."],
+      "tags": ["lenitivo", "riscaldante", "digestivo"]
+    }
+  },
+  {
+    "id": "fermentierte-gemuese-bowl",
+    "symptom_tags": ["verdauung", "digestione", "darm"],
+    "image_url": "https://images.unsplash.com/photo-1505253716362-afaea1d3d1af?w=600&h=400&fit=crop",
+    "time_min": 10,
+    "de": {
+      "title": "Fermentierte Gemüse-Bowl",
+      "ingredients": ["100g Sauerkraut", "100g Kimchi", "1 Avocado", "150g Reis (gekocht)", "1 EL Sesamöl", "Sesamsamen"],
+      "steps": ["Reis in eine Schüssel geben.", "Sauerkraut und Kimchi daneben anrichten.", "Avocado in Scheiben schneiden und dazulegen.", "Mit Sesamöl beträufeln.", "Mit Sesamsamen bestreuen."],
+      "tags": ["probiotisch", "fermentiert", "darmfreundlich"]
+    },
+    "it": {
+      "title": "Bowl di Verdure Fermentate",
+      "ingredients": ["100g crauti", "100g kimchi", "1 avocado", "150g riso (cotto)", "1 cucchiaio di olio di sesamo", "semi di sesamo"],
+      "steps": ["Mettere il riso in una ciotola.", "Disporre crauti e kimchi accanto.", "Tagliare l'avocado a fette e aggiungere.", "Condire con olio di sesamo.", "Cospargere con semi di sesamo."],
+      "tags": ["probiotico", "fermentato", "amico dell'intestino"]
+    }
+  },
+  {
+    "id": "goldene-kurkuma-latte",
+    "symptom_tags": ["gelenkschmerzen", "dolori articolari", "entzündung", "infiammazione"],
+    "image_url": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=600&h=400&fit=crop&q=80",
+    "time_min": 10,
+    "de": {
+      "title": "Goldene Kurkuma-Latte",
+      "ingredients": ["250 ml Hafermilch", "1 TL Kurkuma", "1/2 TL Zimt", "1 Prise schwarzer Pfeffer", "1 TL Honig", "1 TL Kokosöl"],
+      "steps": ["Hafermilch in einem Topf erwärmen.", "Kurkuma, Zimt und Pfeffer einrühren.", "Kokosöl hinzufügen und gut verrühren.", "2 Minuten auf niedriger Flamme erwärmen.", "In eine Tasse füllen und mit Honig süßen."],
+      "tags": ["entzündungshemmend", "wärmend", "ayurvedisch"]
+    },
+    "it": {
+      "title": "Golden Latte alla Curcuma",
+      "ingredients": ["250 ml latte d'avena", "1 cucchiaino di curcuma", "1/2 cucchiaino di cannella", "1 pizzico di pepe nero", "1 cucchiaino di miele", "1 cucchiaino di olio di cocco"],
+      "steps": ["Scaldare il latte d'avena in un pentolino.", "Mescolare curcuma, cannella e pepe.", "Aggiungere l'olio di cocco e mescolare bene.", "Scaldare 2 minuti a fuoco basso.", "Versare in una tazza e dolcificare con miele."],
+      "tags": ["antinfiammatorio", "riscaldante", "ayurvedico"]
+    }
+  },
+  {
+    "id": "lachs-mit-gemuese",
+    "symptom_tags": ["gelenkschmerzen", "dolori articolari", "omega-3"],
+    "image_url": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=600&h=400&fit=crop",
+    "time_min": 25,
+    "de": {
+      "title": "Gegrillter Lachs mit Gemüse",
+      "ingredients": ["200g Lachsfilet", "1 Brokkoli", "1 Paprika", "2 EL Olivenöl", "Saft einer Zitrone", "Salz, Pfeffer, Dill"],
+      "steps": ["Backofen auf 200°C vorheizen.", "Lachs mit Olivenöl, Zitronensaft, Salz und Pfeffer marinieren.", "Brokkoli in Röschen teilen, Paprika in Streifen schneiden.", "Gemüse auf ein Backblech legen, Lachs darauf setzen.", "15-18 Minuten backen, mit frischem Dill servieren."],
+      "tags": ["omega-3", "proteinreich", "entzündungshemmend"]
+    },
+    "it": {
+      "title": "Salmone Grigliato con Verdure",
+      "ingredients": ["200g filetto di salmone", "1 broccolo", "1 peperone", "2 cucchiai di olio d'oliva", "succo di un limone", "sale, pepe, aneto"],
+      "steps": ["Preriscaldare il forno a 200°C.", "Marinare il salmone con olio, limone, sale e pepe.", "Dividere il broccolo, tagliare il peperone a strisce.", "Disporre le verdure su una teglia, posare il salmone.", "Cuocere 15-18 minuti, servire con aneto fresco."],
+      "tags": ["omega-3", "ricco di proteine", "antinfiammatorio"]
+    }
+  },
+  {
+    "id": "knochenbruehe",
+    "symptom_tags": ["gelenkschmerzen", "dolori articolari", "gelenke", "articolazioni"],
+    "image_url": "https://images.unsplash.com/photo-1603105037880-880cd4edfb0d?w=600&h=400&fit=crop",
+    "time_min": 15,
+    "de": {
+      "title": "Wärmende Knochenbrühe",
+      "ingredients": ["500 ml Bio-Knochenbrühe", "1 cm Ingwer", "1 Knoblauchzehe", "1 Frühlingszwiebel", "1 EL Sojasauce", "Prise Kurkuma"],
+      "steps": ["Knochenbrühe in einem Topf erhitzen.", "Ingwer schälen und fein reiben, Knoblauch pressen.", "Beides zur Brühe geben und 5 Minuten köcheln.", "Sojasauce und Kurkuma einrühren.", "Frühlingszwiebel in Ringe schneiden und darüber streuen."],
+      "tags": ["kollagenreich", "wärmend", "gelenkstärkend"]
+    },
+    "it": {
+      "title": "Brodo d'Ossa Riscaldante",
+      "ingredients": ["500 ml brodo d'ossa biologico", "1 cm zenzero", "1 spicchio d'aglio", "1 cipollotto", "1 cucchiaio di salsa di soia", "pizzico di curcuma"],
+      "steps": ["Scaldare il brodo in un pentolino.", "Sbucciare e grattugiare lo zenzero, schiacciare l'aglio.", "Aggiungere al brodo e cuocere 5 minuti.", "Aggiungere salsa di soia e curcuma.", "Tagliare il cipollotto e cospargere sopra."],
+      "tags": ["ricco di collagene", "riscaldante", "per le articolazioni"]
+    }
+  },
+  {
+    "id": "kirsch-schlaf-smoothie",
+    "symptom_tags": ["schlafprobleme", "problemi di sonno", "schlaf", "sonno"],
+    "image_url": "https://images.unsplash.com/photo-1654084789555-a12dd9ec060b?w=600&h=400&fit=crop",
+    "time_min": 5,
+    "de": {
+      "title": "Kirsch-Schlaf-Smoothie",
+      "ingredients": ["150g Sauerkirschen (TK)", "1 Banane", "150 ml Mandelmilch", "1 EL Honig", "1 Prise Zimt"],
+      "steps": ["Sauerkirschen und Banane in den Mixer geben.", "Mandelmilch und Honig hinzufügen.", "30 Sekunden mixen.", "Mit Zimt bestreuen.", "1 Stunde vor dem Schlafengehen trinken."],
+      "tags": ["melatoninreich", "beruhigend", "abendrezept"]
+    },
+    "it": {
+      "title": "Smoothie alla Ciliegia per il Sonno",
+      "ingredients": ["150g ciliegie acide (surgelate)", "1 banana", "150 ml latte di mandorla", "1 cucchiaio di miele", "1 pizzico di cannella"],
+      "steps": ["Mettere le ciliegie e la banana nel frullatore.", "Aggiungere latte di mandorla e miele.", "Frullare per 30 secondi.", "Cospargere con cannella.", "Bere 1 ora prima di andare a dormire."],
+      "tags": ["ricco di melatonina", "rilassante", "ricetta serale"]
+    }
+  },
+  {
+    "id": "kamille-honig-milch",
+    "symptom_tags": ["schlafprobleme", "problemi di sonno", "schlaf", "sonno"],
+    "image_url": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=600&h=400&fit=crop&q=75",
+    "time_min": 10,
+    "de": {
+      "title": "Kamille-Honig-Milch",
+      "ingredients": ["250 ml warme Milch", "1 Beutel Kamillentee", "1 TL Honig", "1 Prise Muskat", "1/2 TL Vanilleextrakt"],
+      "steps": ["Milch in einem Topf erwärmen (nicht kochen).", "Kamillentee-Beutel hinzufügen und 5 Minuten ziehen lassen.", "Teebeutel entfernen.", "Honig, Muskat und Vanille einrühren.", "Warm vor dem Schlafengehen trinken."],
+      "tags": ["beruhigend", "schlaffördernd", "abendrezept"]
+    },
+    "it": {
+      "title": "Latte alla Camomilla e Miele",
+      "ingredients": ["250 ml latte caldo", "1 bustina di camomilla", "1 cucchiaino di miele", "1 pizzico di noce moscata", "1/2 cucchiaino di estratto di vaniglia"],
+      "steps": ["Scaldare il latte (senza bollire).", "Aggiungere la bustina di camomilla e lasciare in infusione 5 minuti.", "Rimuovere la bustina.", "Aggiungere miele, noce moscata e vaniglia.", "Bere caldo prima di dormire."],
+      "tags": ["rilassante", "favorisce il sonno", "ricetta serale"]
+    }
+  },
+  {
+    "id": "banane-walnuss-porridge",
+    "symptom_tags": ["schlafprobleme", "problemi di sonno", "schlaf", "sonno"],
+    "image_url": "https://images.unsplash.com/photo-1615865417491-9941019fbc00?w=600&h=400&fit=crop&q=75",
+    "time_min": 10,
+    "de": {
+      "title": "Bananen-Walnuss-Porridge",
+      "ingredients": ["50g Haferflocken", "200 ml Milch", "1 Banane", "30g Walnüsse", "1 TL Honig", "Prise Zimt"],
+      "steps": ["Haferflocken mit Milch in einem Topf aufkochen.", "3-4 Minuten unter Rühren köcheln lassen.", "Banane in Scheiben schneiden.", "Porridge in eine Schüssel geben, Banane und Walnüsse darauf verteilen.", "Mit Honig und Zimt verfeinern."],
+      "tags": ["tryptophanreich", "sättigend", "abendrezept"]
+    },
+    "it": {
+      "title": "Porridge con Banana e Noci",
+      "ingredients": ["50g fiocchi d'avena", "200 ml latte", "1 banana", "30g noci", "1 cucchiaino di miele", "pizzico di cannella"],
+      "steps": ["Portare a ebollizione i fiocchi d'avena con il latte.", "Cuocere 3-4 minuti mescolando.", "Tagliare la banana a fette.", "Versare il porridge in una ciotola, aggiungere banana e noci.", "Guarnire con miele e cannella."],
+      "tags": ["ricco di triptofano", "saziante", "ricetta serale"]
+    }
+  },
+  {
+    "id": "avocado-toast",
+    "symptom_tags": ["stress", "nerven"],
+    "image_url": "https://images.unsplash.com/photo-1687276287139-88f7333c8ca4?w=600&h=400&fit=crop",
+    "time_min": 10,
+    "de": {
+      "title": "Avocado-Toast mit Ei",
+      "ingredients": ["2 Scheiben Vollkornbrot", "1 reife Avocado", "2 Eier", "Chiliflocken", "Salz, Pfeffer", "Frischer Koriander"],
+      "steps": ["Brot toasten.", "Avocado halbieren, entkernen und mit einer Gabel zerdrücken.", "Avocado auf dem Toast verteilen, mit Salz und Pfeffer würzen.", "Eier in einer Pfanne nach Wunsch braten.", "Eier auf den Toast setzen, mit Chiliflocken und Koriander bestreuen."],
+      "tags": ["B-Vitamine", "stressabbauend", "sättigend"]
+    },
+    "it": {
+      "title": "Avocado Toast con Uovo",
+      "ingredients": ["2 fette di pane integrale", "1 avocado maturo", "2 uova", "fiocchi di peperoncino", "sale, pepe", "coriandolo fresco"],
+      "steps": ["Tostare il pane.", "Tagliare l'avocado e schiacciarlo con una forchetta.", "Spalmare l'avocado sul toast, condire con sale e pepe.", "Cuocere le uova in padella a piacere.", "Posare le uova sul toast, cospargere con peperoncino e coriandolo."],
+      "tags": ["vitamine B", "anti-stress", "saziante"]
+    }
+  },
+  {
+    "id": "warmer-kakao-adaptogen",
+    "symptom_tags": ["stress", "nerven", "entspannung"],
+    "image_url": "https://images.unsplash.com/photo-1649069041246-457021025dea?w=600&h=400&fit=crop&q=75",
+    "time_min": 5,
+    "de": {
+      "title": "Warmer Kakao mit Adaptogenen",
+      "ingredients": ["250 ml Hafermilch", "2 EL Kakaopulver", "1 TL Honig", "1/2 TL Zimt", "1 Prise Meersalz"],
+      "steps": ["Hafermilch in einem Topf erhitzen.", "Kakaopulver einrühren bis er sich auflöst.", "Zimt und Meersalz hinzufügen.", "In eine Tasse füllen.", "Mit Honig süßen und warm genießen."],
+      "tags": ["magnesiumreich", "beruhigend", "wärmend"]
+    },
+    "it": {
+      "title": "Cacao Caldo Rilassante",
+      "ingredients": ["250 ml latte d'avena", "2 cucchiai di cacao in polvere", "1 cucchiaino di miele", "1/2 cucchiaino di cannella", "1 pizzico di sale marino"],
+      "steps": ["Scaldare il latte d'avena in un pentolino.", "Mescolare il cacao fino a scioglierlo.", "Aggiungere cannella e sale marino.", "Versare in una tazza.", "Dolcificare con miele e gustare caldo."],
+      "tags": ["ricco di magnesio", "rilassante", "riscaldante"]
+    }
+  },
+  {
+    "id": "schoko-beeren-teller",
+    "symptom_tags": ["stress", "nerven", "stimmung"],
+    "image_url": "https://images.unsplash.com/photo-1654084789555-a12dd9ec060b?w=600&h=400&fit=crop&q=75",
+    "time_min": 5,
+    "de": {
+      "title": "Dunkle Schokolade mit Beeren",
+      "ingredients": ["50g dunkle Schokolade (min. 70%)", "100g Himbeeren", "100g Blaubeeren", "2 EL Mandeln", "1 TL Honig"],
+      "steps": ["Schokolade in Stücke brechen.", "Beeren waschen und abtropfen lassen.", "Alles auf einem Teller anrichten.", "Mandeln darüber streuen.", "Mit Honig beträufeln."],
+      "tags": ["antioxidantienreich", "stimmungsaufhellend", "schnell"]
+    },
+    "it": {
+      "title": "Cioccolato Fondente con Frutti di Bosco",
+      "ingredients": ["50g cioccolato fondente (min. 70%)", "100g lamponi", "100g mirtilli", "2 cucchiai di mandorle", "1 cucchiaino di miele"],
+      "steps": ["Spezzare il cioccolato.", "Lavare e scolare i frutti di bosco.", "Disporre tutto su un piatto.", "Cospargere con le mandorle.", "Aggiungere il miele."],
+      "tags": ["ricco di antiossidanti", "migliora l'umore", "veloce"]
+    }
+  },
+  {
+    "id": "huehnersuppe-klassisch",
+    "symptom_tags": ["erkältung", "raffreddore", "immunsystem", "sistema immunitario"],
+    "image_url": "https://images.unsplash.com/photo-1603105037880-880cd4edfb0d?w=600&h=400&fit=crop&q=75",
+    "time_min": 30,
+    "de": {
+      "title": "Klassische Hühnersuppe",
+      "ingredients": ["300g Hühnerbrust", "2 Karotten", "2 Stangen Sellerie", "1 Zwiebel", "1L Gemüsebrühe", "100g Nudeln", "Petersilie, Salz, Pfeffer"],
+      "steps": ["Hühnerbrust in der Brühe 15 Minuten garen, dann in Stücke schneiden.", "Karotten, Sellerie und Zwiebel klein schneiden.", "Gemüse in die Brühe geben und 10 Minuten kochen.", "Nudeln hinzufügen und gar kochen.", "Hühnchen zurückgeben, mit Petersilie, Salz und Pfeffer abschmecken."],
+      "tags": ["immunstärkend", "wärmend", "klassiker"]
+    },
+    "it": {
+      "title": "Zuppa di Pollo Classica",
+      "ingredients": ["300g petto di pollo", "2 carote", "2 gambi di sedano", "1 cipolla", "1L brodo vegetale", "100g pasta", "prezzemolo, sale, pepe"],
+      "steps": ["Cuocere il petto di pollo nel brodo per 15 minuti, poi tagliarlo a pezzi.", "Tagliare carote, sedano e cipolla.", "Aggiungere le verdure al brodo e cuocere 10 minuti.", "Aggiungere la pasta e cuocere.", "Rimettere il pollo, condire con prezzemolo, sale e pepe."],
+      "tags": ["immunostimolante", "riscaldante", "classico"]
+    }
+  },
+  {
+    "id": "ingwer-zitronen-shot",
+    "symptom_tags": ["erkältung", "raffreddore", "immunsystem", "sistema immunitario"],
+    "image_url": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=600&h=400&fit=crop&q=60",
+    "time_min": 10,
+    "de": {
+      "title": "Ingwer-Zitronen-Honig-Shot",
+      "ingredients": ["5 cm frischer Ingwer", "2 Zitronen", "2 EL Honig", "1 Prise Cayennepfeffer", "100 ml warmes Wasser"],
+      "steps": ["Ingwer schälen und fein reiben.", "Zitronen auspressen.", "Ingwer, Zitronensaft, Honig und Cayennepfeffer mit warmem Wasser verrühren.", "Durch ein Sieb abseihen.", "Sofort als Shot trinken."],
+      "tags": ["vitamin-c", "immunbooster", "scharf"]
+    },
+    "it": {
+      "title": "Shot di Zenzero, Limone e Miele",
+      "ingredients": ["5 cm zenzero fresco", "2 limoni", "2 cucchiai di miele", "1 pizzico di pepe di cayenna", "100 ml acqua tiepida"],
+      "steps": ["Sbucciare e grattugiare lo zenzero.", "Spremere i limoni.", "Mescolare zenzero, succo di limone, miele e cayenna con acqua tiepida.", "Filtrare con un colino.", "Bere subito come shot."],
+      "tags": ["vitamina C", "immunostimolante", "piccante"]
+    }
+  },
+  {
+    "id": "knoblauch-brokkoli",
+    "symptom_tags": ["erkältung", "raffreddore", "immunsystem", "sistema immunitario"],
+    "image_url": "https://images.unsplash.com/photo-1505253716362-afaea1d3d1af?w=600&h=400&fit=crop&q=75",
+    "time_min": 15,
+    "de": {
+      "title": "Knoblauch-Brokkoli-Pfanne",
+      "ingredients": ["1 großer Brokkoli", "3 Knoblauchzehen", "2 EL Olivenöl", "1 EL Sojasauce", "Sesamsamen", "Chiliflocken"],
+      "steps": ["Brokkoli in kleine Röschen teilen und 3 Minuten blanchieren.", "Knoblauch schälen und in Scheiben schneiden.", "Olivenöl in einer Pfanne erhitzen, Knoblauch goldbraun anbraten.", "Brokkoli hinzufügen und 5 Minuten scharf anbraten.", "Mit Sojasauce ablöschen, mit Sesam und Chili bestreuen."],
+      "tags": ["vitamin-c", "allicin", "immunstärkend"]
+    },
+    "it": {
+      "title": "Broccoli Saltati all'Aglio",
+      "ingredients": ["1 broccolo grande", "3 spicchi d'aglio", "2 cucchiai di olio d'oliva", "1 cucchiaio di salsa di soia", "semi di sesamo", "fiocchi di peperoncino"],
+      "steps": ["Dividere il broccolo in cimette e sbollentare 3 minuti.", "Sbucciare l'aglio e tagliarlo a fettine.", "Scaldare l'olio in padella, rosolare l'aglio.", "Aggiungere i broccoli e saltare 5 minuti.", "Sfumare con la soia, cospargere con sesamo e peperoncino."],
+      "tags": ["vitamina C", "allicina", "immunostimolante"]
+    }
+  },
+  {
+    "id": "beeren-smoothie-bowl",
+    "symptom_tags": ["hautprobleme", "problemi di pelle", "haut", "pelle"],
+    "image_url": "https://images.unsplash.com/photo-1654084789555-a12dd9ec060b?w=600&h=400&fit=crop&q=60",
+    "time_min": 10,
+    "de": {
+      "title": "Antioxidantien Beeren-Bowl",
+      "ingredients": ["150g gemischte Beeren (TK)", "1 Banane", "100 ml Kokosmilch", "2 EL Acai-Pulver", "Toppings: Kokosflocken, Chiasamen, Granola"],
+      "steps": ["Gefrorene Beeren, Banane und Kokosmilch mixen.", "Acai-Pulver hinzufügen und nochmals mixen.", "Die Masse sollte dickflüssig wie Eis sein.", "In eine Schüssel füllen.", "Mit Kokosflocken, Chiasamen und Granola toppen."],
+      "tags": ["antioxidantienreich", "hautschützend", "vitaminreich"]
+    },
+    "it": {
+      "title": "Bowl Antiossidante ai Frutti di Bosco",
+      "ingredients": ["150g frutti di bosco misti (surgelati)", "1 banana", "100 ml latte di cocco", "2 cucchiai di polvere di açaí", "topping: cocco, semi di chia, granola"],
+      "steps": ["Frullare i frutti surgelati, banana e latte di cocco.", "Aggiungere la polvere di açaí e frullare ancora.", "La consistenza deve essere densa come un gelato.", "Versare in una ciotola.", "Guarnire con cocco, semi di chia e granola."],
+      "tags": ["ricco di antiossidanti", "protegge la pelle", "ricco di vitamine"]
+    }
+  },
+  {
+    "id": "avocado-lachs-salat",
+    "symptom_tags": ["hautprobleme", "problemi di pelle", "haut", "pelle"],
+    "image_url": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&h=400&fit=crop&q=75",
+    "time_min": 15,
+    "de": {
+      "title": "Avocado-Lachs-Salat",
+      "ingredients": ["150g Räucherlachs", "1 Avocado", "100g Rucola", "1/2 Gurke", "2 EL Olivenöl", "Saft einer Zitrone", "Dill"],
+      "steps": ["Rucola waschen und auf einem Teller anrichten.", "Avocado halbieren und in Scheiben schneiden.", "Gurke in Halbmonde schneiden.", "Räucherlachs-Scheiben drapieren.", "Mit Olivenöl, Zitronensaft und Dill garnieren."],
+      "tags": ["omega-3", "vitamin-e", "hautpflegend"]
+    },
+    "it": {
+      "title": "Insalata di Avocado e Salmone",
+      "ingredients": ["150g salmone affumicato", "1 avocado", "100g rucola", "1/2 cetriolo", "2 cucchiai di olio d'oliva", "succo di un limone", "aneto"],
+      "steps": ["Lavare la rucola e disporla su un piatto.", "Tagliare l'avocado a fette.", "Tagliare il cetriolo a mezzalune.", "Disporre il salmone affumicato.", "Condire con olio, limone e aneto."],
+      "tags": ["omega-3", "vitamina E", "cura della pelle"]
+    }
+  },
+  {
+    "id": "suesskartoffel-curry",
+    "symptom_tags": ["hautprobleme", "problemi di pelle", "haut", "pelle"],
+    "image_url": "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=600&h=400&fit=crop&q=75",
+    "time_min": 30,
+    "de": {
+      "title": "Süßkartoffel-Curry",
+      "ingredients": ["2 Süßkartoffeln", "400 ml Kokosmilch", "1 Dose Kichererbsen", "2 TL Currypaste", "1 Handvoll Spinat", "Reis als Beilage"],
+      "steps": ["Süßkartoffeln schälen und würfeln.", "In einem Topf mit Currypaste 2 Minuten anbraten.", "Kokosmilch und Kichererbsen hinzufügen.", "20 Minuten köcheln bis Süßkartoffeln weich sind.", "Spinat unterrühren und mit Reis servieren."],
+      "tags": ["beta-carotin", "antioxidantien", "wärmend"]
+    },
+    "it": {
+      "title": "Curry di Patate Dolci",
+      "ingredients": ["2 patate dolci", "400 ml latte di cocco", "1 lattina di ceci", "2 cucchiaini di pasta di curry", "1 manciata di spinaci", "riso come contorno"],
+      "steps": ["Sbucciare le patate dolci e tagliarle a cubetti.", "Rosolare in pentola con la pasta di curry per 2 minuti.", "Aggiungere latte di cocco e ceci.", "Cuocere 20 minuti fino a che le patate sono morbide.", "Aggiungere gli spinaci e servire con riso."],
+      "tags": ["beta-carotene", "antiossidanti", "riscaldante"]
+    }
+  },
+  {
+    "id": "entzuendungshemmendes-porridge",
+    "symptom_tags": ["rückenschmerzen", "mal di schiena", "entzündung"],
+    "image_url": "https://images.unsplash.com/photo-1615865417491-9941019fbc00?w=600&h=400&fit=crop&q=60",
+    "time_min": 10,
+    "de": {
+      "title": "Anti-Entzündungs-Porridge",
+      "ingredients": ["50g Haferflocken", "200 ml Mandelmilch", "1 TL Kurkuma", "1/2 TL Zimt", "1 EL Walnüsse", "Blaubeeren"],
+      "steps": ["Haferflocken mit Mandelmilch aufkochen.", "Kurkuma und Zimt einrühren.", "3-4 Minuten köcheln lassen.", "In eine Schüssel geben.", "Mit Walnüssen und Blaubeeren toppen."],
+      "tags": ["entzündungshemmend", "omega-3", "wärmend"]
+    },
+    "it": {
+      "title": "Porridge Antinfiammatorio",
+      "ingredients": ["50g fiocchi d'avena", "200 ml latte di mandorla", "1 cucchiaino di curcuma", "1/2 cucchiaino di cannella", "1 cucchiaio di noci", "mirtilli"],
+      "steps": ["Portare a ebollizione i fiocchi d'avena con il latte.", "Aggiungere curcuma e cannella.", "Cuocere 3-4 minuti.", "Versare in una ciotola.", "Guarnire con noci e mirtilli."],
+      "tags": ["antinfiammatorio", "omega-3", "riscaldante"]
+    }
+  },
+  {
+    "id": "gruener-power-smoothie",
+    "symptom_tags": ["rückenschmerzen", "mal di schiena", "muskeln"],
+    "image_url": "https://images.unsplash.com/photo-1654084767590-a38c7f0f5bd3?w=600&h=400&fit=crop&q=75",
+    "time_min": 5,
+    "de": {
+      "title": "Grüner Power-Smoothie",
+      "ingredients": ["1 Handvoll Grünkohl", "1 Banane", "1/2 Ananas", "1 cm Ingwer", "200 ml Kokoswasser", "1 EL Hanfsamen"],
+      "steps": ["Grünkohl waschen und grob zerkleinern.", "Ananas schälen und in Stücke schneiden.", "Ingwer schälen.", "Alle Zutaten in den Mixer geben.", "Glatt mixen und sofort trinken."],
+      "tags": ["magnesiumreich", "entzündungshemmend", "vitaminreich"]
+    },
+    "it": {
+      "title": "Smoothie Verde Potente",
+      "ingredients": ["1 manciata di cavolo riccio", "1 banana", "1/2 ananas", "1 cm zenzero", "200 ml acqua di cocco", "1 cucchiaio di semi di canapa"],
+      "steps": ["Lavare il cavolo e spezzettarlo.", "Sbucciare l'ananas e tagliarla.", "Sbucciare lo zenzero.", "Mettere tutto nel frullatore.", "Frullare fino a ottenere un composto liscio."],
+      "tags": ["ricco di magnesio", "antinfiammatorio", "ricco di vitamine"]
+    }
+  },
+  {
+    "id": "magnesium-salat",
+    "symptom_tags": ["rückenschmerzen", "mal di schiena", "muskeln"],
+    "image_url": "https://images.unsplash.com/photo-1505253716362-afaea1d3d1af?w=600&h=400&fit=crop&q=60",
+    "time_min": 15,
+    "de": {
+      "title": "Magnesium-Mediterran-Salat",
+      "ingredients": ["100g Blattspinat", "50g Quinoa (gekocht)", "1/2 Avocado", "30g Mandeln", "50g getrocknete Tomaten", "2 EL Olivenöl", "Balsamico"],
+      "steps": ["Spinat waschen und auf einem Teller anrichten.", "Gekochte Quinoa darüber verteilen.", "Avocado in Scheiben schneiden und dazulegen.", "Mandeln hacken und darüber streuen.", "Getrocknete Tomaten hinzufügen, mit Olivenöl und Balsamico beträufeln."],
+      "tags": ["magnesiumreich", "mediterran", "muskelstärkend"]
+    },
+    "it": {
+      "title": "Insalata Mediterranea al Magnesio",
+      "ingredients": ["100g spinaci", "50g quinoa (cotta)", "1/2 avocado", "30g mandorle", "50g pomodori secchi", "2 cucchiai di olio d'oliva", "balsamico"],
+      "steps": ["Lavare gli spinaci e disporli su un piatto.", "Distribuire la quinoa cotta sopra.", "Tagliare l'avocado a fette.", "Tritare le mandorle e cospargere.", "Aggiungere i pomodori secchi, condire con olio e balsamico."],
+      "tags": ["ricco di magnesio", "mediterraneo", "per i muscoli"]
+    }
+  },
+  {
+    "id": "blaubeer-brain-smoothie",
+    "symptom_tags": ["konzentration", "concentrazione", "gedächtnis", "memoria"],
+    "image_url": "https://images.unsplash.com/photo-1654084789555-a12dd9ec060b?w=600&h=400&fit=crop&q=50",
+    "time_min": 5,
+    "de": {
+      "title": "Blaubeer-Brain-Smoothie",
+      "ingredients": ["150g Blaubeeren", "1 Banane", "200 ml Hafermilch", "1 EL Walnüsse", "1 TL Kakao", "1 TL Leinsamen"],
+      "steps": ["Alle Zutaten in den Mixer geben.", "30 Sekunden auf höchster Stufe mixen.", "Bei Bedarf mehr Milch hinzufügen.", "In ein Glas füllen.", "Mit ein paar Blaubeeren garnieren."],
+      "tags": ["brain-food", "antioxidantienreich", "omega-3"]
+    },
+    "it": {
+      "title": "Smoothie ai Mirtilli per il Cervello",
+      "ingredients": ["150g mirtilli", "1 banana", "200 ml latte d'avena", "1 cucchiaio di noci", "1 cucchiaino di cacao", "1 cucchiaino di semi di lino"],
+      "steps": ["Mettere tutti gli ingredienti nel frullatore.", "Frullare 30 secondi alla massima velocità.", "Aggiungere più latte se necessario.", "Versare in un bicchiere.", "Guarnire con qualche mirtillo."],
+      "tags": ["brain-food", "ricco di antiossidanti", "omega-3"]
+    }
+  },
+  {
+    "id": "walnuss-pesto-pasta",
+    "symptom_tags": ["konzentration", "concentrazione", "gedächtnis", "memoria"],
+    "image_url": "https://images.unsplash.com/photo-1611270629569-8b357cb88da9?w=600&h=400&fit=crop",
+    "time_min": 20,
+    "de": {
+      "title": "Walnuss-Pesto-Pasta",
+      "ingredients": ["200g Vollkornspaghetti", "80g Walnüsse", "50g Parmesan", "1 Bund Basilikum", "2 EL Olivenöl", "1 Knoblauchzehe", "Salz, Pfeffer"],
+      "steps": ["Pasta nach Packungsanweisung kochen.", "Walnüsse, Parmesan, Basilikum, Knoblauch und Olivenöl im Mixer zerkleinern.", "Mit Salz und Pfeffer abschmecken.", "Pasta abgießen (etwas Kochwasser auffangen).", "Pesto unter die Pasta heben, mit Kochwasser die Konsistenz anpassen."],
+      "tags": ["omega-3", "brain-food", "sättigend"]
+    },
+    "it": {
+      "title": "Pasta al Pesto di Noci",
+      "ingredients": ["200g spaghetti integrali", "80g noci", "50g parmigiano", "1 mazzo di basilico", "2 cucchiai di olio d'oliva", "1 spicchio d'aglio", "sale, pepe"],
+      "steps": ["Cuocere la pasta secondo le istruzioni.", "Frullare noci, parmigiano, basilico, aglio e olio.", "Condire con sale e pepe.", "Scolare la pasta (tenere un po' di acqua di cottura).", "Mescolare il pesto alla pasta, aggiustare la consistenza con l'acqua di cottura."],
+      "tags": ["omega-3", "brain-food", "saziante"]
+    }
+  },
+  {
+    "id": "omega-3-poke-bowl",
+    "symptom_tags": ["konzentration", "concentrazione", "gedächtnis", "memoria"],
+    "image_url": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=600&h=400&fit=crop&q=75",
+    "time_min": 20,
+    "de": {
+      "title": "Omega-3 Poké Bowl",
+      "ingredients": ["150g frischer Lachs (Sushi-Qualität)", "150g Sushi-Reis", "1 Avocado", "1/2 Gurke", "Edamame", "2 EL Sojasauce", "Sesam, Nori"],
+      "steps": ["Sushi-Reis kochen und abkühlen lassen.", "Lachs in Würfel schneiden.", "Avocado und Gurke in Scheiben schneiden.", "Reis in eine Schüssel geben, alle Zutaten darauf anrichten.", "Mit Sojasauce beträufeln und mit Sesam und Nori bestreuen."],
+      "tags": ["omega-3", "brain-food", "proteinreich"]
+    },
+    "it": {
+      "title": "Poké Bowl Omega-3",
+      "ingredients": ["150g salmone fresco (qualità sushi)", "150g riso per sushi", "1 avocado", "1/2 cetriolo", "edamame", "2 cucchiai di salsa di soia", "sesamo, nori"],
+      "steps": ["Cuocere il riso per sushi e lasciar raffreddare.", "Tagliare il salmone a cubetti.", "Tagliare avocado e cetriolo a fette.", "Mettere il riso in una ciotola, disporre tutti gli ingredienti sopra.", "Condire con salsa di soia, cospargere con sesamo e nori."],
+      "tags": ["omega-3", "brain-food", "ricco di proteine"]
+    }
+  }
+]
