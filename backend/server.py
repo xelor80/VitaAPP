@@ -738,21 +738,32 @@ async def get_products(tags: str = "", lang: str = "de"):
 
 
 @api_router.get("/recipes")
-async def get_recipes(tags: str = ""):
-    analyses = await db.analyses.find(
-        {}, {"_id": 0, "recipes": 1}
-    ).sort("created_at", -1).limit(20).to_list(20)
-    all_recipes = []
-    for a in analyses:
-        for r in a.get("recipes", []):
-            all_recipes.append(r)
+async def get_recipes(tags: str = "", lang: str = "de"):
+    # Return recipes from the static catalog, localized
+    results = []
+    for recipe in RECIPE_CATALOG:
+        localized = recipe.get(lang, recipe.get("de", {}))
+        entry = {
+            "id": recipe["id"],
+            "title": localized.get("title", ""),
+            "ingredients": localized.get("ingredients", []),
+            "steps": localized.get("steps", []),
+            "tags": localized.get("tags", []),
+            "time_min": recipe.get("time_min", 0),
+            "image_url": recipe.get("image_url", ""),
+            "symptom_tags": recipe.get("symptom_tags", []),
+        }
+        results.append(entry)
+
     if tags:
         tag_list = [t.strip().lower() for t in tags.split(",")]
-        all_recipes = [
-            r for r in all_recipes
-            if any(t in [rt.lower() for rt in r.get("tags", [])] for t in tag_list)
+        filtered = [
+            r for r in results
+            if any(t in r["symptom_tags"] for t in tag_list)
         ]
-    return all_recipes
+        return filtered if filtered else results
+
+    return results
 
 
 @api_router.post("/track/click")
