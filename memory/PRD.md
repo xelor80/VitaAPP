@@ -69,10 +69,26 @@ VitaGuide ist eine kostenlose Gesundheits-Informations-App, die über eine KI-An
 - **products:** Produkt-Katalog (geseedet beim Start)
 - **click_events:** Affiliate-Click-Events mit Timestamp
 
-## Monetarisierung
-- Affiliate-Links mit UTM-Tracking zu VitaNatura-Shop
-- Click-Event-Tracking in MongoDB für Analytics
-- Erweiterbar um Premium-Features
+## Affiliate-Marke
+- **Marke:** Joachim Kaeser – Natürliche Nahrungsergänzungsmittel aus der Schweiz
+- **Website:** https://joachim-kaeser.de
+- **Produkte im Katalog:** 30 Produkte, kategorisiert nach Beschwerden
+- **Affiliate-Parameter:** `?ref=vitaguide&utm_source=vitaguide&utm_medium=app`
+- **Hinweis:** Affiliate-URLs sind Platzhalter-Links mit UTM-Parametern. Echte Affiliate-Links werden später eingesetzt.
+
+### Produkt-Zuordnung zu Symptomen:
+| Symptom | Empfohlene Produkte |
+|---------|-------------------|
+| Müdigkeit | B-Komplex-Kolloid, Eisen, NADH, Q10 Power, Factor D, Essentials Direct |
+| Kopfschmerzen | Magnesium Direct, B-Komplex-Kolloid, Omega 3 |
+| Verdauung | Microbiom Complex, Leber Vital, Grüne Entgiftung, Metabol Control |
+| Gelenkschmerzen | Gelenk Kraft, Weihrauch 2.0, Kurkuma-Komplex, Omega 3 |
+| Schlafprobleme | Magnesium Direct, B-Komplex-Kolloid |
+| Stress | Magnesium Direct, B-Komplex-Kolloid, Mental Kraft |
+| Erkältung | Immunkraft, Echinacea Kolloidal, Vitamin C Retard, Kolloidales Zink |
+| Hautprobleme | Haut Factor, Collagen Bi-Caps, Hyaluronsäure, Haar Aktiv, Schwarzkümmelöl |
+| Rückenschmerzen | Gelenk Kraft, Weihrauch 2.0, Magnesium Direct |
+| Konzentration | Mental Kraft, NADH, Omega 3, B-Komplex-Kolloid |
 
 ## Geplante Features (Post-MVP)
 - [ ] Mehrsprachigkeit (Italienisch, Englisch)
