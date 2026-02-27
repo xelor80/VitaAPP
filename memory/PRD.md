@@ -90,6 +90,14 @@ VitaGuide ist eine kostenlose Gesundheits-Informations-App, die über eine KI-An
 | Rückenschmerzen | Gelenk Kraft, Weihrauch 2.0, Magnesium Direct |
 | Konzentration | Mental Kraft, NADH, Omega 3, B-Komplex-Kolloid |
 
+### 8. Symptom-Tagebuch + Trend-Ansicht
+- **Tägliches Tracking:** Befinden (1-5), Schlaf (1-5), Stress (1-5), Wasser (Gläser), Bewegung (Minuten), Notizen
+- **Upsert-Logik:** Ein Eintrag pro Tag, wird bei erneutem Speichern aktualisiert
+- **Trend-Ansicht:** Durchschnittswerte (Mood/Schlaf/Stress/Wasser), Tagesübersicht mit Balkendiagramm
+- **KI-Lifestyle-Tipps:** GPT-4o analysiert die letzten 14 Tage und gibt allgemeine Lifestyle-Empfehlungen (kein Treatment)
+- **Erkannte Muster:** Automatische Trend-Erkennung (aufwärts/abwärts/stabil) pro Bereich
+- **Navigation:** Tagebuch-Button auf dem Home-Screen mit Buch-Icon
+
 ## Geplante Features (Post-MVP)
 - [ ] Mehrsprachigkeit (Italienisch, Englisch)
 - [ ] Separate App-Instanzen für DE/IT
