@@ -651,14 +651,13 @@ const styles = StyleSheet.create({
 
   // Recipes
   recipeCard: {
-    backgroundColor: '#FFFFFF', borderRadius: 16, padding: 16, marginBottom: 12,
+    backgroundColor: '#FFFFFF', borderRadius: 16, marginBottom: 12, overflow: 'hidden',
     shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 1,
   },
-  recipeTop: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  recipeIconWrap: {
-    width: 44, height: 44, borderRadius: 12, backgroundColor: '#E8F5E9',
-    justifyContent: 'center', alignItems: 'center',
+  recipeImage: {
+    width: '100%', height: 160, borderTopLeftRadius: 16, borderTopRightRadius: 16,
   },
+  recipeContent: { padding: 14 },
   recipeTitle: { fontSize: 16, fontWeight: '700', color: '#1A2D26' },
   recipeMeta: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
   recipeTime: { fontSize: 13, color: '#5C7A6F' },
@@ -667,6 +666,22 @@ const styles = StyleSheet.create({
   recipeTagsRow: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 10, gap: 6 },
   recipeTag: { backgroundColor: '#E8F5E9', borderRadius: 12, paddingVertical: 4, paddingHorizontal: 10 },
   recipeTagText: { fontSize: 12, fontWeight: '600', color: '#2C5F78' },
+  // Recipe detail (expanded)
+  recipeDetail: {
+    paddingHorizontal: 14, paddingBottom: 14,
+    borderTopWidth: 1, borderTopColor: '#F0F4F1',
+  },
+  recipeSection: { marginTop: 12 },
+  recipeSectionTitle: { fontSize: 15, fontWeight: '700', color: '#1A2D26', marginBottom: 8 },
+  recipeIngRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 2 },
+  recipeIngText: { fontSize: 14, color: '#1A2D26', flex: 1 },
+  recipeStepRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginBottom: 10 },
+  recipeStepNum: {
+    width: 24, height: 24, borderRadius: 12, backgroundColor: '#E8F5E9',
+    justifyContent: 'center', alignItems: 'center',
+  },
+  recipeStepNumText: { fontSize: 12, fontWeight: '700', color: '#4A8B71' },
+  recipeStepText: { fontSize: 14, color: '#1A2D26', flex: 1, lineHeight: 20 },
 
   // Empty states
   emptyState: { alignItems: 'center', paddingVertical: 40, gap: 12 },
