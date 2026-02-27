@@ -719,12 +719,13 @@ async def get_analysis(analysis_id: str):
 
 
 @api_router.get("/products")
-async def get_products(tags: str = ""):
+async def get_products(tags: str = "", lang: str = "de"):
+    catalog = PRODUCT_CATALOG_IT if lang == "it" else PRODUCT_CATALOG
     if tags:
         tag_list = [t.strip().lower() for t in tags.split(",")]
-        filtered = [p for p in PRODUCT_CATALOG if any(t in p.get("tags", []) for t in tag_list)]
-        return filtered if filtered else PRODUCT_CATALOG
-    return PRODUCT_CATALOG
+        filtered = [p for p in catalog if any(t in p.get("tags", []) for t in tag_list)]
+        return filtered if filtered else catalog
+    return catalog
 
 
 @api_router.get("/recipes")
