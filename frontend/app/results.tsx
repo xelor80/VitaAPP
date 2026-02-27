@@ -469,11 +469,17 @@ const styles = StyleSheet.create({
   },
   productTop: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 8 },
   productIcon: {
-    width: 44, height: 44, borderRadius: 12, backgroundColor: '#E8F5E9',
+    width: 64, height: 64, borderRadius: 12, backgroundColor: '#E8F5E9',
     justifyContent: 'center', alignItems: 'center',
   },
+  productImage: {
+    width: 64, height: 64, borderRadius: 12, backgroundColor: '#F7F9F6',
+  },
   productName: { fontSize: 16, fontWeight: '700', color: '#1A2D26' },
-  productPrice: { fontSize: 15, fontWeight: '600', color: '#4A8B71', marginTop: 2 },
+  productPriceRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 2 },
+  productPrice: { fontSize: 15, fontWeight: '600', color: '#4A8B71' },
+  ratingRow: { flexDirection: 'row', alignItems: 'center', gap: 3 },
+  ratingText: { fontSize: 12, fontWeight: '600', color: '#5C7A6F' },
   productReason: { fontSize: 14, color: '#5C7A6F', lineHeight: 20, marginBottom: 4 },
   productNote: { fontSize: 13, color: '#8FA39B', fontStyle: 'italic', marginBottom: 10 },
   shopBtn: {
