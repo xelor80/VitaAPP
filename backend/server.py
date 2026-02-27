@@ -395,7 +395,14 @@ DEINE AUFGABE:
 3. Nenne allgemeine Informationen zu relevanten Vitaminen/Nährstoffen
 4. Schlage 1-2 passende, einfache Rezepte vor
 5. Empfehle passende Produkte aus dem Katalog (wenn angemessen und KEINE Red Flags)
-6. Erkenne Red Flags und priorisiere SICHERHEIT
+6. Erstelle einen einfachen Einnahmeplan für die empfohlenen Produkte (Tageszeit + Dosierung laut Etikett)
+7. Erkenne Red Flags und priorisiere SICHERHEIT
+
+WICHTIG zum Einnahmeplan:
+- Nur "übliche Tageszufuhr laut Etikett" angeben
+- IMMER den Hinweis "Rücksprache mit Arzt/Apotheke empfohlen" hinzufügen
+- Keine therapeutischen Dosierungen
+- Bei Wechselwirkungen zwischen Produkten hinweisen
 
 Antworte AUSSCHLIESSLICH mit einem validen JSON-Objekt. Kein Markdown, kein zusätzlicher Text.
 Das JSON muss exakt dieses Schema haben:
@@ -407,6 +414,9 @@ Das JSON muss exakt dieses Schema haben:
   ],
   "brand_products": [
     {"product_id": "ID aus Katalog", "name": "Produktname", "reason": "Warum passend", "affiliate_url": "", "note": "Hinweis"}
+  ],
+  "supplement_schedule": [
+    {"time": "Morgens|Mittags|Abends|Vor dem Schlafen", "product_name": "Produktname", "dosage": "z.B. 1 Kapsel", "instruction": "z.B. zum Frühstück mit Wasser", "product_id": "ID aus Katalog"}
   ],
   "nutrition_tips": ["Tipp 1", "Tipp 2"],
   "recipes": [
