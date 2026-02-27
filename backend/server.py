@@ -315,6 +315,45 @@ PRODUCT_CATALOG = [
     }
 ]
 
+# ===================== PRODUCT IMAGES =====================
+PRODUCT_IMAGES = {
+    "gelenk-kraft": "https://joachim-kaeser.de/cdn/shop/files/GelenkKraftJoachimKaeser_DE.webp?v=1762436300&width=300",
+    "weihrauch-2-0": "https://joachim-kaeser.de/cdn/shop/files/Weihrauch2.0.webp?v=1762441777&width=300",
+    "kurkuma-komplex": "https://joachim-kaeser.de/cdn/shop/files/CurcumaComplexJoachimKaeser_1.webp?v=1762441896&width=300",
+    "microbiom-complex": "https://joachim-kaeser.de/cdn/shop/files/MicrobiomComplex.webp?v=1762441373&width=300",
+    "leber-vital": "https://joachim-kaeser.de/cdn/shop/files/LeberVital.webp?v=1762441521&width=300",
+    "gruene-entgiftung": "https://joachim-kaeser.de/cdn/shop/files/GreenDetoX.webp?v=1762439283&width=300",
+    "immunkraft": "https://joachim-kaeser.de/cdn/shop/files/ImmunKraftJoachimKaeser.png?v=1762363785&width=300",
+    "echinacea-kolloidal": "https://joachim-kaeser.de/cdn/shop/files/echinacea_bottiglia.webp?v=1750429572&width=300",
+    "vitamin-c-retard": "https://joachim-kaeser.de/cdn/shop/files/VitaminaCRetardo-Joachim-Kaeser.webp?v=1757951672&width=300",
+    "kolloidales-zink": "https://joachim-kaeser.de/cdn/shop/files/BestensgewappnetfuerdiekalteJahreszeit_1.png?v=1762363753&width=300",
+    "b-komplex-kolloid": "https://joachim-kaeser.de/cdn/shop/files/BComplexJoachimKaeser.png?v=1762363783&width=300",
+    "eisen": "https://joachim-kaeser.de/cdn/shop/files/Eisen.png?v=1762363769&width=300",
+    "nadh": "https://joachim-kaeser.de/cdn/shop/files/NADHJoachimKaeser.png?v=1762363799&width=300",
+    "q10-power": "https://joachim-kaeser.de/cdn/shop/files/Q10Power.webp?v=1762439871&width=300",
+    "factor-d": "https://joachim-kaeser.de/cdn/shop/files/FactorDShopbilder.png?v=1762969675&width=300",
+    "essentials-direct": "https://joachim-kaeser.de/cdn/shop/files/oligo_Diretto.webp?v=1752847106&width=300",
+    "magnesium-direct": "https://joachim-kaeser.de/cdn/shop/files/MagnesiumDirektDrops.png?v=1762363759&width=300",
+    "mental-kraft": "https://joachim-kaeser.de/cdn/shop/files/MentalKraftJoachimKaeser.png?v=1762363798&width=300",
+    "haut-factor": "https://joachim-kaeser.de/cdn/shop/files/HautFactor90PresslingeJoachimKaeser_843697a9-b4e4-4067-9b7e-9a7a5a8204dc.webp?v=1762435015&width=300",
+    "collagen-bi-caps": "https://joachim-kaeser.de/cdn/shop/files/collagen-bl-caps_1_1d356d47-c308-439a-908f-857e792b87fd.webp?v=1762438194&width=300",
+    "hyaluronsaeure": "https://joachim-kaeser.de/cdn/shop/files/HyaluronsaureJoachimKaeser.png?v=1762363831&width=300",
+    "haar-aktiv": "https://joachim-kaeser.de/cdn/shop/files/HaarAktivJoachimKaeser.png?v=1762363827&width=300",
+    "schwarzkuemmeloel": "https://joachim-kaeser.de/cdn/shop/files/Schwarzkuemmeloel.png?v=1762363818&width=300",
+    "omega-3": "https://joachim-kaeser.de/cdn/shop/files/Omega3.webp?v=1762436180&width=300",
+    "kreislauf-vital": "https://joachim-kaeser.de/cdn/shop/files/KreislaufVitalJoachimKaeser.png?v=1762363788&width=300",
+    "metabol-control": "https://joachim-kaeser.de/cdn/shop/files/metabol-control-Glp-1.webp?v=1759405768&width=300",
+    "atem-kraft": "https://joachim-kaeser.de/cdn/shop/files/AtemKraft.webp?v=1762438886&width=300",
+    "knochen-direct": "https://joachim-kaeser.de/cdn/shop/files/Osseo-diretto.webp?v=1752847449&width=300",
+    "glutathion-plus": "https://joachim-kaeser.de/cdn/shop/files/Glutathione.webp?v=1762514734&width=300",
+    "visio-pro": "https://joachim-kaeser.de/cdn/shop/files/VisioPro.webp?v=1762437282&width=300",
+}
+
+for _p in PRODUCT_CATALOG:
+    if _p["product_id"] in PRODUCT_IMAGES:
+        _p["image_url"] = PRODUCT_IMAGES[_p["product_id"]]
+
+
 # ===================== SYSTEM PROMPT =====================
 
 SYSTEM_PROMPT = """Du bist ein Ernährungs- und Gesundheitsinformations-Assistent der App "VitaGuide".
@@ -483,7 +522,9 @@ async def analyze_symptoms(data: SymptomInput, request: Request):
                 "affiliate_url": cat["affiliate_url"],
                 "note": p.get("note", ""),
                 "price": cat.get("price", ""),
-                "description": cat.get("description", "")
+                "description": cat.get("description", ""),
+                "image_url": cat.get("image_url", ""),
+                "rating": cat.get("rating", "")
             })
 
     result = {
