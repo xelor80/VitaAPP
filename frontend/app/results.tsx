@@ -658,6 +658,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
     backgroundColor: '#4A8B71', borderRadius: 20, paddingVertical: 12,
   },
+  videoBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    backgroundColor: '#FFF0F0', borderRadius: 20, paddingVertical: 10, marginTop: 6,
+    borderWidth: 1, borderColor: '#F5D0D0',
+  },
+  videoBtnText: { fontSize: 13, fontWeight: '600', color: '#D9534F' },
 
   // Schedule styles
   scheduleSection: {
