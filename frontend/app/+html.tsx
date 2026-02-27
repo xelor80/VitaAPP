@@ -24,6 +24,8 @@ export default function Root({ children }: PropsWithChildren) {
               body > div:first-child { position: fixed !important; top: 0; left: 0; right: 0; bottom: 0; }
               [role="tablist"] [role="tab"] * { overflow: visible !important; }
               [role="heading"], [role="heading"] * { overflow: visible !important; }
+              .rimg-wrap { position:relative !important; width:100% !important; height:180px !important; min-height:180px !important; overflow:hidden !important; border-top-left-radius:16px !important; border-top-right-radius:16px !important; background:#E8F5E9 !important; }
+              .rimg-wrap > div { position:absolute !important; top:0 !important; left:0 !important; width:100% !important; height:100% !important; background-size:cover !important; background-position:center !important; }
             `,
           }}
         />
