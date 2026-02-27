@@ -479,7 +479,9 @@ function RecipesTab({ analysis, router, lang }: { analysis: any; router: any; la
             onPress={() => setExpandedRecipe(isExpanded ? null : (recipe.id || `r${i}`))}
           >
             {recipe.image_url ? (
-              <Image source={{ uri: recipe.image_url }} style={styles.recipeImage} resizeMode="cover" />
+              <View style={styles.recipeImageWrap}>
+                <Image source={{ uri: recipe.image_url }} style={styles.recipeImage} resizeMode="cover" />
+              </View>
             ) : null}
             <View style={styles.recipeContent}>
               <Text style={styles.recipeTitle}>{recipe.title}</Text>
