@@ -34,10 +34,19 @@ VitaGuide ist eine kostenlose Gesundheits-Informations-App, die uber eine KI-Anb
 - Sprachauswahl bereits im Disclaimer moglich
 - Persistente Zustimmung via AsyncStorage
 
-### 4. Symptom-Eingabe (zweisprachig) - DONE
+### 4. Symptom-Eingabe (zweisprachig) - DONE + REFACTORED (27.02.2026)
 - Freitext-Eingabe mit sprachabhangigen Platzhaltern
 - 10 Symptom-Chips pro Sprache (DE/IT)
 - lang Parameter wird an API ubergeben
+- **Refactoring:** index.tsx (405 Zeilen -> 107 Zeilen) in 7 Komponenten aufgeteilt:
+  - components/home/DisclaimerScreen.tsx - Disclaimer mit Sprachumschaltung
+  - components/home/HomeHeader.tsx - Logo, Untertitel, Sprachumschaltung
+  - components/home/SymptomInput.tsx - Textfeld fur Symptom-Beschreibung
+  - components/home/SymptomChips.tsx - 10 klickbare Symptom-Chips
+  - components/home/AnalyzeButton.tsx - Analyse-Button mit Loading-State
+  - components/home/DiaryButton.tsx - Navigation zum Tagebuch
+  - components/home/FooterDisclaimer.tsx - Footer-Hinweis
+  - components/home/homeStyles.ts (gemeinsame Styles)
 
 ### 5. KI-Analyse (GPT-4o, zweisprachig) - DONE
 - Separate System-Prompts fur DE und IT
