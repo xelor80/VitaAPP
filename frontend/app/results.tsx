@@ -403,7 +403,7 @@ function NutritionTab({ analysis, onShopPress }: { analysis: any; onShopPress: (
           <View style={styles.scheduleCaution}>
             <MaterialCommunityIcons name="alert-circle-outline" size={14} color="#D9534F" />
             <Text style={styles.scheduleCautionText}>
-              Dosierung laut Etikett. Rücksprache mit Arzt oder Apotheke wird empfohlen.
+              {t(lang, 'schedule_disclaimer')}
             </Text>
           </View>
         </View>
