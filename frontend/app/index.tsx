@@ -377,6 +377,16 @@ const styles = StyleSheet.create({
 
   // Disclaimer
   disclaimerContainer: { padding: 24, paddingTop: 48, alignItems: 'center' },
+  langSwitcher: {
+    flexDirection: 'row', gap: 8, marginBottom: 20,
+  },
+  langBtn: {
+    paddingVertical: 8, paddingHorizontal: 20, borderRadius: 16,
+    backgroundColor: '#E8F5E9', borderWidth: 1, borderColor: '#D4E7DC',
+  },
+  langBtnActive: { backgroundColor: '#2C5F78', borderColor: '#2C5F78' },
+  langBtnText: { fontSize: 15, fontWeight: '700', color: '#2C5F78' },
+  langBtnTextActive: { color: '#FFFFFF' },
   disclaimerIconWrap: {
     width: 88, height: 88, borderRadius: 44, backgroundColor: '#E8F5E9',
     justifyContent: 'center', alignItems: 'center', marginBottom: 20,
