@@ -436,48 +436,66 @@ function NutritionTab({ analysis, onShopPress, lang }: { analysis: any; onShopPr
 }
 
 function RecipesTab({ analysis, router, lang }: { analysis: any; router: any; lang: string }) {
-  if (!analysis.recipes?.length) {
+  const [catalogRecipes, setCatalogRecipes] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    const selectedTags = analysis?.symptom_tags || analysis?.tags || [];
+    const tagParam = selectedTags.join(',');
+    fetch(`${API_URL}/api/recipes?lang=${lang}${tagParam ? `&tags=${tagParam}` : ''}`)
+      .then(r => r.json())
+      .then(data => setCatalogRecipes(data))
+      .catch(() => {});
+  }, [lang]);
+
+  // Merge LLM recipes with catalog recipes, avoid duplicates
+  const llmRecipes = analysis.recipes || [];
+  const allRecipes = [...llmRecipes];
+  for (const cr of catalogRecipes) {
+    if (!allRecipes.find((r: any) => r.id === cr.id || r.title === cr.title)) {
+      allRecipes.push(cr);
+    }
+  }
+
+  if (!allRecipes.length) {
     return (
       <View style={styles.emptyState}>
         <MaterialCommunityIcons name="chef-hat" size={40} color="#8FA39B" />
-        <Text style={styles.emptyStateText}>Keine Rezepte verfügbar</Text>
+        <Text style={styles.emptyStateText}>{lang === 'de' ? 'Keine Rezepte verfügbar' : 'Nessuna ricetta disponibile'}</Text>
       </View>
     );
   }
+
   return (
     <View>
-      {analysis.recipes.map((recipe: any, i: number) => (
+      {allRecipes.map((recipe: any, i: number) => (
         <TouchableOpacity
-          key={i}
+          key={recipe.id || i}
           testID={`recipe-card-${i}`}
           style={styles.recipeCard}
           activeOpacity={0.7}
           onPress={() => router.push(`/recipe?idx=${i}`)}
         >
-          <View style={styles.recipeTop}>
-            <View style={styles.recipeIconWrap}>
-              <MaterialCommunityIcons name="chef-hat" size={24} color="#4A8B71" />
+          {recipe.image_url ? (
+            <Image source={{ uri: recipe.image_url }} style={styles.recipeImage} resizeMode="cover" />
+          ) : null}
+          <View style={styles.recipeContent}>
+            <Text style={styles.recipeTitle}>{recipe.title}</Text>
+            <View style={styles.recipeMeta}>
+              <MaterialCommunityIcons name="clock-outline" size={14} color="#5C7A6F" />
+              <Text style={styles.recipeTime}> {recipe.time_min} Min.</Text>
+              <Text style={styles.recipeDot}>·</Text>
+              <Text style={styles.recipeIngCount}>{recipe.ingredients?.length || 0} {lang === 'de' ? 'Zutaten' : 'Ingredienti'}</Text>
             </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.recipeTitle}>{recipe.title}</Text>
-              <View style={styles.recipeMeta}>
-                <MaterialCommunityIcons name="clock-outline" size={14} color="#5C7A6F" />
-                <Text style={styles.recipeTime}> {recipe.time_min} Min.</Text>
-                <Text style={styles.recipeDot}>·</Text>
-                <Text style={styles.recipeIngCount}>{recipe.ingredients?.length || 0} Zutaten</Text>
+            {recipe.tags?.length > 0 && (
+              <View style={styles.recipeTagsRow}>
+                {recipe.tags.slice(0, 3).map((tag: string, j: number) => (
+                  <View key={j} style={styles.recipeTag}>
+                    <Text style={styles.recipeTagText}>{tag}</Text>
+                  </View>
+                ))}
               </View>
-            </View>
-            <MaterialCommunityIcons name="chevron-right" size={24} color="#8FA39B" />
+            )}
           </View>
-          {recipe.tags?.length > 0 && (
-            <View style={styles.recipeTagsRow}>
-              {recipe.tags.slice(0, 3).map((tag: string, j: number) => (
-                <View key={j} style={styles.recipeTag}>
-                  <Text style={styles.recipeTagText}>{tag}</Text>
-                </View>
-              ))}
-            </View>
-          )}
         </TouchableOpacity>
       ))}
     </View>
