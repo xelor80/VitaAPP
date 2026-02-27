@@ -74,9 +74,11 @@ VitaGuide ist eine kostenlose Gesundheits-Informations-App, die uber eine KI-Anb
 - Sprachabhangige Affiliate-URLs
 - Frontend-Integration: trackClick Funktion in results.tsx
 
-### 11. LLM Response Logging - DONE
-- Analysen werden in MongoDB analyses Collection gespeichert
-- Inkl. prompt_version, model, lang, input_text, input_tags, created_at
+### 11. LLM Response Logging - DONE (27.02.2026)
+- Eigene `llm_responses` MongoDB Collection
+- Logging fur beide LLM-Endpoints: symptoms/analyze und diary/trends
+- Gespeicherte Daten: id, endpoint, model, prompt_version, lang, input_text, input_tags, raw_output, success, latency_ms, timestamp
+- Admin-Endpoint: GET /api/llm-logs?limit=&endpoint= mit aggregierten Stats (total_calls, success_rate, avg_latency_ms)
 
 ## API Endpoints
 | Method | Endpoint | Beschreibung |
