@@ -176,7 +176,7 @@ function OverviewTab({ analysis, onShopPress }: { analysis: any; onShopPress: (i
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <MaterialCommunityIcons name="lightbulb-outline" size={20} color="#4A8B71" />
-            <Text style={styles.cardTitle}>Schnell-Tipps</Text>
+            <Text style={styles.cardTitle}>{t(lang, 'quick_tips')}</Text>
           </View>
           {analysis.nutrition_tips.slice(0, 3).map((tip: string, i: number) => (
             <View key={i} style={styles.tipRow}>
