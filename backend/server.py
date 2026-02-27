@@ -641,10 +641,17 @@ async def analyze_symptoms(data: SymptomInput, request: Request):
             system_message=prompt
         ).with_model("openai", "gpt-4o")
 
+        import time
+        t0 = time.time()
         response_text = await chat.send_message(UserMessage(text=user_text))
+        latency_ms = int((time.time() - t0) * 1000)
         parsed = parse_llm_response(response_text)
+        llm_success = True
     except Exception as e:
         logger.error(f"LLM Error: {e}")
+        response_text = str(e)
+        latency_ms = 0
+        llm_success = False
         parsed = {
             "summary": "Die Analyse konnte momentan nicht durchgeführt werden. Bitte versuchen Sie es später erneut.",
             "red_flags": [],
@@ -658,6 +665,24 @@ async def analyze_symptoms(data: SymptomInput, request: Request):
             "recipes": [],
             "disclaimer_short": "Dieser Inhalt dient nur der allgemeinen Information und ersetzt keine ärztliche Beratung."
         }
+
+    # Log LLM call to dedicated collection
+    try:
+        await db.llm_responses.insert_one({
+            "id": str(uuid.uuid4()),
+            "endpoint": "symptoms/analyze",
+            "model": "gpt-4o",
+            "prompt_version": "1.2",
+            "lang": lang,
+            "input_text": user_text,
+            "input_tags": data.tags,
+            "raw_output": response_text[:5000] if isinstance(response_text, str) else "",
+            "success": llm_success,
+            "latency_ms": latency_ms,
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        })
+    except Exception:
+        pass
 
     # Enrich brand_products with catalog data
     enriched_products = []
