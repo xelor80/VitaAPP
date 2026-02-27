@@ -7,7 +7,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', '').rstrip('/') or "https://symptom-wellness-app.preview.emergentagent.com"
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', '').rstrip('/') or "https://supplement-guide-6.preview.emergentagent.com"
 
 class TestRecipeFilteringBugFix:
     """Tests for recipe filtering based on symptom tags"""
