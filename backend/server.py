@@ -902,15 +902,40 @@ Antworte NUR als JSON:
             system_message="Du bist ein freundlicher Wellness-Coach. Gib nur allgemeine Lifestyle-Tipps, KEINE medizinischen Ratschläge oder Diagnosen."
         ).with_model("openai", "gpt-4o")
 
+        import time
+        t0 = time.time()
         response_text = await chat.send_message(UserMessage(text=trend_prompt))
+        latency_ms = int((time.time() - t0) * 1000)
         parsed = parse_llm_response(response_text)
+        llm_success = True
     except Exception as e:
         logger.error(f"Diary LLM Error: {e}")
+        response_text = str(e)
+        latency_ms = 0
+        llm_success = False
         parsed = {
             "summary": "Trend-Analyse aktuell nicht verfügbar.",
             "tips": ["Regelmäßiger Schlaf unterstützt das Wohlbefinden.", "Ausreichend Wasser trinken."],
             "patterns": []
         }
+
+    # Log diary LLM call
+    try:
+        await db.llm_responses.insert_one({
+            "id": str(uuid.uuid4()),
+            "endpoint": "diary/trends",
+            "model": "gpt-4o",
+            "prompt_version": "1.0",
+            "lang": "de",
+            "input_text": trend_prompt[:2000],
+            "input_tags": [],
+            "raw_output": response_text[:5000] if isinstance(response_text, str) else "",
+            "success": llm_success,
+            "latency_ms": latency_ms,
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        })
+    except Exception:
+        pass
 
     return {
         "entries": entries,
