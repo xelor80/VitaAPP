@@ -160,6 +160,23 @@ export default function HomeScreen() {
             <Text style={styles.headerSubtitle}>Ihr Ernährungs- & Gesundheitsassistent</Text>
           </View>
 
+          {/* Diary Button */}
+          <TouchableOpacity
+            testID="diary-btn"
+            style={styles.diaryButton}
+            activeOpacity={0.7}
+            onPress={() => router.push('/diary')}
+          >
+            <View style={styles.diaryIconWrap}>
+              <MaterialCommunityIcons name="book-open-variant" size={22} color="#2C5F78" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.diaryBtnTitle}>Symptom-Tagebuch</Text>
+              <Text style={styles.diaryBtnSub}>Tracken Sie Befinden, Schlaf, Stress & mehr</Text>
+            </View>
+            <MaterialCommunityIcons name="chevron-right" size={24} color="#8FA39B" />
+          </TouchableOpacity>
+
           {/* Input Card */}
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Was beschäftigt Sie?</Text>

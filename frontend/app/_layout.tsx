@@ -9,6 +9,7 @@ export default function RootLayout() {
         <Stack.Screen name="index" />
         <Stack.Screen name="results" />
         <Stack.Screen name="recipe" />
+        <Stack.Screen name="diary" />
       </Stack>
     </>
   );
