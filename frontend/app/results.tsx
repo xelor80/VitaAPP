@@ -658,6 +658,11 @@ const styles = StyleSheet.create({
   scheduleProductName: { fontSize: 15, fontWeight: '700', color: '#1A2D26' },
   scheduleDosage: { fontSize: 14, fontWeight: '600', color: '#4A8B71', marginTop: 1 },
   scheduleInstruction: { fontSize: 13, color: '#5C7A6F', marginTop: 4, lineHeight: 18 },
+  officialInstructionRow: {
+    flexDirection: 'row', alignItems: 'flex-start', gap: 6, marginTop: 6,
+    backgroundColor: '#EFF6FB', borderRadius: 8, padding: 8,
+  },
+  officialInstructionText: { fontSize: 12, color: '#2C5F78', flex: 1, lineHeight: 17, fontStyle: 'italic' },
   scheduleShopLink: {
     flexDirection: 'row', alignItems: 'center', marginTop: 6,
   },
