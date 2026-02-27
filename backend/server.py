@@ -605,7 +605,7 @@ async def analyze_symptoms(data: SymptomInput, request: Request):
         "input_text": data.text,
         "input_tags": data.tags,
         "created_at": datetime.now(timezone.utc).isoformat(),
-        "prompt_version": "1.1",
+        "prompt_version": "1.2",
         "model": "gpt-4o"
     }
 
