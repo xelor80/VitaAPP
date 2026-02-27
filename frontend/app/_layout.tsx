@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { LangProvider } from './LangContext';
+import { LangProvider } from '../src/LangContext';
 
 export default function RootLayout() {
   return (

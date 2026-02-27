@@ -7,8 +7,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { setCurrentAnalysis } from '../src/store';
-import { useLang } from './LangContext';
-import { t } from './i18n';
+import { useLang } from '../src/LangContext';
+import { t } from '../src/i18n';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
