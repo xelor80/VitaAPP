@@ -520,9 +520,7 @@ function RecipesTab({ analysis, router, lang }: { analysis: any; router: any; la
             onPress={() => setExpandedRecipe(isExpanded ? null : (recipe.id || `r${i}`))}
           >
             {recipe.image_url ? (
-              <div className="recipe-img-wrap">
-                <img className="recipe-img" src={recipe.image_url} alt={recipe.title} />
-              </div>
+              <RecipeImg url={recipe.image_url} alt={recipe.title} />
             ) : null}
             <View style={styles.recipeContent}>
               <Text style={styles.recipeTitle}>{recipe.title}</Text>
