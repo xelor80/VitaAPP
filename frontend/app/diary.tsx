@@ -320,11 +320,11 @@ export default function DiaryScreen() {
 }
 
 // ==================== TRENDS VIEW ====================
-function TrendsView({ trends, onRefresh }: { trends: any; onRefresh: () => void }) {
+function TrendsView({ trends, onRefresh, lang }: { trends: any; onRefresh: () => void; lang: string }) {
   const entries = trends.entries || [];
   const sortedEntries = [...entries].sort((a: any, b: any) => a.date.localeCompare(b.date));
+  const locale = lang === 'it' ? 'it-IT' : 'de-DE';
 
-  // Calculate averages
   const avg = (field: string) => {
     if (entries.length === 0) return 0;
     return (entries.reduce((s: number, e: any) => s + (e[field] || 0), 0) / entries.length).toFixed(1);
@@ -337,7 +337,7 @@ function TrendsView({ trends, onRefresh }: { trends: any; onRefresh: () => void 
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <MaterialCommunityIcons name="chart-line" size={20} color="#4A8B71" />
-            <Text style={styles.cardTitle}>Trend-Zusammenfassung</Text>
+            <Text style={styles.cardTitle}>{t(lang, 'diary_trend_summary')}</Text>
           </View>
           <Text style={styles.cardBody}>{trends.summary}</Text>
         </View>
@@ -348,22 +348,22 @@ function TrendsView({ trends, onRefresh }: { trends: any; onRefresh: () => void 
         <View style={styles.statCard}>
           <MaterialCommunityIcons name="emoticon-outline" size={24} color="#4CAF50" />
           <Text style={styles.statValue}>{avg('mood')}</Text>
-          <Text style={styles.statLabel}>Befinden</Text>
+          <Text style={styles.statLabel}>{t(lang, 'diary_mood')}</Text>
         </View>
         <View style={styles.statCard}>
           <MaterialCommunityIcons name="sleep" size={24} color="#2196F3" />
           <Text style={styles.statValue}>{avg('sleep')}</Text>
-          <Text style={styles.statLabel}>Schlaf</Text>
+          <Text style={styles.statLabel}>{t(lang, 'diary_sleep')}</Text>
         </View>
         <View style={styles.statCard}>
           <MaterialCommunityIcons name="lightning-bolt-outline" size={24} color="#FF9800" />
           <Text style={styles.statValue}>{avg('stress')}</Text>
-          <Text style={styles.statLabel}>Stress</Text>
+          <Text style={styles.statLabel}>{t(lang, 'diary_stress')}</Text>
         </View>
         <View style={styles.statCard}>
           <MaterialCommunityIcons name="cup-water" size={24} color="#03A9F4" />
           <Text style={styles.statValue}>{avg('water')}</Text>
-          <Text style={styles.statLabel}>Wasser</Text>
+          <Text style={styles.statLabel}>{lang === 'de' ? 'Wasser' : 'Acqua'}</Text>
         </View>
       </View>
 
@@ -372,10 +372,10 @@ function TrendsView({ trends, onRefresh }: { trends: any; onRefresh: () => void 
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <MaterialCommunityIcons name="calendar-range" size={20} color="#4A8B71" />
-            <Text style={styles.cardTitle}>Letzte {sortedEntries.length} Tage</Text>
+            <Text style={styles.cardTitle}>{t(lang, 'diary_last_days')} {sortedEntries.length} {t(lang, 'diary_days')}</Text>
           </View>
           {sortedEntries.slice(-7).map((e: any, i: number) => {
-            const dayLabel = new Date(e.date + 'T12:00:00').toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'short' });
+            const dayLabel = new Date(e.date + 'T12:00:00').toLocaleDateString(locale, { weekday: 'short', day: 'numeric', month: 'short' });
             return (
               <View key={i} style={styles.dayRow}>
                 <Text style={styles.dayLabel}>{dayLabel}</Text>
@@ -401,7 +401,7 @@ function TrendsView({ trends, onRefresh }: { trends: any; onRefresh: () => void 
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <MaterialCommunityIcons name="eye-outline" size={20} color="#4A8B71" />
-            <Text style={styles.cardTitle}>Erkannte Muster</Text>
+            <Text style={styles.cardTitle}>{t(lang, 'diary_patterns')}</Text>
           </View>
           {trends.patterns.map((p: any, i: number) => (
             <View key={i} style={styles.patternRow}>
@@ -424,7 +424,7 @@ function TrendsView({ trends, onRefresh }: { trends: any; onRefresh: () => void 
         <View style={styles.tipsCard}>
           <View style={styles.cardHeader}>
             <MaterialCommunityIcons name="lightbulb-on-outline" size={20} color="#4A8B71" />
-            <Text style={styles.cardTitle}>Lifestyle-Tipps</Text>
+            <Text style={styles.cardTitle}>{t(lang, 'diary_lifestyle_tips')}</Text>
           </View>
           {trends.tips.map((tip: string, i: number) => (
             <View key={i} style={styles.tipItem}>
@@ -440,15 +440,13 @@ function TrendsView({ trends, onRefresh }: { trends: any; onRefresh: () => void 
       {/* Refresh */}
       <TouchableOpacity testID="trends-refresh-btn" style={styles.refreshBtn} onPress={onRefresh}>
         <MaterialCommunityIcons name="refresh" size={18} color="#4A8B71" />
-        <Text style={styles.refreshBtnText}>  Aktualisieren</Text>
+        <Text style={styles.refreshBtnText}>  {t(lang, 'diary_refresh')}</Text>
       </TouchableOpacity>
 
       {/* Disclaimer */}
       <View style={styles.disclaimer}>
         <MaterialCommunityIcons name="information-outline" size={14} color="#8FA39B" />
-        <Text style={styles.disclaimerText}>
-          Die Tipps sind allgemeine Lifestyle-Empfehlungen und ersetzen keine ärztliche Beratung.
-        </Text>
+        <Text style={styles.disclaimerText}>{t(lang, 'diary_disclaimer')}</Text>
       </View>
     </View>
   );
