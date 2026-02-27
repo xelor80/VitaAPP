@@ -17,14 +17,14 @@ async def get_products(tags: str = "", lang: str = "de"):
 async def get_recipes(tags: str = "", lang: str = "de"):
     results = []
     for r in RECIPE_CATALOG:
+        loc = r.get(lang, r.get("de", {}))
         results.append({
             "id": r["id"],
-            "title": r["name_de"] if lang == "de" else r["name_it"],
-            "symptoms_text": r.get("symptoms_de", "") if lang == "de" else r.get("symptoms_it", ""),
-            "ingredients": r.get("ingredients_de", []) if lang == "de" else r.get("ingredients_it", []),
-            "steps": r.get("steps_de", []) if lang == "de" else r.get("steps_it", []),
+            "title": loc.get("title", ""),
+            "ingredients": loc.get("ingredients", []),
+            "steps": loc.get("steps", []),
             "time_min": r.get("time_min", 20),
-            "tags": r.get("tags", []),
+            "tags": loc.get("tags", []),
             "symptom_tags": r.get("symptom_tags", []),
             "image_url": r.get("image_url", ""),
         })
