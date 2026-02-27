@@ -1,12 +1,11 @@
 """
-Scrapes application instructions (Anwendung) from all Joachim Kaeser product pages.
-Outputs a JSON mapping of product_id -> application_instructions.
+Scrapes application instructions (Anwendung) from Joachim Kaeser product pages.
+Uses HTML5 <details>/<summary> accordion pattern found on the shop pages.
 """
 import requests
 from bs4 import BeautifulSoup
 import json
 import time
-import re
 
 PRODUCTS = {
     "gelenk-kraft": "https://joachim-kaeser.de/products/gelenk-kraft-360g",
@@ -47,67 +46,73 @@ HEADERS = {
     "Accept-Language": "de-DE,de;q=0.9,en;q=0.5",
 }
 
+ANWENDUNG_KEYWORDS = {"anwendung", "anwendungshinweise", "verzehrempfehlung", "dosierung", "einnahme"}
+
 
 def extract_anwendung(html: str) -> str:
     soup = BeautifulSoup(html, "html.parser")
-    
-    # Strategy 1: Find h2 with text "Anwendung"
+
+    # Strategy 1: HTML5 <details>/<summary> accordion (main pattern on the site)
+    for details in soup.find_all("details"):
+        summary = details.find("summary")
+        if not summary:
+            continue
+        title = summary.get_text(strip=True).lower()
+        if any(kw in title for kw in ANWENDUNG_KEYWORDS):
+            parts = []
+            for child in details.children:
+                if child.name != "summary" and hasattr(child, "get_text"):
+                    t = child.get_text(" ", strip=True)
+                    if t:
+                        parts.append(t)
+            if parts:
+                return " ".join(parts)
+
+    # Strategy 2: Regular h2/h3 headings with following paragraphs
     for heading in soup.find_all(["h2", "h3"]):
         text = heading.get_text(strip=True).lower()
-        if text in ("anwendung", "anwendungshinweise", "verzehrempfehlung", "dosierung"):
-            # Collect all sibling text until next heading
+        if any(kw in text for kw in ANWENDUNG_KEYWORDS):
             parts = []
             for sibling in heading.find_next_siblings():
                 if sibling.name in ("h2", "h3"):
                     break
-                t = sibling.get_text(strip=True)
+                t = sibling.get_text(" ", strip=True)
                 if t:
                     parts.append(t)
             if parts:
                 return " ".join(parts)
-    
-    # Strategy 2: Search in accordion/tab content
-    for elem in soup.find_all(["div", "section"]):
-        text = elem.get_text()
-        if "Anwendung" in text and ("Kapsel" in text or "Sprühstöße" in text or "Messlöffel" in text or "Tropfen" in text or "Presslinge" in text or "Tablette" in text):
-            # Try to isolate just the instruction
-            paragraphs = elem.find_all("p")
-            for p in paragraphs:
-                pt = p.get_text(strip=True)
-                if any(kw in pt for kw in ["Kapsel", "Sprühstöße", "Messlöffel", "Tropfen", "täglich", "pro Tag", "Presslinge"]):
-                    return pt
-    
+
     return ""
 
 
 def main():
     results = {}
     failed = []
-    
+
     for product_id, url in PRODUCTS.items():
-        print(f"Scraping {product_id}... ", end="", flush=True)
+        print(f"Scraping {product_id}...", end=" ", flush=True)
         try:
             resp = requests.get(url, headers=HEADERS, timeout=15)
             resp.raise_for_status()
             instruction = extract_anwendung(resp.text)
             if instruction:
                 results[product_id] = instruction
-                print(f"OK: {instruction[:80]}...")
+                print(f"OK: {instruction[:100]}...")
             else:
                 failed.append(product_id)
                 print("WARN: No instruction found")
         except Exception as e:
             failed.append(product_id)
             print(f"ERROR: {e}")
-        time.sleep(1)  # Be polite
-    
+        time.sleep(1)
+
     print(f"\n=== Results: {len(results)}/{len(PRODUCTS)} scraped ===")
     if failed:
         print(f"Failed: {failed}")
-    
+
     with open("/app/backend/scraped_instructions.json", "w", encoding="utf-8") as f:
         json.dump(results, f, ensure_ascii=False, indent=2)
-    
+
     print("Saved to /app/backend/scraped_instructions.json")
 
 
