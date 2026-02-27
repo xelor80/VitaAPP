@@ -45,11 +45,17 @@ VitaGuide ist eine kostenlose Gesundheits-Informations-App, die uber eine KI-Anb
 - Prompt Version 1.2 mit offiziellen Anwendungshinweisen
 - Red-Flag-Erkennung in beiden Sprachen
 
-### 6. Ergebnis-Ansicht (4 Tabs, zweisprachig) - DONE
+### 6. Ergebnis-Ansicht (4 Tabs, zweisprachig) - DONE + REFACTORED (27.02.2026)
 - Ubersicht/Panoramica: Zusammenfassung, Red-Flag-Warnungen, Featured Product
 - Supplements/Integratori: Nahrstoff-Infos mit Evidenzlevel + Produktkarten
 - Ernahrung/Nutrizione: Einnahmeplan mit offiziellen Herstellerhinweisen + Ernahrungstipps
 - Rezepte/Ricette: Rezept-Cards mit Bildern aus dem statischen Katalog (30 Rezepte)
+- **Refactoring:** results.tsx (788 Zeilen -> 147 Zeilen) in 4 Tab-Komponenten aufgeteilt:
+  - components/tabs/OverviewTab.tsx (85 Zeilen)
+  - components/tabs/SupplementsTab.tsx (81 Zeilen)
+  - components/tabs/NutritionTab.tsx (102 Zeilen)
+  - components/tabs/RecipesTab.tsx (121 Zeilen)
+  - components/styles/resultsStyles.ts (gemeinsame Styles)
 
 ### 7. Rezeptkatalog - DONE (27.02.2026)
 - 30 zweisprachige Rezepte mit hochwertigen Bildern (Unsplash/Pexels)
