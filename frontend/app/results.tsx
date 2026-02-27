@@ -82,7 +82,7 @@ export default function ResultsScreen() {
         <TouchableOpacity testID="back-btn" onPress={() => router.back()} activeOpacity={0.7} style={styles.backBtn}>
           <MaterialCommunityIcons name="arrow-left" size={24} color="#1A2D26" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Ihre Ergebnisse</Text>
+        <Text style={styles.headerTitle}>{t(lang, 'results_title')}</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -91,9 +91,11 @@ export default function ResultsScreen() {
         <View testID="red-flag-banner" style={styles.redFlagBanner}>
           <MaterialCommunityIcons name="alert-decagram" size={22} color="#D9534F" />
           <View style={{ flex: 1, marginLeft: 10 }}>
-            <Text style={styles.redFlagTitle}>Wichtige Warnung</Text>
+            <Text style={styles.redFlagTitle}>{lang === 'de' ? 'Wichtige Warnung' : 'Avviso importante'}</Text>
             <Text style={styles.redFlagText}>
-              Es wurden mögliche Warnsignale erkannt. Bitte konsultieren Sie umgehend einen Arzt.
+              {lang === 'de'
+                ? 'Es wurden mögliche Warnsignale erkannt. Bitte konsultieren Sie umgehend einen Arzt.'
+                : 'Sono stati rilevati possibili segnali di allarme. Si prega di consultare immediatamente un medico.'}
             </Text>
           </View>
         </View>
