@@ -678,13 +678,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF', borderRadius: 16, marginBottom: 12, overflow: 'hidden',
     shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 1,
   },
-  recipeImage: {
-    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-  } as any,
-  recipeImageWrap: {
-    height: 180, backgroundColor: '#E8F5E9', overflow: 'hidden',
-    borderTopLeftRadius: 16, borderTopRightRadius: 16,
-  } as any,
   recipeContent: { padding: 14 },
   recipeTitle: { fontSize: 16, fontWeight: '700', color: '#1A2D26' },
   recipeMeta: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
