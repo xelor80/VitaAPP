@@ -602,13 +602,26 @@ async def analyze_symptoms(data: SymptomInput, request: Request):
     if not data.text.strip() and not data.tags:
         raise HTTPException(status_code=400, detail="Bitte beschreiben Sie Ihre Symptome oder wählen Sie Bereiche aus.")
 
-    user_text = f"Meine Symptome: {data.text}"
-    if data.tags:
-        user_text += f"\nBereiche: {', '.join(data.tags)}"
-    if data.duration:
-        user_text += f"\nDauer: {data.duration}"
-    if data.intensity:
-        user_text += f"\nIntensität: {data.intensity}"
+    lang = data.lang if data.lang in ("de", "it") else "de"
+    catalog = PRODUCT_CATALOG_IT if lang == "it" else PRODUCT_CATALOG
+    prompt = SYSTEM_PROMPT_IT if lang == "it" else SYSTEM_PROMPT
+
+    if lang == "it":
+        user_text = f"I miei sintomi: {data.text}"
+        if data.tags:
+            user_text += f"\nAree: {', '.join(data.tags)}"
+        if data.duration:
+            user_text += f"\nDurata: {data.duration}"
+        if data.intensity:
+            user_text += f"\nIntensità: {data.intensity}"
+    else:
+        user_text = f"Meine Symptome: {data.text}"
+        if data.tags:
+            user_text += f"\nBereiche: {', '.join(data.tags)}"
+        if data.duration:
+            user_text += f"\nDauer: {data.duration}"
+        if data.intensity:
+            user_text += f"\nIntensität: {data.intensity}"
 
     try:
         from emergentintegrations.llm.chat import LlmChat, UserMessage
