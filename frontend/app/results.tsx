@@ -441,7 +441,7 @@ function RecipeImg({ url, alt, width }: { url: string; alt: string; width: numbe
   return (
     <ImageBackground
       source={{ uri: url }}
-      style={{ height: 180, flexShrink: 0 }}
+      style={{ minHeight: 180, height: 180, flexShrink: 0, flexGrow: 0, flexBasis: 180 }}
       imageStyle={{ borderTopLeftRadius: 16, borderTopRightRadius: 16 }}
       resizeMode="cover"
     />
