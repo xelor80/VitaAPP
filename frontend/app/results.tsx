@@ -226,8 +226,19 @@ function OverviewTab({ analysis, onShopPress }: { analysis: any; onShopPress: (i
             onPress={() => onShopPress(featuredProduct.product_id, featuredProduct.affiliate_url)}
           >
             <MaterialCommunityIcons name="open-in-new" size={16} color="#FFFFFF" />
-            <Text style={styles.shopBtnText}>  Im Shop ansehen</Text>
+            <Text style={styles.shopBtnText}>  {t(lang, 'shop_link')}</Text>
           </TouchableOpacity>
+          {featuredProduct.video_url ? (
+            <TouchableOpacity
+              data-testid={`video-btn-${featuredProduct.product_id}`}
+              style={styles.videoBtn}
+              activeOpacity={0.7}
+              onPress={() => Linking.openURL(featuredProduct.video_url)}
+            >
+              <MaterialCommunityIcons name="play-circle-outline" size={16} color="#D9534F" />
+              <Text style={styles.videoBtnText}>  {t(lang, 'watch_video')}</Text>
+            </TouchableOpacity>
+          ) : null}
         </View>
       )}
     </View>
