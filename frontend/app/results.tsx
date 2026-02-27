@@ -155,7 +155,7 @@ function OverviewTab({ analysis, onShopPress, lang }: { analysis: any; onShopPre
       <View style={styles.card}>
         <View style={styles.cardHeader}>
           <MaterialCommunityIcons name="text-box-outline" size={20} color="#4A8B71" />
-          <Text style={styles.cardTitle}>Zusammenfassung</Text>
+          <Text style={styles.cardTitle}>{lang === 'it' ? 'Riepilogo' : 'Zusammenfassung'}</Text>
         </View>
         <Text style={styles.cardBody}>{analysis.summary}</Text>
       </View>
