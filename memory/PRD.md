@@ -95,16 +95,31 @@ VitaGuide ist eine kostenlose Gesundheits-Informations-App, die uber eine KI-Anb
 | GET | /api/llm-logs | LLM-Response-Logs mit Stats (limit, endpoint Filter) |
 
 ## Dateien
-- backend/server.py: Haupt-Backend mit DE/IT Prompts + Produktkatalogen
-- backend/products_it.json: Italienischer Produktkatalog (61 Produkte)
-- backend/recipes.json: Zweisprachiger Rezeptkatalog (30 Rezepte)
-- backend/scrape_instructions.py: DE Anwendungshinweise Scraper
-- backend/scrape_it_products.py: IT Produkte Scraper
-- frontend/app/index.tsx: Home mit Sprachumschaltung
-- frontend/app/results.tsx: Ergebnisse (zweisprachig, 4 Tabs)
-- frontend/app/diary.tsx: Tagebuch
-- frontend/src/i18n.ts: Ubersetzungen DE/IT
-- frontend/src/LangContext.tsx: Sprach-Context
+### Backend (modular seit 27.02.2026)
+- server.py: Schlanke Haupt-App (35 Zeilen), importiert Router-Module
+- core/config.py: DB-Verbindung (MongoDB/Motor), Logger
+- core/helpers.py: Rate-Limiting, LLM-Response-Parsing
+- models/schemas.py: Pydantic Models (SymptomInput, ClickEventInput, DiaryEntryInput)
+- data/catalogs.py: Ladt products_de.json, products_it.json, recipes.json
+- data/prompts.py: System-Prompts DE + IT fur LLM
+- routes/analysis.py: /symptoms/analyze, /analysis/{id}
+- routes/products.py: /products, /recipes (mit Tag-Filterung)
+- routes/tracking.py: /track/click
+- routes/diary.py: /diary, /diary/trends
+- routes/admin.py: /health, /llm-logs
+- products_de.json: Deutscher Produktkatalog (30 Produkte, exportiert aus Server)
+- products_it.json: Italienischer Produktkatalog (61 Produkte)
+- recipes.json: Zweisprachiger Rezeptkatalog (30 Rezepte)
+
+### Frontend
+- app/index.tsx: Home mit Sprachumschaltung
+- app/results.tsx: Ergebnisse (zweisprachig, 4 Tabs, expandierbare Rezepte)
+- app/diary.tsx: Tagebuch
+- app/+html.tsx: Web-Template mit Custom CSS (.rimg-wrap fur Rezeptbilder)
+- app/_layout.tsx: Root-Layout mit LangProvider
+- src/i18n.ts: Ubersetzungen DE/IT
+- src/LangContext.tsx: Sprach-Context
+- src/store.ts: In-memory Store fur Analyse-Daten
 
 ## Testing Status (27.02.2026)
 - Backend: 18/18 Tests bestanden (iteration_3.json)
