@@ -439,9 +439,7 @@ function NutritionTab({ analysis, onShopPress, lang }: { analysis: any; onShopPr
 // Web-compatible recipe image component using ImageBackground for full-width
 function RecipeImg({ url, alt, width }: { url: string; alt: string; width: number }) {
   return (
-    <View style={{ width: width, height: 180, borderTopLeftRadius: 16, borderTopRightRadius: 16, overflow: 'hidden', backgroundColor: '#E8F5E9' }}>
-      <Image source={{ uri: url }} style={{ width: width, height: 180 }} resizeMode="cover" />
-    </View>
+    <Image source={{ uri: url }} style={{ width: 400, height: 180 }} resizeMode="contain" />
   );
 }
 
