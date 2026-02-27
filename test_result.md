@@ -141,11 +141,14 @@ backend:
     file: "backend/server.py"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: true
           agent: "main"
           comment: "GET /api/products now returns application_instructions field for all 30 products."
+        - working: true
+          agent: "testing"
+          comment: "✅ TESTED: GET /api/products working correctly. All 30 products have application_instructions with actual dosage content (not empty). Tag filtering (e.g., ?tags=gelenke) works correctly and returns 6 products with proper application_instructions."
 
   - task: "Diary CRUD + Trends"
     implemented: true
