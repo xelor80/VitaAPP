@@ -128,10 +128,10 @@ export default function ResultsScreen() {
 
       {/* Content */}
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {activeTab === 'overview' && <OverviewTab analysis={analysis} onShopPress={trackClick} />}
-        {activeTab === 'supplements' && <SupplementsTab analysis={analysis} onShopPress={trackClick} />}
-        {activeTab === 'nutrition' && <NutritionTab analysis={analysis} onShopPress={trackClick} />}
-        {activeTab === 'recipes' && <RecipesTab analysis={analysis} router={router} />}
+        {activeTab === 'overview' && <OverviewTab analysis={analysis} onShopPress={trackClick} lang={lang} />}
+        {activeTab === 'supplements' && <SupplementsTab analysis={analysis} onShopPress={trackClick} lang={lang} />}
+        {activeTab === 'nutrition' && <NutritionTab analysis={analysis} onShopPress={trackClick} lang={lang} />}
+        {activeTab === 'recipes' && <RecipesTab analysis={analysis} router={router} lang={lang} />}
 
         {/* Disclaimer */}
         <View style={styles.disclaimerFooter}>
