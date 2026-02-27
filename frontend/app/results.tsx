@@ -631,4 +631,34 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
     backgroundColor: '#4A8B71', borderRadius: 20, paddingVertical: 12,
   },
+
+  // Schedule styles
+  scheduleSection: {
+    backgroundColor: '#FFFFFF', borderRadius: 16, padding: 16, marginBottom: 12,
+  },
+  scheduleSubtitle: { fontSize: 13, color: '#8FA39B', marginBottom: 14, marginTop: -4 },
+  scheduleCard: {
+    flexDirection: 'row', marginBottom: 14, paddingBottom: 14,
+    borderBottomWidth: 1, borderBottomColor: '#F0F4F1',
+  },
+  scheduleLeft: { alignItems: 'center', width: 72, gap: 6 },
+  scheduleTimeIcon: {
+    width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center',
+  },
+  scheduleTime: { fontSize: 11, fontWeight: '700', textAlign: 'center' },
+  scheduleRight: { flex: 1, marginLeft: 10 },
+  scheduleProductRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 4 },
+  scheduleProductImg: { width: 40, height: 40, borderRadius: 8, backgroundColor: '#F7F9F6' },
+  scheduleProductName: { fontSize: 15, fontWeight: '700', color: '#1A2D26' },
+  scheduleDosage: { fontSize: 14, fontWeight: '600', color: '#4A8B71', marginTop: 1 },
+  scheduleInstruction: { fontSize: 13, color: '#5C7A6F', marginTop: 4, lineHeight: 18 },
+  scheduleShopLink: {
+    flexDirection: 'row', alignItems: 'center', marginTop: 6,
+  },
+  scheduleShopText: { fontSize: 13, fontWeight: '600', color: '#4A8B71' },
+  scheduleCaution: {
+    flexDirection: 'row', alignItems: 'flex-start', gap: 6, marginTop: 4,
+    backgroundColor: '#FFF8F0', borderRadius: 10, padding: 10,
+  },
+  scheduleCautionText: { fontSize: 12, color: '#D9534F', flex: 1, lineHeight: 18 },
 });
