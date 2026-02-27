@@ -29,11 +29,12 @@ VitaGuide ist eine kostenlose Gesundheits-Informations-App, die über eine KI-An
 - Red-Flag-Erkennung (Brustschmerzen, Atemnot, neurologische Ausfälle etc.)
 - Sicherheits-Guardrails im System-Prompt
 - Rate Limiting (10 Anfragen/60s pro IP)
+- **Prompt Version 1.2**: Enthält offizielle Anwendungshinweise der Produkte für den Einnahmeplan
 
 ### 4. Ergebnis-Ansicht (4 Tabs)
-- **Übersicht:** Zusammenfassung, Red-Flag-Warnungen, Schnell-Tipps
+- **Übersicht:** Zusammenfassung, Red-Flag-Warnungen, Schnell-Tipps, Featured Product
 - **Supplements:** Nährstoff-Infos mit Evidenzlevel, Vorsichtshinweisen, natürlichen Quellen + Produkt-Cards
-- **Ernährung:** Nummerierte Ernährungstipps
+- **Ernährung:** Einnahmeplan mit offiziellen Herstellerhinweisen + Ernährungstipps
 - **Rezepte:** Rezept-Cards mit Zubereitungszeit und Zutaten-Anzahl
 
 ### 5. Rezept-Detail
@@ -43,9 +44,9 @@ VitaGuide ist eine kostenlose Gesundheits-Informations-App, die über eine KI-An
 - Tags
 
 ### 6. Affiliate-Integration
-- 8 Platzhalter-Produkte der Marke "VitaNatura"
-- Produktkarten mit Preis, Beschreibung, "Zum Shop"-Button
-- Click-Tracking (POST /api/track/click)
+- 30 Produkte der Marke "Joachim Kaeser" mit echten Daten (Preis, Bild, Rating, Beschreibung)
+- Produktkarten mit "Im Shop ansehen"-Button
+- Click-Tracking (POST /api/track/click) mit MongoDB-Persistenz
 - UTM-Parameter in Affiliate-URLs
 
 ### 7. Sicherheitsfeatures
@@ -54,53 +55,47 @@ VitaGuide ist eine kostenlose Gesundheits-Informations-App, die über eine KI-An
 - Disclaimer-Footer auf allen Ergebnisseiten
 - Vorsichtshinweise bei Supplements
 
+### 8. Offizielle Anwendungshinweise (NEU - 27.02.2026)
+- 30 Produkt-Anwendungshinweise von joachim-kaeser.de gescraped
+- Scraper-Script: `/app/backend/scrape_instructions.py`
+- Hinweise im Einnahmeplan als blaue Info-Box angezeigt
+- LLM nutzt offizielle Dosierungsangaben für Empfehlungen
+- 26/30 automatisch gescraped, 4 manuell ergänzt (Eisen, NADH, Mental Kraft, Kreislauf Vital)
+
+### 9. Symptom-Tagebuch + Trend-Ansicht
+- **Tägliches Tracking:** Befinden (1-5), Schlaf (1-5), Stress (1-5), Wasser (Gläser), Bewegung (Minuten), Notizen
+- **Upsert-Logik:** Ein Eintrag pro Tag, wird bei erneutem Speichern aktualisiert
+- **Trend-Ansicht:** Durchschnittswerte (Mood/Schlaf/Stress/Wasser), Tagesübersicht
+- **KI-Lifestyle-Tipps:** GPT-4o analysiert die letzten 14 Tage und gibt allgemeine Lifestyle-Empfehlungen
+- **Navigation:** Tagebuch-Button auf dem Home-Screen
+
 ## API Endpoints
 | Method | Endpoint | Beschreibung |
 |--------|---------|-------------|
 | GET | /api/health | Health Check |
 | POST | /api/symptoms/analyze | Symptom-Analyse via KI |
 | GET | /api/analysis/{id} | Gespeicherte Analyse abrufen |
-| GET | /api/products?tags= | Produkt-Katalog |
+| GET | /api/products?tags= | Produkt-Katalog mit Anwendungshinweisen |
 | GET | /api/recipes?tags= | Rezepte aus Analysen |
 | POST | /api/track/click | Affiliate-Click-Tracking |
+| POST | /api/diary | Tagebuch-Eintrag speichern |
+| GET | /api/diary | Tagebuch-Einträge abrufen |
+| GET | /api/diary/trends | Trend-Analyse mit KI-Tipps |
 
 ## Datenmodelle (MongoDB)
-- **analyses:** Vollständige KI-Analyse-Ergebnisse inkl. Input, Timestamp, Prompt-Version
-- **products:** Produkt-Katalog (geseedet beim Start)
+- **analyses:** Vollständige KI-Analyse-Ergebnisse inkl. Input, Timestamp, Prompt-Version (1.2), Model (gpt-4o)
+- **products:** Produkt-Katalog (geseedet beim Start) mit application_instructions
 - **click_events:** Affiliate-Click-Events mit Timestamp
+- **diary:** Tägliche Tagebuch-Einträge
 
 ## Affiliate-Marke
 - **Marke:** Joachim Kaeser – Natürliche Nahrungsergänzungsmittel aus der Schweiz
 - **Website:** https://joachim-kaeser.de
-- **Produkte im Katalog:** 30 Produkte, kategorisiert nach Beschwerden
+- **Produkte im Katalog:** 30 Produkte mit offiziellen Anwendungshinweisen
 - **Affiliate-Parameter:** `?ref=vitaguide&utm_source=vitaguide&utm_medium=app`
-- **Hinweis:** Affiliate-URLs sind Platzhalter-Links mit UTM-Parametern. Echte Affiliate-Links werden später eingesetzt.
-
-### Produkt-Zuordnung zu Symptomen:
-| Symptom | Empfohlene Produkte |
-|---------|-------------------|
-| Müdigkeit | B-Komplex-Kolloid, Eisen, NADH, Q10 Power, Factor D, Essentials Direct |
-| Kopfschmerzen | Magnesium Direct, B-Komplex-Kolloid, Omega 3 |
-| Verdauung | Microbiom Complex, Leber Vital, Grüne Entgiftung, Metabol Control |
-| Gelenkschmerzen | Gelenk Kraft, Weihrauch 2.0, Kurkuma-Komplex, Omega 3 |
-| Schlafprobleme | Magnesium Direct, B-Komplex-Kolloid |
-| Stress | Magnesium Direct, B-Komplex-Kolloid, Mental Kraft |
-| Erkältung | Immunkraft, Echinacea Kolloidal, Vitamin C Retard, Kolloidales Zink |
-| Hautprobleme | Haut Factor, Collagen Bi-Caps, Hyaluronsäure, Haar Aktiv, Schwarzkümmelöl |
-| Rückenschmerzen | Gelenk Kraft, Weihrauch 2.0, Magnesium Direct |
-| Konzentration | Mental Kraft, NADH, Omega 3, B-Komplex-Kolloid |
-
-### 8. Symptom-Tagebuch + Trend-Ansicht
-- **Tägliches Tracking:** Befinden (1-5), Schlaf (1-5), Stress (1-5), Wasser (Gläser), Bewegung (Minuten), Notizen
-- **Upsert-Logik:** Ein Eintrag pro Tag, wird bei erneutem Speichern aktualisiert
-- **Trend-Ansicht:** Durchschnittswerte (Mood/Schlaf/Stress/Wasser), Tagesübersicht mit Balkendiagramm
-- **KI-Lifestyle-Tipps:** GPT-4o analysiert die letzten 14 Tage und gibt allgemeine Lifestyle-Empfehlungen (kein Treatment)
-- **Erkannte Muster:** Automatische Trend-Erkennung (aufwärts/abwärts/stabil) pro Bereich
-- **Navigation:** Tagebuch-Button auf dem Home-Screen mit Buch-Icon
 
 ## Geplante Features (Post-MVP)
 - [ ] Mehrsprachigkeit (Italienisch, Englisch)
-- [ ] Separate App-Instanzen für DE/IT
 - [ ] Eigener API-Key statt Emergent LLM Key
 - [ ] Benutzer-History (vergangene Analysen)
 - [ ] Erweiterte Rezept-Datenbank
@@ -109,6 +104,8 @@ VitaGuide ist eine kostenlose Gesundheits-Informations-App, die über eine KI-An
 - [ ] Detaillierte Analytics-Dashboard
 - [ ] A/B-Testing für Affiliate-Conversion
 - [ ] DSGVO-Compliance (Privacy Policy, Cookie Consent)
+- [ ] Produktkatalog von Hardcoded → MongoDB Collection migrieren
+- [ ] server.py in Module aufteilen (routes, models, prompts)
 
 ## Sicherheits- & Compliance-Regeln
 1. Keine Diagnosen
