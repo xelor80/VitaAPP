@@ -414,7 +414,7 @@ function NutritionTab({ analysis, onShopPress }: { analysis: any; onShopPress: (
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <MaterialCommunityIcons name="food-apple-outline" size={20} color="#4A8B71" />
-            <Text style={styles.cardTitle}>Ernährungstipps</Text>
+            <Text style={styles.cardTitle}>{t(lang, 'nutrition_tips_title')}</Text>
           </View>
           {analysis.nutrition_tips.map((tip: string, i: number) => (
             <View key={i} style={styles.nutritionTipCard}>
