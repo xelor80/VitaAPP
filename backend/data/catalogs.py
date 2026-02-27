@@ -1,15 +1,28 @@
-import json
-from core.config import ROOT_DIR
+"""
+Catalog loaders - Now uses MongoDB as primary data source.
+JSON files are only used for initial migration via migrate_to_mongodb.py.
+"""
+from core.config import db
 
 
-def _load_json(filename: str) -> list:
-    path = ROOT_DIR / filename
-    if path.exists():
-        with open(path, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return []
+async def get_products_de():
+    """Get all German products from MongoDB."""
+    cursor = db.products_de.find({}, {"_id": 0})
+    return await cursor.to_list(length=None)
 
 
-PRODUCT_CATALOG_DE = _load_json("products_de.json")
-PRODUCT_CATALOG_IT = _load_json("products_it.json")
-RECIPE_CATALOG = _load_json("recipes.json")
+async def get_products_it():
+    """Get all Italian products from MongoDB."""
+    cursor = db.products_it.find({}, {"_id": 0})
+    return await cursor.to_list(length=None)
+
+
+async def get_recipes():
+    """Get all recipes from MongoDB."""
+    cursor = db.recipes.find({}, {"_id": 0})
+    return await cursor.to_list(length=None)
+
+
+async def get_products_by_lang(lang: str = "de"):
+    """Get products by language."""
+    return await get_products_de() if lang == "de" else await get_products_it()
