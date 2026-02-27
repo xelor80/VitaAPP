@@ -436,10 +436,15 @@ function NutritionTab({ analysis, onShopPress, lang }: { analysis: any; onShopPr
   );
 }
 
-// Web-compatible recipe image component using ImageBackground for full-width
+// Web-compatible recipe image using ImageBackground
 function RecipeImg({ url, alt, width }: { url: string; alt: string; width: number }) {
   return (
-    <Image source={{ uri: url }} style={{ width: 400, height: 180 }} resizeMode="contain" />
+    <ImageBackground
+      source={{ uri: url }}
+      style={{ height: 180 }}
+      imageStyle={{ borderTopLeftRadius: 16, borderTopRightRadius: 16 }}
+      resizeMode="cover"
+    />
   );
 }
 
