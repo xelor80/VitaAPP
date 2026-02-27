@@ -614,8 +614,11 @@ class DiaryEntryInput(BaseModel):
 @api_router.post("/diary")
 async def save_diary_entry(data: DiaryEntryInput, request: Request):
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    # Upsert: one entry per day - check if entry exists first
+    existing = await db.diary.find_one({"date": today}, {"_id": 0})
+    
     entry = {
-        "id": str(uuid.uuid4()),
+        "id": existing["id"] if existing else str(uuid.uuid4()),
         "date": today,
         "mood": max(1, min(5, data.mood)),
         "sleep": max(1, min(5, data.sleep)),
@@ -625,11 +628,9 @@ async def save_diary_entry(data: DiaryEntryInput, request: Request):
         "notes": data.notes,
         "created_at": datetime.now(timezone.utc).isoformat()
     }
-    # Upsert: one entry per day
-    existing = await db.diary.find_one({"date": today}, {"_id": 0})
+    
     if existing:
         await db.diary.update_one({"date": today}, {"$set": entry})
-        entry["id"] = existing["id"]
     else:
         db_doc = {**entry}
         await db.diary.insert_one(db_doc)
