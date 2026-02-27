@@ -43,69 +43,275 @@ class ClickEventInput(BaseModel):
 # ===================== PRODUCT CATALOG =====================
 
 PRODUCT_CATALOG = [
+    # ===== GELENKE & MOBILITÄT =====
     {
-        "product_id": "vitanatura-d3k2",
-        "name": "VitaNatura Vitamin D3 + K2 Tropfen",
-        "description": "Hochdosiertes Vitamin D3 mit K2 für Knochen und Immunsystem",
-        "affiliate_url": "https://shop.vitanatura.example/d3-k2?ref=app&utm_source=vitaguide&utm_medium=app",
-        "tags": ["vitamin-d", "knochen", "immunsystem", "müdigkeit", "winter"],
+        "product_id": "gelenk-kraft",
+        "name": "Gelenk Kraft",
+        "description": "Bestseller für Gelenke und Beweglichkeit. Schweizer Qualität, 100% natürlich.",
+        "affiliate_url": "https://joachim-kaeser.de/products/gelenk-kraft-360g?ref=vitaguide&utm_source=vitaguide&utm_medium=app",
+        "tags": ["gelenke", "gelenkschmerzen", "mobilität", "rückenschmerzen", "knochen", "arthrose"],
+        "price": "32,90 €",
+        "rating": "4.82/5 (71)"
+    },
+    {
+        "product_id": "weihrauch-2-0",
+        "name": "Weihrauch 2.0",
+        "description": "Hochdosierter Weihrauchextrakt bei Gelenkbeschwerden und Entzündungsprozessen.",
+        "affiliate_url": "https://joachim-kaeser.de/products/weihrauch-60-kapseln?ref=vitaguide&utm_source=vitaguide&utm_medium=app",
+        "tags": ["gelenke", "entzündung", "gelenkschmerzen", "rückenschmerzen", "weihrauch"],
+        "price": "32,90 €",
+        "rating": "4.76/5 (38)"
+    },
+    {
+        "product_id": "kurkuma-komplex",
+        "name": "Kurkuma-Komplex",
+        "description": "Flüssiger Curcuma-Komplex – bekannt für entzündungshemmende Eigenschaften.",
+        "affiliate_url": "https://joachim-kaeser.de/products/curcuma-complex-30-ml?ref=vitaguide&utm_source=vitaguide&utm_medium=app",
+        "tags": ["kurkuma", "entzündung", "gelenke", "verdauung", "antioxidantien"],
         "price": "24,90 €"
     },
+    # ===== VERDAUUNG & DETOX =====
     {
-        "product_id": "vitanatura-omega3",
-        "name": "VitaNatura Omega-3 Premium Kapseln",
-        "description": "Hochwertiges Fischöl mit EPA und DHA",
-        "affiliate_url": "https://shop.vitanatura.example/omega3?ref=app&utm_source=vitaguide&utm_medium=app",
-        "tags": ["omega-3", "herz", "gehirn", "entzündung", "gelenke"],
-        "price": "29,90 €"
+        "product_id": "microbiom-complex",
+        "name": "Microbiom Complex",
+        "description": "Probiotischer Komplex für gesunde Darmflora und Verdauung.",
+        "affiliate_url": "https://joachim-kaeser.de/products/microbiom-complex?ref=vitaguide&utm_source=vitaguide&utm_medium=app",
+        "tags": ["verdauung", "darm", "probiotika", "blähungen", "immunsystem", "microbiom"],
+        "price": "32,90 €",
+        "rating": "4.85/5 (27)"
     },
     {
-        "product_id": "vitanatura-magnesium",
-        "name": "VitaNatura Magnesium Komplex 400",
-        "description": "Magnesiumcitrat und -bisglycinat für Muskeln und Nerven",
-        "affiliate_url": "https://shop.vitanatura.example/magnesium?ref=app&utm_source=vitaguide&utm_medium=app",
-        "tags": ["magnesium", "muskeln", "krämpfe", "schlaf", "stress", "nerven"],
-        "price": "19,90 €"
+        "product_id": "leber-vital",
+        "name": "Leber Vital",
+        "description": "Natürliche Unterstützung der Leberfunktion und Entgiftung.",
+        "affiliate_url": "https://joachim-kaeser.de/products/leber-vital?ref=vitaguide&utm_source=vitaguide&utm_medium=app",
+        "tags": ["leber", "entgiftung", "verdauung", "detox"],
+        "price": "29,90 €",
+        "rating": "5.0/5 (7)"
     },
     {
-        "product_id": "vitanatura-vc-zink",
-        "name": "VitaNatura Vitamin C + Zink",
-        "description": "Immunsupport mit natürlichem Vitamin C aus Acerola",
-        "affiliate_url": "https://shop.vitanatura.example/vc-zink?ref=app&utm_source=vitaguide&utm_medium=app",
-        "tags": ["vitamin-c", "zink", "immunsystem", "erkältung", "haut"],
-        "price": "16,90 €"
+        "product_id": "gruene-entgiftung",
+        "name": "Grüne Entgiftung",
+        "description": "Natürliches Detox-Supplement mit grünen Superfoods.",
+        "affiliate_url": "https://joachim-kaeser.de/products/green-detox-1?ref=vitaguide&utm_source=vitaguide&utm_medium=app",
+        "tags": ["detox", "entgiftung", "verdauung", "superfoods"],
+        "price": "32,90 €",
+        "rating": "5.0/5 (1)"
+    },
+    # ===== IMMUNSYSTEM & ERKÄLTUNG =====
+    {
+        "product_id": "immunkraft",
+        "name": "Immunkraft",
+        "description": "Natürliche Stärkung des Immunsystems – ideal in der kalten Jahreszeit.",
+        "affiliate_url": "https://joachim-kaeser.de/products/immun-kraft-60-kapseln?ref=vitaguide&utm_source=vitaguide&utm_medium=app",
+        "tags": ["immunsystem", "erkältung", "abwehr", "winter", "grippe"],
+        "price": "15,90 €"
     },
     {
-        "product_id": "vitanatura-b-komplex",
-        "name": "VitaNatura B-Komplex Forte",
-        "description": "Alle 8 B-Vitamine in bioaktiver Form",
-        "affiliate_url": "https://shop.vitanatura.example/b-komplex?ref=app&utm_source=vitaguide&utm_medium=app",
-        "tags": ["b-vitamine", "energie", "nerven", "müdigkeit", "konzentration"],
+        "product_id": "echinacea-kolloidal",
+        "name": "Echinacea Kolloidal",
+        "description": "Kolloidale Echinacea zur Unterstützung der Abwehrkräfte.",
+        "affiliate_url": "https://joachim-kaeser.de/products/echinacea-colloidal?ref=vitaguide&utm_source=vitaguide&utm_medium=app",
+        "tags": ["immunsystem", "erkältung", "echinacea", "abwehr"],
         "price": "21,90 €"
     },
     {
-        "product_id": "vitanatura-eisen",
-        "name": "VitaNatura Eisen + Vitamin C",
-        "description": "Gut verträgliches Eisenbisglycinat mit Vitamin C",
-        "affiliate_url": "https://shop.vitanatura.example/eisen?ref=app&utm_source=vitaguide&utm_medium=app",
-        "tags": ["eisen", "müdigkeit", "blutarmut", "frauen", "energie"],
-        "price": "18,90 €"
+        "product_id": "vitamin-c-retard",
+        "name": "Vitamin C Retard",
+        "description": "Depot-Vitamin C mit langsamer Freisetzung für anhaltende Versorgung.",
+        "affiliate_url": "https://joachim-kaeser.de/products/vitamina-c-retard?ref=vitaguide&utm_source=vitaguide&utm_medium=app",
+        "tags": ["vitamin-c", "immunsystem", "erkältung", "haut", "antioxidantien"],
+        "price": "31,90 €"
     },
     {
-        "product_id": "vitanatura-probiotika",
-        "name": "VitaNatura Probiotika Balance",
-        "description": "20 Milliarden KBE mit 15 Bakterienstämmen",
-        "affiliate_url": "https://shop.vitanatura.example/probiotika?ref=app&utm_source=vitaguide&utm_medium=app",
-        "tags": ["probiotika", "darm", "verdauung", "immunsystem", "blähungen"],
-        "price": "27,90 €"
+        "product_id": "kolloidales-zink",
+        "name": "Kolloidales Zink",
+        "description": "Kolloidales Zink für Immunsystem, Haut und Stoffwechsel.",
+        "affiliate_url": "https://joachim-kaeser.de/products/zink-150-ml?ref=vitaguide&utm_source=vitaguide&utm_medium=app",
+        "tags": ["zink", "immunsystem", "haut", "erkältung", "stoffwechsel"],
+        "price": "21,90 €"
+    },
+    # ===== ENERGIE & MÜDIGKEIT =====
+    {
+        "product_id": "b-komplex-kolloid",
+        "name": "B-Komplex-Kolloid",
+        "description": "Kolloidaler B-Vitamin-Komplex für Energie, Nerven und Konzentration.",
+        "affiliate_url": "https://joachim-kaeser.de/products/b-complex-150-ml?ref=vitaguide&utm_source=vitaguide&utm_medium=app",
+        "tags": ["b-vitamine", "energie", "müdigkeit", "nerven", "konzentration", "stress"],
+        "price": "21,90 €"
     },
     {
-        "product_id": "vitanatura-kurkuma",
-        "name": "VitaNatura Kurkuma Extrakt",
-        "description": "Hochdosierter Curcumin-Extrakt mit Piperin",
-        "affiliate_url": "https://shop.vitanatura.example/kurkuma?ref=app&utm_source=vitaguide&utm_medium=app",
-        "tags": ["kurkuma", "entzündung", "gelenke", "antioxidantien", "verdauung"],
-        "price": "22,90 €"
+        "product_id": "eisen",
+        "name": "Eisen",
+        "description": "Flüssiges Eisen-Supplement – gut verträglich und hochbioverfügbar. 150 ml.",
+        "affiliate_url": "https://joachim-kaeser.de/products/eisen-150-ml?ref=vitaguide&utm_source=vitaguide&utm_medium=app",
+        "tags": ["eisen", "müdigkeit", "energie", "blutarmut", "frauen"],
+        "price": "21,90 €"
+    },
+    {
+        "product_id": "nadh",
+        "name": "NADH",
+        "description": "Coenzym NADH für zelluläre Energie und geistige Leistungsfähigkeit. 60 Kapseln.",
+        "affiliate_url": "https://joachim-kaeser.de/products/nadh-60-kapseln?ref=vitaguide&utm_source=vitaguide&utm_medium=app",
+        "tags": ["energie", "müdigkeit", "konzentration", "zellerneuerung", "leistung"],
+        "price": "29,90 €",
+        "rating": "5.0/5 (1)"
+    },
+    {
+        "product_id": "q10-power",
+        "name": "Q10 Power",
+        "description": "Coenzym Q10 – unterstützt die Energieproduktion in jeder Zelle.",
+        "affiliate_url": "https://joachim-kaeser.de/products/coenzym-q10-60-kapseln?ref=vitaguide&utm_source=vitaguide&utm_medium=app",
+        "tags": ["q10", "energie", "herz", "müdigkeit", "anti-aging", "zellen"],
+        "price": "32,90 €",
+        "rating": "4.67/5 (6)"
+    },
+    {
+        "product_id": "factor-d",
+        "name": "Factor D",
+        "description": "Hochdosiertes Vitamin D3 – wichtig für Knochen, Immunsystem und Wohlbefinden. 90 Kapseln.",
+        "affiliate_url": "https://joachim-kaeser.de/products/factor-d-60-kapseln?ref=vitaguide&utm_source=vitaguide&utm_medium=app",
+        "tags": ["vitamin-d", "knochen", "immunsystem", "müdigkeit", "winter", "stimmung"],
+        "price": "31,90 €",
+        "rating": "5.0/5 (10)"
+    },
+    {
+        "product_id": "essentials-direct",
+        "name": "Essentials Direct",
+        "description": "Flüssige Grundversorgung mit essentiellen Mineralien und Spurenelementen.",
+        "affiliate_url": "https://joachim-kaeser.de/products/essentials-direct?ref=vitaguide&utm_source=vitaguide&utm_medium=app",
+        "tags": ["mineralstoffe", "grundversorgung", "müdigkeit", "energie", "immunsystem"],
+        "price": "32,90 €",
+        "rating": "5.0/5 (4)"
+    },
+    # ===== STRESS & SCHLAF =====
+    {
+        "product_id": "magnesium-direct",
+        "name": "Magnesium Direct",
+        "description": "Flüssiges Magnesium zum Trinken – für Muskeln, Nerven und erholsamen Schlaf.",
+        "affiliate_url": "https://joachim-kaeser.de/products/magnesium-direkt-60-ml?ref=vitaguide&utm_source=vitaguide&utm_medium=app",
+        "tags": ["magnesium", "schlaf", "stress", "muskeln", "krämpfe", "nerven", "kopfschmerzen"],
+        "price": "34,90 €",
+        "rating": "4.75/5 (4)"
+    },
+    {
+        "product_id": "mental-kraft",
+        "name": "Mental Kraft",
+        "description": "Natürliche Unterstützung für Gedächtnis, Konzentration und mentale Stärke.",
+        "affiliate_url": "https://joachim-kaeser.de/products/mental-kraft-60-kapseln?ref=vitaguide&utm_source=vitaguide&utm_medium=app",
+        "tags": ["konzentration", "gedächtnis", "stress", "nerven", "mental", "gehirn"],
+        "price": "32,90 €",
+        "rating": "5.0/5 (1)"
+    },
+    # ===== HAUT, HAARE & SCHÖNHEIT =====
+    {
+        "product_id": "haut-factor",
+        "name": "Haut Factor",
+        "description": "Speziell für gesunde, strahlende Haut von innen. 90 Presslinge.",
+        "affiliate_url": "https://joachim-kaeser.de/products/haut-factor-180-taps?ref=vitaguide&utm_source=vitaguide&utm_medium=app",
+        "tags": ["haut", "hautprobleme", "schönheit", "anti-aging"],
+        "price": "36,90 €",
+        "rating": "4.88/5 (8)"
+    },
+    {
+        "product_id": "collagen-bi-caps",
+        "name": "Collagen Bi-Caps",
+        "description": "Kollagen-Kapseln für Haut, Haare und Bindegewebe. Kapsel-in-Kapsel-Technologie.",
+        "affiliate_url": "https://joachim-kaeser.de/products/collagen-bi-caps-60-kapseln?ref=vitaguide&utm_source=vitaguide&utm_medium=app",
+        "tags": ["kollagen", "haut", "haare", "bindegewebe", "anti-aging", "hautprobleme"],
+        "price": "35,90 €",
+        "rating": "4.5/5 (6)"
+    },
+    {
+        "product_id": "hyaluronsaeure",
+        "name": "Hyaluronsäure",
+        "description": "Hochdosierte Hyaluronsäure-Kapseln für Haut und Gelenke. 60 Kapseln.",
+        "affiliate_url": "https://joachim-kaeser.de/products/hyaluronsaure-60-kapseln?ref=vitaguide&utm_source=vitaguide&utm_medium=app",
+        "tags": ["hyaluronsäure", "haut", "gelenke", "feuchtigkeit", "anti-aging", "hautprobleme"],
+        "price": "29,90 €",
+        "rating": "5.0/5 (1)"
+    },
+    {
+        "product_id": "haar-aktiv",
+        "name": "Haar Aktiv",
+        "description": "Kapseln für kräftiges, gesundes Haar von innen. 60 Kapseln.",
+        "affiliate_url": "https://joachim-kaeser.de/products/haar-aktiv-60-kapseln?ref=vitaguide&utm_source=vitaguide&utm_medium=app",
+        "tags": ["haare", "haarausfall", "nägel", "schönheit", "hautprobleme"],
+        "price": "32,90 €",
+        "rating": "4.52/5 (21)"
+    },
+    {
+        "product_id": "schwarzkuemmeloel",
+        "name": "Schwarzkümmelöl",
+        "description": "Kaltgepresstes Schwarzkümmelöl – traditionell bei Haut- und Allergiethemen. 90 Kapseln.",
+        "affiliate_url": "https://joachim-kaeser.de/products/schwarzkummelol-90-kapseln?ref=vitaguide&utm_source=vitaguide&utm_medium=app",
+        "tags": ["schwarzkümmel", "haut", "allergie", "immunsystem", "entzündung", "hautprobleme"],
+        "price": "26,90 €",
+        "rating": "5.0/5 (1)"
+    },
+    # ===== HERZ & KREISLAUF =====
+    {
+        "product_id": "omega-3",
+        "name": "Omega 3",
+        "description": "Hochwertige Omega-3-Kapseln für Herz, Gehirn und Gelenke. 60 Kapseln.",
+        "affiliate_url": "https://joachim-kaeser.de/products/omega-3-60-kapseln?ref=vitaguide&utm_source=vitaguide&utm_medium=app",
+        "tags": ["omega-3", "herz", "gehirn", "gelenke", "entzündung", "konzentration", "kopfschmerzen"],
+        "price": "32,90 €",
+        "rating": "5.0/5 (1)"
+    },
+    {
+        "product_id": "kreislauf-vital",
+        "name": "Kreislauf Vital",
+        "description": "Natürliche Unterstützung für einen gesunden Kreislauf. 60 Kapseln.",
+        "affiliate_url": "https://joachim-kaeser.de/products/kreislauf-60-kapseln?ref=vitaguide&utm_source=vitaguide&utm_medium=app",
+        "tags": ["kreislauf", "herz", "blutdruck", "venen", "durchblutung"],
+        "price": "32,90 €"
+    },
+    # ===== GEWICHTSKONTROLLE =====
+    {
+        "product_id": "metabol-control",
+        "name": "Metabol Control",
+        "description": "Unterstützt den Stoffwechsel und die natürliche Gewichtskontrolle.",
+        "affiliate_url": "https://joachim-kaeser.de/products/metabol-control-1?ref=vitaguide&utm_source=vitaguide&utm_medium=app",
+        "tags": ["stoffwechsel", "gewicht", "verdauung", "metabolismus"],
+        "price": "32,90 €",
+        "rating": "4.57/5 (14)"
+    },
+    # ===== WEITERE SPEZIALPRODUKTE =====
+    {
+        "product_id": "atem-kraft",
+        "name": "Atem Kraft",
+        "description": "Natürliche Unterstützung für freie Atemwege und Lungengesundheit.",
+        "affiliate_url": "https://joachim-kaeser.de/products/atem-kraft-60-kapseln?ref=vitaguide&utm_source=vitaguide&utm_medium=app",
+        "tags": ["atemwege", "lunge", "erkältung", "husten", "bronchien"],
+        "price": "31,90 €"
+    },
+    {
+        "product_id": "knochen-direct",
+        "name": "Knochen Direct",
+        "description": "Flüssiges Supplement für starke Knochen und Gelenke.",
+        "affiliate_url": "https://joachim-kaeser.de/products/knochen-direct?ref=vitaguide&utm_source=vitaguide&utm_medium=app",
+        "tags": ["knochen", "gelenke", "calcium", "vitamin-d", "osteoporose"],
+        "price": "34,90 €",
+        "rating": "4.7/5 (10)"
+    },
+    {
+        "product_id": "glutathion-plus",
+        "name": "Glutathion +",
+        "description": "Starkes Antioxidans für Entgiftung und Zellschutz.",
+        "affiliate_url": "https://joachim-kaeser.de/products/glutathion?ref=vitaguide&utm_source=vitaguide&utm_medium=app",
+        "tags": ["antioxidantien", "entgiftung", "zellschutz", "immunsystem", "leber"],
+        "price": "32,90 €",
+        "rating": "4.86/5 (7)"
+    },
+    {
+        "product_id": "visio-pro",
+        "name": "Visio Pro",
+        "description": "Nährstoffe für gesunde Augen und gutes Sehvermögen. 60 Kapseln.",
+        "affiliate_url": "https://joachim-kaeser.de/products/visio-pro-60-kapseln?ref=vitaguide&utm_source=vitaguide&utm_medium=app",
+        "tags": ["augen", "sehkraft", "bildschirmarbeit", "konzentration"],
+        "price": "31,90 €",
+        "rating": "4.23/5 (13)"
     }
 ]
 

@@ -212,7 +212,7 @@ function SupplementsTab({ analysis, onShopPress }: { analysis: any; onShopPress:
       {analysis.brand_products?.length > 0 && (
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Passende Produkte</Text>
-          <Text style={styles.sectionSubtitle}>Von VitaNatura (Werbung)</Text>
+          <Text style={styles.sectionSubtitle}>Von Joachim Kaeser (Werbung)</Text>
         </View>
       )}
       {analysis.brand_products?.map((p: any, i: number) => (
