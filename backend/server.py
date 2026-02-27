@@ -598,6 +598,121 @@ async def track_click(event: ClickEventInput):
     return click_data
 
 
+# ===================== DIARY MODELS =====================
+
+class DiaryEntryInput(BaseModel):
+    mood: int = 3        # 1-5 (1=sehr schlecht, 5=sehr gut)
+    sleep: int = 3       # 1-5
+    stress: int = 3      # 1-5 (1=sehr hoch, 5=sehr entspannt)
+    water: int = 4       # Gläser (0-12)
+    exercise: int = 0    # Minuten (0-180)
+    notes: str = ""
+
+
+# ===================== DIARY ENDPOINTS =====================
+
+@api_router.post("/diary")
+async def save_diary_entry(data: DiaryEntryInput, request: Request):
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    entry = {
+        "id": str(uuid.uuid4()),
+        "date": today,
+        "mood": max(1, min(5, data.mood)),
+        "sleep": max(1, min(5, data.sleep)),
+        "stress": max(1, min(5, data.stress)),
+        "water": max(0, min(12, data.water)),
+        "exercise": max(0, min(180, data.exercise)),
+        "notes": data.notes,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    # Upsert: one entry per day
+    existing = await db.diary.find_one({"date": today}, {"_id": 0})
+    if existing:
+        await db.diary.update_one({"date": today}, {"$set": entry})
+        entry["id"] = existing["id"]
+    else:
+        db_doc = {**entry}
+        await db.diary.insert_one(db_doc)
+    return entry
+
+
+@api_router.get("/diary")
+async def get_diary_entries(days: int = 14):
+    days = min(days, 90)
+    entries = await db.diary.find(
+        {}, {"_id": 0}
+    ).sort("date", -1).limit(days).to_list(days)
+    return entries
+
+
+@api_router.get("/diary/trends")
+async def get_diary_trends(request: Request):
+    ip = request.client.host if request.client else "unknown"
+    if not check_rate_limit(ip):
+        raise HTTPException(status_code=429, detail="Zu viele Anfragen.")
+
+    entries = await db.diary.find(
+        {}, {"_id": 0}
+    ).sort("date", -1).limit(14).to_list(14)
+
+    if len(entries) < 3:
+        return {
+            "entries": entries,
+            "tips": [],
+            "summary": "Bitte tragen Sie mindestens 3 Tage ein, um Trends und Tipps zu erhalten."
+        }
+
+    # Build LLM prompt for lifestyle tips
+    entries_text = "\n".join([
+        f"Datum: {e['date']} | Befinden: {e['mood']}/5 | Schlaf: {e['sleep']}/5 | "
+        f"Stress: {e['stress']}/5 (5=entspannt) | Wasser: {e['water']} Gläser | "
+        f"Bewegung: {e['exercise']} Min." + (f" | Notiz: {e['notes']}" if e.get('notes') else "")
+        for e in reversed(entries)
+    ])
+
+    trend_prompt = f"""Hier sind die Tagebuch-Einträge eines Nutzers der letzten Tage:
+
+{entries_text}
+
+Analysiere die Trends und gib 3-5 allgemeine Lifestyle-Tipps. KEINE medizinischen Ratschläge, KEINE Diagnosen.
+Fokussiere auf: Schlafgewohnheiten, Stressmanagement, Hydration, Bewegung, allgemeines Wohlbefinden.
+
+Antworte NUR als JSON:
+{{
+  "summary": "Kurze Zusammenfassung der Trends (2-3 Sätze)",
+  "tips": ["Tipp 1", "Tipp 2", "Tipp 3"],
+  "patterns": [
+    {{"area": "Bereich", "trend": "aufwärts|abwärts|stabil", "note": "Kurze Beobachtung"}}
+  ]
+}}"""
+
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+        chat = LlmChat(
+            api_key=os.environ['EMERGENT_LLM_KEY'],
+            session_id=str(uuid.uuid4()),
+            system_message="Du bist ein freundlicher Wellness-Coach. Gib nur allgemeine Lifestyle-Tipps, KEINE medizinischen Ratschläge oder Diagnosen."
+        ).with_model("openai", "gpt-4o")
+
+        response_text = await chat.send_message(UserMessage(text=trend_prompt))
+        parsed = parse_llm_response(response_text)
+    except Exception as e:
+        logger.error(f"Diary LLM Error: {e}")
+        parsed = {
+            "summary": "Trend-Analyse aktuell nicht verfügbar.",
+            "tips": ["Regelmäßiger Schlaf unterstützt das Wohlbefinden.", "Ausreichend Wasser trinken."],
+            "patterns": []
+        }
+
+    return {
+        "entries": entries,
+        "summary": parsed.get("summary", ""),
+        "tips": parsed.get("tips", []),
+        "patterns": parsed.get("patterns", [])
+    }
+
+
+
 # ===================== APP SETUP =====================
 
 app.include_router(api_router)
