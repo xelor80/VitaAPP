@@ -118,7 +118,7 @@ export default function ResultsScreen() {
 
       {/* Content */}
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {activeTab === 'overview' && <OverviewTab analysis={analysis} />}
+        {activeTab === 'overview' && <OverviewTab analysis={analysis} onShopPress={trackClick} />}
         {activeTab === 'supplements' && <SupplementsTab analysis={analysis} onShopPress={trackClick} />}
         {activeTab === 'nutrition' && <NutritionTab analysis={analysis} />}
         {activeTab === 'recipes' && <RecipesTab analysis={analysis} router={router} />}
@@ -263,12 +263,24 @@ function SupplementsTab({ analysis, onShopPress }: { analysis: any; onShopPress:
       {analysis.brand_products?.map((p: any, i: number) => (
         <View key={i} testID={`product-card-${p.product_id}`} style={styles.productCard}>
           <View style={styles.productTop}>
-            <View style={styles.productIcon}>
-              <MaterialCommunityIcons name="package-variant-closed" size={24} color="#4A8B71" />
-            </View>
+            {p.image_url ? (
+              <Image source={{ uri: p.image_url }} style={styles.productImage} resizeMode="contain" />
+            ) : (
+              <View style={styles.productIcon}>
+                <MaterialCommunityIcons name="package-variant-closed" size={24} color="#4A8B71" />
+              </View>
+            )}
             <View style={{ flex: 1 }}>
               <Text style={styles.productName}>{p.name}</Text>
-              {p.price ? <Text style={styles.productPrice}>{p.price}</Text> : null}
+              <View style={styles.productPriceRow}>
+                {p.price ? <Text style={styles.productPrice}>{p.price}</Text> : null}
+                {p.rating ? (
+                  <View style={styles.ratingRow}>
+                    <MaterialCommunityIcons name="star" size={13} color="#F5A623" />
+                    <Text style={styles.ratingText}>{p.rating}</Text>
+                  </View>
+                ) : null}
+              </View>
             </View>
           </View>
           <Text style={styles.productReason}>{p.reason}</Text>
