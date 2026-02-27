@@ -114,6 +114,7 @@ export default function HomeScreen() {
           <AnalyzeButton lang={lang} isLoading={isLoading} onPress={analyzeSymptoms} />
           <DiaryButton lang={lang} onPress={() => router.push('/diary')} />
           <FooterDisclaimer lang={lang} />
+          <AdminButton onPress={() => router.push('/admin')} />
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
