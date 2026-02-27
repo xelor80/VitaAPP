@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView,
-  ActivityIndicator, Linking
+  ActivityIndicator, Linking, Image
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -137,7 +137,8 @@ export default function ResultsScreen() {
 
 // ==================== TAB COMPONENTS ====================
 
-function OverviewTab({ analysis }: { analysis: any }) {
+function OverviewTab({ analysis, onShopPress }: { analysis: any; onShopPress: (id: string, url: string) => void }) {
+  const featuredProduct = analysis.brand_products?.[0];
   return (
     <View>
       {/* Summary */}
@@ -173,6 +174,50 @@ function OverviewTab({ analysis }: { analysis: any }) {
               <Text style={styles.tipText}>{tip}</Text>
             </View>
           ))}
+        </View>
+      )}
+
+      {/* Featured Product on Overview */}
+      {featuredProduct && !analysis.red_flags?.length && (
+        <View style={styles.featuredProductCard}>
+          <View style={styles.featuredHeader}>
+            <MaterialCommunityIcons name="star-outline" size={18} color="#4A8B71" />
+            <Text style={styles.featuredLabel}>Passend für Sie</Text>
+            <Text style={styles.featuredAdLabel}>Werbung</Text>
+          </View>
+          <View style={styles.featuredContent}>
+            {featuredProduct.image_url ? (
+              <Image
+                source={{ uri: featuredProduct.image_url }}
+                style={styles.featuredImage}
+                resizeMode="contain"
+              />
+            ) : (
+              <View style={[styles.featuredImage, styles.featuredImagePlaceholder]}>
+                <MaterialCommunityIcons name="package-variant-closed" size={32} color="#4A8B71" />
+              </View>
+            )}
+            <View style={styles.featuredInfo}>
+              <Text style={styles.featuredName}>{featuredProduct.name}</Text>
+              {featuredProduct.price ? <Text style={styles.featuredPrice}>{featuredProduct.price}</Text> : null}
+              <Text style={styles.featuredReason} numberOfLines={2}>{featuredProduct.reason}</Text>
+              {featuredProduct.rating ? (
+                <View style={styles.ratingRow}>
+                  <MaterialCommunityIcons name="star" size={14} color="#F5A623" />
+                  <Text style={styles.ratingText}>{featuredProduct.rating}</Text>
+                </View>
+              ) : null}
+            </View>
+          </View>
+          <TouchableOpacity
+            testID={`featured-shop-btn-${featuredProduct.product_id}`}
+            style={styles.featuredShopBtn}
+            activeOpacity={0.7}
+            onPress={() => onShopPress(featuredProduct.product_id, featuredProduct.affiliate_url)}
+          >
+            <MaterialCommunityIcons name="open-in-new" size={16} color="#FFFFFF" />
+            <Text style={styles.shopBtnText}>  Im Shop ansehen</Text>
+          </TouchableOpacity>
         </View>
       )}
     </View>
