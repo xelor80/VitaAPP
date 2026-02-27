@@ -137,7 +137,7 @@ export default function ResultsScreen() {
         <View style={styles.disclaimerFooter}>
           <MaterialCommunityIcons name="information-outline" size={14} color="#8FA39B" />
           <Text style={styles.disclaimerText}>
-            {analysis.disclaimer_short || 'Dieser Inhalt dient nur der allgemeinen Information und ersetzt keine ärztliche Beratung.'}
+            {analysis.disclaimer_short || t(lang, 'disclaimer_footer')}
           </Text>
         </View>
       </ScrollView>
