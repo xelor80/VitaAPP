@@ -537,19 +537,37 @@ async def analyze_symptoms(data: SymptomInput, request: Request):
                 "rating": cat.get("rating", "")
             })
 
+    # Enrich supplement_schedule with product images
+    enriched_schedule = []
+    for item in parsed.get("supplement_schedule", []):
+        cat = next((c for c in PRODUCT_CATALOG if c["product_id"] == item.get("product_id")), None)
+        schedule_entry = {
+            "time": item.get("time", ""),
+            "product_name": item.get("product_name", ""),
+            "dosage": item.get("dosage", ""),
+            "instruction": item.get("instruction", ""),
+            "product_id": item.get("product_id", ""),
+        }
+        if cat:
+            schedule_entry["image_url"] = cat.get("image_url", "")
+            schedule_entry["affiliate_url"] = cat.get("affiliate_url", "")
+            schedule_entry["price"] = cat.get("price", "")
+        enriched_schedule.append(schedule_entry)
+
     result = {
         "id": str(uuid.uuid4()),
         "summary": parsed.get("summary", ""),
         "red_flags": parsed.get("red_flags", []),
         "supplements_general_info": parsed.get("supplements_general_info", []),
         "brand_products": enriched_products,
+        "supplement_schedule": enriched_schedule,
         "nutrition_tips": parsed.get("nutrition_tips", []),
         "recipes": parsed.get("recipes", []),
         "disclaimer_short": parsed.get("disclaimer_short", "Allgemeine Information, keine ärztliche Beratung."),
         "input_text": data.text,
         "input_tags": data.tags,
         "created_at": datetime.now(timezone.utc).isoformat(),
-        "prompt_version": "1.0",
+        "prompt_version": "1.1",
         "model": "gpt-4o"
     }
 
