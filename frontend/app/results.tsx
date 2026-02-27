@@ -13,15 +13,21 @@ const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
 type TabKey = 'overview' | 'supplements' | 'nutrition' | 'recipes';
 
-const TABS: { key: TabKey; label: string; icon: string }[] = [
-  { key: 'overview', label: 'Übersicht', icon: 'view-dashboard-outline' },
-  { key: 'supplements', label: 'Supplements', icon: 'pill' },
-  { key: 'nutrition', label: 'Ernährung', icon: 'food-apple-outline' },
-  { key: 'recipes', label: 'Rezepte', icon: 'chef-hat' },
+const TABS: { key: TabKey; icon: string }[] = [
+  { key: 'overview', icon: 'view-dashboard-outline' },
+  { key: 'supplements', icon: 'pill' },
+  { key: 'nutrition', icon: 'food-apple-outline' },
+  { key: 'recipes', icon: 'chef-hat' },
 ];
+
+const TAB_LABELS: Record<string, Record<TabKey, string>> = {
+  de: { overview: 'Übersicht', supplements: 'Supplements', nutrition: 'Ernährung', recipes: 'Rezepte' },
+  it: { overview: 'Panoramica', supplements: 'Integratori', nutrition: 'Nutrizione', recipes: 'Ricette' },
+};
 
 export default function ResultsScreen() {
   const router = useRouter();
+  const { lang } = useLang();
   const [analysis, setAnalysis] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<TabKey>('overview');
   const [isLoading, setIsLoading] = useState(true);
