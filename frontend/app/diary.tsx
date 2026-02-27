@@ -71,6 +71,7 @@ function TrendBar({ value, max, color, label }: { value: number; max: number; co
 // ==================== MAIN SCREEN ====================
 export default function DiaryScreen() {
   const router = useRouter();
+  const { lang } = useLang();
   const [activeTab, setActiveTab] = useState<TabKey>('entry');
 
   // Entry state
@@ -86,6 +87,11 @@ export default function DiaryScreen() {
   // Trends state
   const [trends, setTrends] = useState<any>(null);
   const [loadingTrends, setLoadingTrends] = useState(false);
+
+  const moodLabels = t(lang, 'mood_labels') as string[];
+  const sleepLabels = t(lang, 'sleep_labels') as string[];
+  const stressLabels = t(lang, 'stress_labels') as string[];
+  const locale = lang === 'it' ? 'it-IT' : 'de-DE';
 
   // Load today's entry
   useEffect(() => {
@@ -120,14 +126,14 @@ export default function DiaryScreen() {
       });
       if (res.ok) {
         setSaved(true);
-        Alert.alert('Gespeichert', 'Ihr Tagebuch-Eintrag wurde gespeichert.');
+        Alert.alert(t(lang, 'diary_saved'), t(lang, 'diary_saved_alert'));
       }
     } catch {
-      Alert.alert('Fehler', 'Eintrag konnte nicht gespeichert werden.');
+      Alert.alert(lang === 'de' ? 'Fehler' : 'Errore', t(lang, 'diary_error_save'));
     } finally {
       setSaving(false);
     }
-  }, [mood, sleep, stress, water, exercise, notes]);
+  }, [mood, sleep, stress, water, exercise, notes, lang]);
 
   const loadTrends = useCallback(async () => {
     setLoadingTrends(true);
@@ -136,11 +142,11 @@ export default function DiaryScreen() {
       const data = await res.json();
       setTrends(data);
     } catch {
-      Alert.alert('Fehler', 'Trends konnten nicht geladen werden.');
+      Alert.alert(lang === 'de' ? 'Fehler' : 'Errore', t(lang, 'diary_error_trends'));
     } finally {
       setLoadingTrends(false);
     }
-  }, []);
+  }, [lang]);
 
   useEffect(() => {
     if (activeTab === 'trends' && !trends) {
@@ -155,7 +161,7 @@ export default function DiaryScreen() {
         <TouchableOpacity testID="diary-back-btn" onPress={() => router.back()} style={styles.backBtn}>
           <MaterialCommunityIcons name="arrow-left" size={24} color="#1A2D26" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Tagebuch</Text>
+        <Text style={styles.headerTitle}>{t(lang, 'diary_header')}</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -167,7 +173,7 @@ export default function DiaryScreen() {
           onPress={() => setActiveTab('entry')}
         >
           <MaterialCommunityIcons name="pencil-outline" size={18} color={activeTab === 'entry' ? '#FFF' : '#5C7A6F'} />
-          <Text style={[styles.tabText, activeTab === 'entry' && styles.tabTextActive]}>Eintrag</Text>
+          <Text style={[styles.tabText, activeTab === 'entry' && styles.tabTextActive]}>{t(lang, 'diary_tab_entry')}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           testID="diary-tab-trends"
@@ -175,7 +181,7 @@ export default function DiaryScreen() {
           onPress={() => setActiveTab('trends')}
         >
           <MaterialCommunityIcons name="chart-line" size={18} color={activeTab === 'trends' ? '#FFF' : '#5C7A6F'} />
-          <Text style={[styles.tabText, activeTab === 'trends' && styles.tabTextActive]}>Verlauf</Text>
+          <Text style={[styles.tabText, activeTab === 'trends' && styles.tabTextActive]}>{t(lang, 'diary_tab_trends')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -186,34 +192,34 @@ export default function DiaryScreen() {
             <View style={styles.dateCard}>
               <MaterialCommunityIcons name="calendar-today" size={20} color="#4A8B71" />
               <Text style={styles.dateText}>
-                {new Date().toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                {new Date().toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
               </Text>
               {saved && (
                 <View style={styles.savedBadge}>
                   <MaterialCommunityIcons name="check-circle" size={14} color="#4CAF50" />
-                  <Text style={styles.savedText}>Gespeichert</Text>
+                  <Text style={styles.savedText}>{t(lang, 'diary_saved')}</Text>
                 </View>
               )}
             </View>
 
             {/* Mood */}
-            <RatingRow label="Befinden" icon="emoticon-outline" value={mood} onChange={v => { setMood(v); setSaved(false); }}
-              labels={MOOD_LABELS} icons={MOOD_ICONS} colors={MOOD_COLORS} />
+            <RatingRow label={t(lang, 'diary_mood')} icon="emoticon-outline" value={mood} onChange={v => { setMood(v); setSaved(false); }}
+              labels={moodLabels} icons={MOOD_ICONS} colors={MOOD_COLORS} />
 
             {/* Sleep */}
-            <RatingRow label="Schlaf" icon="sleep" value={sleep} onChange={v => { setSleep(v); setSaved(false); }}
-              labels={SLEEP_LABELS} colors={['#D9534F', '#E8845C', '#F5C842', '#8BC34A', '#4CAF50']} />
+            <RatingRow label={t(lang, 'diary_sleep')} icon="sleep" value={sleep} onChange={v => { setSleep(v); setSaved(false); }}
+              labels={sleepLabels} colors={['#D9534F', '#E8845C', '#F5C842', '#8BC34A', '#4CAF50']} />
 
             {/* Stress */}
-            <RatingRow label="Stress" icon="lightning-bolt-outline" value={stress} onChange={v => { setStress(v); setSaved(false); }}
-              labels={STRESS_LABELS} colors={['#D9534F', '#E8845C', '#F5C842', '#8BC34A', '#4CAF50']} />
+            <RatingRow label={t(lang, 'diary_stress')} icon="lightning-bolt-outline" value={stress} onChange={v => { setStress(v); setSaved(false); }}
+              labels={stressLabels} colors={['#D9534F', '#E8845C', '#F5C842', '#8BC34A', '#4CAF50']} />
 
             {/* Water */}
             <View style={styles.ratingSection}>
               <View style={styles.ratingHeader}>
                 <MaterialCommunityIcons name="cup-water" size={20} color="#2C5F78" />
-                <Text style={styles.ratingLabel}>Wasser</Text>
-                <Text style={styles.ratingValue}>{water} Gläser</Text>
+                <Text style={styles.ratingLabel}>{lang === 'de' ? 'Wasser' : 'Acqua'}</Text>
+                <Text style={styles.ratingValue}>{water} {t(lang, 'diary_glasses')}</Text>
               </View>
               <View style={styles.waterRow}>
                 <TouchableOpacity testID="water-minus" style={styles.waterBtn} onPress={() => { setWater(Math.max(0, water - 1)); setSaved(false); }}>
@@ -235,7 +241,7 @@ export default function DiaryScreen() {
             <View style={styles.ratingSection}>
               <View style={styles.ratingHeader}>
                 <MaterialCommunityIcons name="run" size={20} color="#2C5F78" />
-                <Text style={styles.ratingLabel}>Bewegung</Text>
+                <Text style={styles.ratingLabel}>{lang === 'de' ? 'Bewegung' : 'Attività'}</Text>
                 <Text style={styles.ratingValue}>{exercise} Min.</Text>
               </View>
               <View style={styles.exerciseRow}>
@@ -247,7 +253,7 @@ export default function DiaryScreen() {
                     onPress={() => { setExercise(min); setSaved(false); }}
                   >
                     <Text style={[styles.exerciseChipText, exercise === min && styles.exerciseChipTextActive]}>
-                      {min === 0 ? 'Keine' : `${min}'`}
+                      {min === 0 ? t(lang, 'diary_no_exercise') : `${min}'`}
                     </Text>
                   </TouchableOpacity>
                 ))}
@@ -258,17 +264,17 @@ export default function DiaryScreen() {
             <View style={styles.ratingSection}>
               <View style={styles.ratingHeader}>
                 <MaterialCommunityIcons name="note-text-outline" size={20} color="#2C5F78" />
-                <Text style={styles.ratingLabel}>Notizen</Text>
+                <Text style={styles.ratingLabel}>{t(lang, 'diary_notes')}</Text>
               </View>
               <TextInput
                 testID="diary-notes-input"
                 style={styles.notesInput}
-                placeholder="Optional: Wie war Ihr Tag?"
+                placeholder={t(lang, 'diary_notes_placeholder')}
                 placeholderTextColor="#8FA39B"
                 multiline
                 numberOfLines={3}
                 value={notes}
-                onChangeText={t => { setNotes(t); setSaved(false); }}
+                onChangeText={txt => { setNotes(txt); setSaved(false); }}
                 textAlignVertical="top"
               />
             </View>
@@ -286,7 +292,7 @@ export default function DiaryScreen() {
               ) : (
                 <View style={styles.btnRow}>
                   <MaterialCommunityIcons name="content-save-outline" size={20} color="#FFF" />
-                  <Text style={styles.saveBtnText}>  Eintrag speichern</Text>
+                  <Text style={styles.saveBtnText}>  {t(lang, 'diary_save')}</Text>
                 </View>
               )}
             </TouchableOpacity>
@@ -297,14 +303,14 @@ export default function DiaryScreen() {
           {loadingTrends ? (
             <View style={styles.centered}>
               <ActivityIndicator testID="trends-loading" color="#4A8B71" size="large" />
-              <Text style={styles.loadingText}>Analysiere Ihren Verlauf...</Text>
+              <Text style={styles.loadingText}>{t(lang, 'diary_analyzing_trends')}</Text>
             </View>
           ) : trends ? (
-            <TrendsView trends={trends} onRefresh={loadTrends} />
+            <TrendsView trends={trends} onRefresh={loadTrends} lang={lang} />
           ) : (
             <View style={styles.centered}>
               <MaterialCommunityIcons name="chart-line" size={48} color="#8FA39B" />
-              <Text style={styles.emptyText}>Keine Daten verfügbar</Text>
+              <Text style={styles.emptyText}>{t(lang, 'diary_no_data')}</Text>
             </View>
           )}
         </ScrollView>
