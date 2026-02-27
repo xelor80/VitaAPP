@@ -1,0 +1,45 @@
+{
+  "health_check": {
+    "status": "passed",
+    "details": {
+      "message": "Health check returned status ok",
+      "data": {
+        "status": "ok",
+        "timestamp": "2026-02-27T14:51:25.173376+00:00"
+      }
+    }
+  },
+  "products_api": {
+    "status": "passed",
+    "details": {
+      "message": "All 30 products have application_instructions, filtering works",
+      "total_products": 30,
+      "filtered_products": 6
+    }
+  },
+  "symptom_analysis": {
+    "status": "passed",
+    "details": {
+      "message": "Symptom analysis working correctly with official instructions",
+      "analysis_id": "032f22cb-2ed8-4173-b08f-d6b79e0916ab",
+      "prompt_version": "1.2",
+      "model": "gpt-4o",
+      "supplement_count": 2
+    }
+  },
+  "affiliate_tracking": {
+    "status": "passed",
+    "details": {
+      "message": "Affiliate click tracking working correctly",
+      "first_click_id": "1beea0c7-147a-4875-8122-e561456a1b2a",
+      "second_click_id": "4401c408-6b30-4ab0-9644-3f4251151069"
+    }
+  },
+  "diary_endpoints": {
+    "status": "passed",
+    "details": {
+      "message": "All diary endpoints working correctly",
+      "entry_count": 4
+    }
+  }
+}
