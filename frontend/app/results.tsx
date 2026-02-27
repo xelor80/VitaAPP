@@ -438,13 +438,21 @@ function NutritionTab({ analysis, onShopPress, lang }: { analysis: any; onShopPr
 
 // Web-compatible recipe image using ImageBackground
 function RecipeImg({ url, alt, width }: { url: string; alt: string; width: number }) {
+  const ref = React.useRef<View>(null);
+  React.useEffect(() => {
+    if (Platform.OS === 'web' && ref.current) {
+      try {
+        const node = ref.current as any;
+        if (node && node.classList) {
+          node.classList.add('rimg-wrap');
+        }
+      } catch (e) {}
+    }
+  }, []);
   return (
-    <ImageBackground
-      source={{ uri: url }}
-      style={{ minHeight: 180, height: 180, flexShrink: 0, flexGrow: 0, flexBasis: 180 }}
-      imageStyle={{ borderTopLeftRadius: 16, borderTopRightRadius: 16 }}
-      resizeMode="cover"
-    />
+    <View ref={ref}>
+      <Image source={{ uri: url }} style={{ width: 1, height: 1 }} resizeMode="cover" />
+    </View>
   );
 }
 
