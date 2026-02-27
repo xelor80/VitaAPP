@@ -438,6 +438,8 @@ function NutritionTab({ analysis, onShopPress, lang }: { analysis: any; onShopPr
 function RecipesTab({ analysis, router, lang }: { analysis: any; router: any; lang: string }) {
   const [catalogRecipes, setCatalogRecipes] = React.useState<any[]>([]);
   const [expandedRecipe, setExpandedRecipe] = React.useState<string | null>(null);
+  const { width: screenWidth } = useWindowDimensions();
+  const imageWidth = screenWidth - 32; // account for content padding
 
   React.useEffect(() => {
     const inputTags = analysis?.input_tags || [];
