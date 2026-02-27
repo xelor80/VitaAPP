@@ -117,7 +117,7 @@ export default function ResultsScreen() {
                   size={18}
                   color={active ? '#FFFFFF' : '#5C7A6F'}
                 />
-                <Text style={[styles.tabText, active && styles.tabTextActive]}>{tab.label}</Text>
+                <Text style={[styles.tabText, active && styles.tabTextActive]}>{TAB_LABELS[lang]?.[tab.key] || TAB_LABELS.de[tab.key]}</Text>
               </TouchableOpacity>
             );
           })}
