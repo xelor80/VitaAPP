@@ -245,7 +245,7 @@ function OverviewTab({ analysis, onShopPress, lang }: { analysis: any; onShopPre
   );
 }
 
-function SupplementsTab({ analysis, onShopPress }: { analysis: any; onShopPress: (id: string, url: string) => void }) {
+function SupplementsTab({ analysis, onShopPress, lang }: { analysis: any; onShopPress: (id: string, url: string) => void; lang: string }) {
   return (
     <View>
       {/* Supplement Info */}
