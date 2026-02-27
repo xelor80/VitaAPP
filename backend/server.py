@@ -574,7 +574,7 @@ async def analyze_symptoms(data: SymptomInput, request: Request):
                 "rating": cat.get("rating", "")
             })
 
-    # Enrich supplement_schedule with product images
+    # Enrich supplement_schedule with product images and official instructions
     enriched_schedule = []
     for item in parsed.get("supplement_schedule", []):
         cat = next((c for c in PRODUCT_CATALOG if c["product_id"] == item.get("product_id")), None)
@@ -589,6 +589,7 @@ async def analyze_symptoms(data: SymptomInput, request: Request):
             schedule_entry["image_url"] = cat.get("image_url", "")
             schedule_entry["affiliate_url"] = cat.get("affiliate_url", "")
             schedule_entry["price"] = cat.get("price", "")
+            schedule_entry["application_instructions"] = cat.get("application_instructions", "")
         enriched_schedule.append(schedule_entry)
 
     result = {
