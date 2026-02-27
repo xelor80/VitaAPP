@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView,
-  ActivityIndicator, Linking, Image, useWindowDimensions, Platform
+  ActivityIndicator, Linking, Image, useWindowDimensions, Platform, ImageBackground
 } from 'react-native';
 import { Image as ExpoImage } from 'expo-image';
 import { useRouter } from 'expo-router';
