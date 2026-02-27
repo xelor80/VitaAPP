@@ -437,17 +437,18 @@ function NutritionTab({ analysis, onShopPress, lang }: { analysis: any; onShopPr
 
 function RecipesTab({ analysis, router, lang }: { analysis: any; router: any; lang: string }) {
   const [catalogRecipes, setCatalogRecipes] = React.useState<any[]>([]);
+  const [expandedRecipe, setExpandedRecipe] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    const selectedTags = analysis?.symptom_tags || analysis?.tags || [];
-    const tagParam = selectedTags.join(',');
+    const inputTags = analysis?.input_tags || [];
+    const tagParam = inputTags.join(',');
     fetch(`${API_URL}/api/recipes?lang=${lang}${tagParam ? `&tags=${tagParam}` : ''}`)
       .then(r => r.json())
       .then(data => setCatalogRecipes(data))
       .catch(() => {});
-  }, [lang]);
+  }, [lang, analysis?.input_tags]);
 
-  // Merge LLM recipes with catalog recipes, avoid duplicates
+  // LLM recipes first, then matching catalog recipes (no duplicates)
   const llmRecipes = analysis.recipes || [];
   const allRecipes = [...llmRecipes];
   for (const cr of catalogRecipes) {
@@ -467,37 +468,68 @@ function RecipesTab({ analysis, router, lang }: { analysis: any; router: any; la
 
   return (
     <View>
-      {allRecipes.map((recipe: any, i: number) => (
-        <TouchableOpacity
-          key={recipe.id || i}
-          testID={`recipe-card-${i}`}
-          style={styles.recipeCard}
-          activeOpacity={0.7}
-          onPress={() => router.push(`/recipe?idx=${i}`)}
-        >
-          {recipe.image_url ? (
-            <Image source={{ uri: recipe.image_url }} style={styles.recipeImage} resizeMode="cover" />
-          ) : null}
-          <View style={styles.recipeContent}>
-            <Text style={styles.recipeTitle}>{recipe.title}</Text>
-            <View style={styles.recipeMeta}>
-              <MaterialCommunityIcons name="clock-outline" size={14} color="#5C7A6F" />
-              <Text style={styles.recipeTime}> {recipe.time_min} Min.</Text>
-              <Text style={styles.recipeDot}>·</Text>
-              <Text style={styles.recipeIngCount}>{recipe.ingredients?.length || 0} {lang === 'de' ? 'Zutaten' : 'Ingredienti'}</Text>
+      {allRecipes.map((recipe: any, i: number) => {
+        const isExpanded = expandedRecipe === (recipe.id || `r${i}`);
+        return (
+          <TouchableOpacity
+            key={recipe.id || i}
+            testID={`recipe-card-${i}`}
+            style={styles.recipeCard}
+            activeOpacity={0.7}
+            onPress={() => setExpandedRecipe(isExpanded ? null : (recipe.id || `r${i}`))}
+          >
+            {recipe.image_url ? (
+              <Image source={{ uri: recipe.image_url }} style={styles.recipeImage} resizeMode="cover" />
+            ) : null}
+            <View style={styles.recipeContent}>
+              <Text style={styles.recipeTitle}>{recipe.title}</Text>
+              <View style={styles.recipeMeta}>
+                <MaterialCommunityIcons name="clock-outline" size={14} color="#5C7A6F" />
+                <Text style={styles.recipeTime}> {recipe.time_min} Min.</Text>
+                <Text style={styles.recipeDot}>·</Text>
+                <Text style={styles.recipeIngCount}>{recipe.ingredients?.length || 0} {lang === 'de' ? 'Zutaten' : 'Ingredienti'}</Text>
+              </View>
+              {recipe.tags?.length > 0 && (
+                <View style={styles.recipeTagsRow}>
+                  {recipe.tags.slice(0, 3).map((tag: string, j: number) => (
+                    <View key={j} style={styles.recipeTag}>
+                      <Text style={styles.recipeTagText}>{tag}</Text>
+                    </View>
+                  ))}
+                </View>
+              )}
             </View>
-            {recipe.tags?.length > 0 && (
-              <View style={styles.recipeTagsRow}>
-                {recipe.tags.slice(0, 3).map((tag: string, j: number) => (
-                  <View key={j} style={styles.recipeTag}>
-                    <Text style={styles.recipeTagText}>{tag}</Text>
+            {isExpanded && (
+              <View style={styles.recipeDetail}>
+                {recipe.ingredients?.length > 0 && (
+                  <View style={styles.recipeSection}>
+                    <Text style={styles.recipeSectionTitle}>{lang === 'de' ? 'Zutaten' : 'Ingredienti'}</Text>
+                    {recipe.ingredients.map((ing: string, j: number) => (
+                      <View key={j} style={styles.recipeIngRow}>
+                        <MaterialCommunityIcons name="circle-small" size={18} color="#4A8B71" />
+                        <Text style={styles.recipeIngText}>{ing}</Text>
+                      </View>
+                    ))}
                   </View>
-                ))}
+                )}
+                {recipe.steps?.length > 0 && (
+                  <View style={styles.recipeSection}>
+                    <Text style={styles.recipeSectionTitle}>{lang === 'de' ? 'Zubereitung' : 'Preparazione'}</Text>
+                    {recipe.steps.map((step: string, j: number) => (
+                      <View key={j} style={styles.recipeStepRow}>
+                        <View style={styles.recipeStepNum}>
+                          <Text style={styles.recipeStepNumText}>{j + 1}</Text>
+                        </View>
+                        <Text style={styles.recipeStepText}>{step}</Text>
+                      </View>
+                    ))}
+                  </View>
+                )}
               </View>
             )}
-          </View>
-        </TouchableOpacity>
-      ))}
+          </TouchableOpacity>
+        );
+      })}
     </View>
   );
 }
