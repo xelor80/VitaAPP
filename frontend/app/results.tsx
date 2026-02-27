@@ -358,6 +358,12 @@ function NutritionTab({ analysis, onShopPress }: { analysis: any; onShopPress: (
                   {item.instruction ? (
                     <Text style={styles.scheduleInstruction}>{item.instruction}</Text>
                   ) : null}
+                  {item.application_instructions ? (
+                    <View style={styles.officialInstructionRow}>
+                      <MaterialCommunityIcons name="information-outline" size={13} color="#2C5F78" />
+                      <Text style={styles.officialInstructionText}>{item.application_instructions}</Text>
+                    </View>
+                  ) : null}
                   {item.affiliate_url ? (
                     <TouchableOpacity
                       testID={`schedule-shop-${i}`}
