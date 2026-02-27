@@ -1,543 +1,424 @@
 #!/usr/bin/env python3
 """
-VitaGuide Backend Testing Script
-Tests all backend endpoints for the German health app
+VitaGuide Bilingual Backend Testing Suite
+Tests the German/Italian health app backend APIs
 """
 
-import asyncio
+import requests
 import json
-import aiohttp
-import sys
-from datetime import datetime
-from typing import Dict, List, Any
+import time
+from typing import Dict, Any
 
-# Backend URL from frontend .env
+# Production URL from frontend/.env
 BASE_URL = "https://gesundheit-app-1.preview.emergentagent.com/api"
 
-class VitaGuideBackendTester:
-    def __init__(self):
-        self.session = None
-        self.results = {
-            "health_check": {"status": "pending", "details": {}},
-            "products_api": {"status": "pending", "details": {}},
-            "symptom_analysis": {"status": "pending", "details": {}},
-            "affiliate_tracking": {"status": "pending", "details": {}},
-            "diary_endpoints": {"status": "pending", "details": {}},
-        }
-        
-    async def __aenter__(self):
-        self.session = aiohttp.ClientSession()
-        return self
-        
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        if self.session:
-            await self.session.close()
+def test_health_check():
+    """Test 1: Health Check"""
+    print("🏥 Testing Health Check...")
     
-    async def test_health_check(self):
-        """Test GET /api/health endpoint"""
-        print("\n🔍 Testing Health Check...")
-        try:
-            async with self.session.get(f"{BASE_URL}/health") as response:
-                if response.status == 200:
-                    data = await response.json()
-                    if "status" in data and data["status"] == "ok":
-                        self.results["health_check"] = {
-                            "status": "passed", 
-                            "details": {"message": "Health check returned status ok", "data": data}
-                        }
-                        print("✅ Health check passed")
-                    else:
-                        self.results["health_check"] = {
-                            "status": "failed", 
-                            "details": {"error": f"Invalid response format: {data}"}
-                        }
-                        print("❌ Health check failed - invalid response format")
-                else:
-                    self.results["health_check"] = {
-                        "status": "failed", 
-                        "details": {"error": f"HTTP {response.status}"}
-                    }
-                    print(f"❌ Health check failed - HTTP {response.status}")
-        except Exception as e:
-            self.results["health_check"] = {
-                "status": "failed", 
-                "details": {"error": str(e)}
-            }
-            print(f"❌ Health check failed - {str(e)}")
-    
-    async def test_products_api(self):
-        """Test GET /api/products endpoints with application_instructions"""
-        print("\n🔍 Testing Products API...")
+    try:
+        response = requests.get(f"{BASE_URL}/health", timeout=10)
+        print(f"Status Code: {response.status_code}")
         
-        try:
-            # Test 1: All products
-            print("  Testing GET /api/products (all products)...")
-            async with self.session.get(f"{BASE_URL}/products") as response:
-                if response.status != 200:
-                    self.results["products_api"] = {
-                        "status": "failed", 
-                        "details": {"error": f"HTTP {response.status}"}
-                    }
-                    print(f"❌ Products API failed - HTTP {response.status}")
-                    return
-                    
-                products = await response.json()
-                if not isinstance(products, list):
-                    self.results["products_api"] = {
-                        "status": "failed", 
-                        "details": {"error": "Response is not a list"}
-                    }
-                    print("❌ Products API failed - response is not a list")
-                    return
-                
-                # Check if we have 30 products
-                if len(products) != 30:
-                    self.results["products_api"] = {
-                        "status": "failed", 
-                        "details": {"error": f"Expected 30 products, got {len(products)}"}
-                    }
-                    print(f"❌ Products API failed - expected 30 products, got {len(products)}")
-                    return
-                
-                # Check if all products have application_instructions
-                missing_instructions = []
-                empty_instructions = []
-                for product in products:
-                    if "application_instructions" not in product:
-                        missing_instructions.append(product.get("product_id", "unknown"))
-                    elif not product["application_instructions"] or product["application_instructions"].strip() == "":
-                        empty_instructions.append(product.get("product_id", "unknown"))
-                
-                if missing_instructions:
-                    self.results["products_api"] = {
-                        "status": "failed", 
-                        "details": {"error": f"Products missing application_instructions: {missing_instructions}"}
-                    }
-                    print(f"❌ Products API failed - missing application_instructions: {missing_instructions}")
-                    return
-                
-                if empty_instructions:
-                    self.results["products_api"] = {
-                        "status": "failed", 
-                        "details": {"error": f"Products with empty application_instructions: {empty_instructions}"}
-                    }
-                    print(f"❌ Products API failed - empty application_instructions: {empty_instructions}")
-                    return
-                
-                print(f"✅ All 30 products have application_instructions")
-                
-            # Test 2: Filtered products by tag
-            print("  Testing GET /api/products?tags=gelenke (filtered products)...")
-            async with self.session.get(f"{BASE_URL}/products?tags=gelenke") as response:
-                if response.status != 200:
-                    self.results["products_api"] = {
-                        "status": "failed", 
-                        "details": {"error": f"Filtered products HTTP {response.status}"}
-                    }
-                    print(f"❌ Filtered products failed - HTTP {response.status}")
-                    return
-                    
-                filtered_products = await response.json()
-                if not isinstance(filtered_products, list):
-                    self.results["products_api"] = {
-                        "status": "failed", 
-                        "details": {"error": "Filtered response is not a list"}
-                    }
-                    print("❌ Filtered products failed - response is not a list")
-                    return
-                
-                # Check if filtered products also have application_instructions
-                for product in filtered_products:
-                    if "application_instructions" not in product or not product["application_instructions"]:
-                        self.results["products_api"] = {
-                            "status": "failed", 
-                            "details": {"error": f"Filtered product {product.get('product_id')} missing application_instructions"}
-                        }
-                        print(f"❌ Filtered product {product.get('product_id')} missing application_instructions")
-                        return
-                
-                print(f"✅ All {len(filtered_products)} filtered products have application_instructions")
-                
-            self.results["products_api"] = {
-                "status": "passed", 
-                "details": {
-                    "message": f"All {len(products)} products have application_instructions, filtering works",
-                    "total_products": len(products),
-                    "filtered_products": len(filtered_products)
-                }
-            }
-            
-        except Exception as e:
-            self.results["products_api"] = {
-                "status": "failed", 
-                "details": {"error": str(e)}
-            }
-            print(f"❌ Products API failed - {str(e)}")
-    
-    async def test_symptom_analysis(self):
-        """Test POST /api/symptoms/analyze with supplement_schedule verification"""
-        print("\n🔍 Testing Symptom Analysis...")
-        
-        try:
-            payload = {
-                "text": "Ich bin müde und habe Gelenkschmerzen",
-                "tags": ["müdigkeit", "gelenkschmerzen"]
-            }
-            
-            print("  Sending symptom analysis request (may take 10-20 seconds)...")
-            async with self.session.post(f"{BASE_URL}/symptoms/analyze", json=payload) as response:
-                if response.status != 200:
-                    error_text = await response.text()
-                    self.results["symptom_analysis"] = {
-                        "status": "failed", 
-                        "details": {"error": f"HTTP {response.status}: {error_text}"}
-                    }
-                    print(f"❌ Symptom analysis failed - HTTP {response.status}: {error_text}")
-                    return
-                
-                result = await response.json()
-                
-                # Check basic structure
-                required_fields = ["id", "supplement_schedule", "prompt_version", "model"]
-                missing_fields = [field for field in required_fields if field not in result]
-                if missing_fields:
-                    self.results["symptom_analysis"] = {
-                        "status": "failed", 
-                        "details": {"error": f"Missing required fields: {missing_fields}"}
-                    }
-                    print(f"❌ Symptom analysis failed - missing fields: {missing_fields}")
-                    return
-                
-                # Check prompt version
-                if result.get("prompt_version") != "1.2":
-                    self.results["symptom_analysis"] = {
-                        "status": "failed", 
-                        "details": {"error": f"Expected prompt_version 1.2, got {result.get('prompt_version')}"}
-                    }
-                    print(f"❌ Symptom analysis failed - wrong prompt version: {result.get('prompt_version')}")
-                    return
-                
-                # Check model
-                if result.get("model") != "gpt-4o":
-                    self.results["symptom_analysis"] = {
-                        "status": "failed", 
-                        "details": {"error": f"Expected model gpt-4o, got {result.get('model')}"}
-                    }
-                    print(f"❌ Symptom analysis failed - wrong model: {result.get('model')}")
-                    return
-                
-                # Check supplement_schedule
-                supplement_schedule = result.get("supplement_schedule", [])
-                if not isinstance(supplement_schedule, list):
-                    self.results["symptom_analysis"] = {
-                        "status": "failed", 
-                        "details": {"error": "supplement_schedule is not a list"}
-                    }
-                    print("❌ Symptom analysis failed - supplement_schedule is not a list")
-                    return
-                
-                # Check if supplement_schedule items have application_instructions
-                missing_instructions_count = 0
-                for item in supplement_schedule:
-                    if "application_instructions" not in item or not item["application_instructions"]:
-                        missing_instructions_count += 1
-                
-                if missing_instructions_count > 0:
-                    self.results["symptom_analysis"] = {
-                        "status": "failed", 
-                        "details": {"error": f"{missing_instructions_count} supplement_schedule items missing application_instructions"}
-                    }
-                    print(f"❌ Symptom analysis failed - {missing_instructions_count} items missing application_instructions")
-                    return
-                
-                print(f"✅ Symptom analysis successful with {len(supplement_schedule)} supplement items")
-                print(f"✅ Prompt version: {result.get('prompt_version')}")
-                print(f"✅ Model: {result.get('model')}")
-                print(f"✅ All supplement_schedule items have application_instructions")
-                
-                # Test retrieving the analysis
-                analysis_id = result["id"]
-                print(f"  Testing GET /api/analysis/{analysis_id}...")
-                async with self.session.get(f"{BASE_URL}/analysis/{analysis_id}") as get_response:
-                    if get_response.status != 200:
-                        self.results["symptom_analysis"] = {
-                            "status": "failed", 
-                            "details": {"error": f"Could not retrieve analysis: HTTP {get_response.status}"}
-                        }
-                        print(f"❌ Could not retrieve analysis - HTTP {get_response.status}")
-                        return
-                    
-                    stored_analysis = await get_response.json()
-                    if stored_analysis.get("id") != analysis_id:
-                        self.results["symptom_analysis"] = {
-                            "status": "failed", 
-                            "details": {"error": "Retrieved analysis ID mismatch"}
-                        }
-                        print("❌ Retrieved analysis ID mismatch")
-                        return
-                        
-                print("✅ Analysis successfully stored and retrieved from database")
-                
-                self.results["symptom_analysis"] = {
-                    "status": "passed", 
-                    "details": {
-                        "message": "Symptom analysis working correctly with official instructions",
-                        "analysis_id": analysis_id,
-                        "prompt_version": result.get("prompt_version"),
-                        "model": result.get("model"),
-                        "supplement_count": len(supplement_schedule)
-                    }
-                }
-                
-        except Exception as e:
-            self.results["symptom_analysis"] = {
-                "status": "failed", 
-                "details": {"error": str(e)}
-            }
-            print(f"❌ Symptom analysis failed - {str(e)}")
-    
-    async def test_affiliate_tracking(self):
-        """Test POST /api/track/click endpoint"""
-        print("\n🔍 Testing Affiliate Click Tracking...")
-        
-        try:
-            # Test first click
-            click_payload = {
-                "product_id": "gelenk-kraft",
-                "affiliate_url": "https://joachim-kaeser.de/products/gelenk-kraft-360g?ref=vitaguide",
-                "source": "app"
-            }
-            
-            print("  Testing first click...")
-            async with self.session.post(f"{BASE_URL}/track/click", json=click_payload) as response:
-                if response.status != 200:
-                    error_text = await response.text()
-                    self.results["affiliate_tracking"] = {
-                        "status": "failed", 
-                        "details": {"error": f"HTTP {response.status}: {error_text}"}
-                    }
-                    print(f"❌ Affiliate tracking failed - HTTP {response.status}: {error_text}")
-                    return
-                
-                result = await response.json()
-                
-                required_fields = ["id", "product_id", "timestamp"]
-                missing_fields = [field for field in required_fields if field not in result]
-                if missing_fields:
-                    self.results["affiliate_tracking"] = {
-                        "status": "failed", 
-                        "details": {"error": f"Missing required fields: {missing_fields}"}
-                    }
-                    print(f"❌ Affiliate tracking failed - missing fields: {missing_fields}")
-                    return
-                
-                if result.get("product_id") != "gelenk-kraft":
-                    self.results["affiliate_tracking"] = {
-                        "status": "failed", 
-                        "details": {"error": f"Wrong product_id: {result.get('product_id')}"}
-                    }
-                    print(f"❌ Affiliate tracking failed - wrong product_id")
-                    return
-                
-                print(f"✅ First click tracked successfully: {result['id']}")
-                
-            # Test second click to verify multiple clicks work
-            click_payload2 = {
-                "product_id": "weihrauch-2-0", 
-                "affiliate_url": "https://joachim-kaeser.de/products/weihrauch-60-kapseln?ref=vitaguide",
-                "source": "app"
-            }
-            
-            print("  Testing second click...")
-            async with self.session.post(f"{BASE_URL}/track/click", json=click_payload2) as response:
-                if response.status != 200:
-                    self.results["affiliate_tracking"] = {
-                        "status": "failed", 
-                        "details": {"error": f"Second click failed: HTTP {response.status}"}
-                    }
-                    print(f"❌ Second click failed - HTTP {response.status}")
-                    return
-                
-                result2 = await response.json()
-                print(f"✅ Second click tracked successfully: {result2['id']}")
-                
-            self.results["affiliate_tracking"] = {
-                "status": "passed", 
-                "details": {
-                    "message": "Affiliate click tracking working correctly",
-                    "first_click_id": result["id"],
-                    "second_click_id": result2["id"]
-                }
-            }
-            
-        except Exception as e:
-            self.results["affiliate_tracking"] = {
-                "status": "failed", 
-                "details": {"error": str(e)}
-            }
-            print(f"❌ Affiliate tracking failed - {str(e)}")
-    
-    async def test_diary_endpoints(self):
-        """Test diary CRUD and trends endpoints (regression test)"""
-        print("\n🔍 Testing Diary Endpoints (Regression)...")
-        
-        try:
-            # Test POST /api/diary
-            diary_entry = {
-                "mood": 4,
-                "sleep": 3,
-                "stress": 3,
-                "water": 6,
-                "exercise": 30
-            }
-            
-            print("  Testing POST /api/diary...")
-            async with self.session.post(f"{BASE_URL}/diary", json=diary_entry) as response:
-                if response.status != 200:
-                    error_text = await response.text()
-                    self.results["diary_endpoints"] = {
-                        "status": "failed", 
-                        "details": {"error": f"POST /diary HTTP {response.status}: {error_text}"}
-                    }
-                    print(f"❌ POST /diary failed - HTTP {response.status}")
-                    return
-                
-                result = await response.json()
-                required_fields = ["id", "date", "mood", "sleep", "stress", "water", "exercise"]
-                missing_fields = [field for field in required_fields if field not in result]
-                if missing_fields:
-                    self.results["diary_endpoints"] = {
-                        "status": "failed", 
-                        "details": {"error": f"POST /diary missing fields: {missing_fields}"}
-                    }
-                    print(f"❌ POST /diary failed - missing fields: {missing_fields}")
-                    return
-                
-                print("✅ POST /diary successful")
-                
-            # Test GET /api/diary
-            print("  Testing GET /api/diary...")
-            async with self.session.get(f"{BASE_URL}/diary") as response:
-                if response.status != 200:
-                    error_text = await response.text()
-                    self.results["diary_endpoints"] = {
-                        "status": "failed", 
-                        "details": {"error": f"GET /diary HTTP {response.status}: {error_text}"}
-                    }
-                    print(f"❌ GET /diary failed - HTTP {response.status}")
-                    return
-                
-                entries = await response.json()
-                if not isinstance(entries, list):
-                    self.results["diary_endpoints"] = {
-                        "status": "failed", 
-                        "details": {"error": "GET /diary response is not a list"}
-                    }
-                    print("❌ GET /diary failed - response is not a list")
-                    return
-                
-                print(f"✅ GET /diary successful - {len(entries)} entries")
-                
-            # Test GET /api/diary/trends
-            print("  Testing GET /api/diary/trends...")
-            async with self.session.get(f"{BASE_URL}/diary/trends") as response:
-                if response.status != 200:
-                    error_text = await response.text()
-                    self.results["diary_endpoints"] = {
-                        "status": "failed", 
-                        "details": {"error": f"GET /diary/trends HTTP {response.status}: {error_text}"}
-                    }
-                    print(f"❌ GET /diary/trends failed - HTTP {response.status}")
-                    return
-                
-                trends = await response.json()
-                required_fields = ["entries", "tips", "summary"]
-                missing_fields = [field for field in required_fields if field not in trends]
-                if missing_fields:
-                    self.results["diary_endpoints"] = {
-                        "status": "failed", 
-                        "details": {"error": f"GET /diary/trends missing fields: {missing_fields}"}
-                    }
-                    print(f"❌ GET /diary/trends failed - missing fields: {missing_fields}")
-                    return
-                
-                print("✅ GET /diary/trends successful")
-                
-            self.results["diary_endpoints"] = {
-                "status": "passed", 
-                "details": {
-                    "message": "All diary endpoints working correctly",
-                    "entry_count": len(entries)
-                }
-            }
-            
-        except Exception as e:
-            self.results["diary_endpoints"] = {
-                "status": "failed", 
-                "details": {"error": str(e)}
-            }
-            print(f"❌ Diary endpoints failed - {str(e)}")
-    
-    async def run_all_tests(self):
-        """Run all backend tests in sequence"""
-        print("🚀 Starting VitaGuide Backend Testing...")
-        print(f"Testing against: {BASE_URL}")
-        
-        await self.test_health_check()
-        await self.test_products_api()
-        await self.test_symptom_analysis()
-        await self.test_affiliate_tracking()
-        await self.test_diary_endpoints()
-        
-        return self.results
-    
-    def print_summary(self):
-        """Print test results summary"""
-        print("\n" + "="*60)
-        print("🧪 VITAGUIDE BACKEND TEST RESULTS")
-        print("="*60)
-        
-        total_tests = len(self.results)
-        passed_tests = sum(1 for result in self.results.values() if result["status"] == "passed")
-        failed_tests = sum(1 for result in self.results.values() if result["status"] == "failed")
-        
-        for test_name, result in self.results.items():
-            status_icon = "✅" if result["status"] == "passed" else "❌" if result["status"] == "failed" else "⏳"
-            print(f"{status_icon} {test_name}: {result['status'].upper()}")
-            if result["status"] == "failed":
-                print(f"   Error: {result['details'].get('error', 'Unknown error')}")
-            elif result["status"] == "passed":
-                print(f"   Details: {result['details'].get('message', 'Success')}")
-        
-        print("\n" + "-"*60)
-        print(f"📊 SUMMARY: {passed_tests}/{total_tests} tests passed, {failed_tests} failed")
-        
-        if failed_tests > 0:
-            print("❌ SOME TESTS FAILED - Check details above")
-            return False
-        else:
-            print("✅ ALL TESTS PASSED")
+        if response.status_code == 200:
+            data = response.json()
+            print(f"✅ Health check OK: {data}")
             return True
+        else:
+            print(f"❌ Health check failed with status {response.status_code}")
+            return False
+    except Exception as e:
+        print(f"❌ Health check error: {e}")
+        return False
 
+def test_german_products():
+    """Test 2: German Products API (default and explicit)"""
+    print("\n🇩🇪 Testing German Products API...")
+    
+    # Test default (no lang parameter)
+    try:
+        response = requests.get(f"{BASE_URL}/products", timeout=10)
+        print(f"Default products status: {response.status_code}")
+        
+        if response.status_code == 200:
+            products = response.json()
+            print(f"✅ Default products count: {len(products)} (expected: 30)")
+            
+            # Verify all products have application_instructions
+            missing_instructions = [p for p in products if not p.get("application_instructions")]
+            if missing_instructions:
+                print(f"❌ {len(missing_instructions)} products missing application_instructions")
+                return False
+            
+            # Check affiliate URLs point to joachim-kaeser.de
+            wrong_domain = [p for p in products if "joachim-kaeser.de" not in p.get("affiliate_url", "")]
+            if wrong_domain:
+                print(f"❌ {len(wrong_domain)} products have wrong affiliate domain")
+                return False
+            
+            print("✅ All German products have application_instructions and correct domain")
+            
+            # Test explicit lang=de
+            response_de = requests.get(f"{BASE_URL}/products?lang=de", timeout=10)
+            if response_de.status_code == 200:
+                products_de = response_de.json()
+                if len(products) == len(products_de):
+                    print("✅ Explicit lang=de returns same result as default")
+                    return len(products) == 30
+                else:
+                    print(f"❌ Default vs explicit de count mismatch: {len(products)} vs {len(products_de)}")
+                    return False
+            else:
+                print(f"❌ Explicit lang=de failed: {response_de.status_code}")
+                return False
+        else:
+            print(f"❌ German products failed with status {response.status_code}")
+            return False
+    except Exception as e:
+        print(f"❌ German products error: {e}")
+        return False
 
-async def main():
-    async with VitaGuideBackendTester() as tester:
-        results = await tester.run_all_tests()
-        success = tester.print_summary()
+def test_italian_products():
+    """Test 3: Italian Products API"""
+    print("\n🇮🇹 Testing Italian Products API...")
+    
+    try:
+        response = requests.get(f"{BASE_URL}/products?lang=it", timeout=10)
+        print(f"Italian products status: {response.status_code}")
         
-        # Save results to file for test_result.md update
-        with open("/app/backend_test_results.json", "w") as f:
-            json.dump(results, f, indent=2)
+        if response.status_code == 200:
+            products = response.json()
+            print(f"✅ Italian products count: {len(products)} (expected: 61)")
+            
+            if len(products) == 0:
+                print("❌ No Italian products returned")
+                return False
+            
+            # Verify required fields
+            sample_product = products[0]
+            required_fields = ["name", "price", "image_url", "application_instructions", "tags", "affiliate_url"]
+            missing_fields = [field for field in required_fields if not sample_product.get(field)]
+            
+            if missing_fields:
+                print(f"❌ Sample product missing fields: {missing_fields}")
+                return False
+            
+            # Check for products with video_url (should be 8)
+            products_with_video = [p for p in products if p.get("video_url")]
+            print(f"✅ Products with video_url: {len(products_with_video)}")
+            
+            # Verify affiliate URLs point to joachimkaeser.it (not .de)
+            wrong_domain = [p for p in products if "joachimkaeser.it" not in p.get("affiliate_url", "")]
+            if wrong_domain:
+                print(f"❌ {len(wrong_domain)} Italian products have wrong affiliate domain")
+                return False
+            
+            # Verify Italian descriptions (basic check for Italian words)
+            italian_indicators = ["il", "la", "di", "per", "con", "una", "in"]
+            italian_products = [p for p in products if any(word in p.get("description", "").lower() for word in italian_indicators)]
+            
+            if len(italian_products) > len(products) * 0.5:  # At least 50% should have Italian text
+                print("✅ Italian product descriptions appear to be in Italian")
+            else:
+                print("⚠️ Some product descriptions might not be in Italian")
+            
+            print("✅ Italian products API working correctly")
+            return len(products) == 61
+        else:
+            print(f"❌ Italian products failed with status {response.status_code}")
+            return False
+    except Exception as e:
+        print(f"❌ Italian products error: {e}")
+        return False
+
+def test_german_symptom_analysis():
+    """Test 4: German Symptom Analysis"""
+    print("\n🇩🇪 Testing German Symptom Analysis...")
+    
+    payload = {
+        "text": "Ich bin müde",
+        "tags": ["müdigkeit"],
+        "lang": "de"
+    }
+    
+    try:
+        print("Sending German symptom analysis request (may take 10-20 seconds)...")
+        response = requests.post(f"{BASE_URL}/symptoms/analyze", json=payload, timeout=30)
+        print(f"German analysis status: {response.status_code}")
         
-        return success
+        if response.status_code == 200:
+            analysis = response.json()
+            
+            # Verify basic response structure
+            required_fields = ["summary", "brand_products", "supplement_schedule", "prompt_version", "model", "lang"]
+            missing_fields = [field for field in required_fields if field not in analysis]
+            
+            if missing_fields:
+                print(f"❌ Analysis missing fields: {missing_fields}")
+                return False
+            
+            # Verify German summary (basic check)
+            summary = analysis.get("summary", "")
+            if not summary or len(summary.strip()) == 0:
+                print("❌ Empty summary")
+                return False
+            
+            # Check brand_products reference German products
+            brand_products = analysis.get("brand_products", [])
+            if brand_products:
+                wrong_domain = [p for p in brand_products if "joachim-kaeser.de" not in p.get("affiliate_url", "")]
+                if wrong_domain:
+                    print(f"❌ {len(wrong_domain)} brand products have wrong domain")
+                    return False
+                print(f"✅ {len(brand_products)} German brand products recommended")
+            
+            # Verify supplement_schedule has application_instructions
+            schedule = analysis.get("supplement_schedule", [])
+            if schedule:
+                missing_instructions = [item for item in schedule if not item.get("application_instructions")]
+                if missing_instructions:
+                    print(f"❌ {len(missing_instructions)} schedule items missing application_instructions")
+                    return False
+                print(f"✅ {len(schedule)} schedule items with application_instructions")
+            
+            # Verify other fields
+            prompt_version = analysis.get("prompt_version")
+            model = analysis.get("model")
+            lang = analysis.get("lang")
+            
+            print(f"✅ Analysis details - Version: {prompt_version}, Model: {model}, Lang: {lang}")
+            
+            if lang != "de":
+                print(f"❌ Expected lang 'de', got '{lang}'")
+                return False
+            
+            print("✅ German symptom analysis working correctly")
+            return True
+        else:
+            print(f"❌ German analysis failed with status {response.status_code}")
+            if response.text:
+                print(f"Response: {response.text}")
+            return False
+    except Exception as e:
+        print(f"❌ German analysis error: {e}")
+        return False
+
+def test_italian_symptom_analysis():
+    """Test 5: Italian Symptom Analysis"""
+    print("\n🇮🇹 Testing Italian Symptom Analysis...")
+    
+    payload = {
+        "text": "Sono stanco e ho dolori articolari",
+        "tags": ["stanchezza"],
+        "lang": "it"
+    }
+    
+    try:
+        print("Sending Italian symptom analysis request (may take 10-20 seconds)...")
+        response = requests.post(f"{BASE_URL}/symptoms/analyze", json=payload, timeout=30)
+        print(f"Italian analysis status: {response.status_code}")
+        
+        if response.status_code == 200:
+            analysis = response.json()
+            
+            # Verify basic response structure
+            required_fields = ["summary", "brand_products", "supplement_schedule", "prompt_version", "model", "lang"]
+            missing_fields = [field for field in required_fields if field not in analysis]
+            
+            if missing_fields:
+                print(f"❌ Analysis missing fields: {missing_fields}")
+                return False
+            
+            # Verify Italian summary (basic check for Italian words)
+            summary = analysis.get("summary", "")
+            italian_indicators = ["il", "la", "di", "per", "con", "una", "in", "è", "che", "sono"]
+            has_italian = any(word in summary.lower() for word in italian_indicators)
+            
+            if not has_italian:
+                print(f"⚠️ Summary might not be in Italian: {summary[:100]}...")
+            else:
+                print("✅ Summary appears to be in Italian")
+            
+            # Check brand_products reference Italian products
+            brand_products = analysis.get("brand_products", [])
+            if brand_products:
+                wrong_domain = [p for p in brand_products if "joachimkaeser.it" not in p.get("affiliate_url", "")]
+                if wrong_domain:
+                    print(f"❌ {len(wrong_domain)} brand products have wrong domain")
+                    return False
+                
+                # Check for video_url in any products
+                products_with_video = [p for p in brand_products if p.get("video_url")]
+                if products_with_video:
+                    print(f"✅ {len(products_with_video)} brand products have video_url")
+                
+                print(f"✅ {len(brand_products)} Italian brand products recommended")
+            
+            # Verify supplement_schedule has Italian application_instructions
+            schedule = analysis.get("supplement_schedule", [])
+            if schedule:
+                missing_instructions = [item for item in schedule if not item.get("application_instructions")]
+                if missing_instructions:
+                    print(f"❌ {len(missing_instructions)} schedule items missing application_instructions")
+                    return False
+                
+                # Check if instructions appear to be in Italian
+                sample_instruction = schedule[0].get("application_instructions", "")
+                has_italian_instructions = any(word in sample_instruction.lower() for word in ["assumere", "capsula", "giorno", "acqua"])
+                
+                if has_italian_instructions:
+                    print("✅ Application instructions appear to be in Italian")
+                else:
+                    print(f"⚠️ Instructions might not be in Italian: {sample_instruction}")
+                
+                print(f"✅ {len(schedule)} schedule items with application_instructions")
+            
+            # Verify specific fields
+            prompt_version = analysis.get("prompt_version")
+            model = analysis.get("model")
+            lang = analysis.get("lang")
+            
+            print(f"✅ Analysis details - Version: {prompt_version}, Model: {model}, Lang: {lang}")
+            
+            if prompt_version != "1.2":
+                print(f"❌ Expected prompt_version '1.2', got '{prompt_version}'")
+                return False
+            
+            if lang != "it":
+                print(f"❌ Expected lang 'it', got '{lang}'")
+                return False
+            
+            print("✅ Italian symptom analysis working correctly")
+            return True
+        else:
+            print(f"❌ Italian analysis failed with status {response.status_code}")
+            if response.text:
+                print(f"Response: {response.text}")
+            return False
+    except Exception as e:
+        print(f"❌ Italian analysis error: {e}")
+        return False
+
+def test_affiliate_click_tracking():
+    """Test 6: Affiliate Click Tracking"""
+    print("\n📊 Testing Affiliate Click Tracking...")
+    
+    payload = {
+        "product_id": "sistema-cartilagine",
+        "affiliate_url": "https://joachimkaeser.it/products/sistema-cartilagine?ref=vitaguide",
+        "source": "app"
+    }
+    
+    try:
+        response = requests.post(f"{BASE_URL}/track/click", json=payload, timeout=10)
+        print(f"Click tracking status: {response.status_code}")
+        
+        if response.status_code == 200:
+            click_data = response.json()
+            
+            # Verify response structure
+            required_fields = ["id", "product_id", "affiliate_url", "source", "timestamp"]
+            missing_fields = [field for field in required_fields if field not in click_data]
+            
+            if missing_fields:
+                print(f"❌ Click data missing fields: {missing_fields}")
+                return False
+            
+            print(f"✅ Click tracked - ID: {click_data['id']}, Product: {click_data['product_id']}")
+            return True
+        else:
+            print(f"❌ Click tracking failed with status {response.status_code}")
+            return False
+    except Exception as e:
+        print(f"❌ Click tracking error: {e}")
+        return False
+
+def test_diary_regression():
+    """Test 7: Diary Regression (quick test)"""
+    print("\n📔 Testing Diary Regression...")
+    
+    # POST new diary entry
+    diary_payload = {
+        "mood": 4,
+        "sleep": 3,
+        "stress": 2,
+        "water": 8,
+        "exercise": 20
+    }
+    
+    try:
+        # Save diary entry
+        response = requests.post(f"{BASE_URL}/diary", json=diary_payload, timeout=10)
+        print(f"Diary save status: {response.status_code}")
+        
+        if response.status_code != 200:
+            print(f"❌ Diary save failed with status {response.status_code}")
+            return False
+        
+        saved_entry = response.json()
+        print(f"✅ Diary entry saved - ID: {saved_entry.get('id')}")
+        
+        # GET diary entries
+        get_response = requests.get(f"{BASE_URL}/diary", timeout=10)
+        print(f"Diary get status: {get_response.status_code}")
+        
+        if get_response.status_code == 200:
+            entries = get_response.json()
+            print(f"✅ Retrieved {len(entries)} diary entries")
+            return len(entries) > 0
+        else:
+            print(f"❌ Diary get failed with status {get_response.status_code}")
+            return False
+    except Exception as e:
+        print(f"❌ Diary regression error: {e}")
+        return False
+
+def main():
+    """Run all tests and provide summary"""
+    print("🚀 VitaGuide Bilingual Backend Testing Suite")
+    print("=" * 50)
+    
+    tests = [
+        ("Health Check", test_health_check),
+        ("German Products API", test_german_products),
+        ("Italian Products API", test_italian_products),
+        ("German Symptom Analysis", test_german_symptom_analysis),
+        ("Italian Symptom Analysis", test_italian_symptom_analysis),
+        ("Affiliate Click Tracking", test_affiliate_click_tracking),
+        ("Diary Regression", test_diary_regression)
+    ]
+    
+    results = {}
+    
+    for test_name, test_func in tests:
+        print(f"\n{'='*60}")
+        results[test_name] = test_func()
+        time.sleep(1)  # Brief pause between tests
+    
+    # Summary
+    print(f"\n{'='*60}")
+    print("📋 TEST SUMMARY")
+    print("=" * 60)
+    
+    passed = 0
+    failed = 0
+    
+    for test_name, result in results.items():
+        status = "✅ PASS" if result else "❌ FAIL"
+        print(f"{test_name:<30} {status}")
+        if result:
+            passed += 1
+        else:
+            failed += 1
+    
+    print(f"\nTotal: {passed + failed}, Passed: {passed}, Failed: {failed}")
+    
+    if failed == 0:
+        print("🎉 All tests passed! Backend is fully functional.")
+    else:
+        print(f"⚠️ {failed} test(s) failed. Please check the issues above.")
+    
+    return failed == 0
 
 if __name__ == "__main__":
-    try:
-        success = asyncio.run(main())
-        sys.exit(0 if success else 1)
-    except KeyboardInterrupt:
-        print("\n❌ Tests interrupted by user")
-        sys.exit(1)
-    except Exception as e:
-        print(f"\n❌ Test runner failed: {e}")
-        sys.exit(1)
+    main()
