@@ -328,7 +328,7 @@ function SupplementsTab({ analysis, onShopPress, lang }: { analysis: any; onShop
   );
 }
 
-function NutritionTab({ analysis, onShopPress }: { analysis: any; onShopPress: (id: string, url: string) => void }) {
+function NutritionTab({ analysis, onShopPress, lang }: { analysis: any; onShopPress: (id: string, url: string) => void; lang: string }) {
   const schedule = analysis.supplement_schedule || [];
   const TIME_ICONS: Record<string, string> = {
     'Morgens': 'weather-sunset-up',
