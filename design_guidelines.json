@@ -1,0 +1,199 @@
+{
+  "identity": {
+    "name": "E1",
+    "archetype": "Organic & Earthy (Clinical Variant)",
+    "mission": "Create a calming, trustworthy, and non-alarmist health interface.",
+    "core_principles": [
+      "Trust through Clarity: No clutter, just clear, evidence-based info.",
+      "Calm over Urgency: Use soothing colors to reduce health anxiety.",
+      "Content is King: Information hierarchy must be perfect.",
+      "Safety First: Red flags must be distinct but not terrifying."
+    ]
+  },
+  "platform_guidelines": {
+    "framework": "Expo React Native",
+    "styling_engine": "StyleSheet.create (NO CSS files, NO Tailwind class strings)",
+    "navigation": "React Navigation (Stack + Tabs)",
+    "icons": "@expo/vector-icons (Ionicons or MaterialCommunityIcons)",
+    "critical_constraints": [
+      "Use <View>, <Text>, <TouchableOpacity>, <ScrollView>, <FlatList>.",
+      "DO NOT use HTML tags like <div>, <span>, <img>, <button>.",
+      "Images must use <Image source={{ uri: '...' }} style={...} />.",
+      "No CSS gradients (use expo-linear-gradient if absolutely necessary, but prefer solid colors for calmness).",
+      "Safe Area handling is mandatory (use SafeAreaView)."
+    ]
+  },
+  "colors": {
+    "primary": "#4A8B71",
+    "primary_light": "#E8F5E9",
+    "secondary": "#2C5F78",
+    "background": "#F7F9F6",
+    "surface": "#FFFFFF",
+    "text": {
+      "primary": "#1A2D26",
+      "secondary": "#5C7A6F",
+      "muted": "#8FA39B",
+      "inverted": "#FFFFFF"
+    },
+    "status": {
+      "warning": "#D9534F",
+      "warning_bg": "#FDF2F2",
+      "success": "#4CAF50",
+      "info": "#29B6F6"
+    },
+    "border": "#E0E6E2"
+  },
+  "typography": {
+    "font_family_heading": "System (Platform Default - San Francisco/Roboto)",
+    "font_family_body": "System (Platform Default)",
+    "weights": {
+      "bold": "700",
+      "semibold": "600",
+      "regular": "400",
+      "light": "300"
+    },
+    "sizes": {
+      "h1": 32,
+      "h2": 24,
+      "h3": 20,
+      "body": 16,
+      "small": 14,
+      "tiny": 12
+    },
+    "line_heights": {
+      "relaxed": 1.5,
+      "tight": 1.2
+    }
+  },
+  "components": {
+    "buttons": {
+      "primary": {
+        "backgroundColor": "#4A8B71",
+        "borderRadius": 24,
+        "paddingVertical": 16,
+        "paddingHorizontal": 24,
+        "alignItems": "center",
+        "shadowColor": "#000",
+        "shadowOffset": { "width": 0, "height": 2 },
+        "shadowOpacity": 0.1,
+        "shadowRadius": 4,
+        "elevation": 3
+      },
+      "secondary": {
+        "backgroundColor": "transparent",
+        "borderWidth": 1,
+        "borderColor": "#4A8B71",
+        "borderRadius": 24,
+        "paddingVertical": 14,
+        "paddingHorizontal": 24,
+        "alignItems": "center"
+      }
+    },
+    "cards": {
+      "container": {
+        "backgroundColor": "#FFFFFF",
+        "borderRadius": 16,
+        "padding": 16,
+        "marginVertical": 8,
+        "shadowColor": "#000",
+        "shadowOffset": { "width": 0, "height": 2 },
+        "shadowOpacity": 0.05,
+        "shadowRadius": 8,
+        "elevation": 2
+      }
+    },
+    "chips": {
+      "container": {
+        "backgroundColor": "#E8F5E9",
+        "borderRadius": 20,
+        "paddingVertical": 8,
+        "paddingHorizontal": 16,
+        "marginRight": 8,
+        "marginBottom": 8
+      },
+      "text": {
+        "color": "#2C5F78",
+        "fontSize": 14,
+        "fontWeight": "600"
+      },
+      "selected": {
+        "backgroundColor": "#2C5F78",
+        "text_color": "#FFFFFF"
+      }
+    }
+  },
+  "layout_strategies": {
+    "spacing": {
+      "xs": 4,
+      "s": 8,
+      "m": 16,
+      "l": 24,
+      "xl": 32,
+      "xxl": 48
+    },
+    "containers": {
+      "screen": {
+        "flex": 1,
+        "backgroundColor": "#F7F9F6"
+      },
+      "safe_area": {
+        "flex": 1
+      },
+      "content_padding": 20
+    }
+  },
+  "assets": {
+    "images": {
+      "hero_wellness": {
+        "url": "https://images.unsplash.com/photo-1714386893630-b7a148f77efd?crop=entropy&cs=srgb&fm=jpg&ixlib=rb-4.1.0&q=85",
+        "description": "Basket of assorted fresh fruits/veg - Use for Nutrition tab header or Welcome screen",
+        "alt": "Fresh healthy food"
+      },
+      "supplements_generic": {
+        "url": "https://images.unsplash.com/photo-1641561421178-db8542057811?crop=entropy&cs=srgb&fm=jpg&ixlib=rb-4.1.0&q=85",
+        "description": "Clean pack of pills/supplements - Use for Supplement tab header or product placeholder",
+        "alt": "Vitamins and supplements"
+      },
+      "doctor_trust": {
+        "url": "https://images.unsplash.com/photo-1754715203698-70c7ad3a879d?crop=entropy&cs=srgb&fm=jpg&ixlib=rb-4.1.0&q=85",
+        "description": "Friendly doctor in white coat - Use for Disclaimer/Safety Warning screens",
+        "alt": "Doctor consultation"
+      },
+      "cooking_action": {
+        "url": "https://images.unsplash.com/photo-1665005499765-45bab6b1dddb?crop=entropy&cs=srgb&fm=jpg&ixlib=rb-4.1.0&q=85",
+        "description": "Person cooking in pan - Use for Recipe tab or detailed recipe view",
+        "alt": "Cooking healthy meal"
+      }
+    },
+    "icons": {
+      "family": "MaterialCommunityIcons",
+      "map": {
+        "nutrition": "food-apple-outline",
+        "supplements": "pill",
+        "recipes": "chef-hat",
+        "warnings": "alert-decagram-outline",
+        "search": "magnify",
+        "close": "close-circle-outline",
+        "check": "check-circle",
+        "arrow_right": "chevron-right"
+      }
+    }
+  },
+  "instructions_to_main_agent": [
+    "Use 'expo-font' if custom fonts are required, otherwise stick to system fonts.",
+    "Implement 'react-native-safe-area-context' for proper notch handling.",
+    "Use 'ScrollView' for all content screens to ensure accessibility on small devices.",
+    "For the Tab Navigation in results, use a top tab bar or a segmented control approach.",
+    "Ensure the 'Disclaimer' modal is strictly blocking - user cannot proceed without 'Agree'.",
+    "Affiliate links must open in an external browser (Linking.openURL).",
+    "Red Flag Warnings should use the 'status.warning_bg' background with 'status.warning' text/border.",
+    "Create a reusable 'Card' component for consistency.",
+    "Do NOT use 'Tailwind' or 'className' props. Use the style object provided in 'components' or create new StyleSheet objects."
+  ],
+  "universal_guidelines": {
+    "accessibility": "Touch targets must be at least 44x44 points. Text contrast must pass WCAG AA.",
+    "interaction": "Add 'activeOpacity={0.7}' to all TouchableOpacity elements for feedback.",
+    "loading": "Use ActivityIndicator with color='#4A8B71' for loading states.",
+    "error_handling": "Show friendly error messages in 'status.warning' color."
+  }
+}
