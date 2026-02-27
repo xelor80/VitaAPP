@@ -5,17 +5,15 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useLang } from '../src/LangContext';
+import { t } from '../src/i18n';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
 type TabKey = 'entry' | 'trends';
 
-const MOOD_LABELS = ['Sehr schlecht', 'Schlecht', 'Okay', 'Gut', 'Sehr gut'];
 const MOOD_ICONS = ['emoticon-sad-outline', 'emoticon-confused-outline', 'emoticon-neutral-outline', 'emoticon-happy-outline', 'emoticon-excited-outline'];
 const MOOD_COLORS = ['#D9534F', '#E8845C', '#F5C842', '#8BC34A', '#4CAF50'];
-
-const SLEEP_LABELS = ['Sehr schlecht', 'Schlecht', 'Mittelmäßig', 'Gut', 'Sehr gut'];
-const STRESS_LABELS = ['Sehr hoch', 'Hoch', 'Mittel', 'Niedrig', 'Entspannt'];
 
 const EXERCISE_OPTIONS = [0, 15, 30, 45, 60, 90, 120];
 
