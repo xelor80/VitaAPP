@@ -306,9 +306,18 @@ const styles = StyleSheet.create({
 
   // Header
   header: { alignItems: 'center', marginTop: 16, marginBottom: 24 },
+  headerTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%' },
   logoRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   logoText: { fontSize: 28, fontWeight: '700', color: '#1A2D26' },
   headerSubtitle: { fontSize: 15, color: '#5C7A6F', marginTop: 4 },
+  langSwitcherSmall: { flexDirection: 'row', gap: 4, width: 80, justifyContent: 'flex-end' },
+  langBtnSm: {
+    paddingVertical: 4, paddingHorizontal: 10, borderRadius: 12,
+    backgroundColor: '#E8F5E9', borderWidth: 1, borderColor: '#D4E7DC',
+  },
+  langBtnSmActive: { backgroundColor: '#2C5F78', borderColor: '#2C5F78' },
+  langBtnSmText: { fontSize: 13, fontWeight: '700', color: '#2C5F78' },
+  langBtnSmTextActive: { color: '#FFFFFF' },
 
   // Diary Button
   diaryButton: {
