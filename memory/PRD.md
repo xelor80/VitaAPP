@@ -127,11 +127,19 @@ VitaGuide ist eine kostenlose Gesundheits-Informations-App, die uber eine KI-Anb
 - recipes.json: Zweisprachiger Rezeptkatalog (30 Rezepte)
 
 ### Frontend (refactored 27.02.2026)
-- app/index.tsx: Home mit Sprachumschaltung
+- app/index.tsx: Home-Shell (107 Zeilen, importiert Home-Komponenten)
 - app/results.tsx: Ergebnisse-Shell (147 Zeilen, importiert Tab-Komponenten)
 - app/diary.tsx: Tagebuch
 - app/+html.tsx: Web-Template mit Custom CSS (.rimg-wrap fur Rezeptbilder)
 - app/_layout.tsx: Root-Layout mit LangProvider
+- components/home/DisclaimerScreen.tsx: Disclaimer mit Sprachumschaltung
+- components/home/HomeHeader.tsx: Logo, Untertitel, Sprachumschaltung
+- components/home/SymptomInput.tsx: Symptom-Eingabe Card
+- components/home/SymptomChips.tsx: 10 klickbare Symptom-Chips
+- components/home/AnalyzeButton.tsx: Analyse-Button mit Loading-State
+- components/home/DiaryButton.tsx: Navigation zum Tagebuch
+- components/home/FooterDisclaimer.tsx: Footer-Hinweis
+- components/home/homeStyles.ts: Gemeinsame Styles fur Home-Screen
 - components/tabs/OverviewTab.tsx: Ubersicht-Tab (Zusammenfassung, Red-Flags, Featured Product)
 - components/tabs/SupplementsTab.tsx: Supplements-Tab (Nahrstoff-Infos, Produktkarten)
 - components/tabs/NutritionTab.tsx: Ernahrungs-Tab (Einnahmeplan, Tipps)
@@ -143,11 +151,11 @@ VitaGuide ist eine kostenlose Gesundheits-Informations-App, die uber eine KI-Anb
 
 ## Testing Status (27.02.2026)
 - Backend: 13/13 Tests bestanden (iteration_6.json - Tab Refactoring Regression)
-- Frontend: Alle E2E-Flows verifiziert
+- Frontend: 90% bestanden (iteration_7.json - Home Refactoring Regression)
 - Test Files: backend/tests/test_modular_refactor_regression.py
 
 ## Geplante Features (Post-MVP)
-- [ ] **P1:** index.tsx (Home-Screen) in kleinere Komponenten aufteilen
+- [x] **P1:** index.tsx (Home-Screen) in kleinere Komponenten aufteilen - DONE (27.02.2026)
 - [ ] **P2:** Produktkatalog -> MongoDB migrieren
 - [ ] **P3:** Suchbare/filterbare Rezepte UI
 - [ ] **P4:** Englisch-Support (3. Sprache)
