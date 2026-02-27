@@ -53,9 +53,11 @@ VitaGuide ist eine kostenlose Gesundheits-Informations-App, die uber eine KI-Anb
 
 ### 7. Rezeptkatalog - DONE (27.02.2026)
 - 30 zweisprachige Rezepte mit hochwertigen Bildern (Unsplash/Pexels)
-- Backend: GET /api/recipes?lang={de|it} Endpoint
-- Frontend: RecipesTab in results.tsx integriert
-- Rezepte werden neben LLM-generierten Rezepten angezeigt
+- Backend: GET /api/recipes?lang={de|it}&tags= Endpoint mit symptom-basierter Filterung
+- Frontend: RecipesTab in results.tsx integriert mit expandierbaren Karten
+- Rezeptbilder via CSS-Workaround (.rimg-wrap Klasse in +html.tsx) wegen React Native Web Limitierung
+- Filterung: Nur passende Katalog-Rezepte bei ausgewahlten Symptom-Chips, sonst nur LLM-Rezepte
+- Klickbare Karten mit Zutaten und Zubereitungsschritten (expandierbar)
 
 ### 8. Anwendungshinweise (gescraped) - DONE
 - DE: 30 Produkte (26 auto-gescraped, 4 manuell erganzt)
