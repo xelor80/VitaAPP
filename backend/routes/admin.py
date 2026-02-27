@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 from core.config import db
 
-router = APIRouter()
+router = APIRouter(prefix="/admin", tags=["admin"])
 
 
 # ============== MODELS ==============
