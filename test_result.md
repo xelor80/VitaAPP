@@ -162,6 +162,66 @@ backend:
           agent: "testing"
           comment: "Previously tested - all 7 tests passed."
 
+  - task: "Bilingual German Products API"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "✅ TESTED: GET /api/products (default) and GET /api/products?lang=de both return exactly 30 German products. All products have application_instructions field with actual dosage content. All affiliate URLs correctly point to joachim-kaeser.de domain. Explicit lang=de returns identical results to default behavior."
+
+  - task: "Bilingual Italian Products API"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "✅ TESTED: GET /api/products?lang=it returns exactly 61 Italian products from joachimkaeser.it. All required fields present (name, price, image_url, application_instructions, tags, affiliate_url). 8 products have video_url field as expected. Product descriptions are in Italian. All affiliate URLs correctly point to joachimkaeser.it domain (not .de)."
+
+  - task: "Bilingual German Symptom Analysis"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "✅ TESTED: POST /api/symptoms/analyze with lang=de working correctly. German LLM integration functional with prompt_version 1.2 and gpt-4o model. Response contains German summary, brand_products reference German products from joachim-kaeser.de, and supplement_schedule has application_instructions for all items. Analysis stored and retrieved from DB successfully."
+
+  - task: "Bilingual Italian Symptom Analysis"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "✅ TESTED: POST /api/symptoms/analyze with lang=it working correctly. Italian LLM integration functional with Italian system prompt, prompt_version 1.2, and gpt-4o model. Response contains Italian summary, brand_products reference Italian products from joachimkaeser.it, supplement_schedule has Italian application_instructions, and some brand_products include video_url. Lang field correctly set to 'it'."
+
+  - task: "Health Check Endpoint"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "✅ TESTED: GET /api/health returns status 200 with proper JSON response containing status 'ok' and ISO timestamp. Health check endpoint is functional."
+
 frontend:
   - task: "Results page - Nutrition tab with official instructions"
     implemented: true
