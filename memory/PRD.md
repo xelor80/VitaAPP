@@ -117,12 +117,17 @@ VitaGuide ist eine kostenlose Gesundheits-Informations-App, die uber eine KI-Anb
 - products_it.json: Italienischer Produktkatalog (61 Produkte)
 - recipes.json: Zweisprachiger Rezeptkatalog (30 Rezepte)
 
-### Frontend
+### Frontend (refactored 27.02.2026)
 - app/index.tsx: Home mit Sprachumschaltung
-- app/results.tsx: Ergebnisse (zweisprachig, 4 Tabs, expandierbare Rezepte)
+- app/results.tsx: Ergebnisse-Shell (147 Zeilen, importiert Tab-Komponenten)
 - app/diary.tsx: Tagebuch
 - app/+html.tsx: Web-Template mit Custom CSS (.rimg-wrap fur Rezeptbilder)
 - app/_layout.tsx: Root-Layout mit LangProvider
+- components/tabs/OverviewTab.tsx: Ubersicht-Tab (Zusammenfassung, Red-Flags, Featured Product)
+- components/tabs/SupplementsTab.tsx: Supplements-Tab (Nahrstoff-Infos, Produktkarten)
+- components/tabs/NutritionTab.tsx: Ernahrungs-Tab (Einnahmeplan, Tipps)
+- components/tabs/RecipesTab.tsx: Rezepte-Tab (expandierbare Karten mit Bildern)
+- components/styles/resultsStyles.ts: Gemeinsame Styles fur Results-Screen
 - src/i18n.ts: Ubersetzungen DE/IT
 - src/LangContext.tsx: Sprach-Context
 - src/store.ts: In-memory Store fur Analyse-Daten
