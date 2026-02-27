@@ -83,10 +83,13 @@ function DisclaimerView({ onAccept, lang, setLang }: { onAccept: () => void; lan
 // ==================== MAIN HOME SCREEN ====================
 export default function HomeScreen() {
   const router = useRouter();
+  const { lang, setLang } = useLang();
   const [disclaimerAccepted, setDisclaimerAccepted] = useState<boolean | null>(null);
   const [symptomText, setSymptomText] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  const chipLabels = t(lang, 'symptom_chips') as string[];
 
   useEffect(() => {
     AsyncStorage.getItem('disclaimer_accepted').then(val => {
@@ -107,7 +110,12 @@ export default function HomeScreen() {
 
   const analyzeSymptoms = useCallback(async () => {
     if (!symptomText.trim() && selectedTags.length === 0) {
-      Alert.alert('Hinweis', 'Bitte beschreiben Sie Ihre Symptome oder wählen Sie Bereiche aus.');
+      Alert.alert(
+        lang === 'de' ? 'Hinweis' : 'Avviso',
+        lang === 'de'
+          ? 'Bitte beschreiben Sie Ihre Symptome oder wählen Sie Bereiche aus.'
+          : 'Si prega di descrivere i sintomi o selezionare le aree.'
+      );
       return;
     }
     setIsLoading(true);
@@ -115,21 +123,24 @@ export default function HomeScreen() {
       const res = await fetch(`${API_URL}/api/symptoms/analyze`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: symptomText, tags: selectedTags }),
+        body: JSON.stringify({ text: symptomText, tags: selectedTags, lang }),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.detail || 'Analyse fehlgeschlagen');
+        throw new Error(err.detail || (lang === 'de' ? 'Analyse fehlgeschlagen' : 'Analisi fallita'));
       }
       const data = await res.json();
       setCurrentAnalysis(data);
       router.push('/results');
     } catch (e: any) {
-      Alert.alert('Fehler', e.message || 'Die Analyse konnte nicht durchgeführt werden.');
+      Alert.alert(
+        lang === 'de' ? 'Fehler' : 'Errore',
+        e.message || (lang === 'de' ? 'Die Analyse konnte nicht durchgeführt werden.' : 'L\'analisi non ha potuto essere eseguita.')
+      );
     } finally {
       setIsLoading(false);
     }
-  }, [symptomText, selectedTags, router]);
+  }, [symptomText, selectedTags, router, lang]);
 
   // Loading state
   if (disclaimerAccepted === null) {
@@ -142,7 +153,7 @@ export default function HomeScreen() {
 
   // Disclaimer
   if (!disclaimerAccepted) {
-    return <DisclaimerView onAccept={acceptDisclaimer} />;
+    return <DisclaimerView onAccept={acceptDisclaimer} lang={lang} setLang={setLang} />;
   }
 
   // Symptom Input
@@ -157,13 +168,32 @@ export default function HomeScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Header */}
+          {/* Header with Lang Switcher */}
           <View style={styles.header}>
-            <View style={styles.logoRow}>
-              <MaterialCommunityIcons name="leaf" size={28} color="#4A8B71" />
-              <Text style={styles.logoText}>VitaGuide</Text>
+            <View style={styles.headerTopRow}>
+              <View style={{ width: 80 }} />
+              <View style={styles.logoRow}>
+                <MaterialCommunityIcons name="leaf" size={28} color="#4A8B71" />
+                <Text style={styles.logoText}>VitaGuide</Text>
+              </View>
+              <View style={styles.langSwitcherSmall}>
+                <TouchableOpacity
+                  data-testid="lang-de-home"
+                  style={[styles.langBtnSm, lang === 'de' && styles.langBtnSmActive]}
+                  onPress={() => { setLang('de'); setSelectedTags([]); }}
+                >
+                  <Text style={[styles.langBtnSmText, lang === 'de' && styles.langBtnSmTextActive]}>DE</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  data-testid="lang-it-home"
+                  style={[styles.langBtnSm, lang === 'it' && styles.langBtnSmActive]}
+                  onPress={() => { setLang('it'); setSelectedTags([]); }}
+                >
+                  <Text style={[styles.langBtnSmText, lang === 'it' && styles.langBtnSmTextActive]}>IT</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-            <Text style={styles.headerSubtitle}>Ihr Ernährungs- & Gesundheitsassistent</Text>
+            <Text style={styles.headerSubtitle}>{t(lang, 'home_subtitle')}</Text>
           </View>
 
           {/* Diary Button */}
@@ -177,22 +207,28 @@ export default function HomeScreen() {
               <MaterialCommunityIcons name="book-open-variant" size={22} color="#2C5F78" />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={styles.diaryBtnTitle}>Symptom-Tagebuch</Text>
-              <Text style={styles.diaryBtnSub}>Tracken Sie Befinden, Schlaf, Stress & mehr</Text>
+              <Text style={styles.diaryBtnTitle}>{t(lang, 'diary_btn')}</Text>
+              <Text style={styles.diaryBtnSub}>
+                {lang === 'de' ? 'Tracken Sie Befinden, Schlaf, Stress & mehr' : 'Monitora umore, sonno, stress e altro'}
+              </Text>
             </View>
             <MaterialCommunityIcons name="chevron-right" size={24} color="#8FA39B" />
           </TouchableOpacity>
 
           {/* Input Card */}
           <View style={styles.card}>
-            <Text style={styles.cardTitle}>Was beschäftigt Sie?</Text>
+            <Text style={styles.cardTitle}>
+              {lang === 'de' ? 'Was beschäftigt Sie?' : 'Cosa ti preoccupa?'}
+            </Text>
             <Text style={styles.cardSubtitle}>
-              Beschreiben Sie Ihre Symptome oder wählen Sie Bereiche aus
+              {lang === 'de'
+                ? 'Beschreiben Sie Ihre Symptome oder wählen Sie Bereiche aus'
+                : 'Descrivi i tuoi sintomi o seleziona le aree'}
             </Text>
             <TextInput
               testID="symptom-text-input"
               style={styles.textInput}
-              placeholder="z.B. Ich fühle mich seit einer Woche müde und habe Kopfschmerzen..."
+              placeholder={t(lang, 'symptom_placeholder')}
               placeholderTextColor="#8FA39B"
               multiline
               numberOfLines={4}
@@ -203,25 +239,27 @@ export default function HomeScreen() {
           </View>
 
           {/* Chips */}
-          <Text style={styles.chipsTitle}>Häufige Bereiche</Text>
+          <Text style={styles.chipsTitle}>
+            {lang === 'de' ? 'Häufige Bereiche' : 'Aree comuni'}
+          </Text>
           <View style={styles.chipsWrap}>
-            {SYMPTOM_CHIPS.map(chip => {
-              const selected = selectedTags.includes(chip.label);
+            {chipLabels.map((label: string, idx: number) => {
+              const selected = selectedTags.includes(label);
               return (
                 <TouchableOpacity
-                  key={chip.label}
-                  testID={`symptom-chip-${chip.label.toLowerCase()}`}
+                  key={label}
+                  testID={`symptom-chip-${label.toLowerCase()}`}
                   style={[styles.chip, selected && styles.chipSelected]}
                   activeOpacity={0.7}
-                  onPress={() => toggleTag(chip.label)}
+                  onPress={() => toggleTag(label)}
                 >
                   <MaterialCommunityIcons
-                    name={chip.icon as any}
+                    name={(CHIP_ICONS[idx] || 'circle') as any}
                     size={16}
                     color={selected ? '#FFFFFF' : '#2C5F78'}
                   />
                   <Text style={[styles.chipText, selected && styles.chipTextSelected]}>
-                    {chip.label}
+                    {label}
                   </Text>
                 </TouchableOpacity>
               );
@@ -239,12 +277,12 @@ export default function HomeScreen() {
             {isLoading ? (
               <View style={styles.btnRow}>
                 <ActivityIndicator color="#FFFFFF" size="small" />
-                <Text style={styles.primaryBtnText}>  Analysiere...</Text>
+                <Text style={styles.primaryBtnText}>  {t(lang, 'analyzing')}</Text>
               </View>
             ) : (
               <View style={styles.btnRow}>
                 <MaterialCommunityIcons name="magnify" size={20} color="#FFFFFF" />
-                <Text style={styles.primaryBtnText}>  Analyse starten</Text>
+                <Text style={styles.primaryBtnText}>  {t(lang, 'analyze_btn')}</Text>
               </View>
             )}
           </TouchableOpacity>
@@ -252,9 +290,7 @@ export default function HomeScreen() {
           {/* Footer */}
           <View style={styles.footerWrap}>
             <MaterialCommunityIcons name="information-outline" size={14} color="#8FA39B" />
-            <Text style={styles.footerText}>
-              Diese App ersetzt keine ärztliche Beratung. Bei ernsthaften Beschwerden wenden Sie sich an einen Arzt.
-            </Text>
+            <Text style={styles.footerText}>{t(lang, 'disclaimer_footer')}</Text>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
