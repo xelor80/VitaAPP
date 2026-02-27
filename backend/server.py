@@ -759,9 +759,9 @@ async def get_recipes(tags: str = "", lang: str = "de"):
         tag_list = [t.strip().lower() for t in tags.split(",")]
         filtered = [
             r for r in results
-            if any(t in r["symptom_tags"] for t in tag_list)
+            if any(t in [st.lower() for st in r["symptom_tags"]] for t in tag_list)
         ]
-        return filtered if filtered else results
+        return filtered
 
     return results
 
