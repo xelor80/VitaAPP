@@ -268,6 +268,25 @@ export default function HomeScreen() {
             )}
           </TouchableOpacity>
 
+          {/* Diary Button */}
+          <TouchableOpacity
+            testID="diary-btn"
+            style={styles.diaryButton}
+            activeOpacity={0.7}
+            onPress={() => router.push('/diary')}
+          >
+            <View style={styles.diaryIconWrap}>
+              <MaterialCommunityIcons name="book-open-variant" size={22} color="#2C5F78" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.diaryBtnTitle}>{t(lang, 'diary_btn')}</Text>
+              <Text style={styles.diaryBtnSub}>
+                {lang === 'de' ? 'Tracken Sie Befinden, Schlaf, Stress & mehr' : 'Monitora umore, sonno, stress e altro'}
+              </Text>
+            </View>
+            <MaterialCommunityIcons name="chevron-right" size={24} color="#8FA39B" />
+          </TouchableOpacity>
+
           {/* Footer */}
           <View style={styles.footerWrap}>
             <MaterialCommunityIcons name="information-outline" size={14} color="#8FA39B" />
