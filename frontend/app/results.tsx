@@ -436,6 +436,28 @@ function NutritionTab({ analysis, onShopPress, lang }: { analysis: any; onShopPr
   );
 }
 
+// Web-compatible recipe image component
+function RecipeImg({ url, alt }: { url: string; alt: string }) {
+  const containerRef = React.useRef<View>(null);
+  React.useEffect(() => {
+    if (Platform.OS === 'web' && containerRef.current) {
+      const node = (containerRef.current as any);
+      const domNode = node instanceof HTMLElement ? node : node._nativeTag;
+      if (domNode && domNode instanceof HTMLElement) {
+        domNode.style.position = 'relative';
+        domNode.style.width = '100%';
+        domNode.style.height = '180px';
+        domNode.style.overflow = 'hidden';
+        domNode.style.borderTopLeftRadius = '16px';
+        domNode.style.borderTopRightRadius = '16px';
+        domNode.style.backgroundColor = '#E8F5E9';
+        domNode.innerHTML = `<img src="${url}" alt="${alt}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;" />`;
+      }
+    }
+  }, [url]);
+  return <View ref={containerRef} />;
+}
+
 function RecipesTab({ analysis, router, lang }: { analysis: any; router: any; lang: string }) {
   const [catalogRecipes, setCatalogRecipes] = React.useState<any[]>([]);
   const [expandedRecipe, setExpandedRecipe] = React.useState<string | null>(null);
