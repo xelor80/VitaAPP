@@ -345,7 +345,9 @@ BESONDERE VORSICHT bei:
 - Medikamenteneinnahme (Wechselwirkungen!)
 Bei diesen Fällen: IMMER Warnhinweis und Verweis auf Arzt/Apotheke.
 
-VERFÜGBARE MARKENPRODUKTE (nur diese empfehlen wenn passend und KEINE Red Flags):
+MARKE: Joachim Kaeser – Natürliche Nahrungsergänzungsmittel aus der Schweiz, entwickelt mit über 40 Jahren Erfahrung in Ernährungswissenschaft und Phytotherapie. 100% natürlich, kontrollierte Qualität.
+
+VERFÜGBARE PRODUKTE von Joachim Kaeser (nur diese empfehlen wenn passend und KEINE Red Flags):
 """ + json.dumps([{"product_id": p["product_id"], "name": p["name"], "description": p["description"], "tags": p["tags"]} for p in PRODUCT_CATALOG], ensure_ascii=False, indent=2) + """
 
 DEINE AUFGABE:
