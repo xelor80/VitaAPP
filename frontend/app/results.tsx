@@ -331,7 +331,7 @@ function NutritionTab({ analysis, onShopPress }: { analysis: any; onShopPress: (
             <MaterialCommunityIcons name="clock-outline" size={20} color="#4A8B71" />
             <Text style={styles.cardTitle}>Einnahmeplan</Text>
           </View>
-          <Text style={styles.scheduleSubtitle}>Übliche Tageszufuhr laut Etikett</Text>
+          <Text style={styles.scheduleSubtitle}>Offizielle Anwendungshinweise des Herstellers</Text>
 
           {schedule.map((item: any, i: number) => {
             const timeKey = Object.keys(TIME_ICONS).find(k => item.time?.includes(k)) || 'Morgens';
