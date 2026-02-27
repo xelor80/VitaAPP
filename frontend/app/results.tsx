@@ -655,8 +655,9 @@ const styles = StyleSheet.create({
     shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 1,
   },
   recipeImage: {
-    width: '100%', height: 160, borderTopLeftRadius: 16, borderTopRightRadius: 16,
-  },
+    width: '100%', height: 180, borderTopLeftRadius: 16, borderTopRightRadius: 16,
+    backgroundColor: '#E8F5E9',
+  } as any,
   recipeContent: { padding: 14 },
   recipeTitle: { fontSize: 16, fontWeight: '700', color: '#1A2D26' },
   recipeMeta: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
