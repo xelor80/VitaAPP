@@ -101,3 +101,99 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "German health app - VitaGuide. Non-medical symptom info tool with AI analysis, nutrition tips, recipes, and Joachim Kaeser affiliate product recommendations."
+
+backend:
+  - task: "Symptom Analysis with official application_instructions in supplement_schedule"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: true
+          agent: "main"
+          comment: "P0 task complete: Scraped official application_instructions from 30 Joachim Kaeser product pages. Added APPLICATION_INSTRUCTIONS dict to server.py. Updated system prompt to v1.2 to use official dosage in supplement_schedule. Enrichment code now passes application_instructions to frontend. Verified via curl - LLM returns correct dosage based on manufacturer info."
+
+  - task: "Affiliate Click Tracking endpoint"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+        - working: true
+          agent: "main"
+          comment: "POST /api/track/click endpoint exists and stores click events in MongoDB. Frontend calls it via trackClick callback."
+
+  - task: "Products API with application_instructions"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+        - working: true
+          agent: "main"
+          comment: "GET /api/products now returns application_instructions field for all 30 products."
+
+  - task: "Diary CRUD + Trends"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "low"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "Previously tested - all 7 tests passed."
+
+frontend:
+  - task: "Results page - Nutrition tab with official instructions"
+    implemented: true
+    working: "NA"
+    file: "frontend/app/results.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Added officialInstructionRow display in NutritionTab schedule cards. Shows manufacturer instructions in a styled info box. Updated subtitle to 'Offizielle Anwendungshinweise des Herstellers'."
+
+  - task: "Affiliate click tracking in frontend"
+    implemented: true
+    working: "NA"
+    file: "frontend/app/results.tsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "trackClick callback calls POST /api/track/click before opening URL. Used on all shop buttons (featured, product cards, schedule links)."
+
+metadata:
+  created_by: "main_agent"
+  version: "2.0"
+  test_sequence: 2
+  run_ui: true
+
+test_plan:
+  current_focus:
+    - "Symptom Analysis with official application_instructions"
+    - "Results page - Nutrition tab with official instructions"
+    - "Affiliate click tracking"
+    - "Products API with application_instructions"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+    - agent: "main"
+      message: "P0 task completed: Scraped and integrated official application_instructions for all 30 Joachim Kaeser products. Updated system prompt v1.2 to instruct LLM to use real manufacturer dosage in supplement_schedule. Frontend shows the official instructions in a styled info box on the Nutrition tab. Also verified click tracking endpoint is functional. Please test: 1) Symptom analysis returns correct dosage in supplement_schedule, 2) application_instructions displayed in Nutrition tab, 3) Click tracking works on shop buttons, 4) GET /api/products returns application_instructions."
