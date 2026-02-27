@@ -7,10 +7,16 @@ from datetime import datetime, timezone
 from core.config import db, logger
 from core.helpers import check_rate_limit, parse_llm_response
 from models.schemas import SymptomInput
-from data.catalogs import PRODUCT_CATALOG_DE, PRODUCT_CATALOG_IT
 from data.prompts import SYSTEM_PROMPT_DE, SYSTEM_PROMPT_IT
 
 router = APIRouter()
+
+
+async def get_product_catalog(lang: str):
+    """Get product catalog from MongoDB."""
+    collection = db.products_de if lang == "de" else db.products_it
+    cursor = collection.find({}, {"_id": 0})
+    return await cursor.to_list(length=None)
 
 
 @router.post("/symptoms/analyze")
@@ -20,7 +26,7 @@ async def analyze_symptoms(data: SymptomInput, request: Request):
         raise HTTPException(status_code=429, detail="Zu viele Anfragen. Bitte warten Sie eine Minute.")
 
     lang = data.lang if data.lang in ("de", "it") else "de"
-    catalog = PRODUCT_CATALOG_DE if lang == "de" else PRODUCT_CATALOG_IT
+    catalog = await get_product_catalog(lang)
     prompt = SYSTEM_PROMPT_DE if lang == "de" else SYSTEM_PROMPT_IT
 
     symptom_text = data.text.strip()
