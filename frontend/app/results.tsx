@@ -350,7 +350,7 @@ function NutritionTab({ analysis, onShopPress }: { analysis: any; onShopPress: (
         <View style={styles.scheduleSection}>
           <View style={styles.cardHeader}>
             <MaterialCommunityIcons name="clock-outline" size={20} color="#4A8B71" />
-            <Text style={styles.cardTitle}>Einnahmeplan</Text>
+            <Text style={styles.cardTitle}>{t(lang, 'schedule_title')}</Text>
           </View>
           <Text style={styles.scheduleSubtitle}>Offizielle Anwendungshinweise des Herstellers</Text>
 
