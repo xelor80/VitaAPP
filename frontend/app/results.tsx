@@ -531,4 +531,31 @@ const styles = StyleSheet.create({
     paddingVertical: 12, paddingHorizontal: 8, borderTopWidth: 1, borderTopColor: '#E0E6E2',
   },
   disclaimerText: { fontSize: 12, color: '#8FA39B', flex: 1, lineHeight: 18 },
+
+  // Featured Product on Overview
+  featuredProductCard: {
+    backgroundColor: '#FFFFFF', borderRadius: 16, padding: 16, marginBottom: 12,
+    borderWidth: 1, borderColor: '#D4E7DC',
+    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2,
+  },
+  featuredHeader: {
+    flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 12,
+  },
+  featuredLabel: { fontSize: 14, fontWeight: '700', color: '#4A8B71', flex: 1 },
+  featuredAdLabel: {
+    fontSize: 10, fontWeight: '700', color: '#8FA39B',
+    borderWidth: 1, borderColor: '#D0D5D2', borderRadius: 6,
+    paddingHorizontal: 6, paddingVertical: 2,
+  },
+  featuredContent: { flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 12 },
+  featuredImage: { width: 80, height: 80, borderRadius: 12, backgroundColor: '#F7F9F6' },
+  featuredImagePlaceholder: { justifyContent: 'center', alignItems: 'center' },
+  featuredInfo: { flex: 1 },
+  featuredName: { fontSize: 16, fontWeight: '700', color: '#1A2D26', marginBottom: 2 },
+  featuredPrice: { fontSize: 15, fontWeight: '700', color: '#4A8B71', marginBottom: 4 },
+  featuredReason: { fontSize: 13, color: '#5C7A6F', lineHeight: 18 },
+  featuredShopBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    backgroundColor: '#4A8B71', borderRadius: 20, paddingVertical: 12,
+  },
 });
