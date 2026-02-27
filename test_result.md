@@ -255,10 +255,11 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Symptom Analysis with official application_instructions"
-    - "Results page - Nutrition tab with official instructions"
-    - "Affiliate click tracking"
-    - "Products API with application_instructions"
+    - "Bilingual German Products API"
+    - "Bilingual Italian Products API"
+    - "Bilingual German Symptom Analysis"
+    - "Bilingual Italian Symptom Analysis"
+    - "Health Check Endpoint"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
