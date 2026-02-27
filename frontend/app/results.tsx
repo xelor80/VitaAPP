@@ -1,0 +1,471 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView,
+  ActivityIndicator, Linking
+} from 'react-native';
+import { useRouter } from 'expo-router';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { getCurrentAnalysis } from '../src/store';
+
+const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+
+type TabKey = 'overview' | 'supplements' | 'nutrition' | 'recipes';
+
+const TABS: { key: TabKey; label: string; icon: string }[] = [
+  { key: 'overview', label: 'Übersicht', icon: 'view-dashboard-outline' },
+  { key: 'supplements', label: 'Supplements', icon: 'pill' },
+  { key: 'nutrition', label: 'Ernährung', icon: 'food-apple-outline' },
+  { key: 'recipes', label: 'Rezepte', icon: 'chef-hat' },
+];
+
+export default function ResultsScreen() {
+  const router = useRouter();
+  const [analysis, setAnalysis] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState<TabKey>('overview');
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const data = getCurrentAnalysis();
+    if (data) {
+      setAnalysis(data);
+      setIsLoading(false);
+    } else {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const trackClick = useCallback(async (productId: string, affiliateUrl: string) => {
+    try {
+      await fetch(`${API_URL}/api/track/click`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ product_id: productId, affiliate_url: affiliateUrl, source: 'app' }),
+      });
+    } catch {}
+    Linking.openURL(affiliateUrl);
+  }, []);
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={[styles.safe, styles.centered]}>
+        <ActivityIndicator testID="results-loading" color="#4A8B71" size="large" />
+      </SafeAreaView>
+    );
+  }
+
+  if (!analysis) {
+    return (
+      <SafeAreaView style={[styles.safe, styles.centered]}>
+        <MaterialCommunityIcons name="alert-circle-outline" size={48} color="#8FA39B" />
+        <Text style={styles.emptyText}>Keine Analyse gefunden</Text>
+        <TouchableOpacity testID="back-home-btn" style={styles.linkBtn} onPress={() => router.back()}>
+          <Text style={styles.linkBtnText}>Zurück zur Eingabe</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+    );
+  }
+
+  const hasRedFlags = analysis.red_flags && analysis.red_flags.length > 0;
+
+  return (
+    <SafeAreaView style={styles.safe}>
+      {/* Header */}
+      <View style={styles.headerBar}>
+        <TouchableOpacity testID="back-btn" onPress={() => router.back()} activeOpacity={0.7} style={styles.backBtn}>
+          <MaterialCommunityIcons name="arrow-left" size={24} color="#1A2D26" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Ihre Ergebnisse</Text>
+        <View style={{ width: 40 }} />
+      </View>
+
+      {/* Red Flag Banner */}
+      {hasRedFlags && (
+        <View testID="red-flag-banner" style={styles.redFlagBanner}>
+          <MaterialCommunityIcons name="alert-decagram" size={22} color="#D9534F" />
+          <View style={{ flex: 1, marginLeft: 10 }}>
+            <Text style={styles.redFlagTitle}>Wichtige Warnung</Text>
+            <Text style={styles.redFlagText}>
+              Es wurden mögliche Warnsignale erkannt. Bitte konsultieren Sie umgehend einen Arzt.
+            </Text>
+          </View>
+        </View>
+      )}
+
+      {/* Tab Bar */}
+      <View style={styles.tabBar}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabScroll}>
+          {TABS.map(tab => {
+            const active = activeTab === tab.key;
+            return (
+              <TouchableOpacity
+                key={tab.key}
+                testID={`tab-${tab.key}`}
+                style={[styles.tab, active && styles.tabActive]}
+                activeOpacity={0.7}
+                onPress={() => setActiveTab(tab.key)}
+              >
+                <MaterialCommunityIcons
+                  name={tab.icon as any}
+                  size={18}
+                  color={active ? '#FFFFFF' : '#5C7A6F'}
+                />
+                <Text style={[styles.tabText, active && styles.tabTextActive]}>{tab.label}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+      </View>
+
+      {/* Content */}
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        {activeTab === 'overview' && <OverviewTab analysis={analysis} />}
+        {activeTab === 'supplements' && <SupplementsTab analysis={analysis} onShopPress={trackClick} />}
+        {activeTab === 'nutrition' && <NutritionTab analysis={analysis} />}
+        {activeTab === 'recipes' && <RecipesTab analysis={analysis} router={router} />}
+
+        {/* Disclaimer */}
+        <View style={styles.disclaimerFooter}>
+          <MaterialCommunityIcons name="information-outline" size={14} color="#8FA39B" />
+          <Text style={styles.disclaimerText}>
+            {analysis.disclaimer_short || 'Dieser Inhalt dient nur der allgemeinen Information und ersetzt keine ärztliche Beratung.'}
+          </Text>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+// ==================== TAB COMPONENTS ====================
+
+function OverviewTab({ analysis }: { analysis: any }) {
+  return (
+    <View>
+      {/* Summary */}
+      <View style={styles.card}>
+        <View style={styles.cardHeader}>
+          <MaterialCommunityIcons name="text-box-outline" size={20} color="#4A8B71" />
+          <Text style={styles.cardTitle}>Zusammenfassung</Text>
+        </View>
+        <Text style={styles.cardBody}>{analysis.summary}</Text>
+      </View>
+
+      {/* Red Flags */}
+      {analysis.red_flags?.map((rf: any, i: number) => (
+        <View key={i} testID={`red-flag-${i}`} style={styles.redFlagCard}>
+          <View style={styles.cardHeader}>
+            <MaterialCommunityIcons name="alert-circle" size={20} color="#D9534F" />
+            <Text style={[styles.cardTitle, { color: '#D9534F' }]}>{rf.flag}</Text>
+          </View>
+          <Text style={styles.cardBody}>{rf.action}</Text>
+        </View>
+      ))}
+
+      {/* Quick Info */}
+      {analysis.nutrition_tips?.length > 0 && (
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <MaterialCommunityIcons name="lightbulb-outline" size={20} color="#4A8B71" />
+            <Text style={styles.cardTitle}>Schnell-Tipps</Text>
+          </View>
+          {analysis.nutrition_tips.slice(0, 3).map((tip: string, i: number) => (
+            <View key={i} style={styles.tipRow}>
+              <MaterialCommunityIcons name="check-circle" size={16} color="#4CAF50" />
+              <Text style={styles.tipText}>{tip}</Text>
+            </View>
+          ))}
+        </View>
+      )}
+    </View>
+  );
+}
+
+function SupplementsTab({ analysis, onShopPress }: { analysis: any; onShopPress: (id: string, url: string) => void }) {
+  return (
+    <View>
+      {/* Supplement Info */}
+      {analysis.supplements_general_info?.map((s: any, i: number) => (
+        <View key={i} style={styles.card}>
+          <View style={styles.cardHeader}>
+            <MaterialCommunityIcons name="pill" size={20} color="#2C5F78" />
+            <Text style={styles.cardTitle}>{s.nutrient}</Text>
+            <View style={[styles.badge, s.evidence_level === 'high' ? styles.badgeHigh : s.evidence_level === 'medium' ? styles.badgeMed : styles.badgeLow]}>
+              <Text style={styles.badgeText}>{s.evidence_level === 'high' ? 'Stark' : s.evidence_level === 'medium' ? 'Mittel' : 'Gering'}</Text>
+            </View>
+          </View>
+          <Text style={styles.cardBody}>{s.why}</Text>
+          {s.cautions ? (
+            <View style={styles.cautionRow}>
+              <MaterialCommunityIcons name="alert-outline" size={14} color="#D9534F" />
+              <Text style={styles.cautionText}>{s.cautions}</Text>
+            </View>
+          ) : null}
+          {s.food_sources?.length > 0 && (
+            <View style={styles.sourcesWrap}>
+              <Text style={styles.sourcesLabel}>Natürliche Quellen:</Text>
+              <Text style={styles.sourcesText}>{s.food_sources.join(', ')}</Text>
+            </View>
+          )}
+        </View>
+      ))}
+
+      {/* Brand Products */}
+      {analysis.brand_products?.length > 0 && (
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Passende Produkte</Text>
+          <Text style={styles.sectionSubtitle}>Von VitaNatura (Werbung)</Text>
+        </View>
+      )}
+      {analysis.brand_products?.map((p: any, i: number) => (
+        <View key={i} testID={`product-card-${p.product_id}`} style={styles.productCard}>
+          <View style={styles.productTop}>
+            <View style={styles.productIcon}>
+              <MaterialCommunityIcons name="package-variant-closed" size={24} color="#4A8B71" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.productName}>{p.name}</Text>
+              {p.price ? <Text style={styles.productPrice}>{p.price}</Text> : null}
+            </View>
+          </View>
+          <Text style={styles.productReason}>{p.reason}</Text>
+          {p.note ? <Text style={styles.productNote}>{p.note}</Text> : null}
+          <TouchableOpacity
+            testID={`product-shop-btn-${p.product_id}`}
+            style={styles.shopBtn}
+            activeOpacity={0.7}
+            onPress={() => onShopPress(p.product_id, p.affiliate_url)}
+          >
+            <MaterialCommunityIcons name="open-in-new" size={16} color="#FFFFFF" />
+            <Text style={styles.shopBtnText}>  Zum Shop</Text>
+          </TouchableOpacity>
+        </View>
+      ))}
+
+      {analysis.brand_products?.length === 0 && analysis.supplements_general_info?.length === 0 && (
+        <View style={styles.emptyState}>
+          <MaterialCommunityIcons name="pill" size={40} color="#8FA39B" />
+          <Text style={styles.emptyStateText}>Keine Supplement-Informationen verfügbar</Text>
+        </View>
+      )}
+    </View>
+  );
+}
+
+function NutritionTab({ analysis }: { analysis: any }) {
+  return (
+    <View>
+      {analysis.nutrition_tips?.length > 0 ? (
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <MaterialCommunityIcons name="food-apple-outline" size={20} color="#4A8B71" />
+            <Text style={styles.cardTitle}>Ernährungstipps</Text>
+          </View>
+          {analysis.nutrition_tips.map((tip: string, i: number) => (
+            <View key={i} style={styles.nutritionTipCard}>
+              <View style={styles.tipNumber}>
+                <Text style={styles.tipNumberText}>{i + 1}</Text>
+              </View>
+              <Text style={styles.nutritionTipText}>{tip}</Text>
+            </View>
+          ))}
+        </View>
+      ) : (
+        <View style={styles.emptyState}>
+          <MaterialCommunityIcons name="food-apple-outline" size={40} color="#8FA39B" />
+          <Text style={styles.emptyStateText}>Keine Ernährungstipps verfügbar</Text>
+        </View>
+      )}
+    </View>
+  );
+}
+
+function RecipesTab({ analysis, router }: { analysis: any; router: any }) {
+  if (!analysis.recipes?.length) {
+    return (
+      <View style={styles.emptyState}>
+        <MaterialCommunityIcons name="chef-hat" size={40} color="#8FA39B" />
+        <Text style={styles.emptyStateText}>Keine Rezepte verfügbar</Text>
+      </View>
+    );
+  }
+  return (
+    <View>
+      {analysis.recipes.map((recipe: any, i: number) => (
+        <TouchableOpacity
+          key={i}
+          testID={`recipe-card-${i}`}
+          style={styles.recipeCard}
+          activeOpacity={0.7}
+          onPress={() => router.push(`/recipe?idx=${i}`)}
+        >
+          <View style={styles.recipeTop}>
+            <View style={styles.recipeIconWrap}>
+              <MaterialCommunityIcons name="chef-hat" size={24} color="#4A8B71" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.recipeTitle}>{recipe.title}</Text>
+              <View style={styles.recipeMeta}>
+                <MaterialCommunityIcons name="clock-outline" size={14} color="#5C7A6F" />
+                <Text style={styles.recipeTime}> {recipe.time_min} Min.</Text>
+                <Text style={styles.recipeDot}>·</Text>
+                <Text style={styles.recipeIngCount}>{recipe.ingredients?.length || 0} Zutaten</Text>
+              </View>
+            </View>
+            <MaterialCommunityIcons name="chevron-right" size={24} color="#8FA39B" />
+          </View>
+          {recipe.tags?.length > 0 && (
+            <View style={styles.recipeTagsRow}>
+              {recipe.tags.slice(0, 3).map((tag: string, j: number) => (
+                <View key={j} style={styles.recipeTag}>
+                  <Text style={styles.recipeTagText}>{tag}</Text>
+                </View>
+              ))}
+            </View>
+          )}
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+}
+
+// ==================== STYLES ====================
+const styles = StyleSheet.create({
+  safe: { flex: 1, backgroundColor: '#F7F9F6' },
+  centered: { justifyContent: 'center', alignItems: 'center' },
+  content: { padding: 16, paddingBottom: 40 },
+
+  // Header
+  headerBar: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingHorizontal: 16, paddingVertical: 12, backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1, borderBottomColor: '#E0E6E2',
+  },
+  backBtn: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center' },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: '#1A2D26' },
+
+  // Red Flag Banner
+  redFlagBanner: {
+    flexDirection: 'row', alignItems: 'center', backgroundColor: '#FDF2F2',
+    padding: 14, marginHorizontal: 16, marginTop: 12, borderRadius: 12,
+    borderWidth: 1, borderColor: '#F5C6CB',
+  },
+  redFlagTitle: { fontSize: 15, fontWeight: '700', color: '#D9534F' },
+  redFlagText: { fontSize: 13, color: '#721C24', marginTop: 2, lineHeight: 18 },
+
+  // Tabs
+  tabBar: { backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#E0E6E2' },
+  tabScroll: { paddingHorizontal: 12, paddingVertical: 8, gap: 6 },
+  tab: {
+    flexDirection: 'row', alignItems: 'center', paddingVertical: 8, paddingHorizontal: 14,
+    borderRadius: 20, backgroundColor: '#F7F9F6', gap: 6,
+  },
+  tabActive: { backgroundColor: '#4A8B71' },
+  tabText: { fontSize: 14, fontWeight: '600', color: '#5C7A6F' },
+  tabTextActive: { color: '#FFFFFF' },
+
+  // Cards
+  card: {
+    backgroundColor: '#FFFFFF', borderRadius: 16, padding: 16, marginBottom: 12,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 1,
+  },
+  cardHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 },
+  cardTitle: { fontSize: 16, fontWeight: '700', color: '#1A2D26', flex: 1 },
+  cardBody: { fontSize: 15, color: '#1A2D26', lineHeight: 22 },
+
+  // Red flag card
+  redFlagCard: {
+    backgroundColor: '#FDF2F2', borderRadius: 16, padding: 16, marginBottom: 12,
+    borderWidth: 1, borderColor: '#F5C6CB',
+  },
+
+  // Tips
+  tipRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginTop: 8 },
+  tipText: { fontSize: 14, color: '#1A2D26', flex: 1, lineHeight: 20 },
+
+  // Badge
+  badge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10 },
+  badgeHigh: { backgroundColor: '#E8F5E9' },
+  badgeMed: { backgroundColor: '#FFF3E0' },
+  badgeLow: { backgroundColor: '#FFEBEE' },
+  badgeText: { fontSize: 11, fontWeight: '700', color: '#1A2D26' },
+
+  // Caution
+  cautionRow: {
+    flexDirection: 'row', alignItems: 'flex-start', gap: 6, marginTop: 10,
+    backgroundColor: '#FDF2F2', borderRadius: 8, padding: 10,
+  },
+  cautionText: { fontSize: 13, color: '#D9534F', flex: 1, lineHeight: 18 },
+
+  // Sources
+  sourcesWrap: { marginTop: 10, flexDirection: 'row', flexWrap: 'wrap', gap: 4 },
+  sourcesLabel: { fontSize: 13, fontWeight: '600', color: '#5C7A6F' },
+  sourcesText: { fontSize: 13, color: '#5C7A6F' },
+
+  // Section
+  sectionHeader: { marginTop: 8, marginBottom: 12 },
+  sectionTitle: { fontSize: 18, fontWeight: '700', color: '#1A2D26' },
+  sectionSubtitle: { fontSize: 13, color: '#8FA39B', marginTop: 2 },
+
+  // Product Card
+  productCard: {
+    backgroundColor: '#FFFFFF', borderRadius: 16, padding: 16, marginBottom: 12,
+    borderWidth: 1, borderColor: '#E0E6E2',
+  },
+  productTop: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 8 },
+  productIcon: {
+    width: 44, height: 44, borderRadius: 12, backgroundColor: '#E8F5E9',
+    justifyContent: 'center', alignItems: 'center',
+  },
+  productName: { fontSize: 16, fontWeight: '700', color: '#1A2D26' },
+  productPrice: { fontSize: 15, fontWeight: '600', color: '#4A8B71', marginTop: 2 },
+  productReason: { fontSize: 14, color: '#5C7A6F', lineHeight: 20, marginBottom: 4 },
+  productNote: { fontSize: 13, color: '#8FA39B', fontStyle: 'italic', marginBottom: 10 },
+  shopBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    backgroundColor: '#2C5F78', borderRadius: 20, paddingVertical: 12, marginTop: 4,
+  },
+  shopBtnText: { color: '#FFFFFF', fontSize: 15, fontWeight: '700' },
+
+  // Nutrition
+  nutritionTipCard: {
+    flexDirection: 'row', alignItems: 'flex-start', gap: 12, marginBottom: 14,
+  },
+  tipNumber: {
+    width: 28, height: 28, borderRadius: 14, backgroundColor: '#E8F5E9',
+    justifyContent: 'center', alignItems: 'center',
+  },
+  tipNumberText: { fontSize: 14, fontWeight: '700', color: '#4A8B71' },
+  nutritionTipText: { fontSize: 15, color: '#1A2D26', flex: 1, lineHeight: 22 },
+
+  // Recipes
+  recipeCard: {
+    backgroundColor: '#FFFFFF', borderRadius: 16, padding: 16, marginBottom: 12,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 1,
+  },
+  recipeTop: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  recipeIconWrap: {
+    width: 44, height: 44, borderRadius: 12, backgroundColor: '#E8F5E9',
+    justifyContent: 'center', alignItems: 'center',
+  },
+  recipeTitle: { fontSize: 16, fontWeight: '700', color: '#1A2D26' },
+  recipeMeta: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
+  recipeTime: { fontSize: 13, color: '#5C7A6F' },
+  recipeDot: { fontSize: 13, color: '#8FA39B', marginHorizontal: 6 },
+  recipeIngCount: { fontSize: 13, color: '#5C7A6F' },
+  recipeTagsRow: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 10, gap: 6 },
+  recipeTag: { backgroundColor: '#E8F5E9', borderRadius: 12, paddingVertical: 4, paddingHorizontal: 10 },
+  recipeTagText: { fontSize: 12, fontWeight: '600', color: '#2C5F78' },
+
+  // Empty states
+  emptyState: { alignItems: 'center', paddingVertical: 40, gap: 12 },
+  emptyStateText: { fontSize: 15, color: '#8FA39B' },
+  emptyText: { fontSize: 16, color: '#8FA39B', marginTop: 12 },
+  linkBtn: { marginTop: 16, paddingVertical: 10, paddingHorizontal: 20 },
+  linkBtnText: { fontSize: 16, color: '#4A8B71', fontWeight: '600' },
+
+  // Disclaimer footer
+  disclaimerFooter: {
+    flexDirection: 'row', alignItems: 'flex-start', gap: 6, marginTop: 16,
+    paddingVertical: 12, paddingHorizontal: 8, borderTopWidth: 1, borderTopColor: '#E0E6E2',
+  },
+  disclaimerText: { fontSize: 12, color: '#8FA39B', flex: 1, lineHeight: 18 },
+});
