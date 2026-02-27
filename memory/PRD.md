@@ -92,6 +92,7 @@ VitaGuide ist eine kostenlose Gesundheits-Informations-App, die uber eine KI-Anb
 | POST | /api/diary | Tagebuch-Eintrag speichern |
 | GET | /api/diary | Tagebuch-Eintrage abrufen |
 | GET | /api/diary/trends | Trend-Analyse mit KI-Tipps |
+| GET | /api/llm-logs | LLM-Response-Logs mit Stats (limit, endpoint Filter) |
 
 ## Dateien
 - backend/server.py: Haupt-Backend mit DE/IT Prompts + Produktkatalogen
