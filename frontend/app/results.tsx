@@ -147,7 +147,7 @@ export default function ResultsScreen() {
 
 // ==================== TAB COMPONENTS ====================
 
-function OverviewTab({ analysis, onShopPress }: { analysis: any; onShopPress: (id: string, url: string) => void }) {
+function OverviewTab({ analysis, onShopPress, lang }: { analysis: any; onShopPress: (id: string, url: string) => void; lang: string }) {
   const featuredProduct = analysis.brand_products?.[0];
   return (
     <View>
