@@ -307,9 +307,82 @@ function SupplementsTab({ analysis, onShopPress }: { analysis: any; onShopPress:
   );
 }
 
-function NutritionTab({ analysis }: { analysis: any }) {
+function NutritionTab({ analysis, onShopPress }: { analysis: any; onShopPress: (id: string, url: string) => void }) {
+  const schedule = analysis.supplement_schedule || [];
+  const TIME_ICONS: Record<string, string> = {
+    'Morgens': 'weather-sunset-up',
+    'Mittags': 'white-balance-sunny',
+    'Abends': 'weather-sunset-down',
+    'Vor dem Schlafen': 'weather-night',
+  };
+  const TIME_COLORS: Record<string, string> = {
+    'Morgens': '#FF9800',
+    'Mittags': '#F5C842',
+    'Abends': '#E8845C',
+    'Vor dem Schlafen': '#7986CB',
+  };
+
   return (
     <View>
+      {/* Supplement Schedule */}
+      {schedule.length > 0 && (
+        <View style={styles.scheduleSection}>
+          <View style={styles.cardHeader}>
+            <MaterialCommunityIcons name="clock-outline" size={20} color="#4A8B71" />
+            <Text style={styles.cardTitle}>Einnahmeplan</Text>
+          </View>
+          <Text style={styles.scheduleSubtitle}>Übliche Tageszufuhr laut Etikett</Text>
+
+          {schedule.map((item: any, i: number) => {
+            const timeKey = Object.keys(TIME_ICONS).find(k => item.time?.includes(k)) || 'Morgens';
+            const iconName = TIME_ICONS[timeKey] || 'clock-outline';
+            const iconColor = TIME_COLORS[timeKey] || '#4A8B71';
+            return (
+              <View key={i} testID={`schedule-item-${i}`} style={styles.scheduleCard}>
+                <View style={styles.scheduleLeft}>
+                  <View style={[styles.scheduleTimeIcon, { backgroundColor: iconColor + '20' }]}>
+                    <MaterialCommunityIcons name={iconName as any} size={22} color={iconColor} />
+                  </View>
+                  <Text style={[styles.scheduleTime, { color: iconColor }]}>{item.time}</Text>
+                </View>
+                <View style={styles.scheduleRight}>
+                  <View style={styles.scheduleProductRow}>
+                    {item.image_url ? (
+                      <Image source={{ uri: item.image_url }} style={styles.scheduleProductImg} resizeMode="contain" />
+                    ) : null}
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.scheduleProductName}>{item.product_name}</Text>
+                      <Text style={styles.scheduleDosage}>{item.dosage}</Text>
+                    </View>
+                  </View>
+                  {item.instruction ? (
+                    <Text style={styles.scheduleInstruction}>{item.instruction}</Text>
+                  ) : null}
+                  {item.affiliate_url ? (
+                    <TouchableOpacity
+                      testID={`schedule-shop-${i}`}
+                      style={styles.scheduleShopLink}
+                      onPress={() => onShopPress(item.product_id || '', item.affiliate_url)}
+                    >
+                      <MaterialCommunityIcons name="open-in-new" size={13} color="#4A8B71" />
+                      <Text style={styles.scheduleShopText}>  Im Shop ansehen</Text>
+                    </TouchableOpacity>
+                  ) : null}
+                </View>
+              </View>
+            );
+          })}
+
+          <View style={styles.scheduleCaution}>
+            <MaterialCommunityIcons name="alert-circle-outline" size={14} color="#D9534F" />
+            <Text style={styles.scheduleCautionText}>
+              Dosierung laut Etikett. Rücksprache mit Arzt oder Apotheke wird empfohlen.
+            </Text>
+          </View>
+        </View>
+      )}
+
+      {/* Nutrition Tips */}
       {analysis.nutrition_tips?.length > 0 ? (
         <View style={styles.card}>
           <View style={styles.cardHeader}>
