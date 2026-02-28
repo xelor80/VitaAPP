@@ -1,105 +1,74 @@
-<analysis>
-<original_problem_statement>
-The user wants to build a health-focused mobile app. Initially, the app was only in German, but the scope has been expanded to include Italian.
+<analysis>**original_problem_statement:**
+The user wants to build a health-focused, bilingual (German/Italian) mobile app. The core functionality involves an LLM analyzing user-inputted symptoms to provide nutrition tips, supplement information, and affiliate links. The app also features a static recipe catalog, a symptom diary, and mandatory safety disclaimers.
+
+The latest and most significant requirement is to build a structured, multi-step onboarding system. This intelligent anamnesis will collect comprehensive user health data across several categories (biometrics, diet, sleep, stress, medical history, etc.). This data will then be used by a backend risk-assessment engine to calculate potential micronutrient deficiencies and generate a personalized health summary for the user, while strictly avoiding making medical diagnoses.
 
 **PRODUCT REQUIREMENTS:**
-1.  **Core Functionality:** Users input symptoms (free text) in either German or Italian. An LLM (OpenAI) analyzes the symptoms and provides:
-    *   Evidence-based nutrition tips and recipes.
-    *   General information on vitamins/supplements.
-    *   Affiliate links to products from the Joachim Kaeser brand, using the appropriate German or Italian shop.
-    *   For Italian products, display embedded YouTube videos where available.
-2.  **Recipe Catalog:** Display a static, curated list of 30 recipes with high-quality, license-free images, in addition to the LLM-generated recipes.
-3.  **Safety First:** The app must explicitly state it is not a medical device and direct users to medical professionals for serious symptoms (Red Flags). It needs clear disclaimers.
-4.  **Monetization:** Primarily through affiliate link tracking and clicks.
-5.  **Key User Journeys:**
-    *   Symptom input -&gt; Results page (language-specific).
-    *   Recipe details -&gt; Shopping list.
-    *   Supplement info -&gt; Brand product page (affiliate link).
-6.  **Symptom Diary:** A feature to track daily well-being (mood, sleep, etc.) and view trends, with LLM-provided lifestyle tips. This must also be internationalized.
-7.  **Intake Schedule:** A feature to show a daily schedule for taking recommended supplements, using the official manufacturer instructions scraped from the product pages.
+1.  **Intelligent Onboarding:**
+    *   Create a multi-step wizard to collect user data: basic info, nutrition, sleep, stress, activity level, pre-existing conditions, medications, known deficiencies, and main complaints.
+    *   Implement backend logic for a risk score based on the collected data to identify potential micronutrient deficits.
+    *   Generate a personalized output including a health summary, likely deficiencies with reasoning, and prioritized action areas.
+2.  **Admin Panel:** A separate, password-protected web application for managing all aspects of the app, including products, recipes, affiliate clicks, LLM logs, UI text translations, symptom chips, disclaimers, and AI model selection.
+3.  **Core Symptom Analysis:** The original feature where users input symptoms to get AI-driven recommendations.
+4.  **Data Management:** All application data (products, recipes, settings, etc.) should be stored and managed in a MongoDB database.
+5.  **Monetization:** Track affiliate link clicks with detailed analytics (geolocation, device, browser).
 
-</original_problem_statement>
-**User's preferred language**: German. The user communicates in German, but the application itself must support both German and Italian. The next agent MUST respond in German.
+**User's preferred language**: German. The next agent MUST respond in German.
 
 **what currently exists?**
-A functional bilingual (German/Italian) MVP of the health app. The backend is FastAPI, and the frontend is React Native (Expo).
--   **Core Loop:** Users can switch language (DE/IT) on the home screen, accept a disclaimer, enter symptoms, and receive a language-specific analysis from an LLM.
--   **Internationalization (i18n):** A language context and translation files () have been implemented, covering the Home, Results, and Diary screens.
--   **Product Catalogs:** The backend uses separate JSON files for German () and Italian () product data, including scraped official usage instructions and video URLs for the Italian products.
--   **Recipe Catalog:** A new static  file with 30 bilingual recipes and associated image URLs has been created. A corresponding  endpoint serves this data.
--   **Backend:** Endpoints like  and  are now language-aware, accepting a  query parameter.
--   **UI:** The Home screen layout was adjusted to move the Symptom Diary button below the Analyze button.
+A modular, bilingual (German/Italian) React Native (Expo) + FastAPI application.
+-   **Backend:** A modular FastAPI server with separate routers for different features. It serves both the mobile app's API and a standalone, password-protected admin web app. Data is stored in MongoDB.
+-   **Frontend:** A React Native app built with Expo, with major screens (Home, Results) refactored into smaller, reusable components.
+-   **Admin Web App:** A complete, standalone web app built with HTML/CSS/JS, served and password-protected by the FastAPI backend at the  endpoint. It allows full CRUD management of products, recipes, and all dynamic app content (UI texts, symptom chips, disclaimers, AI settings).
+-   **Onboarding Feature Backend:** The entire backend for the new onboarding feature is complete. This includes the data model (), the risk assessment logic (), and the API endpoint () to receive and process the data.
 
 **Last working item**:
--   **Last item agent was working**: Implementing the user's request for a static recipe catalog with images. The agent created the  data file, implemented and tested the  backend endpoint, and was in the process of updating the frontend  to fetch and display these new recipes with their images in the Recipes tab.
+-   **Last item agent was working**: Implementing the new multi-step Intelligent Onboarding feature. The agent successfully built and tested the entire backend portion, including the data models, risk assessment logic, and the API endpoint.
 -   **Status**: IN PROGRESS
--   **Agent Testing Done**: N (Backend part was tested via curl, but frontend is incomplete and untested).
--   **Which testing method agent to use?**: screenshot tool. The agent needs to visually verify the Recipes tab on the results screen. It should confirm that the new, static recipes are displayed with their images, in addition to the LLM-generated recipes.
+-   **Agent Testing Done**: Y (for the backend API)
+-   **Which testing method agent to use?**: testing_agent_v3_fork. Once the frontend wizard is built, a full E2E regression test is required.
 -   **User Testing Done**: N
 
 **All Pending/In progress Issue list**:
--   Issue 1: Affiliate click tracking endpoint is not implemented. (Priority: P1)
--   Issue 2: LLM response versioning and logging is not implemented. (Priority: P2)
-
-**Issues Detail**:
--   **Issue 1**:
-    -   **Attempted fixes**: None. This task has been consistently postponed in favor of new feature requests.
-    -   **Next debug checklist**:
-        1.  Create a new endpoint  in .
-        2.  The endpoint should accept a payload like .
-        3.  It should log the click event, ideally to a new  collection in MongoDB.
-        4.  In , modify the Zum Shop / Vai allo Shop  components to call this new endpoint via  before navigating to the affiliate URL.
-    -   **Why fix this issue and what will be achieved with the fix?**: This is a core monetization requirement. It enables tracking of user engagement with affiliate links.
-    -   **Status**: NOT STARTED
-    -   **Is recurring issue?**: Y
-    -   **Should Test frontend/backend/both after fix?**: Both.
-    -   **Blocked on other issue**: None.
--   **Issue 2**:
-    -   **Attempted fixes**: None.
-    -   **Next debug checklist**:
-        1.  In , within the  function.
-        2.  After receiving an LLM response, store it in a new MongoDB collection (e.g., ).
-        3.  The document should include the full LLM response, the original user input, a , the  used, , and a .
-    -   **Why fix this issue and what will be achieved with the fix?**: Enables debugging, tracking LLM performance, and prompt version control. It's a key MLOps practice.
-    -   **Status**: NOT STARTED
-    -   **Is recurring issue?**: Y
-    -   **Should Test frontend/backend/both after fix?**: Backend.
-    -   **Blocked on other issue**: None.
+-   There are no known bugs. The only pending item is the completion of the onboarding feature.
 
 **In progress Task List**:
--   Task 1: Complete frontend integration for the new recipe catalog. (Priority: P0 - HIGHEST)
+-   Task 1: Build the multi-step frontend for the Onboarding Wizard (Priority: P0 - HIGHEST)
 
 **Task Detail**:
 -   **Task 1**:
-    -   **Where to resume**: The agent just replaced the  component in . The next step is to verify the implementation. Check that the  hook correctly fetches from , that the state is updated, and that the component correctly renders both the static  (with images) and the existing . Then, perform a visual test using the screenshot tool.
-    -   **What will be achieved with this?**: The app's Recipes tab will be significantly enhanced with a visually appealing, curated list of 30 recipes with images, fulfilling the user's latest request.
-    -   **Status**: IN PROGRESS
-    -   **Should Test frontend/backend/both after fix?**: Frontend.
+    -   **Where to resume**: The backend API () is ready. The next step is to build the frontend wizard. This involves:
+        1.  Creating a new main page at .
+        2.  Creating a new directory  to house the components for each of the 6 steps (e.g., , , etc.).
+        3.  Adding a button or link on the home screen () to trigger the start of the onboarding flow for new users.
+    -   **What will be achieved with this?**: A complete, multi-step user onboarding flow that collects detailed health data and sends it to the backend, fulfilling the latest major user request.
+    -   **Status**: IN PROGRESS (Frontend NOT STARTED)
+    -   **Should Test frontend/backend/both after fix?**: Both.
     -   **Blocked on something**: No.
 
 **Upcoming and Future Tasks**
 -   **Upcoming Tasks:**
-    -   **P1:** Implement the  endpoint for affiliate monetization.
-    -   **P2:** Implement LLM response versioning and logging.
+    -   **P1:** Update the mobile app to fetch dynamic content (UI texts, symptom chips, disclaimers) from the  endpoints instead of using hardcoded values. This is critical for the admin panel changes to take effect in the app.
+    -   **P2:** Create a Health Profile screen in the app to display the personalized summary and recommendations generated after the user completes the onboarding.
 -   **Future Tasks:**
-    -   **P3:** Refactor the product and recipe catalogs from JSON files (, , ) to dedicated MongoDB collections for scalability.
-    -   **P3:** Implement a searchable/filterable recipe catalog.
-    -   **P4:** Add internationalization support for other languages like English.
+    -   **P3:** Implement a searchable/filterable UI for the recipe catalog.
+    -   **P4:** Add a dashboard in the admin panel to view anonymized, aggregated health statistics from the onboarding data.
 
 **Completed work in this session**
--   Scraped and integrated official usage instructions for all German products. (DONE)
--   Implemented full internationalization (i18n) for Italian, including: (DONE)
-    -   Scraping Italian product data, usage instructions, and video URLs.
-    -   Creating language-aware backend endpoints.
-    -   Adding a language switcher and translating the UI for Home, Results, and Diary screens.
--   Moved the Symptom-Tagebuch button on the home screen as requested by the user. (DONE)
--   Began implementation of a static recipe catalog with images: (IN PROGRESS)
-    -   Created  with 30 bilingual recipes and image URLs.
-    -   Created and tested the new  endpoint.
+-   **Data Migration:** Migrated product and recipe catalogs from JSON files to MongoDB. (DONE)
+-   **Admin Panel:** Built a comprehensive, password-protected admin web app from scratch, completely separate from the mobile app. (DONE)
+-   **Admin Panel Features:** Extended the admin panel to manage:
+    -   Products & Recipes (CRUD)
+    -   UI Text & Translations
+    -   Symptom Chips
+    -   Disclaimer Texts
+    -   AI Model Selection (OpenAI, Anthropic, Google) (DONE)
+-   **Feature:** Implemented an advanced click-tracking dashboard with geolocation, device/browser data, heatmaps, and top product analytics. (DONE)
+-   **Refactoring:** Successfully modularized the  (Home) and  (Results) screens. (DONE)
+-   **Onboarding Backend:** Built the complete backend for the new intelligent onboarding feature. (DONE)
 
 **Earlier issues found/mentioned but not fixed**
--   **Issue 1**: Affiliate click tracking () is not implemented. This is a core monetization feature.
--   **Issue 2**: LLM outputs are not versioned or logged to a database for MLOps and traceability.
+-   None.
 
 **Known issue recurrence from previous fork**
 -   None.
@@ -108,84 +77,76 @@ A functional bilingual (German/Italian) MVP of the health app. The backend is Fa
 
 
 **Key Technical Concepts**
--   **Backend:** FastAPI
--   **Frontend:** React Native (Expo)
--   **Database:** MongoDB (for diary entries), flat JSON files for product and recipe catalogs.
--   **LLM:** OpenAI GPT-4 via .
--   **Internationalization (i18n):** React Context API for global state management and a simple object-based translation library ().
--   **Web Scraping:** BeautifulSoup.
+-   **Backend:** Modular FastAPI, serving both a JSON API and a static Admin Web App.
+-   **Frontend:** React Native with Expo (for Web).
+-   **Database:** MongoDB for all application data, including products, recipes, user data, clicks, and dynamic settings.
+-   **Admin Panel:** A standalone vanilla JS/HTML/CSS single-page application, served and authenticated by FastAPI.
+-   **Dynamic Configuration:** App content like texts, chips, and AI settings are managed via the admin panel and fetched from a  collection in MongoDB.
 
 **key DB schema**
--   **products (JSON):** 
--   **recipes (JSON):** 
--   **diary_entries (MongoDB):** 
+-   **products, recipes**: Migrated to MongoDB collections.
+-   **clicks**: 
+-   **settings**:  (Stores texts, chips, disclaimers, AI config)
+-   **health_profiles**: 
 
 **changes in tech stack**
--   No changes in the core tech stack.
+-   Data storage fully migrated from flat files to MongoDB.
+-   Added  and  libraries for advanced analytics.
 
 **All files of reference**
--   : Heavily updated to be language-aware, serves different product/recipe catalogs, and includes the new  endpoint.
--   : **New file** for the Italian product catalog.
--   : **New file** for the bilingual recipe catalog.
--   : Updated with i18n and the diary button has been moved.
--   : Significantly updated for i18n. **Currently being edited** to add the new recipe catalog feature.
--   : Updated with i18n.
--   : Updated to wrap the app in a .
--   : **New file** containing all DE/IT translation strings.
--   : **New file** defining the global language context.
+-   : Contains the new risk-scoring logic for the onboarding feature.
+-   : The new API router for handling onboarding data submissions.
+-   : The directory containing the entire standalone admin web application.
+-   ****: **To be created** as the main page for the onboarding wizard.
+-   ****: Directory **to be created** for the individual wizard step components.
+-   : Needs to be modified to link to the new onboarding flow.
 
-**Areas that need refactoring**
--   **Data Management:** The use of three separate JSON files (, , ) for data is becoming unwieldy. Migrating these to a structured database like MongoDB is highly recommended for scalability and easier management.
--   **Componentization:** The  and  files are very large. The individual tabs and screen sections should be extracted into smaller, reusable components to improve readability and maintainability.
--   **Backend Modularity:**  is growing too large. It should be broken down into modules (e.g., , , ) to separate concerns.
+**Areas that need refactoring**:
+-   The  file is growing large and could be split into modules for better maintainability.
+-   The mobile app still uses some hardcoded values (e.g., in ). It should be updated to fetch all dynamic content from the new  endpoints (see Upcoming Tasks).
 
 **key api endpoints**
--   : Takes user symptoms and returns a full analysis. Language-aware.
--   : Returns the appropriate product catalog. Language-aware.
--   : Returns the static recipe catalog. Language-aware.
--   : Saves a new daily diary entry.
--   : Analyzes diary entries for lifestyle tips.
+-   : Submits the onboarding form data.
+-   : Serves the admin web app's login page.
+-   : Authenticates the admin user.
+-   : Manages dynamic app content.
+-   All CRUD endpoints for  and  under .
+-   : Logs an affiliate click with enhanced analytics.
 
 **Critical Info for New Agent**
--   The app is now fully bilingual (German 'de', Italian 'it'). Backend logic and frontend components depend on the language state, managed by  on the frontend and a  query param on the backend.
--   The agent encountered and resolved several Metro bundler caching issues by restarting the frontend service (frontend: ERROR (no such process)
-frontend: ERROR (no such process)). If the frontend UI does not reflect recent code changes, this should be the first step.
--   A harmless Metro warning about files in  being treated as routes may appear. This was investigated and deemed safe to ignore. Do not waste time trying to fix it.
--   The immediate task is to finish the frontend implementation of the recipe catalog in .
+-   **IMMEDIATE TASK:** Your primary goal is to build the multi-step frontend wizard for the Intelligent Onboarding feature. The backend is already complete and tested. You need to create  and its child components to collect user data and  it to the  endpoint.
+-   **Admin App is Separate:** The Admin Panel is a standalone web application served at . It is NOT part of the React Native mobile app.
+-   **Dynamic Content:** After completing the onboarding feature, the next critical step (P1) is to make the mobile app fetch its UI texts, symptom chips, etc., from the backend APIs so the changes made in the admin panel are reflected in the app.
 
-**documents created in this job**
--    (Continuously updated by the agent).
+**documents and test reports created in this job**
+-    (Continuously updated)
+-   Multiple test reports in  verifying features like refactoring, data migration, and the admin panel.
 
 **Last 10 User Messages and any pending HUMAN messages**
--    (Request for more recipes with images) - Status: IN PROGRESS
--    (Approval to start recipe work) - Status: ACKNOWLEDGED
--    (Request to move diary button) - Status: COMPLETED
--    (Bug report: Diary not translated) - Status: COMPLETED
--    (Request for Italian localization and videos) - Status: COMPLETED
--    (Clarification to only scrape single products for Italian) - Status: COMPLETED
--    (Initial approval to start the session's first task) - Status: COMPLETED
+-   : User asked for the URL and credentials for the new admin panel.
+-   : User requested to expand the admin panel to manage app texts, symptom chips, disclaimers, and AI model selection. **Status: COMPLETED**
+-   : User requested more detailed analytics on the Clicks dashboard. **Status: COMPLETED**
+-   User provided a detailed feature request for an Intelligent Anamnesis (onboarding system). **Status: IN PROGRESS**
+-   : User made choices regarding the implementation details of the onboarding system. **Status: ACKNOWLEDGED, work started.**
 
 **Project Health Check:**
--   **Broken:** None.
--   **Mocked:**
-    -   Affiliate click tracking is non-existent. The  URL parameter is a placeholder.
+-   **Broken:** None
+-   **Mocked:** None
 
 **3rd Party Integrations**
--   **OpenAI GPT-4:** Used for symptom analysis, lifestyle tips, and recipe generation. Access is via the  library using the Emergent LLM Key.
+-   **OpenAI, Anthropic, Google:** LLM providers for text generation, accessed via  using the Emergent LLM Key. The active model is configurable in the admin panel.
+-   **fastapi-geolocation:** For IP-to-location data.
+-   **user-agents:** For parsing browser/device data from User-Agent strings.
 
 **Testing status**
--   **Testing agent used after significant changes**: YES, backend tests were run and passed.
+-   **Testing agent used after significant changes**: YES
 -   **Troubleshoot agent used after agent stuck in loop**: NO
--   **Test files created**: None.
--   **Known regressions**: None.
+-   **Test files created**: None
+-   **Known regressions**: None
 
 **Credentials to test flow:**
--   No credentials are required.
+-   **Admin App URL**:  (relative to the preview URL)
+-   **Admin App Password**: 
 
 **What agent forgot to execute**
--   The agent correctly prioritized the user's new feature requests (Italian localization, UI changes, recipes) over the two outstanding technical debt items from the previous session:
-    1.  Implementation of the  endpoint for affiliate monetization.
-    2.  Implementation of LLM response versioning and logging.
-    These tasks remain in the backlog with P1 and P2 priority, respectively.
-
-</analysis>
+-   The agent did not forget any direct tasks. However, a logical next step that hasn't been implemented is to connect the mobile app's frontend to the new backend settings API to consume the dynamic content managed by the admin panel. This has been noted as the P1 upcoming task.</analysis>
