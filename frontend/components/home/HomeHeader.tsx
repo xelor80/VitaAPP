@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { t } from '../../src/i18n';
+import { useSettings } from '../../src/SettingsContext';
 import { styles } from './homeStyles';
 
 interface HomeHeaderProps {
@@ -11,6 +12,7 @@ interface HomeHeaderProps {
 }
 
 export function HomeHeader({ lang, setLang, onLangChange }: HomeHeaderProps) {
+  const { translations } = useSettings();
   const handleLangChange = (newLang: string) => {
     setLang(newLang);
     onLangChange?.();
@@ -41,7 +43,7 @@ export function HomeHeader({ lang, setLang, onLangChange }: HomeHeaderProps) {
           </TouchableOpacity>
         </View>
       </View>
-      <Text style={styles.headerSubtitle}>{t(lang, 'home_subtitle')}</Text>
+      <Text style={styles.headerSubtitle}>{t(lang, 'home_subtitle', translations)}</Text>
     </View>
   );
 }
