@@ -168,21 +168,35 @@ VitaGuide ist eine kostenlose Gesundheits-Informations-App, die uber eine KI-Anb
   - Dashboard mit Statistiken (Produkte DE/IT, Rezepte, Analysen, Klicks)
   - Produkte-Tab: CRUD, DE/IT Umschaltung, Suche
   - Rezepte-Tab: CRUD, Zweisprachig (DE/IT)
+  - **Texte-Tab (NEU):** App-Übersetzungen bearbeiten (12 Schlüssel DE/IT)
+  - **Symptom-Chips-Tab (NEU):** Chips hinzufügen/bearbeiten/löschen (10 Standard-Chips)
+  - **Disclaimer-Tab (NEU):** Disclaimer-Texte anpassen (DE/IT separat)
+  - **KI-Einstellungen-Tab (NEU):** LLM-Provider wählen (OpenAI, Anthropic/Claude, Google/Gemini)
   - Klicks-Tab: Affiliate-Statistiken, Top-Produkte
   - LLM-Logs-Tab: API-Aufrufe, Latenz, Erfolgsrate
   - Logout-Funktion
-- **API Endpoints:** /api/admin/auth, /api/admin/stats, /api/admin/products, /api/admin/recipes, /api/admin/clicks, /api/admin/llm-logs
+- **Settings API Endpoints:** /api/settings/translations, /api/settings/symptom-chips, /api/settings/disclaimer, /api/settings/ai-config
 - **Technologie:** Vanilla HTML/CSS/JS (keine React-Abhangigkeit)
 
+## MongoDB Collections (erweitert 28.02.2026)
+- **products_de:** 30 Dokumente
+- **products_it:** 61 Dokumente  
+- **recipes:** 30 zweisprachige Rezepte
+- **translations:** 12 App-Texte (DE/IT)
+- **symptom_chips:** 10 Symptom-Chips (DE/IT + Icon + Reihenfolge)
+- **disclaimer:** Disclaimer-Texte (DE/IT separat)
+- **ai_config:** KI-Provider + Modell Auswahl
+
 ## Testing Status (28.02.2026)
-- Backend: 16/16 Admin Webapp Tests bestanden (iteration_10.json)
-- Frontend Mobile: 100% - Kein Admin-Button, vollstandiger Flow funktioniert
-- Frontend Admin: 100% - Login, Dashboard, CRUD, Tabs, Logout funktionieren
+- Backend: 22/22 Settings API Tests bestanden (iteration_11.json)
+- Frontend Mobile: 100% - Dynamische Einstellungen aus MongoDB
+- Frontend Admin: 100% - Alle 8 Tabs funktionieren
 
 ## Geplante Features (Post-MVP)
 - [x] **P1:** index.tsx (Home-Screen) in kleinere Komponenten aufteilen - DONE (27.02.2026)
 - [x] **P2:** Produktkatalog -> MongoDB migrieren - DONE (27.02.2026)
 - [x] **Admin Webapp:** Separate Webapp fur Verwaltung mit Passwortschutz - DONE (28.02.2026)
+- [x] **Admin Settings:** Texte, Chips, Disclaimer, KI-Provider konfigurierbar - DONE (28.02.2026)
 - [ ] **P3:** Suchbare/filterbare Rezepte UI
 - [ ] **P4:** Englisch-Support (3. Sprache)
 - [ ] Benutzer-History
