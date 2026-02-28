@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TextInput } from 'react-native';
 import { t } from '../../src/i18n';
+import { useSettings } from '../../src/SettingsContext';
 import { styles } from './homeStyles';
 
 interface SymptomInputProps {
@@ -10,6 +11,7 @@ interface SymptomInputProps {
 }
 
 export function SymptomInput({ lang, value, onChangeText }: SymptomInputProps) {
+  const { translations } = useSettings();
   return (
     <View style={styles.card}>
       <Text style={styles.cardTitle}>
@@ -23,7 +25,7 @@ export function SymptomInput({ lang, value, onChangeText }: SymptomInputProps) {
       <TextInput
         testID="symptom-text-input"
         style={styles.textInput}
-        placeholder={t(lang, 'symptom_placeholder')}
+        placeholder={t(lang, 'symptom_placeholder', translations)}
         placeholderTextColor="#8FA39B"
         multiline
         numberOfLines={4}
