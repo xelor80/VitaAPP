@@ -33,6 +33,7 @@ const TAB_LABELS: Record<string, Record<TabKey, string>> = {
 
 export default function ResultsScreen() {
   const router = useRouter();
+  const { translations } = useSettings();
   const { lang } = useLang();
   const [analysis, setAnalysis] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<TabKey>('overview');
@@ -88,7 +89,7 @@ export default function ResultsScreen() {
         <TouchableOpacity testID="back-btn" onPress={() => router.back()} activeOpacity={0.7} style={styles.backBtn}>
           <MaterialCommunityIcons name="arrow-left" size={24} color="#1A2D26" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t(lang, 'results_title')}</Text>
+        <Text style={styles.headerTitle}>{t(lang, 'results_title', translations)}</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -139,7 +140,7 @@ export default function ResultsScreen() {
         <View style={styles.disclaimerFooter}>
           <MaterialCommunityIcons name="information-outline" size={14} color="#8FA39B" />
           <Text style={styles.disclaimerText}>
-            {analysis.disclaimer_short || t(lang, 'disclaimer_footer')}
+            {analysis.disclaimer_short || t(lang, 'disclaimer_footer', translations)}
           </Text>
         </View>
       </ScrollView>
