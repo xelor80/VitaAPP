@@ -74,7 +74,8 @@ async def analyze_symptoms(data: SymptomInput, request: Request):
     # Log LLM call
     try:
         await db.llm_responses.insert_one({
-            "id": str(uuid.uuid4()), "endpoint": "symptoms/analyze", "model": "gpt-4o",
+            "id": str(uuid.uuid4()), "endpoint": "symptoms/analyze", 
+            "provider": ai_provider, "model": ai_model,
             "prompt_version": "1.3", "lang": lang, "input_text": user_text,
             "input_tags": data.tags,
             "raw_output": response_text[:5000] if isinstance(response_text, str) else "",
