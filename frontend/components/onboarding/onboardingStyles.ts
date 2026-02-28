@@ -58,10 +58,16 @@ export const onboardingStyles = StyleSheet.create({
   sliderContainer: { marginBottom: 16 },
   sliderLabel: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
   sliderValue: { fontSize: 24, fontWeight: '700', color: '#4A8B71' },
-  sliderTrack: { height: 8, backgroundColor: '#E0E6E2', borderRadius: 4 },
+  sliderTrack: { height: 8, backgroundColor: '#E0E6E2', borderRadius: 4, marginBottom: 12 },
   sliderFill: { height: '100%', backgroundColor: '#4A8B71', borderRadius: 4 },
-  sliderDots: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 },
-  sliderDot: { fontSize: 12, color: '#8FA39B' },
+  sliderDots: { flexDirection: 'row', justifyContent: 'space-between', gap: 4 },
+  sliderDot: {
+    flex: 1, height: 40, borderRadius: 10, backgroundColor: '#F0F4F2',
+    justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: '#E0E6E2',
+  },
+  sliderDotActive: { backgroundColor: '#4A8B71', borderColor: '#4A8B71' },
+  sliderDotText: { fontSize: 14, fontWeight: '600', color: '#5C7A6F' },
+  sliderDotTextActive: { color: '#FFFFFF' },
   
   // Complaint Item
   complaintItem: {
