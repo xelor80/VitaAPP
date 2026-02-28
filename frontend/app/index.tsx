@@ -12,7 +12,6 @@ import { HomeHeader } from '../components/home/HomeHeader';
 import { SymptomInput } from '../components/home/SymptomInput';
 import { SymptomChips } from '../components/home/SymptomChips';
 import { AnalyzeButton } from '../components/home/AnalyzeButton';
-import { DiaryButton } from '../components/home/DiaryButton';
 import { OnboardingButton } from '../components/home/OnboardingButton';
 import { SupplementPlanButton } from '../components/home/SupplementPlanButton';
 import { ProgressButton } from '../components/home/ProgressButton';
@@ -128,7 +127,6 @@ export default function HomeScreen() {
           <SymptomInput lang={lang} value={symptomText} onChangeText={setSymptomText} />
           <SymptomChips lang={lang} selectedTags={selectedTags} onToggleTag={toggleTag} />
           <AnalyzeButton lang={lang} isLoading={isLoading} onPress={analyzeSymptoms} />
-          <DiaryButton lang={lang} onPress={() => router.push('/diary')} />
           <FooterDisclaimer lang={lang} />
         </ScrollView>
       </KeyboardAvoidingView>
