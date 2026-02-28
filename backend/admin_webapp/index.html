@@ -244,17 +244,76 @@
 
             <!-- Clicks Tab -->
             <div id="clicks-tab" class="tab-pane hidden">
+                <!-- Period selector -->
+                <div class="toolbar" style="margin-bottom:20px">
+                    <select id="clicks-period" onchange="loadClicks()" style="padding:10px;background:#1E293B;color:#F8FAFC;border:1px solid #334155;border-radius:8px">
+                        <option value="7">Letzte 7 Tage</option>
+                        <option value="14">Letzte 14 Tage</option>
+                        <option value="30" selected>Letzte 30 Tage</option>
+                        <option value="90">Letzte 90 Tage</option>
+                    </select>
+                </div>
+
+                <!-- Stats Overview -->
                 <div class="clicks-summary" id="clicks-summary"></div>
-                <h3>Top Produkte</h3>
-                <div class="table-container">
+
+                <!-- Charts Row -->
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;margin-bottom:20px">
+                    <!-- By Country -->
+                    <div class="stat-card">
+                        <h4 style="color:#94A3B8;margin-bottom:10px"><i class="fas fa-globe"></i> Nach Land</h4>
+                        <div id="clicks-by-country"></div>
+                    </div>
+                    
+                    <!-- By Device -->
+                    <div class="stat-card">
+                        <h4 style="color:#94A3B8;margin-bottom:10px"><i class="fas fa-mobile-alt"></i> Nach Gerät</h4>
+                        <div id="clicks-by-device"></div>
+                    </div>
+                    
+                    <!-- By Browser -->
+                    <div class="stat-card">
+                        <h4 style="color:#94A3B8;margin-bottom:10px"><i class="fas fa-globe"></i> Nach Browser</h4>
+                        <div id="clicks-by-browser"></div>
+                    </div>
+                    
+                    <!-- By Hour (Heatmap) -->
+                    <div class="stat-card">
+                        <h4 style="color:#94A3B8;margin-bottom:10px"><i class="fas fa-clock"></i> Nach Tageszeit</h4>
+                        <div id="clicks-by-hour"></div>
+                    </div>
+                </div>
+
+                <!-- Top Products -->
+                <h3 style="color:#F8FAFC;margin-bottom:15px"><i class="fas fa-trophy"></i> Top Produkte</h3>
+                <div class="table-container" style="margin-bottom:20px">
                     <table class="data-table">
                         <thead>
                             <tr>
+                                <th>Produkt</th>
                                 <th>Produkt ID</th>
                                 <th>Klicks</th>
                             </tr>
                         </thead>
-                        <tbody id="clicks-table"></tbody>
+                        <tbody id="clicks-products-table"></tbody>
+                    </table>
+                </div>
+
+                <!-- Recent Clicks -->
+                <h3 style="color:#F8FAFC;margin-bottom:15px"><i class="fas fa-history"></i> Letzte Klicks</h3>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Datum</th>
+                                <th>Produkt</th>
+                                <th>Land / Region</th>
+                                <th>IP</th>
+                                <th>Gerät</th>
+                                <th>Browser</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clicks-recent-table"></tbody>
                     </table>
                 </div>
             </div>
