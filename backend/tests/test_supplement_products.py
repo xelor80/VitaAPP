@@ -238,9 +238,9 @@ class TestOnboardingAndNavigation:
         
         data = response.json()
         assert "diets" in data
-        assert "goals" in data or "health_goals" in data
-        goals_key = "goals" if "goals" in data else "health_goals"
-        print(f"SUCCESS: Onboarding options loaded - {len(data['diets'])} diets, {len(data[goals_key])} goals")
+        assert "complaints" in data  # Symptoms/complaints list
+        assert "conditions" in data  # Health conditions
+        print(f"SUCCESS: Onboarding options loaded - {len(data['diets'])} diets, {len(data['complaints'])} complaints")
     
     def test_create_profile_for_supplement_plan(self):
         """Create profile to enable supplement plan navigation"""
