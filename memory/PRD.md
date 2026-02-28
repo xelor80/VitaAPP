@@ -1,66 +1,74 @@
 # VitaGuide PRD - Product Requirements Document
 
 ## Original Problem Statement
-Health-focused, bilingual (German/Italian) mobile web app. Core functionality: LLM-based symptom analysis for nutrition tips, supplement information, and affiliate links. Features include a recipe catalog, symptom diary, and mandatory safety disclaimers.
+Health-focused, bilingual (German/Italian) mobile web app. Core: LLM-based symptom analysis for nutrition tips, supplement info, affiliate links. Features: recipe catalog, symptom diary, safety disclaimers, intelligent onboarding, evidence-based supplement planning.
 
 ## Architecture
 - **Frontend**: React Native (Expo for Web)
 - **Backend**: FastAPI (Python)
 - **Database**: MongoDB
-- **Admin Panel**: Standalone HTML/CSS/JS web app served by FastAPI at `/api/admin-app`
-- **LLM Integration**: OpenAI/Anthropic/Google via emergentintegrations (configurable in admin panel)
+- **Admin Panel**: Standalone HTML/CSS/JS at `/api/admin-app`
+- **LLM**: OpenAI/Anthropic/Google via emergentintegrations
 
-## Core Features
+## Completed Features
 
-### Completed Features
-1. **Symptom Analysis** - Users input symptoms, get AI-driven nutrition/supplement recommendations
-2. **Recipe Catalog** - Static recipe catalog with filtering
-3. **Symptom Diary** - Daily health tracking (mood, sleep, stress, water, exercise)
-4. **Admin Panel** - Password-protected management for products, recipes, UI texts, symptom chips, disclaimers, AI model selection
-5. **Click Tracking** - Affiliate link analytics with geolocation, device/browser data
-6. **Data Migration** - All data migrated from JSON files to MongoDB
-7. **Intelligent Onboarding Wizard** (COMPLETED Feb 28, 2026)
-   - 6-step multi-step wizard: Basic Data, Lifestyle/Sleep, Stress/Energy, Health Conditions, Complaints, Lab Values
-   - Backend risk assessment engine calculating micronutrient deficiency risks
-   - Personalized assessment results with BMI, deficiency cards, priority areas, warnings
-   - Full bilingual support (DE/IT)
-   - Navigation: progress bar, back/next, skip
-   - Home page "Gesundheits-Check starten" button
+### Core Features (Previous Sessions)
+1. Symptom Analysis - AI-driven nutrition/supplement recommendations
+2. Recipe Catalog - Static catalog
+3. Symptom Diary - Daily health tracking
+4. Admin Panel - Full CRUD: products, recipes, texts, chips, disclaimers, AI settings
+5. Click Tracking - Affiliate analytics with geolocation
+6. Data Migration - JSON to MongoDB
 
-### Key Files
-- `frontend/app/onboarding.tsx` - Onboarding wizard main page
-- `frontend/components/home/OnboardingButton.tsx` - Home page navigation button
-- `frontend/components/onboarding/onboardingStyles.ts` - Wizard styles
-- `backend/routes/health_profile.py` - Health profile CRUD + onboarding options API
-- `backend/core/health_engine.py` - Risk assessment engine
+### Intelligent Onboarding (Feb 28, 2026)
+- 6-step wizard: Basic Data, Lifestyle/Sleep, Stress/Energy, Health Conditions, Complaints, Lab Values
+- Backend risk assessment engine
+- Personalized assessment results (BMI, deficiencies, priority areas, warnings)
+- Improved slider UI with large tap targets
 
-### Key API Endpoints
-- `POST /api/health-profile` - Submit health profile, get assessment
-- `GET /api/health-profile/{id}` - Retrieve profile + assessment
-- `PUT /api/health-profile/{id}` - Update profile + regenerate assessment
-- `GET /api/onboarding/options?lang=de|it` - Get all form options
-- `GET/POST/PUT/DELETE /api/settings/{key}` - Dynamic app content
-- `POST /api/symptoms/analyze` - Symptom analysis
-- `POST /api/track/click` - Affiliate click tracking
-- `GET /api/admin-app` - Admin panel
+### Evidence-Based Supplement Plan (Feb 28, 2026)
+- **17 supplements** in knowledge base (vitamins, minerals, fatty acids, adaptogens, probiotics)
+- **Algorithmic plan generation** based on health profile: dosages, timing, synergies, evidence levels
+- **Safety module**: contraindication checks, medication interaction warnings, side effects
+- **LLM personal summary** via emergentintegrations (with static fallback)
+- **8-week plan** with 4 phases: Aufbau, Voll, Stabilisierung, Bewertung
+- **Daily schedule**: Morning/Noon/Evening grouping
+- **Browser notifications** for supplement reminders (configurable times)
+- **Admin panel**: Supplements tab for editing dosages, timing, enabling/disabling supplements
+- **Frontend**: 3-tab view (Stack, Tagesplan, Wochenplan) with expandable detail cards
 
-### Credentials
-- **Admin Panel**: URL `/api/admin-app`, Password: `Wk220480xel!`
+## Key API Endpoints
+- `POST /api/supplement-plan/{profile_id}` - Generate plan
+- `GET /api/supplement-plan/{profile_id}` - Retrieve plan
+- `GET /api/supplement-plan/{profile_id}/week/{n}` - Week view
+- `PUT /api/supplement-plan/{profile_id}/reminders` - Configure reminders
+- `GET /api/admin/supplements` - List all supplements (admin)
+- `PUT /api/admin/supplements/{id}` - Update supplement config (admin)
+- All previous endpoints (health-profile, settings, products, recipes, etc.)
+
+## Key Files
+- `backend/core/supplement_engine.py` - Supplement DB + plan algorithm
+- `backend/routes/supplement_plan.py` - Plan API endpoints
+- `frontend/app/supplement-plan.tsx` - Plan display page
+- `frontend/components/supplement/planStyles.ts` - Plan styles
+
+## Credentials
+- **Admin Panel**: `/api/admin-app`, Password: `Wk220480xel!`
 
 ## Prioritized Backlog
 
 ### P1 - Dynamic Content Integration
-Update mobile app to fetch UI texts, symptom chips, disclaimers from `/api/settings` endpoints (currently hardcoded in `i18n.ts`)
+Update mobile app to fetch UI texts, symptom chips, disclaimers from `/api/settings` (currently hardcoded in `i18n.ts`)
 
 ### P2 - Health Profile Screen
-Create dedicated screen to view/revisit personalized health summary after onboarding completion
+Dedicated screen to revisit health summary after onboarding
 
-### P3 - Recipe Catalog Search/Filter UI
-Implement searchable, filterable recipe catalog interface
+### P3 - Recipe Catalog Search/Filter
+Searchable, filterable recipe catalog UI
 
 ### P4 - Admin Health Statistics Dashboard
-Add dashboard in admin panel for anonymized, aggregated health statistics from onboarding data
+Anonymized, aggregated health statistics from onboarding data
 
 ### Refactoring
-- `admin_app/app.js` growing large - split into modules
-- Remaining hardcoded values in `i18n.ts` should use backend settings API
+- `admin_app/app.js` modularization
+- Remove hardcoded values from `i18n.ts`
