@@ -109,7 +109,11 @@ export default function HomeScreen() {
           showsVerticalScrollIndicator={false}
         >
           <HomeHeader lang={lang} setLang={setLang} onLangChange={clearTags} />
-          <OnboardingButton lang={lang} onPress={() => router.push('/onboarding')} />
+          <OnboardingButton
+            lang={lang}
+            onPress={() => router.push('/onboarding')}
+            onProfilePress={() => router.push('/health-profile')}
+          />
           <SymptomInput lang={lang} value={symptomText} onChangeText={setSymptomText} />
           <SymptomChips lang={lang} selectedTags={selectedTags} onToggleTag={toggleTag} />
           <AnalyzeButton lang={lang} isLoading={isLoading} onPress={analyzeSymptoms} />
