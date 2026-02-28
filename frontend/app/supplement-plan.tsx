@@ -134,7 +134,7 @@ export default function SupplementPlanScreen() {
 
   const saveReminders = async () => {
     try {
-      await fetch(`${API_URL}/api/supplement-plan/${profileId}/reminders`, {
+      await fetch(`${API_URL}/api/supplement-plan/${currentProfileId}/reminders`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(reminders)
