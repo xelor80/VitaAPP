@@ -82,4 +82,10 @@ export const planStyles = StyleSheet.create({
 
   // Disclaimer
   disclaimerText: { fontSize: 11, color: '#8FA39B', textAlign: 'center', marginTop: 20, lineHeight: 18, paddingHorizontal: 20 },
+
+  // Product Recommendations
+  productCard: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#EFF6FF', borderRadius: 12, padding: 12, marginTop: 8, marginLeft: 24, borderWidth: 1, borderColor: '#BFDBFE' },
+  productImageWrap: { width: 40, height: 40, borderRadius: 10, backgroundColor: '#DBEAFE', justifyContent: 'center', alignItems: 'center' },
+  productName: { fontSize: 14, fontWeight: '600', color: '#1E40AF' },
+  productDesc: { fontSize: 12, color: '#6B7280', marginTop: 2, lineHeight: 16 },
 });
