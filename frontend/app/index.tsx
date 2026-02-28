@@ -14,6 +14,7 @@ import { SymptomChips } from '../components/home/SymptomChips';
 import { AnalyzeButton } from '../components/home/AnalyzeButton';
 import { DiaryButton } from '../components/home/DiaryButton';
 import { OnboardingButton } from '../components/home/OnboardingButton';
+import { SupplementPlanButton } from '../components/home/SupplementPlanButton';
 import { FooterDisclaimer } from '../components/home/FooterDisclaimer';
 import { styles } from '../components/home/homeStyles';
 
@@ -113,6 +114,11 @@ export default function HomeScreen() {
             lang={lang}
             onPress={() => router.push('/onboarding')}
             onProfilePress={() => router.push('/health-profile')}
+          />
+          <SupplementPlanButton
+            lang={lang}
+            onPress={() => router.push('/supplement-plan')}
+            onNoProfile={() => router.push('/onboarding')}
           />
           <SymptomInput lang={lang} value={symptomText} onChangeText={setSymptomText} />
           <SymptomChips lang={lang} selectedTags={selectedTags} onToggleTag={toggleTag} />
