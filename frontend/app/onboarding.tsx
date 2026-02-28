@@ -412,6 +412,29 @@ export default function OnboardingScreen() {
                   ))}
                 </View>
               </View>
+              <Text style={[styles.label, { marginTop: 16 }]}>{lang === 'de' ? 'Schlafdauer (Stunden)' : 'Durata del sonno (ore)'}</Text>
+              <TextInput
+                style={styles.input}
+                value={profile.sleep_duration}
+                onChangeText={v => setProfile({ ...profile, sleep_duration: v })}
+                keyboardType="numeric"
+                placeholder="7"
+                placeholderTextColor="#8FA39B"
+              />
+              <Text style={[styles.label, { marginTop: 16 }]}>{lang === 'de' ? 'Schlafprobleme' : 'Problemi di sonno'}</Text>
+              <View style={styles.chipContainer}>
+                {options?.sleep_issues?.map((s: any) => (
+                  <TouchableOpacity
+                    key={s.value}
+                    style={[styles.chip, profile.sleep_issues.includes(s.value) && styles.chipSelected]}
+                    onPress={() => toggleArrayItem('sleep_issues', s.value)}
+                  >
+                    <Text style={[styles.chipText, profile.sleep_issues.includes(s.value) && styles.chipTextSelected]}>
+                      {getLabel(s)}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
             </View>
           </>
         )}
