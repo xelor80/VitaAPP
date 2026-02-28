@@ -491,13 +491,92 @@ async function saveAIConfig() {
 
 // ============ CLICKS ============
 async function loadClicks() {
+    const days = document.getElementById('clicks-period')?.value || 30;
     try {
-        const res = await apiCall('/admin/clicks?days=30');
+        const res = await apiCall(`/admin/clicks?days=${days}&limit=50`);
         const data = await res.json();
-        document.getElementById('clicks-summary').innerHTML = `<h3>Affiliate-Klicks (letzte ${data.period_days} Tage)</h3><p><strong>${data.total_clicks}</strong> Klicks insgesamt</p>`;
-        const tbody = document.getElementById('clicks-table');
-        tbody.innerHTML = (data.by_product || []).map(item => `<tr><td>${item._id || 'Unbekannt'}</td><td><strong>${item.clicks}</strong></td></tr>`).join('');
-    } catch (err) { console.error('Error:', err); }
+        
+        // Summary
+        document.getElementById('clicks-summary').innerHTML = `
+            <div style="display:flex;gap:30px;flex-wrap:wrap">
+                <div>
+                    <div style="font-size:36px;font-weight:700;color:#F8FAFC">${data.total_clicks}</div>
+                    <div style="color:#94A3B8">Klicks insgesamt</div>
+                </div>
+                <div>
+                    <div style="font-size:36px;font-weight:700;color:#10B981">${data.by_product?.length || 0}</div>
+                    <div style="color:#94A3B8">Verschiedene Produkte</div>
+                </div>
+                <div>
+                    <div style="font-size:36px;font-weight:700;color:#3B82F6">${data.by_country?.length || 0}</div>
+                    <div style="color:#94A3B8">Verschiedene Länder</div>
+                </div>
+            </div>
+        `;
+        
+        // By Country
+        document.getElementById('clicks-by-country').innerHTML = (data.by_country || []).map(c => `
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #334155">
+                <span style="color:#E2E8F0">${c._id || 'Unbekannt'}</span>
+                <span style="color:#10B981;font-weight:600">${c.clicks}</span>
+            </div>
+        `).join('') || '<p style="color:#64748B">Keine Daten</p>';
+        
+        // By Device
+        const deviceIcons = { 'Desktop': 'fa-desktop', 'Mobile': 'fa-mobile-alt', 'Tablet': 'fa-tablet-alt' };
+        document.getElementById('clicks-by-device').innerHTML = (data.by_device || []).map(d => `
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #334155">
+                <span style="color:#E2E8F0"><i class="fas ${deviceIcons[d._id] || 'fa-question'}"></i> ${d._id || 'Unbekannt'}</span>
+                <span style="color:#3B82F6;font-weight:600">${d.clicks}</span>
+            </div>
+        `).join('') || '<p style="color:#64748B">Keine Daten</p>';
+        
+        // By Browser
+        document.getElementById('clicks-by-browser').innerHTML = (data.by_browser || []).map(b => `
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #334155">
+                <span style="color:#E2E8F0">${b._id || 'Unbekannt'}</span>
+                <span style="color:#F59E0B;font-weight:600">${b.clicks}</span>
+            </div>
+        `).join('') || '<p style="color:#64748B">Keine Daten</p>';
+        
+        // By Hour (Heatmap)
+        const hourData = new Array(24).fill(0);
+        (data.by_hour || []).forEach(h => { if (h._id !== null) hourData[h._id] = h.clicks; });
+        const maxHour = Math.max(...hourData, 1);
+        document.getElementById('clicks-by-hour').innerHTML = `
+            <div style="display:flex;flex-wrap:wrap;gap:4px">
+                ${hourData.map((clicks, hour) => {
+                    const intensity = clicks / maxHour;
+                    const bg = clicks > 0 ? `rgba(59, 130, 246, ${0.2 + intensity * 0.8})` : '#1E293B';
+                    return `<div style="width:40px;height:30px;background:${bg};border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;color:${clicks > 0 ? '#fff' : '#64748B'}" title="${hour}:00 - ${clicks} Klicks">${hour}h</div>`;
+                }).join('')}
+            </div>
+        `;
+        
+        // Top Products Table
+        document.getElementById('clicks-products-table').innerHTML = (data.by_product || []).map((p, i) => `
+            <tr>
+                <td><span style="color:${i < 3 ? '#F59E0B' : '#E2E8F0'}">${i < 3 ? '🏆' : ''} ${p.product_name || p._id || 'Unbekannt'}</span></td>
+                <td><code>${p._id || '-'}</code></td>
+                <td><strong style="color:#10B981">${p.clicks}</strong></td>
+            </tr>
+        `).join('') || '<tr><td colspan="3" style="color:#64748B">Keine Daten</td></tr>';
+        
+        // Recent Clicks Table
+        document.getElementById('clicks-recent-table').innerHTML = (data.recent_clicks || []).map(click => `
+            <tr>
+                <td>${click.date || '-'} ${click.time || ''}</td>
+                <td>${click.product_name || click.product_id || '-'}</td>
+                <td>${click.country || '-'} ${click.region ? `/ ${click.region}` : ''} ${click.city ? `(${click.city})` : ''}</td>
+                <td><code style="font-size:11px">${click.ip || '-'}</code></td>
+                <td><i class="fas ${click.device_type === 'Mobile' ? 'fa-mobile-alt' : click.device_type === 'Tablet' ? 'fa-tablet-alt' : 'fa-desktop'}"></i> ${click.device_type || '-'}</td>
+                <td>${click.browser || '-'}</td>
+            </tr>
+        `).join('') || '<tr><td colspan="6" style="color:#64748B">Keine Klicks aufgezeichnet</td></tr>';
+        
+    } catch (err) { 
+        console.error('Error loading clicks:', err);
+    }
 }
 
 // ============ LOGS ============
