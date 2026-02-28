@@ -94,6 +94,18 @@ export const styles = StyleSheet.create({
   supplementPlanBtnTitle: { fontSize: 16, fontWeight: '700', color: '#FFFFFF' },
   supplementPlanBtnSub: { fontSize: 13, color: '#B8D4E8', marginTop: 2 },
 
+  // Progress Button
+  progressButton: {
+    flexDirection: 'row', alignItems: 'center', backgroundColor: '#6B4E8B',
+    borderRadius: 16, padding: 14, marginBottom: 20, gap: 12,
+  },
+  progressIconWrap: {
+    width: 44, height: 44, borderRadius: 12, backgroundColor: '#5A3D7A',
+    justifyContent: 'center', alignItems: 'center',
+  },
+  progressBtnTitle: { fontSize: 16, fontWeight: '700', color: '#FFFFFF' },
+  progressBtnSub: { fontSize: 13, color: '#D4C8E8', marginTop: 2 },
+
   // Alert Modal
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 30 },
   alertCard: { backgroundColor: '#FFFFFF', borderRadius: 20, padding: 28, alignItems: 'center', width: '100%', maxWidth: 360 },
