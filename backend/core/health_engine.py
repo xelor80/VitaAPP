@@ -365,13 +365,15 @@ def generate_health_assessment(profile: dict, lang: str = "de") -> dict:
     
     # Priority action areas
     priority_areas = []
-    if profile.get("sleep_quality", 7) <= 5:
+    sleep_qual_check = profile.get("sleep_quality")
+    if sleep_qual_check is not None and sleep_qual_check <= 5:
         priority_areas.append({
             "area": "sleep" if lang == "de" else "sonno",
             "title": "Schlafqualität verbessern" if lang == "de" else "Migliorare qualità del sonno",
             "priority": "high"
         })
-    if profile.get("stress_level", 5) >= 7:
+    stress_check = profile.get("stress_level")
+    if stress_check is not None and stress_check >= 7:
         priority_areas.append({
             "area": "stress",
             "title": "Stressmanagement" if lang == "de" else "Gestione dello stress",
