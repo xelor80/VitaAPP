@@ -1,213 +1,66 @@
-# VitaGuide - Product Requirements Document (PRD)
+# VitaGuide PRD - Product Requirements Document
 
-## Ubersicht
-VitaGuide ist eine kostenlose Gesundheits-Informations-App, die uber eine KI-Anbindung (GPT-4o) symptombezogene, allgemeine Informationen verarbeitet und Nutzern evidenzbasierte Ernahrungstipps, Rezepte, allgemeine Supplement-Informationen und Affiliate-Produktempfehlungen liefert.
+## Original Problem Statement
+Health-focused, bilingual (German/Italian) mobile web app. Core functionality: LLM-based symptom analysis for nutrition tips, supplement information, and affiliate links. Features include a recipe catalog, symptom diary, and mandatory safety disclaimers.
 
-**WICHTIG:** Die App ist KEIN Medizinprodukt, ersetzt keine arztliche Beratung, stellt keine Diagnosen und gibt keine personalisierten medizinischen Behandlungsanweisungen.
+## Architecture
+- **Frontend**: React Native (Expo for Web)
+- **Backend**: FastAPI (Python)
+- **Database**: MongoDB
+- **Admin Panel**: Standalone HTML/CSS/JS web app served by FastAPI at `/api/admin-app`
+- **LLM Integration**: OpenAI/Anthropic/Google via emergentintegrations (configurable in admin panel)
 
-## Tech Stack
-- **Frontend:** Expo React Native (SDK 54), expo-router, TypeScript
-- **Backend:** FastAPI (Python), MongoDB (Motor)
-- **KI:** OpenAI GPT-4o via Emergent LLM Key
-- **Datenbank:** MongoDB
-- **Sprachen:** Deutsch + Italienisch (mit Sprachumschaltung)
+## Core Features
 
-## Implementierte Features
+### Completed Features
+1. **Symptom Analysis** - Users input symptoms, get AI-driven nutrition/supplement recommendations
+2. **Recipe Catalog** - Static recipe catalog with filtering
+3. **Symptom Diary** - Daily health tracking (mood, sleep, stress, water, exercise)
+4. **Admin Panel** - Password-protected management for products, recipes, UI texts, symptom chips, disclaimers, AI model selection
+5. **Click Tracking** - Affiliate link analytics with geolocation, device/browser data
+6. **Data Migration** - All data migrated from JSON files to MongoDB
+7. **Intelligent Onboarding Wizard** (COMPLETED Feb 28, 2026)
+   - 6-step multi-step wizard: Basic Data, Lifestyle/Sleep, Stress/Energy, Health Conditions, Complaints, Lab Values
+   - Backend risk assessment engine calculating micronutrient deficiency risks
+   - Personalized assessment results with BMI, deficiency cards, priority areas, warnings
+   - Full bilingual support (DE/IT)
+   - Navigation: progress bar, back/next, skip
+   - Home page "Gesundheits-Check starten" button
 
-### 1. Zweisprachigkeit (DE/IT) - DONE
-- Sprachumschaltung: DE/IT Toggle im Header des Homescreens und Disclaimer
-- LangContext: React Context fur app-weite Sprachverwaltung mit AsyncStorage-Persistenz
-- i18n System: Ubersetzungsdatei (i18n.ts) mit allen UI-Texten inkl. Tagebuch
-- Separater IT System-Prompt: Kompletter italienischer KI-Prompt mit Sicherheitshinweisen
-- Italiano Produktkatalog: 61 Einzelprodukte von joachimkaeser.it (gescraped)
-- Produkt-Videos: 8 italienische Produkte mit YouTube-Video-Links
-- Video-Button: "Guarda il video" / "Video ansehen" Button auf Produktkarten
-- Tagebuch zweisprachig: Alle Labels, Rating-Beschriftungen, Alerts, Trend-Ansicht auf IT ubersetzt
+### Key Files
+- `frontend/app/onboarding.tsx` - Onboarding wizard main page
+- `frontend/components/home/OnboardingButton.tsx` - Home page navigation button
+- `frontend/components/onboarding/onboardingStyles.ts` - Wizard styles
+- `backend/routes/health_profile.py` - Health profile CRUD + onboarding options API
+- `backend/core/health_engine.py` - Risk assessment engine
 
-### 2. Produktkataloge - DONE
-- Deutsch: 30 Produkte von joachim-kaeser.de mit offiziellen Anwendungshinweisen
-- Italienisch: 61 Einzelprodukte von joachimkaeser.it mit Anwendungshinweisen + Videos
-- Affiliate-Links: Sprachabhangig (.de fur DE, .it fur IT)
+### Key API Endpoints
+- `POST /api/health-profile` - Submit health profile, get assessment
+- `GET /api/health-profile/{id}` - Retrieve profile + assessment
+- `PUT /api/health-profile/{id}` - Update profile + regenerate assessment
+- `GET /api/onboarding/options?lang=de|it` - Get all form options
+- `GET/POST/PUT/DELETE /api/settings/{key}` - Dynamic app content
+- `POST /api/symptoms/analyze` - Symptom analysis
+- `POST /api/track/click` - Affiliate click tracking
+- `GET /api/admin-app` - Admin panel
 
-### 3. Onboarding / Disclaimer (zweisprachig) - DONE
-- Blockierender Disclaimer-Screen mit Sicherheitshinweisen
-- Sprachauswahl bereits im Disclaimer moglich
-- Persistente Zustimmung via AsyncStorage
+### Credentials
+- **Admin Panel**: URL `/api/admin-app`, Password: `Wk220480xel!`
 
-### 4. Symptom-Eingabe (zweisprachig) - DONE + REFACTORED (27.02.2026)
-- Freitext-Eingabe mit sprachabhangigen Platzhaltern
-- 10 Symptom-Chips pro Sprache (DE/IT)
-- lang Parameter wird an API ubergeben
-- **Refactoring:** index.tsx (405 Zeilen -> 107 Zeilen) in 7 Komponenten aufgeteilt:
-  - components/home/DisclaimerScreen.tsx - Disclaimer mit Sprachumschaltung
-  - components/home/HomeHeader.tsx - Logo, Untertitel, Sprachumschaltung
-  - components/home/SymptomInput.tsx - Textfeld fur Symptom-Beschreibung
-  - components/home/SymptomChips.tsx - 10 klickbare Symptom-Chips
-  - components/home/AnalyzeButton.tsx - Analyse-Button mit Loading-State
-  - components/home/DiaryButton.tsx - Navigation zum Tagebuch
-  - components/home/FooterDisclaimer.tsx - Footer-Hinweis
-  - components/home/homeStyles.ts (gemeinsame Styles)
+## Prioritized Backlog
 
-### 5. KI-Analyse (GPT-4o, zweisprachig) - DONE
-- Separate System-Prompts fur DE und IT
-- Sprachabhangiger Produktkatalog
-- Prompt Version 1.2 mit offiziellen Anwendungshinweisen
-- Red-Flag-Erkennung in beiden Sprachen
+### P1 - Dynamic Content Integration
+Update mobile app to fetch UI texts, symptom chips, disclaimers from `/api/settings` endpoints (currently hardcoded in `i18n.ts`)
 
-### 6. Ergebnis-Ansicht (4 Tabs, zweisprachig) - DONE + REFACTORED (27.02.2026)
-- Ubersicht/Panoramica: Zusammenfassung, Red-Flag-Warnungen, Featured Product
-- Supplements/Integratori: Nahrstoff-Infos mit Evidenzlevel + Produktkarten
-- Ernahrung/Nutrizione: Einnahmeplan mit offiziellen Herstellerhinweisen + Ernahrungstipps
-- Rezepte/Ricette: Rezept-Cards mit Bildern aus dem statischen Katalog (30 Rezepte)
-- **Refactoring:** results.tsx (788 Zeilen -> 147 Zeilen) in 4 Tab-Komponenten aufgeteilt:
-  - components/tabs/OverviewTab.tsx (85 Zeilen)
-  - components/tabs/SupplementsTab.tsx (81 Zeilen)
-  - components/tabs/NutritionTab.tsx (102 Zeilen)
-  - components/tabs/RecipesTab.tsx (121 Zeilen)
-  - components/styles/resultsStyles.ts (gemeinsame Styles)
+### P2 - Health Profile Screen
+Create dedicated screen to view/revisit personalized health summary after onboarding completion
 
-### 7. Rezeptkatalog - DONE (27.02.2026)
-- 30 zweisprachige Rezepte mit hochwertigen Bildern (Unsplash/Pexels)
-- Backend: GET /api/recipes?lang={de|it}&tags= Endpoint mit symptom-basierter Filterung
-- Frontend: RecipesTab in results.tsx integriert mit expandierbaren Karten
-- Rezeptbilder via CSS-Workaround (.rimg-wrap Klasse in +html.tsx) wegen React Native Web Limitierung
-- Filterung: Nur passende Katalog-Rezepte bei ausgewahlten Symptom-Chips, sonst nur LLM-Rezepte
-- Klickbare Karten mit Zutaten und Zubereitungsschritten (expandierbar)
+### P3 - Recipe Catalog Search/Filter UI
+Implement searchable, filterable recipe catalog interface
 
-### 8. Anwendungshinweise (gescraped) - DONE
-- DE: 30 Produkte (26 auto-gescraped, 4 manuell erganzt)
-- IT: 61 Produkte (60 auto-gescraped, 1 ohne Hinweise)
-- Scraper-Scripts: scrape_instructions.py, scrape_it_products.py
+### P4 - Admin Health Statistics Dashboard
+Add dashboard in admin panel for anonymized, aggregated health statistics from onboarding data
 
-### 9. Symptom-Tagebuch - DONE
-- Tagliches Tracking: Befinden, Schlaf, Stress, Wasser, Bewegung
-- KI-Trend-Analyse
-- Zweisprachig (DE/IT)
-
-### 10. Affiliate-System - DONE
-- Click-Tracking: POST /api/track/click (speichert in MongoDB clicks Collection)
-- Sprachabhangige Affiliate-URLs
-- Frontend-Integration: trackClick Funktion in results.tsx
-
-### 11. LLM Response Logging - DONE (27.02.2026)
-- Eigene `llm_responses` MongoDB Collection
-- Logging fur beide LLM-Endpoints: symptoms/analyze und diary/trends
-- Gespeicherte Daten: id, endpoint, model, prompt_version, lang, input_text, input_tags, raw_output, success, latency_ms, timestamp
-- Admin-Endpoint: GET /api/llm-logs?limit=&endpoint= mit aggregierten Stats (total_calls, success_rate, avg_latency_ms)
-
-## API Endpoints
-| Method | Endpoint | Beschreibung |
-|--------|---------|-------------|
-| GET | /api/health | Health Check |
-| POST | /api/symptoms/analyze | Symptom-Analyse (lang=de|it) |
-| GET | /api/analysis/{id} | Gespeicherte Analyse |
-| GET | /api/products?lang=&tags= | Produktkatalog (DE: 30, IT: 61) |
-| GET | /api/recipes?lang=&tags= | Rezeptkatalog (30 zweisprachig) |
-| POST | /api/track/click | Affiliate-Click-Tracking |
-| POST | /api/diary | Tagebuch-Eintrag speichern |
-| GET | /api/diary | Tagebuch-Eintrage abrufen |
-| GET | /api/diary/trends | Trend-Analyse mit KI-Tipps |
-| GET | /api/llm-logs | LLM-Response-Logs mit Stats (limit, endpoint Filter) |
-
-## Dateien
-### Backend (modular seit 27.02.2026)
-- server.py: Schlanke Haupt-App (35 Zeilen), importiert Router-Module
-- core/config.py: DB-Verbindung (MongoDB/Motor), Logger
-- core/helpers.py: Rate-Limiting, LLM-Response-Parsing
-- models/schemas.py: Pydantic Models (SymptomInput, ClickEventInput, DiaryEntryInput)
-- data/catalogs.py: Ladt products_de.json, products_it.json, recipes.json
-- data/prompts.py: System-Prompts DE + IT fur LLM
-- routes/analysis.py: /symptoms/analyze, /analysis/{id}
-- routes/products.py: /products, /recipes (mit Tag-Filterung)
-- routes/tracking.py: /track/click
-- routes/diary.py: /diary, /diary/trends
-- routes/admin.py: /health, /llm-logs
-- products_de.json: Deutscher Produktkatalog (30 Produkte, exportiert aus Server)
-- products_it.json: Italienischer Produktkatalog (61 Produkte)
-- recipes.json: Zweisprachiger Rezeptkatalog (30 Rezepte)
-
-### Frontend (refactored 27.02.2026)
-- app/index.tsx: Home-Shell (107 Zeilen, importiert Home-Komponenten)
-- app/results.tsx: Ergebnisse-Shell (147 Zeilen, importiert Tab-Komponenten)
-- app/diary.tsx: Tagebuch
-- app/+html.tsx: Web-Template mit Custom CSS (.rimg-wrap fur Rezeptbilder)
-- app/_layout.tsx: Root-Layout mit LangProvider
-- components/home/DisclaimerScreen.tsx: Disclaimer mit Sprachumschaltung
-- components/home/HomeHeader.tsx: Logo, Untertitel, Sprachumschaltung
-- components/home/SymptomInput.tsx: Symptom-Eingabe Card
-- components/home/SymptomChips.tsx: 10 klickbare Symptom-Chips
-- components/home/AnalyzeButton.tsx: Analyse-Button mit Loading-State
-- components/home/DiaryButton.tsx: Navigation zum Tagebuch
-- components/home/FooterDisclaimer.tsx: Footer-Hinweis
-- components/home/homeStyles.ts: Gemeinsame Styles fur Home-Screen
-- components/tabs/OverviewTab.tsx: Ubersicht-Tab (Zusammenfassung, Red-Flags, Featured Product)
-- components/tabs/SupplementsTab.tsx: Supplements-Tab (Nahrstoff-Infos, Produktkarten)
-- components/tabs/NutritionTab.tsx: Ernahrungs-Tab (Einnahmeplan, Tipps)
-- components/tabs/RecipesTab.tsx: Rezepte-Tab (expandierbare Karten mit Bildern)
-- components/styles/resultsStyles.ts: Gemeinsame Styles fur Results-Screen
-- src/i18n.ts: Ubersetzungen DE/IT
-- src/LangContext.tsx: Sprach-Context
-- src/store.ts: In-memory Store fur Analyse-Daten
-
-## Testing Status (27.02.2026)
-- Backend: 17/17 Admin CRUD Tests bestanden (iteration_9.json - Admin Panel)
-- Frontend: 100% bestanden (Admin Panel UI vollstandig funktional)
-- Test Files: backend/tests/test_admin_crud.py
-
-## MongoDB Collections (seit 27.02.2026)
-- **products_de:** 30 Dokumente (German products with indexes: product_id, tags)
-- **products_it:** 61 Dokumente (Italian products with video_url field)
-- **recipes:** 30 zweisprachige Rezepte (indexes: id, symptom_tags)
-- Migration Script: backend/migrate_to_mongodb.py
-
-## Admin Webapp (aktualisiert 28.02.2026)
-- **URL:** /api/admin-app (Separate Webapp, nicht in der mobilen App)
-- **Passwortschutz:** Ja (Admin-Passwort erforderlich)
-- **Features:**
-  - Login-Screen mit Passwort-Authentifizierung
-  - Dashboard mit Statistiken (Produkte DE/IT, Rezepte, Analysen, Klicks)
-  - Produkte-Tab: CRUD, DE/IT Umschaltung, Suche
-  - Rezepte-Tab: CRUD, Zweisprachig (DE/IT)
-  - **Texte-Tab:** App-Übersetzungen bearbeiten (12 Schlüssel DE/IT)
-  - **Symptom-Chips-Tab:** Chips hinzufügen/bearbeiten/löschen (10 Standard-Chips)
-  - **Disclaimer-Tab:** Disclaimer-Texte anpassen (DE/IT separat)
-  - **KI-Einstellungen-Tab:** LLM-Provider wählen (OpenAI, Anthropic/Claude, Google/Gemini)
-  - **Klicks-Tab (ERWEITERT 28.02.2026):**
-    - Übersicht: Gesamtklicks, verschiedene Produkte, verschiedene Länder
-    - Nach Land: Klicks pro Land mit Geolocation (via ip-api.com)
-    - Nach Gerät: Desktop/Mobile/Tablet Aufschlüsselung
-    - Nach Browser: Top 5 Browser
-    - Nach Tageszeit: 24h-Heatmap
-    - Top Produkte: Ranking mit Produktnamen und Klickzahlen
-    - Letzte Klicks: Detailtabelle mit Datum, Produkt, Land/Region/Stadt, IP, Gerät, Browser
-    - Zeitraum-Filter: 7/14/30/90 Tage
-  - LLM-Logs-Tab: API-Aufrufe, Latenz, Erfolgsrate
-  - Logout-Funktion
-- **Settings API Endpoints:** /api/settings/translations, /api/settings/symptom-chips, /api/settings/disclaimer, /api/settings/ai-config
-- **Technologie:** Vanilla HTML/CSS/JS (keine React-Abhangigkeit)
-
-## MongoDB Collections (erweitert 28.02.2026)
-- **products_de:** 30 Dokumente
-- **products_it:** 61 Dokumente  
-- **recipes:** 30 zweisprachige Rezepte
-- **translations:** 12 App-Texte (DE/IT)
-- **symptom_chips:** 10 Symptom-Chips (DE/IT + Icon + Reihenfolge)
-- **disclaimer:** Disclaimer-Texte (DE/IT separat)
-- **ai_config:** KI-Provider + Modell Auswahl
-
-## Testing Status (28.02.2026)
-- Backend: 22/22 Settings API Tests bestanden (iteration_11.json)
-- Frontend Mobile: 100% - Dynamische Einstellungen aus MongoDB
-- Frontend Admin: 100% - Alle 8 Tabs funktionieren
-
-## Geplante Features (Post-MVP)
-- [x] **P1:** index.tsx (Home-Screen) in kleinere Komponenten aufteilen - DONE (27.02.2026)
-- [x] **P2:** Produktkatalog -> MongoDB migrieren - DONE (27.02.2026)
-- [x] **Admin Webapp:** Separate Webapp fur Verwaltung mit Passwortschutz - DONE (28.02.2026)
-- [x] **Admin Settings:** Texte, Chips, Disclaimer, KI-Provider konfigurierbar - DONE (28.02.2026)
-- [ ] **P3:** Suchbare/filterbare Rezepte UI
-- [ ] **P4:** Englisch-Support (3. Sprache)
-- [ ] Benutzer-History
-- [ ] DSGVO-Compliance
-- [ ] Analytics-Dashboard fur Affiliate-Conversion
-- [ ] A/B-Testing fur Affiliate-Conversion
+### Refactoring
+- `admin_app/app.js` growing large - split into modules
+- Remaining hardcoded values in `i18n.ts` should use backend settings API
