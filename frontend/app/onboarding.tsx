@@ -487,8 +487,8 @@ export default function OnboardingScreen() {
                 </View>
                 <View style={styles.sliderDots}>
                   {[1,2,3,4,5,6,7,8,9,10].map(n => (
-                    <TouchableOpacity key={n} onPress={() => setProfile({ ...profile, energy_level: n })}>
-                      <Text style={styles.sliderDot}>{n}</Text>
+                    <TouchableOpacity key={n} style={[styles.sliderDot, profile.energy_level === n && styles.sliderDotActive]} onPress={() => setProfile({ ...profile, energy_level: n })}>
+                      <Text style={[styles.sliderDotText, profile.energy_level === n && styles.sliderDotTextActive]}>{n}</Text>
                     </TouchableOpacity>
                   ))}
                 </View>
