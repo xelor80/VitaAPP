@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VitaGuide Admin</title>
+    <link rel="stylesheet" href="/api/admin-app/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="login-screen" class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <i class="fas fa-leaf"></i>
+                <h1>VitaGuide Admin</h1>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="password">Passwort</label>
+                    <input type="password" id="password" placeholder="Admin-Passwort eingeben" required>
+                </div>
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-sign-in-alt"></i> Anmelden
+                </button>
+                <p id="login-error" class="error-text"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="admin-dashboard" class="dashboard hidden">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <i class="fas fa-leaf"></i>
+                <h1>VitaGuide Admin</h1>
+            </div>
+            <button class="btn-logout" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Abmelden
+            </button>
+        </header>
+
+        <!-- Stats Cards -->
+        <div class="stats-container" id="stats-container">
+            <div class="stat-card">
+                <div class="stat-value" id="stat-products-de">-</div>
+                <div class="stat-label">Produkte DE</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="stat-products-it">-</div>
+                <div class="stat-label">Produkte IT</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="stat-recipes">-</div>
+                <div class="stat-label">Rezepte</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="stat-analyses">-</div>
+                <div class="stat-label">Analysen</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="stat-clicks">-</div>
+                <div class="stat-label">Affiliate Klicks</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" data-tab="products" onclick="switchTab('products')">
+                <i class="fas fa-box"></i> Produkte
+            </button>
+            <button class="tab" data-tab="recipes" onclick="switchTab('recipes')">
+                <i class="fas fa-utensils"></i> Rezepte
+            </button>
+            <button class="tab" data-tab="clicks" onclick="switchTab('clicks')">
+                <i class="fas fa-mouse-pointer"></i> Klicks
+            </button>
+            <button class="tab" data-tab="logs" onclick="switchTab('logs')">
+                <i class="fas fa-file-alt"></i> LLM Logs
+            </button>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="tab-content">
+            <!-- Products Tab -->
+            <div id="products-tab" class="tab-pane active">
+                <div class="toolbar">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="product-search" placeholder="Produkt suchen..." oninput="searchProducts()">
+                    </div>
+                    <div class="lang-toggle">
+                        <button class="lang-btn active" data-lang="de" onclick="setProductLang('de')">DE</button>
+                        <button class="lang-btn" data-lang="it" onclick="setProductLang('it')">IT</button>
+                    </div>
+                    <button class="btn-add" onclick="openProductModal()">
+                        <i class="fas fa-plus"></i> Neues Produkt
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Preis</th>
+                                <th>Tags</th>
+                                <th>Aktionen</th>
+                            </tr>
+                        </thead>
+                        <tbody id="products-table"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Recipes Tab -->
+            <div id="recipes-tab" class="tab-pane hidden">
+                <div class="toolbar">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="recipe-search" placeholder="Rezept suchen..." oninput="searchRecipes()">
+                    </div>
+                    <button class="btn-add" onclick="openRecipeModal()">
+                        <i class="fas fa-plus"></i> Neues Rezept
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Titel (DE)</th>
+                                <th>Titel (IT)</th>
+                                <th>Zeit</th>
+                                <th>Aktionen</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recipes-table"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Clicks Tab -->
+            <div id="clicks-tab" class="tab-pane hidden">
+                <div class="clicks-summary" id="clicks-summary"></div>
+                <h3>Top Produkte</h3>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Produkt ID</th>
+                                <th>Klicks</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clicks-table"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Logs Tab -->
+            <div id="logs-tab" class="tab-pane hidden">
+                <div class="logs-stats" id="logs-stats"></div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Zeit</th>
+                                <th>Endpoint</th>
+                                <th>Sprache</th>
+                                <th>Latenz</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logs-table"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Modal -->
+    <div id="product-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="product-modal-title">Neues Produkt</h2>
+                <button class="btn-close" onclick="closeProductModal()">&times;</button>
+            </div>
+            <form id="product-form" onsubmit="saveProduct(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Produkt-ID *</label>
+                        <input type="text" id="prod-id" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Name *</label>
+                        <input type="text" id="prod-name" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Beschreibung</label>
+                    <textarea id="prod-description" rows="3"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Preis</label>
+                        <input type="text" id="prod-price" placeholder="z.B. 29,90 €">
+                    </div>
+                    <div class="form-group">
+                        <label>Rating</label>
+                        <input type="text" id="prod-rating" placeholder="z.B. 4.8">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Tags (kommagetrennt)</label>
+                    <input type="text" id="prod-tags" placeholder="energie, vitamine, immunsystem">
+                </div>
+                <div class="form-group">
+                    <label>Affiliate-URL</label>
+                    <input type="url" id="prod-affiliate-url">
+                </div>
+                <div class="form-group">
+                    <label>Bild-URL</label>
+                    <input type="url" id="prod-image-url">
+                </div>
+                <div class="form-group">
+                    <label>Anwendungshinweise</label>
+                    <textarea id="prod-instructions" rows="3"></textarea>
+                </div>
+                <div class="form-group" id="video-url-group">
+                    <label>Video-URL (nur IT)</label>
+                    <input type="url" id="prod-video-url">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeProductModal()">Abbrechen</button>
+                    <button type="submit" class="btn-save">Speichern</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Recipe Modal -->
+    <div id="recipe-modal" class="modal hidden">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2 id="recipe-modal-title">Neues Rezept</h2>
+                <button class="btn-close" onclick="closeRecipeModal()">&times;</button>
+            </div>
+            <form id="recipe-form" onsubmit="saveRecipe(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Rezept-ID *</label>
+                        <input type="text" id="rec-id" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Zubereitungszeit (Min)</label>
+                        <input type="number" id="rec-time" value="20">
+                    </div>
+                </div>
+                <div class="form-section">
+                    <h3>🇩🇪 Deutsch</h3>
+                    <div class="form-group">
+                        <label>Titel *</label>
+                        <input type="text" id="rec-de-title" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Zutaten (eine pro Zeile)</label>
+                        <textarea id="rec-de-ingredients" rows="4"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Schritte (einer pro Zeile)</label>
+                        <textarea id="rec-de-steps" rows="4"></textarea>
+                    </div>
+                </div>
+                <div class="form-section">
+                    <h3>🇮🇹 Italiano</h3>
+                    <div class="form-group">
+                        <label>Titolo</label>
+                        <input type="text" id="rec-it-title">
+                    </div>
+                    <div class="form-group">
+                        <label>Ingredienti (uno per riga)</label>
+                        <textarea id="rec-it-ingredients" rows="4"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Passaggi (uno per riga)</label>
+                        <textarea id="rec-it-steps" rows="4"></textarea>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Symptom-Tags (kommagetrennt)</label>
+                    <input type="text" id="rec-symptom-tags" placeholder="Müdigkeit, Energie, Immunsystem">
+                </div>
+                <div class="form-group">
+                    <label>Bild-URL</label>
+                    <input type="url" id="rec-image-url">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeRecipeModal()">Abbrechen</button>
+                    <button type="submit" class="btn-save">Speichern</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/api/admin-app/app.js"></script>
+</body>
+</html>
