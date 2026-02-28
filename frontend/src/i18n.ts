@@ -158,7 +158,11 @@ const translations = {
   },
 };
 
-export function t(lang: Lang, key: keyof typeof translations.de): any {
+export function t(lang: Lang, key: keyof typeof translations.de, dynamicOverrides?: Record<string, { de: string; it: string }>): any {
+  // Dynamic overrides from backend have priority
+  if (dynamicOverrides && dynamicOverrides[key]) {
+    return dynamicOverrides[key][lang] ?? dynamicOverrides[key].de;
+  }
   return translations[lang]?.[key] ?? translations.de[key] ?? key;
 }
 
