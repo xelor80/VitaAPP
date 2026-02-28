@@ -1,8 +1,11 @@
 // VitaGuide Admin Webapp
 const API_BASE = '/api';
 let currentLang = 'de';
+let disclaimerLang = 'de';
 let editingProduct = null;
 let editingRecipe = null;
+let editingChip = null;
+let aiConfig = null;
 
 // ============ AUTH ============
 document.getElementById('login-form').addEventListener('submit', async (e) => {
@@ -42,7 +45,6 @@ function showDashboard() {
     loadProducts();
 }
 
-// Check if already logged in
 if (sessionStorage.getItem('admin_token')) {
     showDashboard();
 }
@@ -66,18 +68,19 @@ async function apiCall(endpoint, options = {}) {
 
 // ============ TABS ============
 function switchTab(tab) {
-    // Update tab buttons
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.querySelector(`.tab[data-tab="${tab}"]`).classList.add('active');
     
-    // Update tab panes
     document.querySelectorAll('.tab-pane').forEach(p => p.classList.add('hidden'));
     document.getElementById(`${tab}-tab`).classList.remove('hidden');
     
-    // Load data
     switch(tab) {
         case 'products': loadProducts(); break;
         case 'recipes': loadRecipes(); break;
+        case 'translations': loadTranslations(); break;
+        case 'chips': loadChips(); break;
+        case 'disclaimer': loadDisclaimer(); break;
+        case 'ai': loadAIConfig(); break;
         case 'clicks': loadClicks(); break;
         case 'logs': loadLogs(); break;
     }
@@ -102,7 +105,7 @@ async function loadStats() {
 // ============ PRODUCTS ============
 function setProductLang(lang) {
     currentLang = lang;
-    document.querySelectorAll('.lang-btn').forEach(btn => {
+    document.querySelectorAll('.lang-toggle .lang-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.lang === lang);
     });
     document.getElementById('video-url-group').style.display = lang === 'it' ? 'block' : 'none';
@@ -133,14 +136,11 @@ async function loadProducts() {
     }
 }
 
-function searchProducts() {
-    loadProducts();
-}
+function searchProducts() { loadProducts(); }
 
 function openProductModal(product = null) {
     editingProduct = product;
     document.getElementById('product-modal-title').textContent = product ? 'Produkt bearbeiten' : 'Neues Produkt';
-    
     document.getElementById('prod-id').value = product?.product_id || '';
     document.getElementById('prod-id').disabled = !!product;
     document.getElementById('prod-name').value = product?.name || '';
@@ -152,7 +152,6 @@ function openProductModal(product = null) {
     document.getElementById('prod-image-url').value = product?.image_url || '';
     document.getElementById('prod-instructions').value = product?.application_instructions || '';
     document.getElementById('prod-video-url').value = product?.video_url || '';
-    
     document.getElementById('video-url-group').style.display = currentLang === 'it' ? 'block' : 'none';
     document.getElementById('product-modal').classList.remove('hidden');
 }
@@ -167,14 +166,11 @@ async function editProduct(productId) {
         const res = await apiCall(`/products/${productId}?lang=${currentLang}`);
         const product = await res.json();
         openProductModal(product);
-    } catch (err) {
-        alert('Fehler beim Laden des Produkts');
-    }
+    } catch (err) { alert('Fehler beim Laden'); }
 }
 
 async function saveProduct(e) {
     e.preventDefault();
-    
     const productData = {
         product_id: document.getElementById('prod-id').value,
         name: document.getElementById('prod-name').value,
@@ -190,42 +186,19 @@ async function saveProduct(e) {
     
     try {
         const method = editingProduct ? 'PUT' : 'POST';
-        const url = editingProduct 
-            ? `/admin/products/${editingProduct.product_id}?lang=${currentLang}`
-            : `/admin/products?lang=${currentLang}`;
-        
-        const res = await apiCall(url, {
-            method,
-            body: JSON.stringify(productData)
-        });
-        
-        if (res.ok) {
-            closeProductModal();
-            loadProducts();
-            loadStats();
-        } else {
-            const err = await res.json();
-            alert(err.detail || 'Fehler beim Speichern');
-        }
-    } catch (err) {
-        alert('Fehler beim Speichern');
-    }
+        const url = editingProduct ? `/admin/products/${editingProduct.product_id}?lang=${currentLang}` : `/admin/products?lang=${currentLang}`;
+        const res = await apiCall(url, { method, body: JSON.stringify(productData) });
+        if (res.ok) { closeProductModal(); loadProducts(); loadStats(); }
+        else { const err = await res.json(); alert(err.detail || 'Fehler'); }
+    } catch (err) { alert('Fehler beim Speichern'); }
 }
 
 async function deleteProduct(productId) {
-    if (!confirm(`Produkt "${productId}" wirklich löschen?`)) return;
-    
+    if (!confirm(`Produkt "${productId}" löschen?`)) return;
     try {
         const res = await apiCall(`/admin/products/${productId}?lang=${currentLang}`, { method: 'DELETE' });
-        if (res.ok) {
-            loadProducts();
-            loadStats();
-        } else {
-            alert('Fehler beim Löschen');
-        }
-    } catch (err) {
-        alert('Fehler beim Löschen');
-    }
+        if (res.ok) { loadProducts(); loadStats(); }
+    } catch (err) { alert('Fehler'); }
 }
 
 // ============ RECIPES ============
@@ -248,19 +221,13 @@ async function loadRecipes() {
                 </td>
             </tr>
         `).join('');
-    } catch (err) {
-        console.error('Error loading recipes:', err);
-    }
+    } catch (err) { console.error('Error:', err); }
 }
 
-function searchRecipes() {
-    loadRecipes();
-}
-
+function searchRecipes() { loadRecipes(); }
 function openRecipeModal(recipe = null) {
     editingRecipe = recipe;
     document.getElementById('recipe-modal-title').textContent = recipe ? 'Rezept bearbeiten' : 'Neues Rezept';
-    
     document.getElementById('rec-id').value = recipe?.id || '';
     document.getElementById('rec-id').disabled = !!recipe;
     document.getElementById('rec-time').value = recipe?.time_min || 20;
@@ -272,14 +239,10 @@ function openRecipeModal(recipe = null) {
     document.getElementById('rec-it-steps').value = (recipe?.it?.steps || []).join('\n');
     document.getElementById('rec-symptom-tags').value = (recipe?.symptom_tags || []).join(', ');
     document.getElementById('rec-image-url').value = recipe?.image_url || '';
-    
     document.getElementById('recipe-modal').classList.remove('hidden');
 }
 
-function closeRecipeModal() {
-    document.getElementById('recipe-modal').classList.add('hidden');
-    editingRecipe = null;
-}
+function closeRecipeModal() { document.getElementById('recipe-modal').classList.add('hidden'); editingRecipe = null; }
 
 async function editRecipe(recipeId) {
     try {
@@ -287,71 +250,243 @@ async function editRecipe(recipeId) {
         const data = await res.json();
         const recipe = data.recipes.find(r => r.id === recipeId);
         if (recipe) openRecipeModal(recipe);
-    } catch (err) {
-        alert('Fehler beim Laden des Rezepts');
-    }
+    } catch (err) { alert('Fehler'); }
 }
 
 async function saveRecipe(e) {
     e.preventDefault();
-    
     const recipeData = {
         id: document.getElementById('rec-id').value,
         time_min: parseInt(document.getElementById('rec-time').value) || 20,
-        de: {
-            title: document.getElementById('rec-de-title').value,
-            ingredients: document.getElementById('rec-de-ingredients').value.split('\n').filter(Boolean),
-            steps: document.getElementById('rec-de-steps').value.split('\n').filter(Boolean),
-            tags: []
-        },
-        it: {
-            title: document.getElementById('rec-it-title').value,
-            ingredients: document.getElementById('rec-it-ingredients').value.split('\n').filter(Boolean),
-            steps: document.getElementById('rec-it-steps').value.split('\n').filter(Boolean),
-            tags: []
-        },
+        de: { title: document.getElementById('rec-de-title').value, ingredients: document.getElementById('rec-de-ingredients').value.split('\n').filter(Boolean), steps: document.getElementById('rec-de-steps').value.split('\n').filter(Boolean), tags: [] },
+        it: { title: document.getElementById('rec-it-title').value, ingredients: document.getElementById('rec-it-ingredients').value.split('\n').filter(Boolean), steps: document.getElementById('rec-it-steps').value.split('\n').filter(Boolean), tags: [] },
         symptom_tags: document.getElementById('rec-symptom-tags').value.split(',').map(t => t.trim()).filter(Boolean),
         image_url: document.getElementById('rec-image-url').value
     };
-    
     try {
         const method = editingRecipe ? 'PUT' : 'POST';
-        const url = editingRecipe 
-            ? `/admin/recipes/${editingRecipe.id}`
-            : '/admin/recipes';
-        
-        const res = await apiCall(url, {
-            method,
-            body: JSON.stringify(recipeData)
-        });
-        
-        if (res.ok) {
-            closeRecipeModal();
-            loadRecipes();
-            loadStats();
-        } else {
-            const err = await res.json();
-            alert(err.detail || 'Fehler beim Speichern');
-        }
-    } catch (err) {
-        alert('Fehler beim Speichern');
-    }
+        const url = editingRecipe ? `/admin/recipes/${editingRecipe.id}` : '/admin/recipes';
+        const res = await apiCall(url, { method, body: JSON.stringify(recipeData) });
+        if (res.ok) { closeRecipeModal(); loadRecipes(); loadStats(); }
+        else { const err = await res.json(); alert(err.detail || 'Fehler'); }
+    } catch (err) { alert('Fehler'); }
 }
 
 async function deleteRecipe(recipeId) {
-    if (!confirm(`Rezept "${recipeId}" wirklich löschen?`)) return;
-    
+    if (!confirm(`Rezept "${recipeId}" löschen?`)) return;
+    try { const res = await apiCall(`/admin/recipes/${recipeId}`, { method: 'DELETE' }); if (res.ok) { loadRecipes(); loadStats(); } } catch (err) { alert('Fehler'); }
+}
+
+// ============ TRANSLATIONS ============
+async function loadTranslations() {
     try {
-        const res = await apiCall(`/admin/recipes/${recipeId}`, { method: 'DELETE' });
-        if (res.ok) {
-            loadRecipes();
-            loadStats();
-        } else {
-            alert('Fehler beim Löschen');
-        }
-    } catch (err) {
-        alert('Fehler beim Löschen');
-    }
+        const res = await apiCall('/settings/translations');
+        const data = await res.json();
+        const tbody = document.getElementById('translations-table');
+        tbody.innerHTML = data.translations.map(t => `
+            <tr>
+                <td><code>${t.key}</code></td>
+                <td>${t.de?.substring(0, 50)}${t.de?.length > 50 ? '...' : ''}</td>
+                <td>${t.it?.substring(0, 50)}${t.it?.length > 50 ? '...' : ''}</td>
+                <td><button class="btn-edit" onclick="editTranslation('${t.key}', '${encodeURIComponent(t.de)}', '${encodeURIComponent(t.it)}')">Edit</button></td>
+            </tr>
+        `).join('');
+    } catch (err) { console.error('Error:', err); }
+}
+
+function editTranslation(key, de, it) {
+    document.getElementById('trans-key').value = key;
+    document.getElementById('trans-de').value = decodeURIComponent(de);
+    document.getElementById('trans-it').value = decodeURIComponent(it);
+    document.getElementById('translation-modal').classList.remove('hidden');
+}
+
+function closeTranslationModal() { document.getElementById('translation-modal').classList.add('hidden'); }
+
+async function saveTranslation(e) {
+    e.preventDefault();
+    const key = document.getElementById('trans-key').value;
+    const data = { key, de: document.getElementById('trans-de').value, it: document.getElementById('trans-it').value };
+    try {
+        const res = await apiCall(`/settings/translations/${key}`, { method: 'PUT', body: JSON.stringify(data) });
+        if (res.ok) { closeTranslationModal(); loadTranslations(); alert('Gespeichert!'); }
+    } catch (err) { alert('Fehler'); }
+}
+
+async function resetTranslations() {
+    if (!confirm('Alle Übersetzungen auf Standard zurücksetzen?')) return;
+    try { await apiCall('/settings/translations/reset', { method: 'POST' }); loadTranslations(); alert('Zurückgesetzt!'); } catch (err) { alert('Fehler'); }
+}
+
+// ============ SYMPTOM CHIPS ============
+async function loadChips() {
+    try {
+        const res = await apiCall('/settings/symptom-chips');
+        const data = await res.json();
+        const tbody = document.getElementById('chips-table');
+        tbody.innerHTML = data.chips.map(c => `
+            <tr>
+                <td><code>${c.id}</code></td>
+                <td>${c.de}</td>
+                <td>${c.it}</td>
+                <td><i class="fas fa-${c.icon || 'circle'}"></i> ${c.icon}</td>
+                <td>${c.order}</td>
+                <td>
+                    <button class="btn-edit" onclick="editChip('${c.id}')">Edit</button>
+                    <button class="btn-delete" onclick="deleteChip('${c.id}')">Del</button>
+                </td>
+            </tr>
+        `).join('');
+    } catch (err) { console.error('Error:', err); }
+}
+
+function openChipModal(chip = null) {
+    editingChip = chip;
+    document.getElementById('chip-modal-title').textContent = chip ? 'Chip bearbeiten' : 'Neuer Symptom-Chip';
+    document.getElementById('chip-id').value = chip?.id || '';
+    document.getElementById('chip-id').disabled = !!chip;
+    document.getElementById('chip-de').value = chip?.de || '';
+    document.getElementById('chip-it').value = chip?.it || '';
+    document.getElementById('chip-icon').value = chip?.icon || 'circle';
+    document.getElementById('chip-order').value = chip?.order || 0;
+    document.getElementById('chip-modal').classList.remove('hidden');
+}
+
+function closeChipModal() { document.getElementById('chip-modal').classList.add('hidden'); editingChip = null; }
+
+async function editChip(chipId) {
+    try {
+        const res = await apiCall('/settings/symptom-chips');
+        const data = await res.json();
+        const chip = data.chips.find(c => c.id === chipId);
+        if (chip) openChipModal(chip);
+    } catch (err) { alert('Fehler'); }
+}
+
+async function saveChip(e) {
+    e.preventDefault();
+    const chipData = { id: document.getElementById('chip-id').value, de: document.getElementById('chip-de').value, it: document.getElementById('chip-it').value, icon: document.getElementById('chip-icon').value, order: parseInt(document.getElementById('chip-order').value) || 0 };
+    try {
+        const method = editingChip ? 'PUT' : 'POST';
+        const url = editingChip ? `/settings/symptom-chips/${editingChip.id}` : '/settings/symptom-chips';
+        const res = await apiCall(url, { method, body: JSON.stringify(chipData) });
+        if (res.ok) { closeChipModal(); loadChips(); alert('Gespeichert!'); }
+        else { const err = await res.json(); alert(err.detail || 'Fehler'); }
+    } catch (err) { alert('Fehler'); }
+}
+
+async function deleteChip(chipId) {
+    if (!confirm(`Chip "${chipId}" löschen?`)) return;
+    try { const res = await apiCall(`/settings/symptom-chips/${chipId}`, { method: 'DELETE' }); if (res.ok) { loadChips(); } } catch (err) { alert('Fehler'); }
+}
+
+async function resetChips() {
+    if (!confirm('Alle Chips auf Standard zurücksetzen?')) return;
+    try { await apiCall('/settings/symptom-chips/reset', { method: 'POST' }); loadChips(); alert('Zurückgesetzt!'); } catch (err) { alert('Fehler'); }
+}
+
+// ============ DISCLAIMER ============
+function setDisclaimerLang(lang) {
+    disclaimerLang = lang;
+    document.querySelectorAll('#disclaimer-tab .lang-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.lang === lang));
+    loadDisclaimer();
+}
+
+async function loadDisclaimer() {
+    try {
+        const res = await apiCall('/settings/disclaimer');
+        const data = await res.json();
+        const d = data[disclaimerLang];
+        
+        document.getElementById('disclaimer-form-container').innerHTML = `
+            <div class="form-group">
+                <label>Titel</label>
+                <input type="text" id="disc-title" value="${d.title || ''}">
+            </div>
+            <div id="disc-items-container">
+                ${(d.items || []).map((item, i) => `
+                    <div class="form-section" data-index="${i}">
+                        <div class="form-row">
+                            <div class="form-group" style="flex:2">
+                                <label>Überschrift ${i+1}</label>
+                                <input type="text" class="disc-item-title" value="${item.title || ''}">
+                            </div>
+                            <div class="form-group">
+                                <label>Icon</label>
+                                <input type="text" class="disc-item-icon" value="${item.icon || ''}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Text</label>
+                            <textarea class="disc-item-text" rows="2">${item.text || ''}</textarea>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+            <div class="form-group">
+                <label>Button-Text</label>
+                <input type="text" id="disc-accept" value="${d.accept_button || ''}">
+            </div>
+            <button class="btn-save" onclick="saveDisclaimer()"><i class="fas fa-save"></i> Speichern</button>
+        `;
+    } catch (err) { console.error('Error:', err); }
+}
+
+async function saveDisclaimer() {
+    const items = [];
+    document.querySelectorAll('#disc-items-container .form-section').forEach(section => {
+        items.push({
+            title: section.querySelector('.disc-item-title').value,
+            text: section.querySelector('.disc-item-text').value,
+            icon: section.querySelector('.disc-item-icon').value
+        });
+    });
+    
+    const data = { lang: disclaimerLang, title: document.getElementById('disc-title').value, items, accept_button: document.getElementById('disc-accept').value };
+    try {
+        const res = await apiCall(`/settings/disclaimer/${disclaimerLang}`, { method: 'PUT', body: JSON.stringify(data) });
+        if (res.ok) alert('Gespeichert!');
+    } catch (err) { alert('Fehler'); }
+}
+
+async function resetDisclaimer() {
+    if (!confirm('Disclaimer auf Standard zurücksetzen?')) return;
+    try { await apiCall('/settings/disclaimer/reset', { method: 'POST' }); loadDisclaimer(); alert('Zurückgesetzt!'); } catch (err) { alert('Fehler'); }
+}
+
+// ============ AI CONFIG ============
+async function loadAIConfig() {
+    try {
+        const res = await apiCall('/settings/ai-config');
+        aiConfig = await res.json();
+        
+        document.getElementById('ai-provider').value = aiConfig.current.provider;
+        updateModelOptions();
+        document.getElementById('ai-model').value = aiConfig.current.model;
+        
+        document.getElementById('ai-status').innerHTML = `
+            <div style="background:#1E293B;padding:16px;border-radius:8px;border:1px solid #334155">
+                <p style="color:#10B981"><i class="fas fa-check-circle"></i> Aktuelle Konfiguration:</p>
+                <p style="color:#F8FAFC;font-size:18px;margin-top:8px"><strong>${aiConfig.current.provider.toUpperCase()}</strong> - ${aiConfig.current.model}</p>
+            </div>
+        `;
+    } catch (err) { console.error('Error:', err); }
+}
+
+function updateModelOptions() {
+    const provider = document.getElementById('ai-provider').value;
+    const modelSelect = document.getElementById('ai-model');
+    const models = aiConfig?.available?.[provider] || [];
+    
+    modelSelect.innerHTML = models.map(m => `<option value="${m}">${m}</option>`).join('');
+}
+
+async function saveAIConfig() {
+    const data = { provider: document.getElementById('ai-provider').value, model: document.getElementById('ai-model').value, enabled: true };
+    try {
+        const res = await apiCall('/settings/ai-config', { method: 'PUT', body: JSON.stringify(data) });
+        if (res.ok) { loadAIConfig(); alert('KI-Konfiguration gespeichert!'); }
+    } catch (err) { alert('Fehler'); }
 }
 
 // ============ CLICKS ============
@@ -359,22 +494,10 @@ async function loadClicks() {
     try {
         const res = await apiCall('/admin/clicks?days=30');
         const data = await res.json();
-        
-        document.getElementById('clicks-summary').innerHTML = `
-            <h3>Affiliate-Klicks (letzte ${data.period_days} Tage)</h3>
-            <p><strong>${data.total_clicks}</strong> Klicks insgesamt</p>
-        `;
-        
+        document.getElementById('clicks-summary').innerHTML = `<h3>Affiliate-Klicks (letzte ${data.period_days} Tage)</h3><p><strong>${data.total_clicks}</strong> Klicks insgesamt</p>`;
         const tbody = document.getElementById('clicks-table');
-        tbody.innerHTML = (data.by_product || []).map(item => `
-            <tr>
-                <td>${item._id || 'Unbekannt'}</td>
-                <td><strong>${item.clicks}</strong></td>
-            </tr>
-        `).join('');
-    } catch (err) {
-        console.error('Error loading clicks:', err);
-    }
+        tbody.innerHTML = (data.by_product || []).map(item => `<tr><td>${item._id || 'Unbekannt'}</td><td><strong>${item.clicks}</strong></td></tr>`).join('');
+    } catch (err) { console.error('Error:', err); }
 }
 
 // ============ LOGS ============
@@ -382,25 +505,8 @@ async function loadLogs() {
     try {
         const res = await apiCall('/admin/llm-logs?limit=50');
         const data = await res.json();
-        
-        document.getElementById('logs-stats').innerHTML = `
-            <h3>LLM Statistiken</h3>
-            <p>Aufrufe: <strong>${data.stats?.total_calls || 0}</strong> | 
-               Erfolgsrate: <strong>${data.stats?.success_rate || '0%'}</strong> | 
-               Ø Latenz: <strong>${data.stats?.avg_latency_ms || 0}ms</strong></p>
-        `;
-        
+        document.getElementById('logs-stats').innerHTML = `<h3>LLM Statistiken</h3><p>Aufrufe: <strong>${data.stats?.total_calls || 0}</strong> | Erfolgsrate: <strong>${data.stats?.success_rate || '0%'}</strong> | Ø Latenz: <strong>${data.stats?.avg_latency_ms || 0}ms</strong></p>`;
         const tbody = document.getElementById('logs-table');
-        tbody.innerHTML = (data.logs || []).map(log => `
-            <tr>
-                <td>${new Date(log.timestamp).toLocaleString('de-DE')}</td>
-                <td>${log.endpoint}</td>
-                <td>${log.lang}</td>
-                <td>${log.latency_ms}ms</td>
-                <td style="color: ${log.success ? '#10B981' : '#EF4444'}">${log.success ? '✓' : '✗'}</td>
-            </tr>
-        `).join('');
-    } catch (err) {
-        console.error('Error loading logs:', err);
-    }
+        tbody.innerHTML = (data.logs || []).map(log => `<tr><td>${new Date(log.timestamp).toLocaleString('de-DE')}</td><td>${log.endpoint}</td><td>${log.lang}</td><td>${log.latency_ms}ms</td><td style="color:${log.success ? '#10B981' : '#EF4444'}">${log.success ? '✓' : '✗'}</td></tr>`).join('');
+    } catch (err) { console.error('Error:', err); }
 }
