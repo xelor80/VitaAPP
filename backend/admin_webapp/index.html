@@ -404,6 +404,74 @@
         </div>
     </div>
 
+    <!-- Chip Modal -->
+    <div id="chip-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="chip-modal-title">Neuer Symptom-Chip</h2>
+                <button class="btn-close" onclick="closeChipModal()">&times;</button>
+            </div>
+            <form id="chip-form" onsubmit="saveChip(event)">
+                <div class="form-group">
+                    <label>Chip-ID *</label>
+                    <input type="text" id="chip-id" required placeholder="z.B. muedigkeit">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Deutsch *</label>
+                        <input type="text" id="chip-de" required placeholder="Müdigkeit">
+                    </div>
+                    <div class="form-group">
+                        <label>Italienisch *</label>
+                        <input type="text" id="chip-it" required placeholder="Stanchezza">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Icon (MaterialCommunityIcons)</label>
+                        <input type="text" id="chip-icon" placeholder="sleep">
+                    </div>
+                    <div class="form-group">
+                        <label>Reihenfolge</label>
+                        <input type="number" id="chip-order" value="0">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeChipModal()">Abbrechen</button>
+                    <button type="submit" class="btn-save">Speichern</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Translation Edit Modal -->
+    <div id="translation-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Übersetzung bearbeiten</h2>
+                <button class="btn-close" onclick="closeTranslationModal()">&times;</button>
+            </div>
+            <form id="translation-form" onsubmit="saveTranslation(event)">
+                <div class="form-group">
+                    <label>Schlüssel</label>
+                    <input type="text" id="trans-key" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Deutsch</label>
+                    <textarea id="trans-de" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Italienisch</label>
+                    <textarea id="trans-it" rows="3"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeTranslationModal()">Abbrechen</button>
+                    <button type="submit" class="btn-save">Speichern</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="/api/admin-app/app.js"></script>
 </body>
 </html>
