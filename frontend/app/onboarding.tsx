@@ -259,6 +259,17 @@ export default function OnboardingScreen() {
           ))}
 
           <TouchableOpacity 
+            data-testid="supplement-plan-btn"
+            style={[styles.completeButton, { backgroundColor: '#2D8B5F', marginBottom: 10 }]}
+            onPress={() => router.push({ pathname: '/supplement-plan', params: { profileId: profileId || '' } })}
+          >
+            <MaterialCommunityIcons name="pill" size={20} color="#FFFFFF" />
+            <Text style={styles.completeButtonText}>
+              {lang === 'de' ? '  Supplement-Plan erstellen' : '  Crea piano supplementi'}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
             style={styles.completeButton}
             onPress={() => router.replace('/')}
           >
