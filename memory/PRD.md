@@ -168,11 +168,19 @@ VitaGuide ist eine kostenlose Gesundheits-Informations-App, die uber eine KI-Anb
   - Dashboard mit Statistiken (Produkte DE/IT, Rezepte, Analysen, Klicks)
   - Produkte-Tab: CRUD, DE/IT Umschaltung, Suche
   - Rezepte-Tab: CRUD, Zweisprachig (DE/IT)
-  - **Texte-Tab (NEU):** App-Übersetzungen bearbeiten (12 Schlüssel DE/IT)
-  - **Symptom-Chips-Tab (NEU):** Chips hinzufügen/bearbeiten/löschen (10 Standard-Chips)
-  - **Disclaimer-Tab (NEU):** Disclaimer-Texte anpassen (DE/IT separat)
-  - **KI-Einstellungen-Tab (NEU):** LLM-Provider wählen (OpenAI, Anthropic/Claude, Google/Gemini)
-  - Klicks-Tab: Affiliate-Statistiken, Top-Produkte
+  - **Texte-Tab:** App-Übersetzungen bearbeiten (12 Schlüssel DE/IT)
+  - **Symptom-Chips-Tab:** Chips hinzufügen/bearbeiten/löschen (10 Standard-Chips)
+  - **Disclaimer-Tab:** Disclaimer-Texte anpassen (DE/IT separat)
+  - **KI-Einstellungen-Tab:** LLM-Provider wählen (OpenAI, Anthropic/Claude, Google/Gemini)
+  - **Klicks-Tab (ERWEITERT 28.02.2026):**
+    - Übersicht: Gesamtklicks, verschiedene Produkte, verschiedene Länder
+    - Nach Land: Klicks pro Land mit Geolocation (via ip-api.com)
+    - Nach Gerät: Desktop/Mobile/Tablet Aufschlüsselung
+    - Nach Browser: Top 5 Browser
+    - Nach Tageszeit: 24h-Heatmap
+    - Top Produkte: Ranking mit Produktnamen und Klickzahlen
+    - Letzte Klicks: Detailtabelle mit Datum, Produkt, Land/Region/Stadt, IP, Gerät, Browser
+    - Zeitraum-Filter: 7/14/30/90 Tage
   - LLM-Logs-Tab: API-Aufrufe, Latenz, Erfolgsrate
   - Logout-Funktion
 - **Settings API Endpoints:** /api/settings/translations, /api/settings/symptom-chips, /api/settings/disclaimer, /api/settings/ai-config
