@@ -153,6 +153,95 @@
                 </div>
             </div>
 
+            <!-- Translations Tab -->
+            <div id="translations-tab" class="tab-pane hidden">
+                <div class="toolbar">
+                    <button class="btn-add" onclick="resetTranslations()">
+                        <i class="fas fa-undo"></i> Auf Standard zurücksetzen
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Schlüssel</th>
+                                <th>Deutsch</th>
+                                <th>Italienisch</th>
+                                <th>Aktionen</th>
+                            </tr>
+                        </thead>
+                        <tbody id="translations-table"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Symptom Chips Tab -->
+            <div id="chips-tab" class="tab-pane hidden">
+                <div class="toolbar">
+                    <button class="btn-add" onclick="openChipModal()">
+                        <i class="fas fa-plus"></i> Neuer Chip
+                    </button>
+                    <button class="btn-add" style="background:#EF4444" onclick="resetChips()">
+                        <i class="fas fa-undo"></i> Auf Standard zurücksetzen
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Deutsch</th>
+                                <th>Italienisch</th>
+                                <th>Icon</th>
+                                <th>Reihenfolge</th>
+                                <th>Aktionen</th>
+                            </tr>
+                        </thead>
+                        <tbody id="chips-table"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Disclaimer Tab -->
+            <div id="disclaimer-tab" class="tab-pane hidden">
+                <div class="lang-toggle" style="margin-bottom:20px">
+                    <button class="lang-btn active" data-lang="de" onclick="setDisclaimerLang('de')">DE</button>
+                    <button class="lang-btn" data-lang="it" onclick="setDisclaimerLang('it')">IT</button>
+                    <button class="btn-add" style="margin-left:auto" onclick="resetDisclaimer()">
+                        <i class="fas fa-undo"></i> Zurücksetzen
+                    </button>
+                </div>
+                <div id="disclaimer-form-container"></div>
+            </div>
+
+            <!-- AI Settings Tab -->
+            <div id="ai-tab" class="tab-pane hidden">
+                <div class="ai-config-container" id="ai-config-container">
+                    <h3><i class="fas fa-robot"></i> KI-Modell für Symptom-Analyse</h3>
+                    <p style="color:#94A3B8;margin-bottom:20px">Wählen Sie das KI-Modell, das für die Symptom-Analyse verwendet werden soll.</p>
+                    
+                    <div class="form-group">
+                        <label>Anbieter</label>
+                        <select id="ai-provider" onchange="updateModelOptions()">
+                            <option value="openai">OpenAI</option>
+                            <option value="anthropic">Anthropic (Claude)</option>
+                            <option value="google">Google (Gemini)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Modell</label>
+                        <select id="ai-model"></select>
+                    </div>
+                    
+                    <button class="btn-save" onclick="saveAIConfig()">
+                        <i class="fas fa-save"></i> Speichern
+                    </button>
+                    
+                    <div id="ai-status" style="margin-top:20px"></div>
+                </div>
+            </div>
+
             <!-- Clicks Tab -->
             <div id="clicks-tab" class="tab-pane hidden">
                 <div class="clicks-summary" id="clicks-summary"></div>
