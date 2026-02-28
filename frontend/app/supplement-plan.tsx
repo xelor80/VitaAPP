@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity,
-  SafeAreaView, ActivityIndicator, TextInput
+  SafeAreaView, ActivityIndicator, TextInput, Linking
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLang } from '../src/LangContext';
 import { planStyles as styles } from '../components/supplement/planStyles';
 
@@ -22,10 +23,32 @@ const RISK_COLORS: Record<string, string> = {
   low: '#10B981',
 };
 
+// Mapping: supplement ID -> product search tags
+const SUPPLEMENT_PRODUCT_TAGS: Record<string, string[]> = {
+  vitamin_d: ['vitamin-d', 'knochen'],
+  vitamin_k2: ['vitamin-d', 'knochen'],
+  magnesium: ['magnesium', 'schlaf', 'muskeln'],
+  omega3: ['omega-3'],
+  vitamin_b12: ['b-vitamine', 'energie'],
+  iron: ['eisen'],
+  zinc: ['zink'],
+  vitamin_c: ['vitamin-c', 'immunsystem'],
+  b_vitamins: ['b-vitamine', 'energie', 'nerven'],
+  calcium: ['calcium', 'knochen'],
+  folate: ['b-vitamine'],
+  coq10: ['q10', 'energie'],
+  probiotics: ['probiotika', 'darm', 'verdauung'],
+  ashwagandha: ['stress', 'schlaf'],
+  iodine: ['mineralstoffe', 'stoffwechsel'],
+  selenium: ['mineralstoffe', 'immunsystem'],
+  vitamin_e: ['antioxidantien'],
+};
+
 export default function SupplementPlanScreen() {
   const router = useRouter();
   const { lang } = useLang();
-  const { profileId } = useLocalSearchParams<{ profileId: string }>();
+  const params = useLocalSearchParams<{ profileId: string }>();
+  const [currentProfileId, setCurrentProfileId] = useState<string | null>(params.profileId || null);
   const [plan, setPlan] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
@@ -33,10 +56,49 @@ export default function SupplementPlanScreen() {
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
   const [reminders, setReminders] = useState({ enabled: false, morning_time: '08:00', noon_time: '12:00', evening_time: '20:00' });
   const [showReminders, setShowReminders] = useState(false);
+  const [products, setProducts] = useState<any[]>([]);
 
   useEffect(() => {
-    if (profileId) loadPlan();
-  }, [profileId]);
+    const init = async () => {
+      let pid = params.profileId;
+      if (!pid) {
+        pid = (await AsyncStorage.getItem('health_profile_id')) || undefined;
+      }
+      if (pid) {
+        setCurrentProfileId(pid);
+        await loadPlan(pid);
+        await loadProducts();
+      } else {
+        setLoading(false);
+      }
+    };
+    init();
+  }, []);
+
+  const loadProducts = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/products?lang=${lang}`);
+      if (res.ok) setProducts(await res.json());
+    } catch (e) { console.error('Products error:', e); }
+  };
+
+  const getMatchingProducts = (supplementId: string): any[] => {
+    const tags = SUPPLEMENT_PRODUCT_TAGS[supplementId] || [];
+    if (tags.length === 0) return [];
+    return products.filter(p =>
+      (p.tags || []).some((t: string) => tags.includes(t))
+    ).slice(0, 2);
+  };
+
+  const trackClick = async (productId: string) => {
+    try {
+      await fetch(`${API_URL}/api/track/click`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ product_id: productId })
+      });
+    } catch (e) { console.error('Track error:', e); }
+  };
 
   const loadPlan = async () => {
     try {
