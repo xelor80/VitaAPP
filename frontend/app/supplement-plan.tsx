@@ -100,9 +100,9 @@ export default function SupplementPlanScreen() {
     } catch (e) { console.error('Track error:', e); }
   };
 
-  const loadPlan = async () => {
+  const loadPlan = async (pid: string) => {
     try {
-      const res = await fetch(`${API_URL}/api/supplement-plan/${profileId}`);
+      const res = await fetch(`${API_URL}/api/supplement-plan/${pid}`);
       if (res.ok) {
         const data = await res.json();
         setPlan(data.plan);
@@ -116,12 +116,14 @@ export default function SupplementPlanScreen() {
   };
 
   const generatePlan = async () => {
+    if (!currentProfileId) return;
     setGenerating(true);
     try {
-      const res = await fetch(`${API_URL}/api/supplement-plan/${profileId}?lang=${lang}`, { method: 'POST' });
+      const res = await fetch(`${API_URL}/api/supplement-plan/${currentProfileId}?lang=${lang}`, { method: 'POST' });
       if (res.ok) {
         const data = await res.json();
         setPlan(data.plan);
+        await loadProducts();
       }
     } catch (e) {
       console.error('Generate plan error:', e);
