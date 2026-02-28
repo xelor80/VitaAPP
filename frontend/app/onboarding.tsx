@@ -532,6 +532,16 @@ export default function OnboardingScreen() {
                 ))}
               </View>
             </View>
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>{lang === 'de' ? 'Allergien / Unverträglichkeiten' : 'Allergie / Intolleranze'}</Text>
+              <TextInput
+                style={styles.input}
+                value={profile.allergies.join(', ')}
+                onChangeText={v => setProfile({ ...profile, allergies: v.split(',').map(s => s.trim()).filter(Boolean) })}
+                placeholder={lang === 'de' ? 'z.B. Laktose, Gluten, Nüsse' : 'es. Lattosio, Glutine, Noci'}
+                placeholderTextColor="#8FA39B"
+              />
+            </View>
           </>
         )}
 
