@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { t } from '../../src/i18n';
+import { useSettings } from '../../src/SettingsContext';
 import { styles } from './homeStyles';
 
 interface DiaryButtonProps {
@@ -10,6 +11,7 @@ interface DiaryButtonProps {
 }
 
 export function DiaryButton({ lang, onPress }: DiaryButtonProps) {
+  const { translations } = useSettings();
   return (
     <TouchableOpacity
       testID="diary-btn"
@@ -21,7 +23,7 @@ export function DiaryButton({ lang, onPress }: DiaryButtonProps) {
         <MaterialCommunityIcons name="book-open-variant" size={22} color="#2C5F78" />
       </View>
       <View style={{ flex: 1 }}>
-        <Text style={styles.diaryBtnTitle}>{t(lang, 'diary_btn')}</Text>
+        <Text style={styles.diaryBtnTitle}>{t(lang, 'diary_btn', translations)}</Text>
         <Text style={styles.diaryBtnSub}>
           {lang === 'de' ? 'Tracken Sie Befinden, Schlaf, Stress & mehr' : 'Monitora umore, sonno, stress e altro'}
         </Text>
