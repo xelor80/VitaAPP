@@ -12,6 +12,7 @@ export default function RootLayout() {
         <Stack.Screen name="recipe" />
         <Stack.Screen name="diary" />
         <Stack.Screen name="onboarding" />
+        <Stack.Screen name="supplement-plan" />
       </Stack>
     </LangProvider>
   );
