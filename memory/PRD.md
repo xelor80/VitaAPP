@@ -160,19 +160,29 @@ VitaGuide ist eine kostenlose Gesundheits-Informations-App, die uber eine KI-Anb
 - **recipes:** 30 zweisprachige Rezepte (indexes: id, symptom_tags)
 - Migration Script: backend/migrate_to_mongodb.py
 
-## Admin Panel (neu 27.02.2026)
-- **URL:** /admin
+## Admin Webapp (aktualisiert 28.02.2026)
+- **URL:** /api/admin-app (Separate Webapp, nicht in der mobilen App)
+- **Passwortschutz:** Ja (Admin-Passwort erforderlich)
 - **Features:**
-  - Statistik-Ubersicht (Produkte DE/IT, Rezepte, Analysen, Klicks)
-  - Produkte-CRUD (DE/IT Umschaltung, Suche, Hinzufugen/Bearbeiten/Loschen)
-  - Rezepte-CRUD (Zweisprachig, Symptom-Tags)
-  - Affiliate-Klicks Tracking (Top Produkte, Zeitraume)
-- **API Endpoints:** /api/admin/stats, /api/admin/products, /api/admin/recipes, /api/admin/clicks
+  - Login-Screen mit Passwort-Authentifizierung
+  - Dashboard mit Statistiken (Produkte DE/IT, Rezepte, Analysen, Klicks)
+  - Produkte-Tab: CRUD, DE/IT Umschaltung, Suche
+  - Rezepte-Tab: CRUD, Zweisprachig (DE/IT)
+  - Klicks-Tab: Affiliate-Statistiken, Top-Produkte
+  - LLM-Logs-Tab: API-Aufrufe, Latenz, Erfolgsrate
+  - Logout-Funktion
+- **API Endpoints:** /api/admin/auth, /api/admin/stats, /api/admin/products, /api/admin/recipes, /api/admin/clicks, /api/admin/llm-logs
+- **Technologie:** Vanilla HTML/CSS/JS (keine React-Abhangigkeit)
+
+## Testing Status (28.02.2026)
+- Backend: 16/16 Admin Webapp Tests bestanden (iteration_10.json)
+- Frontend Mobile: 100% - Kein Admin-Button, vollstandiger Flow funktioniert
+- Frontend Admin: 100% - Login, Dashboard, CRUD, Tabs, Logout funktionieren
 
 ## Geplante Features (Post-MVP)
 - [x] **P1:** index.tsx (Home-Screen) in kleinere Komponenten aufteilen - DONE (27.02.2026)
 - [x] **P2:** Produktkatalog -> MongoDB migrieren - DONE (27.02.2026)
-- [x] **Admin Panel:** Verwaltungsoberflache fur Produkte/Rezepte - DONE (27.02.2026)
+- [x] **Admin Webapp:** Separate Webapp fur Verwaltung mit Passwortschutz - DONE (28.02.2026)
 - [ ] **P3:** Suchbare/filterbare Rezepte UI
 - [ ] **P4:** Englisch-Support (3. Sprache)
 - [ ] Benutzer-History
