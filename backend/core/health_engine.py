@@ -234,8 +234,10 @@ def calculate_risk_scores(profile: dict) -> dict:
         for nutrient, weight in RISK_WEIGHTS["activity"]["professional_athlete"].items():
             scores[nutrient] = scores.get(nutrient, 0) + weight
     
-    # Sleep quality (1-10 scale)
-    sleep_quality = profile.get("sleep_quality", 7)
+    # Sleep quality (1-10 scale) - use 7 as default if None
+    sleep_quality = profile.get("sleep_quality")
+    if sleep_quality is None:
+        sleep_quality = 7
     if sleep_quality <= 4:
         for nutrient, weight in RISK_WEIGHTS["sleep_poor"].items():
             scores[nutrient] = scores.get(nutrient, 0) + weight
@@ -243,8 +245,10 @@ def calculate_risk_scores(profile: dict) -> dict:
         for nutrient, weight in RISK_WEIGHTS["sleep_poor"].items():
             scores[nutrient] = scores.get(nutrient, 0) + weight * 0.5
     
-    # Stress level (1-10 scale)
-    stress_level = profile.get("stress_level", 5)
+    # Stress level (1-10 scale) - use 5 as default if None
+    stress_level = profile.get("stress_level")
+    if stress_level is None:
+        stress_level = 5
     if stress_level >= 7:
         for nutrient, weight in RISK_WEIGHTS["stress_high"].items():
             scores[nutrient] = scores.get(nutrient, 0) + weight
@@ -252,14 +256,16 @@ def calculate_risk_scores(profile: dict) -> dict:
         for nutrient, weight in RISK_WEIGHTS["stress_high"].items():
             scores[nutrient] = scores.get(nutrient, 0) + weight * 0.5
     
-    # Age-related
-    age = profile.get("age", 30)
+    # Age-related - use 30 as default if None
+    age = profile.get("age")
+    if age is None:
+        age = 30
     if age >= 60:
         for nutrient, weight in RISK_WEIGHTS["age_senior"].items():
             scores[nutrient] = scores.get(nutrient, 0) + weight
     
     # Gender-specific
-    gender = profile.get("gender", "")
+    gender = profile.get("gender") or ""
     if gender == "female":
         for nutrient, weight in RISK_WEIGHTS["female"].items():
             scores[nutrient] = scores.get(nutrient, 0) + weight
