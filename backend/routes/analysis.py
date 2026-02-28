@@ -35,6 +35,11 @@ async def analyze_symptoms(data: SymptomInput, request: Request):
     if tag_text:
         user_text += f"\n{'Bereiche' if lang == 'de' else 'Aree'}: {tag_text}"
 
+    # Get AI config from database
+    ai_config = await db.ai_config.find_one({"_id": "active"})
+    ai_provider = ai_config.get("provider", "openai") if ai_config else "openai"
+    ai_model = ai_config.get("model", "gpt-4o") if ai_config else "gpt-4o"
+
     try:
         from emergentintegrations.llm.chat import LlmChat, UserMessage
         session_id = str(uuid.uuid4())
@@ -42,7 +47,7 @@ async def analyze_symptoms(data: SymptomInput, request: Request):
             api_key=os.environ['EMERGENT_LLM_KEY'],
             session_id=session_id,
             system_message=prompt
-        ).with_model("openai", "gpt-4o")
+        ).with_model(ai_provider, ai_model)
 
         t0 = time.time()
         response_text = await chat.send_message(UserMessage(text=user_text))
