@@ -15,6 +15,7 @@ import { AnalyzeButton } from '../components/home/AnalyzeButton';
 import { DiaryButton } from '../components/home/DiaryButton';
 import { OnboardingButton } from '../components/home/OnboardingButton';
 import { SupplementPlanButton } from '../components/home/SupplementPlanButton';
+import { ProgressButton } from '../components/home/ProgressButton';
 import { FooterDisclaimer } from '../components/home/FooterDisclaimer';
 import { styles } from '../components/home/homeStyles';
 
