@@ -207,29 +207,83 @@ async def delete_recipe(recipe_id: str):
 # ============== AFFILIATE CLICKS ==============
 @router.get("/clicks")
 async def get_clicks(days: int = 7, skip: int = 0, limit: int = 100):
-    """Get affiliate click statistics."""
+    """Get detailed affiliate click statistics."""
     from datetime import timedelta
     
     cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+    cutoff_str = cutoff.isoformat()
     
-    # Aggregate clicks by product
-    pipeline = [
-        {"$match": {"timestamp": {"$gte": cutoff.isoformat()}}},
-        {"$group": {"_id": "$product_id", "clicks": {"$sum": 1}}},
+    # Total clicks in period
+    total = await db.clicks.count_documents({"timestamp": {"$gte": cutoff_str}})
+    
+    # By product (with name)
+    pipeline_product = [
+        {"$match": {"timestamp": {"$gte": cutoff_str}}},
+        {"$group": {
+            "_id": "$product_id",
+            "product_name": {"$first": "$product_name"},
+            "clicks": {"$sum": 1}
+        }},
+        {"$sort": {"clicks": -1}},
+        {"$limit": 20}
+    ]
+    by_product = await db.clicks.aggregate(pipeline_product).to_list(20)
+    
+    # By country
+    pipeline_country = [
+        {"$match": {"timestamp": {"$gte": cutoff_str}}},
+        {"$group": {"_id": "$country", "clicks": {"$sum": 1}}},
+        {"$sort": {"clicks": -1}},
+        {"$limit": 10}
+    ]
+    by_country = await db.clicks.aggregate(pipeline_country).to_list(10)
+    
+    # By device type
+    pipeline_device = [
+        {"$match": {"timestamp": {"$gte": cutoff_str}}},
+        {"$group": {"_id": "$device_type", "clicks": {"$sum": 1}}},
         {"$sort": {"clicks": -1}}
     ]
+    by_device = await db.clicks.aggregate(pipeline_device).to_list(10)
     
-    by_product = await db.clicks.aggregate(pipeline).to_list(100)
-    total = await db.clicks.count_documents({"timestamp": {"$gte": cutoff.isoformat()}})
+    # By day (for trend chart)
+    pipeline_daily = [
+        {"$match": {"timestamp": {"$gte": cutoff_str}}},
+        {"$group": {"_id": "$date", "clicks": {"$sum": 1}}},
+        {"$sort": {"_id": 1}}
+    ]
+    by_day = await db.clicks.aggregate(pipeline_daily).to_list(days)
     
-    # Recent clicks
+    # By hour (heatmap data)
+    pipeline_hour = [
+        {"$match": {"timestamp": {"$gte": cutoff_str}}},
+        {"$group": {"_id": "$hour", "clicks": {"$sum": 1}}},
+        {"$sort": {"_id": 1}}
+    ]
+    by_hour = await db.clicks.aggregate(pipeline_hour).to_list(24)
+    
+    # By browser
+    pipeline_browser = [
+        {"$match": {"timestamp": {"$gte": cutoff_str}}},
+        {"$group": {"_id": "$browser", "clicks": {"$sum": 1}}},
+        {"$sort": {"clicks": -1}},
+        {"$limit": 5}
+    ]
+    by_browser = await db.clicks.aggregate(pipeline_browser).to_list(5)
+    
+    # Recent clicks with full details
     recent = await db.clicks.find(
-        {}, {"_id": 0}
+        {}, {"_id": 0, "user_agent": 0}  # Exclude large fields
     ).sort("timestamp", -1).skip(skip).limit(limit).to_list(limit)
     
     return {
         "period_days": days,
         "total_clicks": total,
         "by_product": by_product,
+        "by_country": by_country,
+        "by_device": by_device,
+        "by_day": by_day,
+        "by_hour": by_hour,
+        "by_browser": by_browser,
         "recent_clicks": recent
     }
