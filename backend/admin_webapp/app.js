@@ -590,3 +590,60 @@ async function loadLogs() {
         tbody.innerHTML = (data.logs || []).map(log => `<tr><td>${new Date(log.timestamp).toLocaleString('de-DE')}</td><td>${log.endpoint}</td><td>${log.lang}</td><td>${log.latency_ms}ms</td><td style="color:${log.success ? '#10B981' : '#EF4444'}">${log.success ? '✓' : '✗'}</td></tr>`).join('');
     } catch (err) { console.error('Error:', err); }
 }
+
+
+// ============ SUPPLEMENTS ============
+async function loadSupplements() {
+    try {
+        const res = await apiCall('/admin/supplements');
+        const data = await res.json();
+        const tbody = document.getElementById('supplements-table');
+        const timingMap = { morning: 'Morgens', noon: 'Mittags', evening: 'Abends' };
+        const evidenceMap = { high: 'Hoch', medium: 'Mittel', exploratory: 'Explorativ' };
+        const categoryMap = { vitamin: 'Vitamin', mineral: 'Mineral', fatty_acid: 'Fettsaeure', antioxidant: 'Antioxidans', probiotic: 'Probiotikum', adaptogen: 'Adaptogen' };
+        tbody.innerHTML = data.map(s => {
+            const active = s.active !== false;
+            return `<tr style="${!active ? 'opacity:0.5' : ''}">
+                <td><code>${s.id}</code></td>
+                <td><strong>${s.name_de}</strong><br><small style="color:#888">${s.name_it}</small></td>
+                <td><span class="badge">${categoryMap[s.category] || s.category}</span></td>
+                <td>${s.dosage_default.amount} ${s.dosage_default.unit}<br><small>Hoch: ${s.dosage_high_risk.amount} ${s.dosage_high_risk.unit}</small></td>
+                <td>${timingMap[s.timing] || s.timing}</td>
+                <td><span class="badge ${s.evidence_level === 'high' ? 'badge-success' : s.evidence_level === 'medium' ? 'badge-warning' : 'badge-info'}">${evidenceMap[s.evidence_level] || s.evidence_level}</span></td>
+                <td><span style="color:${active ? '#10B981' : '#EF4444'}">${active ? 'Aktiv' : 'Inaktiv'}</span></td>
+                <td>
+                    <button class="btn-edit" onclick="editSupplement('${s.id}', ${JSON.stringify(s).replace(/"/g, '&quot;')})"><i class="fas fa-edit"></i></button>
+                    <button class="btn-edit" onclick="toggleSupplement('${s.id}', ${!active})" title="${active ? 'Deaktivieren' : 'Aktivieren'}"><i class="fas fa-${active ? 'toggle-on' : 'toggle-off'}"></i></button>
+                </td>
+            </tr>`;
+        }).join('');
+    } catch (err) { console.error('Error:', err); }
+}
+
+async function toggleSupplement(id, active) {
+    try {
+        await apiCall(`/admin/supplements/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify({ active })
+        });
+        loadSupplements();
+    } catch (err) { console.error('Error:', err); }
+}
+
+function editSupplement(id, data) {
+    const newDosage = prompt(`Standard-Dosierung fuer ${data.name_de} (aktuell: ${data.dosage_default.amount} ${data.dosage_default.unit}):`, data.dosage_default.amount);
+    if (newDosage === null) return;
+    const newHighDosage = prompt(`Hoch-Risiko-Dosierung (aktuell: ${data.dosage_high_risk.amount} ${data.dosage_high_risk.unit}):`, data.dosage_high_risk.amount);
+    if (newHighDosage === null) return;
+    const newTiming = prompt('Einnahmezeitpunkt (morning/noon/evening):', data.timing);
+    if (newTiming === null) return;
+
+    apiCall(`/admin/supplements/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+            dosage_default: { ...data.dosage_default, amount: parseFloat(newDosage) },
+            dosage_high_risk: { ...data.dosage_high_risk, amount: parseFloat(newHighDosage) },
+            timing: newTiming
+        })
+    }).then(() => loadSupplements()).catch(err => console.error('Error:', err));
+}
