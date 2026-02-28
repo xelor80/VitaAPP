@@ -229,7 +229,7 @@ export default function HealthProfileScreen() {
           <View key={d.nutrient} style={[styles.defCard, { backgroundColor: RISK_BG[d.risk_level] || '#F0FDF4', borderLeftColor: RISK_COLORS[d.risk_level] || '#10B981' }]}>
             <View style={styles.defHeader}>
               <MaterialCommunityIcons name={(NUTRIENT_ICONS[d.nutrient] || 'circle') as any} size={22} color={RISK_COLORS[d.risk_level] || '#10B981'} />
-              <Text style={styles.defName}>{d.nutrient_name || d.nutrient}</Text>
+              <Text style={styles.defName}>{NUTRIENT_NAMES[d.nutrient]?.[lang] || d.nutrient_name || d.nutrient}</Text>
               <View style={[styles.defRiskTag, { backgroundColor: RISK_COLORS[d.risk_level] || '#10B981' }]}>
                 <Text style={styles.defRiskText}>
                   {d.risk_level === 'high' ? (lang === 'de' ? 'HOCH' : 'ALTO')
@@ -254,7 +254,7 @@ export default function HealthProfileScreen() {
               <View key={i} style={styles.priorityCard}>
                 <MaterialCommunityIcons name="target" size={20} color="#4A8B71" />
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.priorityTitle}>{area.area || area}</Text>
+                  <Text style={styles.priorityTitle}>{PRIORITY_NAMES[area.area]?.[lang] || area.area}</Text>
                   {area.recommendation && (
                     <Text style={styles.priorityDesc}>{area.recommendation}</Text>
                   )}
