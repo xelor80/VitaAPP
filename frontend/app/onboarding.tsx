@@ -45,6 +45,7 @@ export default function OnboardingScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [options, setOptions] = useState<any>(null);
   const [assessment, setAssessment] = useState<any>(null);
+  const [profileId, setProfileId] = useState<string | null>(null);
   
   const [profile, setProfile] = useState<ProfileData>({
     age: '', gender: '', height: '', weight: '',
