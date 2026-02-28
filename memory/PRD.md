@@ -1,7 +1,7 @@
 # VitaGuide PRD - Product Requirements Document
 
 ## Original Problem Statement
-Health-focused, bilingual (German/Italian) mobile web app. Core: LLM-based symptom analysis for nutrition tips, supplement info, affiliate links. Features: recipe catalog, symptom diary, safety disclaimers, intelligent onboarding, evidence-based supplement planning, dynamic admin-managed content.
+Health-focused, bilingual (German/Italian) mobile web app. Core: LLM-based symptom analysis for nutrition tips, supplement info, affiliate links. Features: recipe catalog, symptom diary, safety disclaimers, intelligent onboarding, evidence-based supplement planning, dynamic admin-managed content, health profile dashboard.
 
 ## Architecture
 - **Frontend**: React Native (Expo for Web)
@@ -24,41 +24,37 @@ Health-focused, bilingual (German/Italian) mobile web app. Core: LLM-based sympt
 ### Intelligent Onboarding (Feb 28, 2026)
 - 6-step wizard with backend risk assessment engine
 - Personalized assessment results (BMI, deficiencies, priority areas)
-- Improved slider UI
 
 ### Evidence-Based Supplement Plan (Feb 28, 2026)
-- 17 supplements knowledge base
-- Algorithmic + LLM personal summary
-- Safety module (contraindications, medication interactions)
-- 8-week plan with 4 phases, daily schedule
-- Browser notification reminders
+- 17 supplements knowledge base with algorithmic + LLM summaries
+- Safety module, 8-week plan, daily schedule, browser notifications
 - Admin panel supplement management
 
 ### Dynamic Content Integration (Feb 28, 2026) - P1 COMPLETE
-- SettingsProvider context fetches translations, chips, disclaimer on app load
-- t() function extended with dynamicOverrides for backend-first translations
-- All home components (HomeHeader, SymptomInput, AnalyzeButton, DiaryButton, FooterDisclaimer) use dynamic overrides
-- DisclaimerScreen shows dynamic content from backend
-- SymptomChips load from backend settings with icons
-- Results page uses dynamic translations
-- Fallback to hardcoded i18n values when backend unavailable
-- Admin panel changes now reflected in mobile app
+- SettingsProvider fetches translations, chips, disclaimer from backend
+- Admin panel changes reflected in mobile app
 
-## Key Files
-- `frontend/src/SettingsContext.tsx` - Dynamic content provider
-- `frontend/src/i18n.ts` - Translation function with overrides
-- `frontend/app/_layout.tsx` - SettingsProvider wrapping all screens
-- `backend/routes/settings.py` - Settings CRUD endpoints
-- `backend/core/supplement_engine.py` - Supplement plan algorithm
-- `backend/routes/supplement_plan.py` - Plan API endpoints
+### Health Profile Screen (Feb 28, 2026) - P2 COMPLETE
+- Bio data display (age, gender, diet, BMI, stress, sleep)
+- Risk overview badges (Hoch/Mittel/Niedrig counts)
+- Color-coded deficiency cards with localized nutrient names
+- Priority areas with localized labels
+- Links to supplement plan and onboarding redo
+- OnboardingButton dynamically switches: "Gesundheitsprofil anzeigen" vs "Gesundheits-Check starten"
+
+## Key Routes
+- `/` - Home (symptom input, chips, buttons)
+- `/onboarding` - 6-step health wizard
+- `/health-profile` - Health profile dashboard
+- `/supplement-plan` - 8-week supplement plan
+- `/results` - Symptom analysis results
+- `/diary` - Daily health diary
+- `/api/admin-app` - Admin panel
 
 ## Credentials
 - **Admin Panel**: `/api/admin-app`, Password: `Wk220480xel!`
 
 ## Prioritized Backlog
-
-### P2 - Health Profile Screen
-Dedicated screen to revisit health summary after onboarding completion
 
 ### P3 - Recipe Catalog Search/Filter UI
 Searchable, filterable recipe catalog interface
