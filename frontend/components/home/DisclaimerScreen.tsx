@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { t } from '../../src/i18n';
+import { useSettings } from '../../src/SettingsContext';
 import { styles } from './homeStyles';
 
 interface DisclaimerScreenProps {
@@ -11,10 +12,26 @@ interface DisclaimerScreenProps {
 }
 
 export function DisclaimerScreen({ onAccept, lang, setLang }: DisclaimerScreenProps) {
+  const { disclaimer } = useSettings();
+  const data = lang === 'de' ? disclaimer.de : disclaimer.it;
+
+  const title = data?.title || t(lang, 'disclaimer_title');
+  const items = data?.items || [
+    { title: t(lang, 'disclaimer_1_title'), text: t(lang, 'disclaimer_1_text'), icon: 'medical-bag' },
+    { title: t(lang, 'disclaimer_2_title'), text: t(lang, 'disclaimer_2_text'), icon: 'information-outline' },
+    { title: t(lang, 'disclaimer_3_title'), text: t(lang, 'disclaimer_3_text'), icon: 'alert-circle-outline' },
+  ];
+  const acceptBtn = data?.accept_button || t(lang, 'disclaimer_accept');
+
+  const iconColors: Record<string, string> = {
+    'medical-bag': '#D9534F',
+    'information-outline': '#2C5F78',
+    'alert-circle-outline': '#D9534F',
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.disclaimerContainer}>
-        {/* Language Switcher */}
         <View style={styles.langSwitcher}>
           <TouchableOpacity
             testID="lang-de-btn"
@@ -35,29 +52,25 @@ export function DisclaimerScreen({ onAccept, lang, setLang }: DisclaimerScreenPr
         <View style={styles.disclaimerIconWrap}>
           <MaterialCommunityIcons name="shield-check" size={56} color="#4A8B71" />
         </View>
-        <Text style={styles.disclaimerTitle}>{t(lang, 'disclaimer_title')}</Text>
+        <Text style={styles.disclaimerTitle}>{title}</Text>
         <Text style={styles.disclaimerSubtitle}>
           {lang === 'de' ? 'Bitte lesen Sie vor der Nutzung' : 'Si prega di leggere prima dell\'uso'}
         </Text>
 
         <View style={styles.disclaimerCard}>
-          <View style={styles.disclaimerRow}>
-            <MaterialCommunityIcons name="medical-bag" size={22} color="#D9534F" />
-            <Text style={styles.disclaimerBold}>{t(lang, 'disclaimer_1_title')}</Text>
-          </View>
-          <Text style={styles.disclaimerText}>{t(lang, 'disclaimer_1_text')}</Text>
-
-          <View style={[styles.disclaimerRow, { marginTop: 16 }]}>
-            <MaterialCommunityIcons name="information-outline" size={22} color="#2C5F78" />
-            <Text style={styles.disclaimerBold}>{t(lang, 'disclaimer_2_title')}</Text>
-          </View>
-          <Text style={styles.disclaimerText}>{t(lang, 'disclaimer_2_text')}</Text>
-
-          <View style={[styles.disclaimerRow, { marginTop: 16 }]}>
-            <MaterialCommunityIcons name="alert-circle-outline" size={22} color="#D9534F" />
-            <Text style={styles.disclaimerBold}>{t(lang, 'disclaimer_3_title')}</Text>
-          </View>
-          <Text style={styles.disclaimerText}>{t(lang, 'disclaimer_3_text')}</Text>
+          {items.map((item: any, idx: number) => (
+            <View key={idx} style={idx > 0 ? { marginTop: 16 } : undefined}>
+              <View style={styles.disclaimerRow}>
+                <MaterialCommunityIcons
+                  name={(item.icon || 'information-outline') as any}
+                  size={22}
+                  color={iconColors[item.icon] || '#2C5F78'}
+                />
+                <Text style={styles.disclaimerBold}>{item.title}</Text>
+              </View>
+              <Text style={styles.disclaimerText}>{item.text}</Text>
+            </View>
+          ))}
         </View>
 
         <TouchableOpacity
@@ -67,7 +80,7 @@ export function DisclaimerScreen({ onAccept, lang, setLang }: DisclaimerScreenPr
           onPress={onAccept}
         >
           <MaterialCommunityIcons name="check-circle" size={20} color="#FFFFFF" />
-          <Text style={styles.primaryBtnText}>  {t(lang, 'disclaimer_accept')}</Text>
+          <Text style={styles.primaryBtnText}>  {acceptBtn}</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
