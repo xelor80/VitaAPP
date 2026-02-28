@@ -82,6 +82,28 @@ export const styles = StyleSheet.create({
   onboardingBtnTitle: { fontSize: 16, fontWeight: '700', color: '#FFFFFF' },
   onboardingBtnSub: { fontSize: 13, color: '#D4E7DC', marginTop: 2 },
 
+  // Supplement Plan Button
+  supplementPlanButton: {
+    flexDirection: 'row', alignItems: 'center', backgroundColor: '#2D5A8B',
+    borderRadius: 16, padding: 14, marginBottom: 20, gap: 12,
+  },
+  supplementPlanIconWrap: {
+    width: 44, height: 44, borderRadius: 12, backgroundColor: '#1E4A7A',
+    justifyContent: 'center', alignItems: 'center',
+  },
+  supplementPlanBtnTitle: { fontSize: 16, fontWeight: '700', color: '#FFFFFF' },
+  supplementPlanBtnSub: { fontSize: 13, color: '#B8D4E8', marginTop: 2 },
+
+  // Alert Modal
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 30 },
+  alertCard: { backgroundColor: '#FFFFFF', borderRadius: 20, padding: 28, alignItems: 'center', width: '100%', maxWidth: 360 },
+  alertTitle: { fontSize: 18, fontWeight: '700', color: '#1A2D26', marginTop: 14, textAlign: 'center' },
+  alertText: { fontSize: 14, color: '#5C7A6F', marginTop: 10, textAlign: 'center', lineHeight: 22 },
+  alertBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#4A8B71', borderRadius: 14, paddingVertical: 13, paddingHorizontal: 20, marginTop: 20, width: '100%' },
+  alertBtnText: { color: '#FFFFFF', fontSize: 15, fontWeight: '600' },
+  alertDismiss: { marginTop: 12, paddingVertical: 8 },
+  alertDismissText: { color: '#8FA39B', fontSize: 14 },
+
   // Footer
   footerWrap: {
     flexDirection: 'row', alignItems: 'flex-start', marginTop: 20, paddingHorizontal: 8, gap: 6,
