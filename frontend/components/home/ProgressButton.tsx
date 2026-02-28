@@ -1,0 +1,33 @@
+import React from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { styles } from './homeStyles';
+
+interface ProgressButtonProps {
+  lang: string;
+  onPress: () => void;
+}
+
+export function ProgressButton({ lang, onPress }: ProgressButtonProps) {
+  return (
+    <TouchableOpacity
+      testID="progress-btn"
+      style={styles.progressButton}
+      activeOpacity={0.7}
+      onPress={onPress}
+    >
+      <View style={styles.progressIconWrap}>
+        <MaterialCommunityIcons name="chart-line" size={22} color="#FFFFFF" />
+      </View>
+      <View style={{ flex: 1 }}>
+        <Text style={styles.progressBtnTitle}>
+          {lang === 'de' ? 'Mein Fortschritt' : 'Il mio progresso'}
+        </Text>
+        <Text style={styles.progressBtnSub}>
+          {lang === 'de' ? 'Symptome, Einnahme & Meilensteine tracken' : 'Traccia sintomi, assunzione e traguardi'}
+        </Text>
+      </View>
+      <MaterialCommunityIcons name="chevron-right" size={24} color="#FFFFFF" />
+    </TouchableOpacity>
+  );
+}
