@@ -34,15 +34,15 @@ export const styles = StyleSheet.create({
   },
 
   // Chips
-  chipsTitle: { fontSize: 16, fontWeight: '600', color: '#1A2D26', marginBottom: 12 },
-  chipsWrap: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 24 },
+  chipsTitle: { fontSize: 14, fontWeight: '600', color: '#1A2D26', marginBottom: 8 },
+  chipsWrap: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 16 },
   chip: {
     flexDirection: 'row', alignItems: 'center', backgroundColor: '#E8F5E9',
-    borderRadius: 20, paddingVertical: 10, paddingHorizontal: 14,
-    marginRight: 8, marginBottom: 8, gap: 6,
+    borderRadius: 16, paddingVertical: 6, paddingHorizontal: 10,
+    marginRight: 6, marginBottom: 6, gap: 4,
   },
   chipSelected: { backgroundColor: '#2C5F78' },
-  chipText: { fontSize: 14, fontWeight: '600', color: '#2C5F78' },
+  chipText: { fontSize: 12, fontWeight: '600', color: '#2C5F78' },
   chipTextSelected: { color: '#FFFFFF' },
 
   // Buttons
