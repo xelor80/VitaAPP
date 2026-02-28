@@ -70,6 +70,18 @@ export const styles = StyleSheet.create({
   diaryBtnTitle: { fontSize: 16, fontWeight: '700', color: '#1A2D26' },
   diaryBtnSub: { fontSize: 13, color: '#5C7A6F', marginTop: 2 },
 
+  // Onboarding Button
+  onboardingButton: {
+    flexDirection: 'row', alignItems: 'center', backgroundColor: '#4A8B71',
+    borderRadius: 16, padding: 14, marginBottom: 20, gap: 12,
+  },
+  onboardingIconWrap: {
+    width: 44, height: 44, borderRadius: 12, backgroundColor: '#3A7A60',
+    justifyContent: 'center', alignItems: 'center',
+  },
+  onboardingBtnTitle: { fontSize: 16, fontWeight: '700', color: '#FFFFFF' },
+  onboardingBtnSub: { fontSize: 13, color: '#D4E7DC', marginTop: 2 },
+
   // Footer
   footerWrap: {
     flexDirection: 'row', alignItems: 'flex-start', marginTop: 20, paddingHorizontal: 8, gap: 6,
