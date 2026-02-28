@@ -7,9 +7,10 @@ import { styles } from './homeStyles';
 interface OnboardingButtonProps {
   lang: string;
   onPress: () => void;
+  onProfilePress?: () => void;
 }
 
-export function OnboardingButton({ lang, onPress }: OnboardingButtonProps) {
+export function OnboardingButton({ lang, onPress, onProfilePress }: OnboardingButtonProps) {
   const [hasProfile, setHasProfile] = useState(false);
 
   useEffect(() => {
@@ -23,10 +24,10 @@ export function OnboardingButton({ lang, onPress }: OnboardingButtonProps) {
       testID="onboarding-btn"
       style={styles.onboardingButton}
       activeOpacity={0.7}
-      onPress={onPress}
+      onPress={hasProfile && onProfilePress ? onProfilePress : onPress}
     >
       <View style={styles.onboardingIconWrap}>
-        <MaterialCommunityIcons name="clipboard-pulse" size={22} color="#FFFFFF" />
+        <MaterialCommunityIcons name={hasProfile ? 'account-heart' : 'clipboard-pulse'} size={22} color="#FFFFFF" />
       </View>
       <View style={{ flex: 1 }}>
         <Text style={styles.onboardingBtnTitle}>
