@@ -454,8 +454,8 @@ export default function OnboardingScreen() {
                 </View>
                 <View style={styles.sliderDots}>
                   {[1,2,3,4,5,6,7,8,9,10].map(n => (
-                    <TouchableOpacity key={n} onPress={() => setProfile({ ...profile, stress_level: n })}>
-                      <Text style={styles.sliderDot}>{n}</Text>
+                    <TouchableOpacity key={n} style={[styles.sliderDot, profile.stress_level === n && styles.sliderDotActive, profile.stress_level === n && profile.stress_level >= 7 && { backgroundColor: '#EF4444', borderColor: '#EF4444' }]} onPress={() => setProfile({ ...profile, stress_level: n })}>
+                      <Text style={[styles.sliderDotText, profile.stress_level === n && styles.sliderDotTextActive]}>{n}</Text>
                     </TouchableOpacity>
                   ))}
                 </View>
