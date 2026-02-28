@@ -121,6 +121,10 @@ export default function HomeScreen() {
             onPress={() => router.push('/supplement-plan')}
             onNoProfile={() => router.push('/onboarding')}
           />
+          <ProgressButton
+            lang={lang}
+            onPress={() => router.push('/tracking')}
+          />
           <SymptomInput lang={lang} value={symptomText} onChangeText={setSymptomText} />
           <SymptomChips lang={lang} selectedTags={selectedTags} onToggleTag={toggleTag} />
           <AnalyzeButton lang={lang} isLoading={isLoading} onPress={analyzeSymptoms} />
