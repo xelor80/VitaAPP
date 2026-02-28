@@ -22,6 +22,33 @@ const NUTRIENT_ICONS: Record<string, string> = {
   coq10: 'battery-charging', probiotics: 'bacteria',
 };
 
+const NUTRIENT_NAMES: Record<string, Record<string, string>> = {
+  iron: { de: 'Eisen', it: 'Ferro' },
+  zinc: { de: 'Zink', it: 'Zinco' },
+  omega3: { de: 'Omega-3', it: 'Omega-3' },
+  vitamin_d: { de: 'Vitamin D', it: 'Vitamina D' },
+  vitamin_b12: { de: 'Vitamin B12', it: 'Vitamina B12' },
+  vitamin_c: { de: 'Vitamin C', it: 'Vitamina C' },
+  magnesium: { de: 'Magnesium', it: 'Magnesio' },
+  calcium: { de: 'Calcium', it: 'Calcio' },
+  folate: { de: 'Folat', it: 'Folato' },
+  iodine: { de: 'Jod', it: 'Iodio' },
+  selenium: { de: 'Selen', it: 'Selenio' },
+  b_vitamins: { de: 'B-Vitamine', it: 'Vitamine B' },
+  vitamin_k2: { de: 'Vitamin K2', it: 'Vitamina K2' },
+  vitamin_e: { de: 'Vitamin E', it: 'Vitamina E' },
+  coq10: { de: 'Coenzym Q10', it: 'Coenzima Q10' },
+  probiotics: { de: 'Probiotika', it: 'Probiotici' },
+};
+
+const PRIORITY_NAMES: Record<string, Record<string, string>> = {
+  sleep: { de: 'Schlaf', it: 'Sonno' },
+  stress: { de: 'Stress', it: 'Stress' },
+  nutrition: { de: 'Ernaehrung', it: 'Alimentazione' },
+  exercise: { de: 'Bewegung', it: 'Esercizio' },
+  hydration: { de: 'Fluessigkeit', it: 'Idratazione' },
+};
+
 export default function HealthProfileScreen() {
   const router = useRouter();
   const { lang } = useLang();
