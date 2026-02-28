@@ -13,6 +13,7 @@ import { SymptomInput } from '../components/home/SymptomInput';
 import { SymptomChips } from '../components/home/SymptomChips';
 import { AnalyzeButton } from '../components/home/AnalyzeButton';
 import { DiaryButton } from '../components/home/DiaryButton';
+import { OnboardingButton } from '../components/home/OnboardingButton';
 import { FooterDisclaimer } from '../components/home/FooterDisclaimer';
 import { styles } from '../components/home/homeStyles';
 
@@ -108,6 +109,7 @@ export default function HomeScreen() {
           showsVerticalScrollIndicator={false}
         >
           <HomeHeader lang={lang} setLang={setLang} onLangChange={clearTags} />
+          <OnboardingButton lang={lang} onPress={() => router.push('/onboarding')} />
           <SymptomInput lang={lang} value={symptomText} onChangeText={setSymptomText} />
           <SymptomChips lang={lang} selectedTags={selectedTags} onToggleTag={toggleTag} />
           <AnalyzeButton lang={lang} isLoading={isLoading} onPress={analyzeSymptoms} />
