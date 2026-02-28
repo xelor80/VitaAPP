@@ -411,6 +411,44 @@ export default function SupplementPlanScreen() {
                     ))}
                   </>
                 )}
+
+                {/* Affiliate Product Recommendations */}
+                {getMatchingProducts(s.id).length > 0 && (
+                  <>
+                    <View style={styles.detailRow}>
+                      <MaterialCommunityIcons name="shopping" size={16} color="#2D5A8B" />
+                      <Text style={[styles.detailLabel, { color: '#2D5A8B' }]}>
+                        {lang === 'de' ? 'Empfohlene Produkte' : 'Prodotti consigliati'}
+                      </Text>
+                    </View>
+                    {getMatchingProducts(s.id).map((prod: any) => (
+                      <TouchableOpacity
+                        key={prod.product_id}
+                        data-testid={`product-link-${prod.product_id}`}
+                        style={styles.productCard}
+                        onPress={() => {
+                          trackClick(prod.product_id);
+                          if (prod.affiliate_url) Linking.openURL(prod.affiliate_url);
+                        }}
+                      >
+                        {prod.image_url ? (
+                          <View style={styles.productImageWrap}>
+                            <MaterialCommunityIcons name="package-variant" size={24} color="#2D5A8B" />
+                          </View>
+                        ) : (
+                          <View style={styles.productImageWrap}>
+                            <MaterialCommunityIcons name="package-variant" size={24} color="#2D5A8B" />
+                          </View>
+                        )}
+                        <View style={{ flex: 1 }}>
+                          <Text style={styles.productName}>{prod.name}</Text>
+                          <Text style={styles.productDesc} numberOfLines={2}>{prod.description}</Text>
+                        </View>
+                        <MaterialCommunityIcons name="open-in-new" size={18} color="#2D5A8B" />
+                      </TouchableOpacity>
+                    ))}
+                  </>
+                )}
               </View>
             )}
           </TouchableOpacity>
