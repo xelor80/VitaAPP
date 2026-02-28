@@ -42,7 +42,7 @@ export function SymptomChips({ lang, selectedTags, onToggleTag }: SymptomChipsPr
             >
               <MaterialCommunityIcons
                 name={(chipIcons[idx] || 'circle') as any}
-                size={16}
+                size={14}
                 color={selected ? '#FFFFFF' : '#2C5F78'}
               />
               <Text style={[styles.chipText, selected && styles.chipTextSelected]}>
