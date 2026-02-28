@@ -83,6 +83,7 @@ function switchTab(tab) {
         case 'ai': loadAIConfig(); break;
         case 'clicks': loadClicks(); break;
         case 'logs': loadLogs(); break;
+        case 'supplements': loadSupplements(); break;
     }
 }
 
