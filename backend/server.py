@@ -54,6 +54,7 @@ async def serve_admin_webapp():
 
 # Include all route modules
 api_router.include_router(admin.router)
+api_router.include_router(settings.router)
 api_router.include_router(analysis.router)
 api_router.include_router(products.router)
 api_router.include_router(tracking.router)
