@@ -131,6 +131,7 @@ export default function OnboardingScreen() {
       
       const data = await res.json();
       await AsyncStorage.setItem('health_profile_id', data.profile_id);
+      setProfileId(data.profile_id);
       setAssessment(data.assessment);
       setStep(STEPS.length); // Show assessment
     } catch (e) {
