@@ -7,7 +7,7 @@ import secrets
 from pathlib import Path
 
 from core.config import client, logger
-from routes import analysis, products, tracking, diary, admin, settings
+from routes import analysis, products, tracking, diary, admin, settings, health_profile
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
