@@ -8,6 +8,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { getCurrentAnalysis } from '../src/store';
 import { useLang } from '../src/LangContext';
 import { t } from '../src/i18n';
+import { useSettings } from '../src/SettingsContext';
 import { OverviewTab } from '../components/tabs/OverviewTab';
 import { SupplementsTab } from '../components/tabs/SupplementsTab';
 import { NutritionTab } from '../components/tabs/NutritionTab';
