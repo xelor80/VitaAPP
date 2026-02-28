@@ -15,6 +15,7 @@ export default function RootLayout() {
           <Stack.Screen name="diary" />
           <Stack.Screen name="onboarding" />
           <Stack.Screen name="supplement-plan" />
+          <Stack.Screen name="health-profile" />
         </Stack>
       </SettingsProvider>
     </LangProvider>
