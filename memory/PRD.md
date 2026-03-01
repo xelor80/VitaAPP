@@ -71,7 +71,6 @@ Health-focused, bilingual (German/Italian) mobile web app. Core: LLM-based sympt
 - `/api/admin-app` - Admin (Password: `Wk220480xel!`)
 
 ## Prioritized Backlog
-- **P2**: Push Notifications for Supplement Reminders (placeholder functions exist)
 - **P3**: Recipe Catalog Search/Filter UI
 - **P4**: Admin Health Statistics Dashboard
 - **Refactoring**: admin_app/app.js modularization
