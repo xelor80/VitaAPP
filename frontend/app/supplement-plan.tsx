@@ -142,56 +142,53 @@ export default function SupplementPlanScreen() {
 
   const saveReminders = async () => {
     try {
+      // Save to backend
       await fetch(`${API_URL}/api/supplement-plan/${currentProfileId}/reminders`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(reminders)
       });
-      if (reminders.enabled && 'Notification' in window) {
-        const perm = await Notification.requestPermission();
-        if (perm === 'granted') {
-          scheduleNotifications();
+
+      if (reminders.enabled && plan?.weekly_schedule) {
+        // Schedule notifications using the new service
+        const success = await scheduleSupplementReminders(
+          reminders as ReminderSettings,
+          plan.weekly_schedule as WeeklySchedule,
+          lang
+        );
+
+        if (success) {
+          // Send test notification to confirm
+          await sendTestNotification(lang);
+          Alert.alert(
+            lang === 'de' ? 'Erinnerungen aktiviert' : 'Promemoria attivati',
+            lang === 'de' 
+              ? 'Sie erhalten täglich Benachrichtigungen zu den eingestellten Zeiten.'
+              : 'Riceverai notifiche giornaliere agli orari impostati.'
+          );
+        } else {
+          Alert.alert(
+            lang === 'de' ? 'Berechtigung erforderlich' : 'Autorizzazione richiesta',
+            lang === 'de'
+              ? 'Bitte erlauben Sie Benachrichtigungen in den Einstellungen.'
+              : 'Per favore consenti le notifiche nelle impostazioni.'
+          );
         }
+      } else {
+        // Disable notifications
+        await cancelAllReminders();
       }
     } catch (e) {
       console.error('Save reminders error:', e);
+      Alert.alert(
+        lang === 'de' ? 'Fehler' : 'Errore',
+        lang === 'de' ? 'Erinnerungen konnten nicht gespeichert werden.' : 'Impossibile salvare i promemoria.'
+      );
     }
     setShowReminders(false);
   };
 
-  const scheduleNotifications = () => {
-    if (!('Notification' in window) || Notification.permission !== 'granted') return;
-    const schedule = plan?.weekly_schedule;
-    if (!schedule) return;
-
-    const timings = [
-      { key: 'morning', time: reminders.morning_time },
-      { key: 'noon', time: reminders.noon_time },
-      { key: 'evening', time: reminders.evening_time },
-    ];
-
-    timings.forEach(({ key, time }) => {
-      const items = schedule[key]?.items || [];
-      if (items.length === 0) return;
-
-      const [h, m] = time.split(':').map(Number);
-      const now = new Date();
-      const target = new Date();
-      target.setHours(h, m, 0, 0);
-      if (target <= now) target.setDate(target.getDate() + 1);
-
-      const delay = target.getTime() - now.getTime();
-      const names = items.map((i: any) => i.name).join(', ');
-      const label = schedule[key]?.label || key;
-
-      setTimeout(() => {
-        new Notification(`VitaGuide - ${label}`, {
-          body: `${lang === 'de' ? 'Zeit fuer' : 'Ora di'}: ${names}`,
-          icon: '/favicon.png'
-        });
-      }, delay);
-    });
-  };
+  // Remove the old scheduleNotifications function - now handled by NotificationService
 
   if (loading) {
     return (
