@@ -1,7 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, Modal, StyleSheet, Dimensions, Platform } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import YoutubePlayer from 'react-native-youtube-iframe';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -21,24 +20,35 @@ interface VideosSectionProps {
   title?: string;
 }
 
+// Web YouTube Player Component
+function WebYouTubePlayer({ videoId, width, height }: { videoId: string; width: number; height: number }) {
+  if (Platform.OS !== 'web') return null;
+  
+  return (
+    <iframe
+      width={width}
+      height={height}
+      src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`}
+      frameBorder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowFullScreen
+      style={{ borderRadius: 8 }}
+    />
+  );
+}
+
 export function VideosSection({ videos, lang, title }: VideosSectionProps) {
   const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [playingTitle, setPlayingTitle] = useState<string>('');
 
-  const onStateChange = useCallback((state: string) => {
-    if (state === 'ended') {
-      setIsPlaying(false);
-    }
-  }, []);
-
-  const openVideo = (youtubeId: string) => {
+  const openVideo = (youtubeId: string, videoTitle: string) => {
     setPlayingVideoId(youtubeId);
-    setIsPlaying(true);
+    setPlayingTitle(videoTitle);
   };
 
   const closeVideo = () => {
     setPlayingVideoId(null);
-    setIsPlaying(false);
+    setPlayingTitle('');
   };
 
   if (videos.length === 0) return null;
@@ -56,7 +66,7 @@ export function VideosSection({ videos, lang, title }: VideosSectionProps) {
         <TouchableOpacity
           key={video.video_id}
           style={styles.videoCard}
-          onPress={() => openVideo(video.youtube_id)}
+          onPress={() => openVideo(video.youtube_id, video.title)}
           activeOpacity={0.8}
           testID={`video-card-${video.video_id}`}
         >
@@ -90,8 +100,8 @@ export function VideosSection({ videos, lang, title }: VideosSectionProps) {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>
-                {videos.find(v => v.youtube_id === playingVideoId)?.title || 'Video'}
+              <Text style={styles.modalTitle} numberOfLines={2}>
+                {playingTitle}
               </Text>
               <TouchableOpacity onPress={closeVideo} style={styles.closeBtn} testID="close-video-btn">
                 <MaterialCommunityIcons name="close" size={24} color="#1A2D26" />
@@ -99,14 +109,13 @@ export function VideosSection({ videos, lang, title }: VideosSectionProps) {
             </View>
             
             {playingVideoId && (
-              <YoutubePlayer
-                height={Platform.OS === 'web' ? 360 : 220}
-                width={Platform.OS === 'web' ? Math.min(SCREEN_WIDTH - 40, 640) : SCREEN_WIDTH - 40}
-                play={isPlaying}
-                videoId={playingVideoId}
-                onChangeState={onStateChange}
-                webViewStyle={{ opacity: 0.99 }}
-              />
+              <View style={styles.playerContainer}>
+                <WebYouTubePlayer 
+                  videoId={playingVideoId} 
+                  width={Math.min(SCREEN_WIDTH - 60, 600)} 
+                  height={Math.min(SCREEN_WIDTH - 60, 600) * 0.5625}
+                />
+              </View>
             )}
 
             <TouchableOpacity style={styles.closeFullBtn} onPress={closeVideo}>
