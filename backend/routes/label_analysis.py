@@ -4,12 +4,16 @@ Label Analysis API - Etikett-Analyse mit GPT-4o Vision
 import os
 import base64
 import uuid
+import json
+import tempfile
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 from pydantic import BaseModel
-from typing import Optional
 from datetime import datetime, timezone
+from dotenv import load_dotenv
 
 from core.config import db, logger
+
+load_dotenv()
 
 router = APIRouter()
 
@@ -26,20 +30,11 @@ class LabelAnalysisResult(BaseModel):
     additional_info: str = ""
 
 
-async def analyze_label_with_gpt4o(image_base64: str, lang: str = "de") -> dict:
-    """Analysiert ein Produkt-Etikett mit GPT-4o Vision."""
-    try:
-        import os
-        import json
-        from openai import AsyncOpenAI
-        
-        # Use OpenAI API with Emergent proxy
-        client = AsyncOpenAI(
-            api_key=os.environ.get("EMERGENT_LLM_KEY"),
-            base_url="https://integrations.emergentagent.com/llm/v1"
-        )
-        
-        system_prompt = """Du bist ein Experte für Nahrungsergänzungsmittel-Etiketten. 
+async def analyze_label_with_gpt4o(image_bytes: bytes, lang: str = "de") -> dict:
+    """Analysiert ein Produkt-Etikett mit GPT-4o Vision via emergentintegrations."""
+    from emergentintegrations.llm.chat import LlmChat, UserMessage, ImageContent
+
+    system_prompt = """Du bist ein Experte für Nahrungsergänzungsmittel-Etiketten. 
 Analysiere das Produktetikett und extrahiere folgende Informationen:
 
 1. **Inhaltsstoffe**: Liste aller Inhaltsstoffe mit Mengenangaben
@@ -57,43 +52,37 @@ Antworte NUR im folgenden JSON-Format (keine Markdown-Formatierung):
     "additional_info": "Weitere Infos"
 }"""
 
-        user_prompt = f"Analysiere dieses Produktetikett und extrahiere die Informationen auf {'Deutsch' if lang == 'de' else 'Italienisch'}."
-        
-        # Call GPT-4o with image
-        response = await client.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": user_prompt},
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{image_base64}"
-                            }
-                        }
-                    ]
-                }
-            ],
-            max_tokens=2000
+    user_prompt = f"Analysiere dieses Produktetikett und extrahiere die Informationen auf {'Deutsch' if lang == 'de' else 'Italienisch'}."
+
+    try:
+        image_base64 = base64.b64encode(image_bytes).decode("utf-8")
+        image_content = ImageContent(image_base64=image_base64)
+
+        chat = LlmChat(
+            api_key=os.environ.get("EMERGENT_LLM_KEY"),
+            session_id=f"label-{uuid.uuid4().hex[:8]}",
+            system_message=system_prompt,
+        ).with_model("openai", "gpt-4o")
+
+        response_text = await chat.send_message(
+            UserMessage(text=user_prompt, file_contents=[image_content])
         )
-        
-        # Parse JSON response
-        response_text = response.choices[0].message.content.strip()
-        
+
         # Entferne mögliche Markdown-Formatierung
-        if response_text.startswith("```"):
-            response_text = response_text.split("```")[1]
-            if response_text.startswith("json"):
-                response_text = response_text[4:]
-        if response_text.endswith("```"):
-            response_text = response_text[:-3]
-        
-        result = json.loads(response_text.strip())
+        cleaned = response_text.strip()
+        if cleaned.startswith("```"):
+            cleaned = cleaned.split("```")[1]
+            if cleaned.startswith("json"):
+                cleaned = cleaned[4:]
+        if cleaned.endswith("```"):
+            cleaned = cleaned[:-3]
+
+        result = json.loads(cleaned.strip())
         return result
-        
+
+    except json.JSONDecodeError as e:
+        logger.error(f"JSON parse error from GPT-4o: {e} – raw: {response_text}")
+        raise HTTPException(status_code=500, detail="Bildanalyse: ungültiges JSON vom Modell")
     except Exception as e:
         logger.error(f"GPT-4o Vision error: {e}")
         raise HTTPException(status_code=500, detail=f"Bildanalyse fehlgeschlagen: {str(e)}")
@@ -122,11 +111,8 @@ async def upload_and_analyze_label(
     with open(filepath, "wb") as f:
         f.write(contents)
     
-    # Konvertiere zu Base64 für GPT-4o
-    image_base64 = base64.b64encode(contents).decode("utf-8")
-    
-    # Analysiere mit GPT-4o
-    analysis = await analyze_label_with_gpt4o(image_base64, lang)
+    # Analysiere mit GPT-4o (raw bytes)
+    analysis = await analyze_label_with_gpt4o(contents, lang)
     
     # Speichere in Datenbank
     label_data = {
