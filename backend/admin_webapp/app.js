@@ -84,6 +84,7 @@ function switchTab(tab) {
         case 'clicks': loadClicks(); break;
         case 'logs': loadLogs(); break;
         case 'supplements': loadSupplements(); break;
+        case 'videos': loadVideos(); break;
     }
 }
 
