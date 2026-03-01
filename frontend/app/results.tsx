@@ -163,6 +163,15 @@ export default function ResultsScreen() {
         {activeTab === 'nutrition' && <NutritionTab analysis={analysis} onShopPress={trackClick} lang={lang} />}
         {activeTab === 'recipes' && <RecipesTab analysis={analysis} lang={lang} />}
 
+        {/* Related Videos Section */}
+        {relatedVideos.length > 0 && (
+          <VideosSection 
+            videos={relatedVideos} 
+            lang={lang}
+            title={lang === 'de' ? 'Passende Videos' : 'Video correlati'}
+          />
+        )}
+
         {/* Disclaimer */}
         <View style={styles.disclaimerFooter}>
           <MaterialCommunityIcons name="information-outline" size={14} color="#8FA39B" />
