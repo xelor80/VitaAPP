@@ -33,10 +33,10 @@ async def analyze_label_with_gpt4o(image_base64: str, lang: str = "de") -> dict:
         import json
         from openai import AsyncOpenAI
         
-        # Use OpenAI API directly for vision
+        # Use OpenAI API with Emergent proxy
         client = AsyncOpenAI(
             api_key=os.environ.get("EMERGENT_LLM_KEY"),
-            base_url="https://llm.emergentmethods.ai/v1"
+            base_url="https://integrations.emergentagent.com/llm/v1"
         )
         
         system_prompt = """Du bist ein Experte für Nahrungsergänzungsmittel-Etiketten. 
