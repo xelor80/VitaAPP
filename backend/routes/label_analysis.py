@@ -55,9 +55,11 @@ def resize_image_if_needed(image_bytes: bytes) -> bytes:
         # Even if not resizing, ensure it's JPEG and reasonable quality
         if img.mode == "RGBA":
             img = img.convert("RGB")
-        buf = io.BytesIO()
-        img.save(buf, format="JPEG", quality=90)
-        return buf.getvalue()
+            buf = io.BytesIO()
+            img.save(buf, format="JPEG", quality=90)
+            return buf.getvalue()
+        # Return original bytes if no conversion needed
+        return image_bytes
     except Exception as e:
         logger.warning(f"Image resize failed, using original: {e}")
         return image_bytes
