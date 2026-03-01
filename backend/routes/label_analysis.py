@@ -2,10 +2,11 @@
 Label Analysis API - Etikett-Analyse mit GPT-4o Vision
 """
 import os
+import re
+import io
 import base64
 import uuid
 import json
-import tempfile
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 from pydantic import BaseModel
 from datetime import datetime, timezone
@@ -21,6 +22,8 @@ router = APIRouter()
 UPLOAD_DIR = "/app/backend/uploads/labels"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
+MAX_IMAGE_DIMENSION = 1024
+
 
 class LabelAnalysisResult(BaseModel):
     ingredients: list[str] = []
@@ -30,11 +33,32 @@ class LabelAnalysisResult(BaseModel):
     additional_info: str = ""
 
 
-async def analyze_label_with_gpt4o(image_bytes: bytes, lang: str = "de") -> dict:
-    """Analysiert ein Produkt-Etikett mit GPT-4o Vision via emergentintegrations."""
-    from emergentintegrations.llm.chat import LlmChat, UserMessage, ImageContent
+def resize_image_if_needed(image_bytes: bytes) -> bytes:
+    """Resize image to max 1024px on longest side to reduce payload size."""
+    try:
+        from PIL import Image
+        img = Image.open(io.BytesIO(image_bytes))
+        w, h = img.size
+        logger.info(f"Original image size: {w}x{h}, {len(image_bytes)} bytes")
+        if max(w, h) > MAX_IMAGE_DIMENSION:
+            ratio = MAX_IMAGE_DIMENSION / max(w, h)
+            new_size = (int(w * ratio), int(h * ratio))
+            img = img.resize(new_size, Image.LANCZOS)
+            # Convert to RGB if RGBA
+            if img.mode == "RGBA":
+                img = img.convert("RGB")
+            buf = io.BytesIO()
+            img.save(buf, format="JPEG", quality=85)
+            result = buf.getvalue()
+            logger.info(f"Resized image: {new_size[0]}x{new_size[1]}, {len(result)} bytes")
+            return result
+        return image_bytes
+    except Exception as e:
+        logger.warning(f"Image resize failed, using original: {e}")
+        return image_bytes
 
-    system_prompt = """Du bist ein Experte für Nahrungsergänzungsmittel-Etiketten. 
+
+SYSTEM_PROMPT = """Du bist ein Experte für Nahrungsergänzungsmittel-Etiketten. 
 Analysiere das Produktetikett und extrahiere folgende Informationen:
 
 1. **Inhaltsstoffe**: Liste aller Inhaltsstoffe mit Mengenangaben
@@ -52,45 +76,57 @@ Antworte NUR im folgenden JSON-Format (keine Markdown-Formatierung):
     "additional_info": "Weitere Infos"
 }"""
 
+
+async def analyze_label_with_gpt4o(image_bytes: bytes, lang: str = "de") -> dict:
+    """Analysiert ein Produkt-Etikett mit GPT-4o Vision via emergentintegrations."""
+    from emergentintegrations.llm.chat import LlmChat, UserMessage, ImageContent
+
     user_prompt = f"Analysiere dieses Produktetikett und extrahiere die Informationen auf {'Deutsch' if lang == 'de' else 'Italienisch'}."
 
+    # Resize large images to avoid API payload issues
+    processed_bytes = resize_image_if_needed(image_bytes)
+    image_base64 = base64.b64encode(processed_bytes).decode("utf-8")
+    logger.info(f"Base64 payload size: {len(image_base64)} chars")
+
+    image_content = ImageContent(image_base64=image_base64)
+
+    chat = LlmChat(
+        api_key=os.environ.get("EMERGENT_LLM_KEY"),
+        session_id=f"label-{uuid.uuid4().hex[:8]}",
+        system_message=SYSTEM_PROMPT,
+    ).with_model("openai", "gpt-4o")
+
+    # Call GPT-4o Vision - catch errors from the library itself
+    response_text = None
     try:
-        image_base64 = base64.b64encode(image_bytes).decode("utf-8")
-        image_content = ImageContent(image_base64=image_base64)
-
-        chat = LlmChat(
-            api_key=os.environ.get("EMERGENT_LLM_KEY"),
-            session_id=f"label-{uuid.uuid4().hex[:8]}",
-            system_message=system_prompt,
-        ).with_model("openai", "gpt-4o")
-
         response_text = await chat.send_message(
             UserMessage(text=user_prompt, file_contents=[image_content])
         )
-
-        logger.info(f"GPT-4o raw response (first 500 chars): {repr(response_text[:500]) if response_text else 'NONE'}")
-
-        if not response_text:
-            raise HTTPException(status_code=500, detail="Bildanalyse: leere Antwort vom Modell")
-
-        # Extract JSON from response (handles markdown blocks, surrounding text, etc.)
-        import re
-        json_match = re.search(r'\{[\s\S]*\}', response_text)
-        if not json_match:
-            logger.error(f"No JSON found in GPT-4o response: {response_text[:500]}")
-            raise HTTPException(status_code=500, detail="Bildanalyse: kein JSON in der Antwort")
-
-        result = json.loads(json_match.group())
-        return result
-
-    except HTTPException:
-        raise
-    except json.JSONDecodeError as e:
-        logger.error(f"JSON parse error: {e} – raw: {response_text[:500] if response_text else 'NONE'}")
-        raise HTTPException(status_code=500, detail="Bildanalyse: ungültiges JSON vom Modell")
     except Exception as e:
-        logger.error(f"GPT-4o Vision error: {e}")
-        raise HTTPException(status_code=500, detail=f"Bildanalyse fehlgeschlagen: {str(e)}")
+        logger.error(f"chat.send_message() failed: {type(e).__name__}: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Bildanalyse fehlgeschlagen: KI-Service nicht erreichbar. Bitte versuche es erneut."
+        )
+
+    logger.info(f"GPT-4o raw response (first 300 chars): {repr(response_text[:300]) if response_text else 'NONE'}")
+
+    if not response_text:
+        raise HTTPException(status_code=500, detail="Bildanalyse: leere Antwort vom Modell")
+
+    # Extract JSON from response
+    json_match = re.search(r'\{[\s\S]*\}', response_text)
+    if not json_match:
+        logger.error(f"No JSON in response: {response_text[:500]}")
+        raise HTTPException(status_code=500, detail="Bildanalyse: kein JSON in der Antwort")
+
+    try:
+        result = json.loads(json_match.group())
+    except json.JSONDecodeError as e:
+        logger.error(f"JSON parse error: {e} – extracted: {json_match.group()[:300]}")
+        raise HTTPException(status_code=500, detail="Bildanalyse: ungültiges JSON vom Modell")
+
+    return result
 
 
 @router.post("/products/{product_id}/label")
