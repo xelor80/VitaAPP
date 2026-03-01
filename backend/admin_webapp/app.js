@@ -128,8 +128,20 @@ async function loadProducts() {
                 <td>${p.price || '-'}</td>
                 <td>${(p.tags || []).slice(0, 3).join(', ')}</td>
                 <td>
-                    <button class="btn-edit" onclick="editProduct('${p.product_id}')">Edit</button>
-                    <button class="btn-delete" onclick="deleteProduct('${p.product_id}')">Del</button>
+                    ${p.label_image 
+                        ? '<span style="color:#22C55E"><i class="fas fa-check-circle"></i> Analysiert</span>' 
+                        : '<span style="color:#6B7280"><i class="fas fa-minus-circle"></i> Kein Etikett</span>'}
+                </td>
+                <td>
+                    <button class="btn-edit" onclick="editProduct('${p.product_id}')" title="Bearbeiten">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-edit" onclick="openLabelModal('${p.product_id}', '${p.name.replace(/'/g, "\\'")}')" title="Etikett" style="background:#8B5CF6">
+                        <i class="fas fa-tag"></i>
+                    </button>
+                    <button class="btn-delete" onclick="deleteProduct('${p.product_id}')" title="Löschen">
+                        <i class="fas fa-trash"></i>
+                    </button>
                 </td>
             </tr>
         `).join('');
