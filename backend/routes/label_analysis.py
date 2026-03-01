@@ -68,20 +68,25 @@ Antworte NUR im folgenden JSON-Format (keine Markdown-Formatierung):
             UserMessage(text=user_prompt, file_contents=[image_content])
         )
 
-        # Entferne mögliche Markdown-Formatierung
-        cleaned = response_text.strip()
-        if cleaned.startswith("```"):
-            cleaned = cleaned.split("```")[1]
-            if cleaned.startswith("json"):
-                cleaned = cleaned[4:]
-        if cleaned.endswith("```"):
-            cleaned = cleaned[:-3]
+        logger.info(f"GPT-4o raw response (first 500 chars): {repr(response_text[:500]) if response_text else 'NONE'}")
 
-        result = json.loads(cleaned.strip())
+        if not response_text:
+            raise HTTPException(status_code=500, detail="Bildanalyse: leere Antwort vom Modell")
+
+        # Extract JSON from response (handles markdown blocks, surrounding text, etc.)
+        import re
+        json_match = re.search(r'\{[\s\S]*\}', response_text)
+        if not json_match:
+            logger.error(f"No JSON found in GPT-4o response: {response_text[:500]}")
+            raise HTTPException(status_code=500, detail="Bildanalyse: kein JSON in der Antwort")
+
+        result = json.loads(json_match.group())
         return result
 
+    except HTTPException:
+        raise
     except json.JSONDecodeError as e:
-        logger.error(f"JSON parse error from GPT-4o: {e} – raw: {response_text}")
+        logger.error(f"JSON parse error: {e} – raw: {response_text[:500] if response_text else 'NONE'}")
         raise HTTPException(status_code=500, detail="Bildanalyse: ungültiges JSON vom Modell")
     except Exception as e:
         logger.error(f"GPT-4o Vision error: {e}")
