@@ -29,7 +29,8 @@ class LabelAnalysisResult(BaseModel):
 async def analyze_label_with_gpt4o(image_base64: str, lang: str = "de") -> dict:
     """Analysiert ein Produkt-Etikett mit GPT-4o Vision."""
     try:
-        from emergentintegrations.llm.chat import chat, Message, MessageRole
+        import os
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
         
         system_prompt = """Du bist ein Experte für Nahrungsergänzungsmittel-Etiketten. 
 Analysiere das Produktetikett und extrahiere folgende Informationen:
@@ -51,23 +52,27 @@ Antworte NUR im folgenden JSON-Format (keine Markdown-Formatierung):
 
         user_prompt = f"Analysiere dieses Produktetikett und extrahiere die Informationen auf {'Deutsch' if lang == 'de' else 'Italienisch'}."
         
-        # GPT-4o mit Bild
-        response = await chat(
-            api_key=os.environ.get("EMERGENT_API_KEY"),
-            messages=[
-                Message(role=MessageRole.SYSTEM, content=system_prompt),
-                Message(
-                    role=MessageRole.USER, 
-                    content=user_prompt,
-                    images=[f"data:image/jpeg;base64,{image_base64}"]
-                )
-            ],
-            model="gpt-4o"
+        # Create chat session with GPT-4o
+        import uuid
+        session_id = str(uuid.uuid4())
+        
+        chat = LlmChat(
+            api_key=os.environ.get("EMERGENT_LLM_KEY"),
+            session_id=session_id,
+            system_message=system_prompt
+        ).with_model("openai", "gpt-4o")
+        
+        # Send message with image
+        response_text = await chat.send_message(
+            UserMessage(
+                text=user_prompt,
+                images=[f"data:image/jpeg;base64,{image_base64}"]
+            )
         )
         
         # Parse JSON response
         import json
-        response_text = response.message.content.strip()
+        response_text = response_text.strip()
         
         # Entferne mögliche Markdown-Formatierung
         if response_text.startswith("```"):
