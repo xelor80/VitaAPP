@@ -60,16 +60,29 @@ export default function ResultsScreen() {
         const videos = await res.json();
         // Filter videos based on analysis tags/categories
         const categories = analysisData.primary_concerns || [];
+        const supplements = analysisData.supplements?.map((s: any) => s.name?.toLowerCase()) || [];
+        
         const filtered = videos.filter((v: any) => {
-          const videoTags = v.tags || [];
-          const videoCategory = v.category || '';
-          // Match by category or tags
-          return categories.some((c: string) => 
-            videoCategory.includes(c.toLowerCase()) ||
-            videoTags.some((t: string) => c.toLowerCase().includes(t.toLowerCase()))
-          );
+          const videoTags = (v.tags || []).map((t: string) => t.toLowerCase());
+          const videoCategory = (v.category || '').toLowerCase();
+          
+          // Check if video category matches any concern
+          const categoryMatch = categories.some((c: string) => {
+            const concern = c.toLowerCase();
+            return videoCategory.includes(concern) || concern.includes(videoCategory);
+          });
+          
+          // Check if video tags match any concern or supplement
+          const tagMatch = videoTags.some((tag: string) => {
+            return categories.some((c: string) => c.toLowerCase().includes(tag) || tag.includes(c.toLowerCase())) ||
+                   supplements.some((s: string) => s && (s.includes(tag) || tag.includes(s)));
+          });
+          
+          return categoryMatch || tagMatch;
         });
-        setRelatedVideos(filtered.length > 0 ? filtered.slice(0, 3) : videos.slice(0, 2));
+        
+        // Nur passende Videos anzeigen, KEIN Fallback
+        setRelatedVideos(filtered.slice(0, 3));
       }
     } catch (e) {
       console.error('Load videos error:', e);
