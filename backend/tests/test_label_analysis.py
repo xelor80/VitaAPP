@@ -66,13 +66,13 @@ class TestLabelAnalysisGET:
     
     def test_get_label_existing_product_without_label(self):
         """Test getting label for product without label data"""
-        # weihrauch-20 may not have label data
-        response = requests.get(f"{BASE_URL}/api/products/weihrauch-20/label")
+        # weihrauch-2-0 may not have label data
+        response = requests.get(f"{BASE_URL}/api/products/weihrauch-2-0/label")
         assert response.status_code == 200, f"Expected 200, got {response.status_code}: {response.text}"
         
         data = response.json()
         assert "product_id" in data
-        assert data["product_id"] == "weihrauch-20"
+        assert data["product_id"] == "weihrauch-2-0"
         # May have null analysis if no label uploaded
     
     def test_get_label_nonexistent_product(self):
@@ -168,22 +168,22 @@ class TestLabelAnalysisDELETE:
         img_bytes = create_test_label_image()
         files = {"file": ("test.png", img_bytes, "image/png")}
         
-        # Upload to a product (vitamin-d3-k2 or another existing product)
+        # Upload to a product that exists: factor-d
         upload_response = requests.post(
-            f"{BASE_URL}/api/products/vitamin-d3-k2/label",
+            f"{BASE_URL}/api/products/factor-d/label",
             files=files,
             data={"lang": "de"}
         )
         
         # Now delete it
-        delete_response = requests.delete(f"{BASE_URL}/api/products/vitamin-d3-k2/label")
+        delete_response = requests.delete(f"{BASE_URL}/api/products/factor-d/label")
         assert delete_response.status_code == 200, f"Expected 200, got {delete_response.status_code}: {delete_response.text}"
         
         data = delete_response.json()
         assert data.get("status") == "deleted"
         
         # Verify deletion by trying to get label
-        get_response = requests.get(f"{BASE_URL}/api/products/vitamin-d3-k2/label")
+        get_response = requests.get(f"{BASE_URL}/api/products/factor-d/label")
         assert get_response.status_code == 200
         get_data = get_response.json()
         assert get_data.get("label_image") is None or get_data.get("analysis") is None
@@ -213,7 +213,7 @@ class TestLabelAnalysisIntegration:
     
     def test_full_label_workflow(self):
         """Test complete workflow: Upload → Analyze → Get → Delete"""
-        product_id = "omega-3-premium"  # Use existing product
+        product_id = "nadh"  # Use existing product
         
         # Step 1: Upload and analyze
         img_bytes = create_test_label_image()
