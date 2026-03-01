@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Modal, StyleSheet, Dimensions, Platform } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
@@ -20,23 +20,6 @@ interface VideosSectionProps {
   title?: string;
 }
 
-// Web YouTube Player Component
-function WebYouTubePlayer({ videoId, width, height }: { videoId: string; width: number; height: number }) {
-  if (Platform.OS !== 'web') return null;
-  
-  return (
-    <iframe
-      width={width}
-      height={height}
-      src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`}
-      frameBorder="0"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-      allowFullScreen
-      style={{ borderRadius: 8 }}
-    />
-  );
-}
-
 export function VideosSection({ videos, lang, title }: VideosSectionProps) {
   const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
   const [playingTitle, setPlayingTitle] = useState<string>('');
@@ -52,6 +35,9 @@ export function VideosSection({ videos, lang, title }: VideosSectionProps) {
   };
 
   if (videos.length === 0) return null;
+
+  const playerWidth = Math.min(SCREEN_WIDTH - 60, 600);
+  const playerHeight = playerWidth * 0.5625;
 
   return (
     <View style={styles.container}>
@@ -108,12 +94,27 @@ export function VideosSection({ videos, lang, title }: VideosSectionProps) {
               </TouchableOpacity>
             </View>
             
-            {playingVideoId && (
+            {playingVideoId && Platform.OS === 'web' && (
               <View style={styles.playerContainer}>
-                <WebYouTubePlayer 
-                  videoId={playingVideoId} 
-                  width={Math.min(SCREEN_WIDTH - 60, 600)} 
-                  height={Math.min(SCREEN_WIDTH - 60, 600) * 0.5625}
+                <div 
+                  style={{ 
+                    width: playerWidth, 
+                    height: playerHeight, 
+                    borderRadius: 8, 
+                    overflow: 'hidden',
+                    backgroundColor: '#000'
+                  }}
+                  dangerouslySetInnerHTML={{
+                    __html: `<iframe 
+                      width="${playerWidth}" 
+                      height="${playerHeight}" 
+                      src="https://www.youtube.com/embed/${playingVideoId}?autoplay=1&rel=0" 
+                      frameborder="0" 
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                      allowfullscreen
+                      style="border-radius: 8px;">
+                    </iframe>`
+                  }}
                 />
               </View>
             )}
