@@ -35,14 +35,18 @@ async def admin_auth(auth: AuthRequest):
 # Serve admin webapp static files
 @api_router.get("/admin-app/{filename}")
 async def serve_admin_static(filename: str):
-    file_path = ADMIN_WEBAPP_DIR / filename
+    # Strip cache-busting query params from filename
+    clean_name = filename.split("?")[0]
+    file_path = ADMIN_WEBAPP_DIR / clean_name
     if file_path.exists() and file_path.is_file():
         content_type = "text/html"
-        if filename.endswith(".css"):
+        if clean_name.endswith(".css"):
             content_type = "text/css"
-        elif filename.endswith(".js"):
+        elif clean_name.endswith(".js"):
             content_type = "application/javascript"
-        return FileResponse(file_path, media_type=content_type)
+        from starlette.responses import Response
+        content = file_path.read_bytes()
+        return Response(content=content, media_type=content_type, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
     raise HTTPException(status_code=404, detail="File not found")
 
 # Serve admin webapp main page
