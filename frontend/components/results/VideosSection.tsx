@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Modal, StyleSheet, Dimensions, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, Modal, StyleSheet, Dimensions, Platform, Linking } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { WebView } from 'react-native-webview';
+
+// WebView nur für native Plattformen importieren
+let WebView: any = null;
+if (Platform.OS !== 'web') {
+  WebView = require('react-native-webview').WebView;
+}
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -24,15 +29,30 @@ interface VideosSectionProps {
 export function VideosSection({ videos, lang, title }: VideosSectionProps) {
   const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
   const [playingTitle, setPlayingTitle] = useState<string>('');
+  const [playingUrl, setPlayingUrl] = useState<string>('');
 
-  const openVideo = (youtubeId: string, videoTitle: string) => {
+  const openVideo = (youtubeId: string, videoTitle: string, youtubeUrl: string) => {
+    if (Platform.OS !== 'web' && !WebView) {
+      // Fallback: Video in YouTube App/Browser öffnen
+      Linking.openURL(youtubeUrl);
+      return;
+    }
     setPlayingVideoId(youtubeId);
     setPlayingTitle(videoTitle);
+    setPlayingUrl(youtubeUrl);
   };
 
   const closeVideo = () => {
     setPlayingVideoId(null);
     setPlayingTitle('');
+    setPlayingUrl('');
+  };
+
+  const openInYouTube = () => {
+    if (playingUrl) {
+      Linking.openURL(playingUrl);
+      closeVideo();
+    }
   };
 
   if (videos.length === 0) return null;
@@ -59,7 +79,7 @@ export function VideosSection({ videos, lang, title }: VideosSectionProps) {
         <TouchableOpacity
           key={video.video_id}
           style={styles.videoCard}
-          onPress={() => openVideo(video.youtube_id, video.title)}
+          onPress={() => openVideo(video.youtube_id, video.title, video.youtube_url)}
           activeOpacity={0.8}
           testID={`video-card-${video.video_id}`}
         >
@@ -124,18 +144,34 @@ export function VideosSection({ videos, lang, title }: VideosSectionProps) {
                       </iframe>`
                     }}
                   />
-                ) : (
+                ) : WebView ? (
                   <WebView
                     source={{ uri: youtubeEmbedUrl }}
-                    style={{ width: playerWidth, height: playerHeight, borderRadius: 8 }}
+                    style={{ width: playerWidth, height: playerHeight, borderRadius: 8, backgroundColor: '#000' }}
                     allowsFullscreenVideo={true}
                     mediaPlaybackRequiresUserAction={false}
                     javaScriptEnabled={true}
                     domStorageEnabled={true}
+                    allowsInlineMediaPlayback={true}
                   />
+                ) : (
+                  <View style={[styles.playerContainer, { justifyContent: 'center', alignItems: 'center' }]}>
+                    <MaterialCommunityIcons name="youtube" size={60} color="#FF0000" />
+                    <Text style={{ color: '#FFF', marginTop: 10 }}>
+                      {lang === 'de' ? 'Video nicht verfügbar' : 'Video non disponibile'}
+                    </Text>
+                  </View>
                 )}
               </View>
             )}
+
+            {/* Button um Video in YouTube zu öffnen */}
+            <TouchableOpacity style={styles.youtubeBtn} onPress={openInYouTube}>
+              <MaterialCommunityIcons name="youtube" size={20} color="#FF0000" />
+              <Text style={styles.youtubeBtnText}>
+                {lang === 'de' ? 'In YouTube öffnen' : 'Apri in YouTube'}
+              </Text>
+            </TouchableOpacity>
 
             <TouchableOpacity style={styles.closeFullBtn} onPress={closeVideo}>
               <Text style={styles.closeFullBtnText}>
