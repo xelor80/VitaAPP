@@ -7,7 +7,7 @@ import secrets
 from pathlib import Path
 
 from core.config import client, logger
-from routes import analysis, products, tracking, diary, admin, settings, health_profile, supplement_plan, progress
+from routes import analysis, products, tracking, diary, admin, settings, health_profile, supplement_plan, progress, videos
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
@@ -62,6 +62,7 @@ api_router.include_router(analysis.router)
 api_router.include_router(products.router)
 api_router.include_router(tracking.router)
 api_router.include_router(diary.router)
+api_router.include_router(videos.router)
 
 app.include_router(api_router)
 
