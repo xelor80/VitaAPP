@@ -124,7 +124,7 @@ async def upload_and_analyze_label(
     # Update Produkt in beiden Sprach-Collections
     for collection in ["products_de", "products_it"]:
         await db[collection].update_one(
-            {"id": product_id},
+            {"product_id": product_id},
             {"$set": label_data}
         )
     
@@ -139,9 +139,9 @@ async def upload_and_analyze_label(
 @router.get("/products/{product_id}/label")
 async def get_label_analysis(product_id: str):
     """Holt die Etikett-Analyse für ein Produkt."""
-    product = await db.products_de.find_one({"id": product_id}, {"_id": 0})
+    product = await db.products_de.find_one({"product_id": product_id}, {"_id": 0})
     if not product:
-        product = await db.products_it.find_one({"id": product_id}, {"_id": 0})
+        product = await db.products_it.find_one({"product_id": product_id}, {"_id": 0})
     
     if not product:
         raise HTTPException(status_code=404, detail="Produkt nicht gefunden")
@@ -158,7 +158,7 @@ async def get_label_analysis(product_id: str):
 async def delete_label(product_id: str):
     """Löscht die Etikett-Daten eines Produkts."""
     # Hole aktuelles Produkt
-    product = await db.products_de.find_one({"id": product_id})
+    product = await db.products_de.find_one({"product_id": product_id})
     if product and product.get("label_image"):
         # Lösche Bilddatei
         filename = product["label_image"].split("/")[-1]
@@ -176,6 +176,6 @@ async def delete_label(product_id: str):
     }
     
     for collection in ["products_de", "products_it"]:
-        await db[collection].update_one({"id": product_id}, update)
+        await db[collection].update_one({"product_id": product_id}, update)
     
     return {"status": "deleted"}
