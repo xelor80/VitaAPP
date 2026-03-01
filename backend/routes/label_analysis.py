@@ -32,7 +32,7 @@ async def analyze_label_with_gpt4o(image_base64: str, lang: str = "de") -> dict:
         import os
         import uuid
         import json
-        from emergentintegrations.llm.chat import LlmChat, UserMessage, FileContent
+        from emergentintegrations.llm.chat import LlmChat, UserMessage, ImageContent
         
         system_prompt = """Du bist ein Experte für Nahrungsergänzungsmittel-Etiketten. 
 Analysiere das Produktetikett und extrahiere folgende Informationen:
@@ -63,13 +63,12 @@ Antworte NUR im folgenden JSON-Format (keine Markdown-Formatierung):
             system_message=system_prompt
         ).with_model("openai", "gpt-4o")
         
-        # Create FileContent for the image
-        image_content = FileContent(
-            content_type="image/jpeg",
-            file_content_base64=image_base64
+        # Create ImageContent for the image (base64 encoded)
+        image_content = ImageContent(
+            image_base64=image_base64
         )
         
-        # Send message with image using file_contents
+        # Send message with image
         response_text = await chat.send_message(
             UserMessage(
                 text=user_prompt,
