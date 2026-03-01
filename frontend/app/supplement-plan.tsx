@@ -1,13 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity,
-  SafeAreaView, ActivityIndicator, TextInput, Linking
+  SafeAreaView, ActivityIndicator, TextInput, Linking, Alert
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLang } from '../src/LangContext';
 import { planStyles as styles } from '../components/supplement/planStyles';
+import {
+  scheduleSupplementReminders,
+  sendTestNotification,
+  cancelAllReminders,
+  getNotificationPermissionStatus,
+  ReminderSettings,
+  WeeklySchedule
+} from '../src/services/NotificationService';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
