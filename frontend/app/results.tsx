@@ -39,16 +39,42 @@ export default function ResultsScreen() {
   const [analysis, setAnalysis] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<TabKey>('overview');
   const [isLoading, setIsLoading] = useState(true);
+  const [relatedVideos, setRelatedVideos] = useState<any[]>([]);
 
   useEffect(() => {
     const data = getCurrentAnalysis();
     if (data) {
       setAnalysis(data);
+      loadRelatedVideos(data);
       setIsLoading(false);
     } else {
       setIsLoading(false);
     }
   }, []);
+
+  const loadRelatedVideos = async (analysisData: any) => {
+    try {
+      // Get videos for the current language
+      const res = await fetch(`${API_URL}/api/videos?lang=${lang}`);
+      if (res.ok) {
+        const videos = await res.json();
+        // Filter videos based on analysis tags/categories
+        const categories = analysisData.primary_concerns || [];
+        const filtered = videos.filter((v: any) => {
+          const videoTags = v.tags || [];
+          const videoCategory = v.category || '';
+          // Match by category or tags
+          return categories.some((c: string) => 
+            videoCategory.includes(c.toLowerCase()) ||
+            videoTags.some((t: string) => c.toLowerCase().includes(t.toLowerCase()))
+          );
+        });
+        setRelatedVideos(filtered.length > 0 ? filtered.slice(0, 3) : videos.slice(0, 2));
+      }
+    } catch (e) {
+      console.error('Load videos error:', e);
+    }
+  };
 
   const trackClick = useCallback(async (productId: string, affiliateUrl: string) => {
     try {
