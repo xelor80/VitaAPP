@@ -101,7 +101,7 @@ async def analyze_label_with_gpt4o(image_bytes: bytes, lang: str = "de") -> dict
         api_key=os.environ.get("EMERGENT_LLM_KEY"),
         session_id=f"label-{uuid.uuid4().hex[:8]}",
         system_message=SYSTEM_PROMPT,
-    ).with_model("openai", "gpt-4o")
+    ).with_model("openai", "gpt-4.1")
 
     # Call GPT-4o Vision - catch errors from the library itself
     response_text = None
