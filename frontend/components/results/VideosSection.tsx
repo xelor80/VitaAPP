@@ -2,12 +2,6 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Modal, StyleSheet, Dimensions, Platform, Linking } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-// WebView nur für native Plattformen importieren
-let WebView: any = null;
-if (Platform.OS !== 'web') {
-  WebView = require('react-native-webview').WebView;
-}
-
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
 interface Video {
@@ -32,11 +26,12 @@ export function VideosSection({ videos, lang, title }: VideosSectionProps) {
   const [playingUrl, setPlayingUrl] = useState<string>('');
 
   const openVideo = (youtubeId: string, videoTitle: string, youtubeUrl: string) => {
-    if (Platform.OS !== 'web' && !WebView) {
-      // Fallback: Video in YouTube App/Browser öffnen
+    // Auf Mobile: Direkt YouTube App/Browser öffnen
+    if (Platform.OS !== 'web') {
       Linking.openURL(youtubeUrl);
       return;
     }
+    // Auf Web: Modal mit eingebettetem Player
     setPlayingVideoId(youtubeId);
     setPlayingTitle(videoTitle);
     setPlayingUrl(youtubeUrl);
@@ -48,18 +43,9 @@ export function VideosSection({ videos, lang, title }: VideosSectionProps) {
     setPlayingUrl('');
   };
 
-  const openInYouTube = () => {
-    if (playingUrl) {
-      Linking.openURL(playingUrl);
-      closeVideo();
-    }
-  };
-
   if (videos.length === 0) return null;
 
-  const playerWidth = Platform.OS === 'web' 
-    ? Math.min(SCREEN_WIDTH - 60, 600) 
-    : SCREEN_WIDTH - 40;
+  const playerWidth = Math.min(SCREEN_WIDTH - 60, 600);
   const playerHeight = playerWidth * 0.5625;
 
   const youtubeEmbedUrl = playingVideoId 
@@ -93,37 +79,46 @@ export function VideosSection({ videos, lang, title }: VideosSectionProps) {
             {video.description && (
               <Text style={styles.videoDescription} numberOfLines={2}>{video.description}</Text>
             )}
-            {video.duration && (
-              <View style={styles.durationBadge}>
-                <MaterialCommunityIcons name="clock-outline" size={12} color="#5C7A6F" />
-                <Text style={styles.durationText}>{video.duration}</Text>
-              </View>
-            )}
+            <View style={styles.metaRow}>
+              {video.duration && (
+                <View style={styles.durationBadge}>
+                  <MaterialCommunityIcons name="clock-outline" size={12} color="#5C7A6F" />
+                  <Text style={styles.durationText}>{video.duration}</Text>
+                </View>
+              )}
+              {Platform.OS !== 'web' && (
+                <View style={styles.youtubeBadge}>
+                  <MaterialCommunityIcons name="youtube" size={12} color="#FF0000" />
+                  <Text style={styles.youtubeText}>YouTube</Text>
+                </View>
+              )}
+            </View>
           </View>
+          <MaterialCommunityIcons name="open-in-new" size={20} color="#8FA39B" />
         </TouchableOpacity>
       ))}
 
-      {/* Video Player Modal */}
-      <Modal
-        visible={!!playingVideoId}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={closeVideo}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, Platform.OS !== 'web' && { width: SCREEN_WIDTH - 20 }]}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle} numberOfLines={2}>
-                {playingTitle}
-              </Text>
-              <TouchableOpacity onPress={closeVideo} style={styles.closeBtn} testID="close-video-btn">
-                <MaterialCommunityIcons name="close" size={24} color="#1A2D26" />
-              </TouchableOpacity>
-            </View>
-            
-            {playingVideoId && (
-              <View style={[styles.playerContainer, { width: playerWidth, height: playerHeight }]}>
-                {Platform.OS === 'web' ? (
+      {/* Video Player Modal - NUR für Web */}
+      {Platform.OS === 'web' && (
+        <Modal
+          visible={!!playingVideoId}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={closeVideo}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle} numberOfLines={2}>
+                  {playingTitle}
+                </Text>
+                <TouchableOpacity onPress={closeVideo} style={styles.closeBtn} testID="close-video-btn">
+                  <MaterialCommunityIcons name="close" size={24} color="#1A2D26" />
+                </TouchableOpacity>
+              </View>
+              
+              {playingVideoId && (
+                <View style={[styles.playerContainer, { width: playerWidth, height: playerHeight }]}>
                   <div 
                     style={{ 
                       width: playerWidth, 
@@ -144,43 +139,18 @@ export function VideosSection({ videos, lang, title }: VideosSectionProps) {
                       </iframe>`
                     }}
                   />
-                ) : WebView ? (
-                  <WebView
-                    source={{ uri: youtubeEmbedUrl }}
-                    style={{ width: playerWidth, height: playerHeight, borderRadius: 8, backgroundColor: '#000' }}
-                    allowsFullscreenVideo={true}
-                    mediaPlaybackRequiresUserAction={false}
-                    javaScriptEnabled={true}
-                    domStorageEnabled={true}
-                    allowsInlineMediaPlayback={true}
-                  />
-                ) : (
-                  <View style={[styles.playerContainer, { justifyContent: 'center', alignItems: 'center' }]}>
-                    <MaterialCommunityIcons name="youtube" size={60} color="#FF0000" />
-                    <Text style={{ color: '#FFF', marginTop: 10 }}>
-                      {lang === 'de' ? 'Video nicht verfügbar' : 'Video non disponibile'}
-                    </Text>
-                  </View>
-                )}
-              </View>
-            )}
+                </View>
+              )}
 
-            {/* Button um Video in YouTube zu öffnen */}
-            <TouchableOpacity style={styles.youtubeBtn} onPress={openInYouTube}>
-              <MaterialCommunityIcons name="youtube" size={20} color="#FF0000" />
-              <Text style={styles.youtubeBtnText}>
-                {lang === 'de' ? 'In YouTube öffnen' : 'Apri in YouTube'}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.closeFullBtn} onPress={closeVideo}>
-              <Text style={styles.closeFullBtnText}>
-                {lang === 'de' ? 'Schließen' : 'Chiudi'}
-              </Text>
-            </TouchableOpacity>
+              <TouchableOpacity style={styles.closeFullBtn} onPress={closeVideo}>
+                <Text style={styles.closeFullBtnText}>
+                  {lang === 'de' ? 'Schließen' : 'Chiudi'}
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
+      )}
     </View>
   );
 }
