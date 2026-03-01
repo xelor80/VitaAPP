@@ -27,7 +27,12 @@ async def analyze_symptoms(data: SymptomInput, request: Request):
 
     lang = data.lang if data.lang in ("de", "it") else "de"
     catalog = await get_product_catalog(lang)
-    prompt = await get_system_prompt(lang)
+    
+    # Get profile_id from request if available
+    profile_id = data.profile_id if hasattr(data, 'profile_id') and data.profile_id else None
+    
+    # Get enhanced prompt with health profile
+    prompt = await get_system_prompt(lang, profile_id)
 
     symptom_text = data.text.strip()
     tag_text = ", ".join(data.tags) if data.tags else ""
@@ -62,11 +67,7 @@ async def analyze_symptoms(data: SymptomInput, request: Request):
         parsed = {
             "summary": "Die Analyse konnte momentan nicht durchgeführt werden. Bitte versuchen Sie es später erneut.",
             "red_flags": [], "supplements_general_info": [], "brand_products": [],
-            "nutrition_tips": [
-                "Achten Sie auf eine ausgewogene Ernährung mit viel Obst und Gemüse.",
-                "Trinken Sie ausreichend Wasser.",
-                "Regelmäßige Bewegung unterstützt das allgemeine Wohlbefinden."
-            ],
+            "nutrition_tips": [],
             "recipes": [],
             "disclaimer_short": "Dieser Inhalt dient nur der allgemeinen Information und ersetzt keine ärztliche Beratung."
         }
