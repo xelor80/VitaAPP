@@ -124,8 +124,12 @@ async def analyze_label_with_gpt4o(image_bytes: bytes, lang: str = "de") -> dict
     # Extract JSON from response
     json_match = re.search(r'\{[\s\S]*\}', response_text)
     if not json_match:
-        logger.error(f"No JSON in response: {response_text[:500]}")
-        raise HTTPException(status_code=500, detail="Bildanalyse: kein JSON in der Antwort")
+        # GPT-4o couldn't read the label - give a helpful error
+        logger.warning(f"GPT-4o couldn't extract label data: {response_text[:300]}")
+        raise HTTPException(
+            status_code=422,
+            detail="Das Etikett konnte nicht gelesen werden. Bitte versuche es mit einem klareren, gut beleuchteten Foto des Etiketts."
+        )
 
     try:
         result = json.loads(json_match.group())
