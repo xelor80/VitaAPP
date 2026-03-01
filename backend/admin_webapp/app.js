@@ -647,3 +647,142 @@ function editSupplement(id, data) {
         })
     }).then(() => loadSupplements()).catch(err => console.error('Error:', err));
 }
+
+// ============ VIDEOS ============
+let videoLang = 'de';
+let editingVideo = null;
+
+function setVideoLang(lang) {
+    videoLang = lang;
+    document.querySelectorAll('#videos-tab .lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === lang);
+    });
+    loadVideos();
+}
+
+async function loadVideos() {
+    try {
+        const categoryFilter = document.getElementById('video-category-filter').value;
+        let url = `/videos?lang=${videoLang}&active_only=false`;
+        if (categoryFilter) url += `&category=${categoryFilter}`;
+        
+        const res = await apiCall(url);
+        const videos = await res.json();
+        
+        const tbody = document.getElementById('videos-table');
+        tbody.innerHTML = videos.map(v => `
+            <tr>
+                <td>
+                    <img src="https://img.youtube.com/vi/${v.youtube_id}/mqdefault.jpg" 
+                         alt="${v.title}" 
+                         style="width:120px;height:68px;border-radius:6px;object-fit:cover">
+                </td>
+                <td>
+                    <a href="${v.youtube_url}" target="_blank" style="color:#60A5FA">${v.title}</a>
+                    <div style="font-size:12px;color:#94A3B8;margin-top:4px">${v.description || ''}</div>
+                </td>
+                <td>${getCategoryLabel(v.category)}</td>
+                <td><span class="lang-badge">${v.lang.toUpperCase()}</span></td>
+                <td>${v.duration || '-'}</td>
+                <td>
+                    <button class="btn-edit" onclick='editVideo(${JSON.stringify(v)})'>
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-delete" onclick="deleteVideo('${v.video_id}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    } catch (err) {
+        console.error('Error loading videos:', err);
+    }
+}
+
+function getCategoryLabel(cat) {
+    const labels = {
+        'articolazioni': 'Gelenke',
+        'digestione': 'Verdauung',
+        'peso': 'Gewicht',
+        'cuore': 'Herz',
+        'energia': 'Energie',
+        'pelle': 'Haut & Haare',
+        'immunsystem': 'Immunsystem',
+        'schlaf': 'Schlaf',
+        'memoria': 'Gedächtnis',
+        'allgemein': 'Allgemein'
+    };
+    return labels[cat] || cat;
+}
+
+function openVideoModal(video = null) {
+    editingVideo = video;
+    document.getElementById('video-modal-title').textContent = video ? 'Video bearbeiten' : 'Neues Video';
+    
+    document.getElementById('video-title').value = video?.title || '';
+    document.getElementById('video-youtube-url').value = video?.youtube_url || '';
+    document.getElementById('video-youtube-id').value = video?.youtube_id || '';
+    document.getElementById('video-description').value = video?.description || '';
+    document.getElementById('video-category').value = video?.category || 'allgemein';
+    document.getElementById('video-lang').value = video?.lang || videoLang;
+    document.getElementById('video-duration').value = video?.duration || '';
+    document.getElementById('video-order').value = video?.sort_order || 0;
+    document.getElementById('video-tags').value = (video?.tags || []).join(', ');
+    
+    document.getElementById('video-modal').classList.remove('hidden');
+}
+
+function closeVideoModal() {
+    document.getElementById('video-modal').classList.add('hidden');
+    editingVideo = null;
+}
+
+function editVideo(video) {
+    openVideoModal(video);
+}
+
+async function saveVideo(e) {
+    e.preventDefault();
+    
+    const videoData = {
+        title: document.getElementById('video-title').value,
+        youtube_url: document.getElementById('video-youtube-url').value,
+        youtube_id: document.getElementById('video-youtube-id').value,
+        description: document.getElementById('video-description').value,
+        category: document.getElementById('video-category').value,
+        lang: document.getElementById('video-lang').value,
+        duration: document.getElementById('video-duration').value,
+        sort_order: parseInt(document.getElementById('video-order').value) || 0,
+        tags: document.getElementById('video-tags').value.split(',').map(t => t.trim()).filter(Boolean)
+    };
+    
+    try {
+        if (editingVideo) {
+            await apiCall(`/videos/${editingVideo.video_id}`, {
+                method: 'PUT',
+                body: JSON.stringify(videoData)
+            });
+        } else {
+            await apiCall('/videos', {
+                method: 'POST',
+                body: JSON.stringify(videoData)
+            });
+        }
+        closeVideoModal();
+        loadVideos();
+    } catch (err) {
+        console.error('Error saving video:', err);
+        alert('Fehler beim Speichern');
+    }
+}
+
+async function deleteVideo(videoId) {
+    if (!confirm('Video wirklich löschen?')) return;
+    
+    try {
+        await apiCall(`/videos/${videoId}`, { method: 'DELETE' });
+        loadVideos();
+    } catch (err) {
+        console.error('Error deleting video:', err);
+    }
+}
