@@ -64,6 +64,20 @@ Health-focused, bilingual (German/Italian) mobile web app. Core: LLM-based sympt
   - `PUT /api/videos/{video_id}` - Update video
   - `DELETE /api/videos/{video_id}` - Delete video
 
+### Push Notifications for Supplement Reminders (P2) - Completed 2026-03-01
+- **NotificationService**: Created `src/services/NotificationService.ts` with full notification management
+- **Expo Notifications**: Native push notifications for iOS/Android using `expo-notifications`
+- **Web Browser Notifications**: Fallback for web using the Notification API
+- **Reminder Settings**: Configurable times for morning, noon, and evening reminders
+- **Test Notification**: Button to test notification delivery
+- **Permission Handling**: Automatic permission requests with user feedback
+- **Features**:
+  - Toggle to enable/disable reminders
+  - Customizable reminder times (HH:MM format)
+  - Daily recurring notifications based on supplement schedule
+  - Alert confirmation when reminders are activated
+  - Persistence of settings in backend
+
 ## Key Routes
 - `/` - Home | `/onboarding` - Wizard | `/health-profile` - Profile
 - `/supplement-plan` - Plan | `/tracking` - Progress Dashboard | `/videos` - Video Library
