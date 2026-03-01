@@ -125,6 +125,10 @@ export default function HomeScreen() {
             lang={lang}
             onPress={() => router.push('/tracking')}
           />
+          <VideosButton
+            lang={lang}
+            onPress={() => router.push('/videos')}
+          />
           <SymptomInput lang={lang} value={symptomText} onChangeText={setSymptomText} />
           <SymptomChips lang={lang} selectedTags={selectedTags} onToggleTag={toggleTag} />
           <AnalyzeButton lang={lang} isLoading={isLoading} onPress={analyzeSymptoms} />
