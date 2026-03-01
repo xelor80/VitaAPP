@@ -56,84 +56,64 @@ export default function ResultsScreen() {
     try {
       // Get videos for the current language
       const res = await fetch(`${API_URL}/api/videos?lang=${lang}`);
-      if (res.ok) {
-        const videos = await res.json();
-        
-        // Sammle alle relevanten Keywords aus der Analyse
-        const keywords: string[] = [];
-        
-        // Input Tags
-        if (analysisData.input_tags) {
-          keywords.push(...analysisData.input_tags.map((t: string) => t.toLowerCase()));
-        }
-        
-        // Supplement Namen aus supplements_general_info
-        if (analysisData.supplements_general_info) {
-          analysisData.supplements_general_info.forEach((s: any) => {
-            if (s.name) keywords.push(s.name.toLowerCase());
-          });
-        }
-        
-        // Brand Products
-        if (analysisData.brand_products) {
-          analysisData.brand_products.forEach((p: any) => {
-            if (p.name) keywords.push(p.name.toLowerCase());
-            if (p.tags) keywords.push(...p.tags.map((t: string) => t.toLowerCase()));
-          });
-        }
-        
-        // Summary Text durchsuchen nach Schlüsselwörtern
-        const summary = (analysisData.summary || '').toLowerCase();
-        const keywordMap: Record<string, string[]> = {
-          'verdauung': ['digestione', 'verdauung', 'magen', 'darm'],
-          'energie': ['energia', 'energie', 'müdigkeit', 'erschöpfung', 'müde'],
-          'schlaf': ['schlaf', 'sleep', 'schlafen', 'insomnia'],
-          'gelenke': ['articolazioni', 'gelenke', 'arthrose', 'gelenkschmerzen'],
-          'herz': ['cuore', 'herz', 'kreislauf', 'blutdruck'],
-          'haut': ['pelle', 'haut', 'haare', 'nägel'],
-          'immunsystem': ['immunsystem', 'immun', 'erkältung', 'abwehr'],
-          'gedächtnis': ['memoria', 'gedächtnis', 'konzentration', 'fokus'],
-          'gewicht': ['peso', 'gewicht', 'abnehmen', 'stoffwechsel'],
-        };
-        
-        // Finde passende Kategorien basierend auf Summary
-        const matchedCategories: string[] = [];
-        Object.entries(keywordMap).forEach(([category, categoryKeywords]) => {
-          if (categoryKeywords.some(kw => summary.includes(kw))) {
-            matchedCategories.push(category);
-          }
-        });
-        
-        // Wenn keine Keywords gefunden wurden, keine Videos anzeigen
-        if (keywords.length === 0 && matchedCategories.length === 0) {
-          setRelatedVideos([]);
-          return;
-        }
-        
-        // Filter Videos
-        const filtered = videos.filter((v: any) => {
-          const videoTags = (v.tags || []).map((t: string) => t.toLowerCase());
-          const videoCategory = (v.category || '').toLowerCase();
-          
-          // Check gegen Keywords
-          const keywordMatch = keywords.some(kw => 
-            videoTags.some((tag: string) => tag.includes(kw) || kw.includes(tag)) ||
-            videoCategory.includes(kw)
-          );
-          
-          // Check gegen matched Categories
-          const categoryMatch = matchedCategories.some(cat => 
-            videoCategory.includes(cat) || 
-            videoTags.some((tag: string) => tag.includes(cat))
-          );
-          
-          return keywordMatch || categoryMatch;
-        });
-        
-        setRelatedVideos(filtered.slice(0, 3));
+      if (!res.ok) {
+        setRelatedVideos([]);
+        return;
       }
+      
+      const videos = await res.json();
+      if (!videos || videos.length === 0) {
+        setRelatedVideos([]);
+        return;
+      }
+      
+      // Hole den ursprünglichen Symptom-Text
+      const inputText = (analysisData.input_text || '').toLowerCase();
+      const summary = (analysisData.summary || '').toLowerCase();
+      const combinedText = inputText + ' ' + summary;
+      
+      // Definiere Video-Kategorie zu Symptom-Keywords Mapping
+      const categoryKeywords: Record<string, string[]> = {
+        'energia': ['energie', 'müde', 'müdigkeit', 'erschöpft', 'erschöpfung', 'kraftlos', 'antriebslos', 'fatigue'],
+        'schlaf': ['schlaf', 'schlafen', 'einschlafen', 'durchschlafen', 'schlaflos', 'insomnie', 'schlafstörung'],
+        'digestione': ['verdauung', 'magen', 'darm', 'blähung', 'verstopfung', 'durchfall', 'bauchschmerzen', 'sodbrennen'],
+        'articolazioni': ['gelenk', 'arthrose', 'arthritis', 'rheuma', 'knie', 'hüfte', 'schulter', 'rücken'],
+        'cuore': ['herz', 'kreislauf', 'blutdruck', 'herzrasen', 'puls'],
+        'pelle': ['haut', 'haar', 'nägel', 'akne', 'falten', 'trocken'],
+        'immunsystem': ['immun', 'erkältung', 'grippe', 'infekt', 'abwehr', 'krank'],
+        'memoria': ['gedächtnis', 'konzentration', 'fokus', 'vergesslich', 'denken'],
+        'peso': ['gewicht', 'abnehmen', 'diät', 'stoffwechsel', 'übergewicht'],
+      };
+      
+      // Finde passende Kategorien
+      const matchedCategories: string[] = [];
+      Object.entries(categoryKeywords).forEach(([category, keywords]) => {
+        if (keywords.some(kw => combinedText.includes(kw))) {
+          matchedCategories.push(category);
+        }
+      });
+      
+      // WICHTIG: Wenn KEINE Kategorie passt, KEINE Videos anzeigen
+      if (matchedCategories.length === 0) {
+        console.log('Keine passenden Video-Kategorien gefunden für:', inputText);
+        setRelatedVideos([]);
+        return;
+      }
+      
+      console.log('Gefundene Kategorien:', matchedCategories);
+      
+      // Filter Videos nach passenden Kategorien
+      const filtered = videos.filter((v: any) => {
+        const videoCategory = (v.category || '').toLowerCase();
+        return matchedCategories.includes(videoCategory);
+      });
+      
+      console.log('Gefilterte Videos:', filtered.length);
+      setRelatedVideos(filtered.slice(0, 3));
+      
     } catch (e) {
       console.error('Load videos error:', e);
+      setRelatedVideos([]);
     }
   };
 
