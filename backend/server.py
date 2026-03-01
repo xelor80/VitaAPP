@@ -64,6 +64,15 @@ api_router.include_router(products.router)
 api_router.include_router(tracking.router)
 api_router.include_router(diary.router)
 api_router.include_router(videos.router)
+api_router.include_router(label_analysis.router)
+
+# Serve uploaded files (labels)
+@api_router.get("/uploads/labels/{filename}")
+async def serve_uploaded_label(filename: str):
+    file_path = UPLOADS_DIR / "labels" / filename
+    if file_path.exists() and file_path.is_file():
+        return FileResponse(file_path)
+    raise HTTPException(status_code=404, detail="File not found")
 
 app.include_router(api_router)
 
