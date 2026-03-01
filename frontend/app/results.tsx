@@ -58,30 +58,78 @@ export default function ResultsScreen() {
       const res = await fetch(`${API_URL}/api/videos?lang=${lang}`);
       if (res.ok) {
         const videos = await res.json();
-        // Filter videos based on analysis tags/categories
-        const categories = analysisData.primary_concerns || [];
-        const supplements = analysisData.supplements?.map((s: any) => s.name?.toLowerCase()) || [];
         
+        // Sammle alle relevanten Keywords aus der Analyse
+        const keywords: string[] = [];
+        
+        // Input Tags
+        if (analysisData.input_tags) {
+          keywords.push(...analysisData.input_tags.map((t: string) => t.toLowerCase()));
+        }
+        
+        // Supplement Namen aus supplements_general_info
+        if (analysisData.supplements_general_info) {
+          analysisData.supplements_general_info.forEach((s: any) => {
+            if (s.name) keywords.push(s.name.toLowerCase());
+          });
+        }
+        
+        // Brand Products
+        if (analysisData.brand_products) {
+          analysisData.brand_products.forEach((p: any) => {
+            if (p.name) keywords.push(p.name.toLowerCase());
+            if (p.tags) keywords.push(...p.tags.map((t: string) => t.toLowerCase()));
+          });
+        }
+        
+        // Summary Text durchsuchen nach Schlüsselwörtern
+        const summary = (analysisData.summary || '').toLowerCase();
+        const keywordMap: Record<string, string[]> = {
+          'verdauung': ['digestione', 'verdauung', 'magen', 'darm'],
+          'energie': ['energia', 'energie', 'müdigkeit', 'erschöpfung', 'müde'],
+          'schlaf': ['schlaf', 'sleep', 'schlafen', 'insomnia'],
+          'gelenke': ['articolazioni', 'gelenke', 'arthrose', 'gelenkschmerzen'],
+          'herz': ['cuore', 'herz', 'kreislauf', 'blutdruck'],
+          'haut': ['pelle', 'haut', 'haare', 'nägel'],
+          'immunsystem': ['immunsystem', 'immun', 'erkältung', 'abwehr'],
+          'gedächtnis': ['memoria', 'gedächtnis', 'konzentration', 'fokus'],
+          'gewicht': ['peso', 'gewicht', 'abnehmen', 'stoffwechsel'],
+        };
+        
+        // Finde passende Kategorien basierend auf Summary
+        const matchedCategories: string[] = [];
+        Object.entries(keywordMap).forEach(([category, categoryKeywords]) => {
+          if (categoryKeywords.some(kw => summary.includes(kw))) {
+            matchedCategories.push(category);
+          }
+        });
+        
+        // Wenn keine Keywords gefunden wurden, keine Videos anzeigen
+        if (keywords.length === 0 && matchedCategories.length === 0) {
+          setRelatedVideos([]);
+          return;
+        }
+        
+        // Filter Videos
         const filtered = videos.filter((v: any) => {
           const videoTags = (v.tags || []).map((t: string) => t.toLowerCase());
           const videoCategory = (v.category || '').toLowerCase();
           
-          // Check if video category matches any concern
-          const categoryMatch = categories.some((c: string) => {
-            const concern = c.toLowerCase();
-            return videoCategory.includes(concern) || concern.includes(videoCategory);
-          });
+          // Check gegen Keywords
+          const keywordMatch = keywords.some(kw => 
+            videoTags.some((tag: string) => tag.includes(kw) || kw.includes(tag)) ||
+            videoCategory.includes(kw)
+          );
           
-          // Check if video tags match any concern or supplement
-          const tagMatch = videoTags.some((tag: string) => {
-            return categories.some((c: string) => c.toLowerCase().includes(tag) || tag.includes(c.toLowerCase())) ||
-                   supplements.some((s: string) => s && (s.includes(tag) || tag.includes(s)));
-          });
+          // Check gegen matched Categories
+          const categoryMatch = matchedCategories.some(cat => 
+            videoCategory.includes(cat) || 
+            videoTags.some((tag: string) => tag.includes(cat))
+          );
           
-          return categoryMatch || tagMatch;
+          return keywordMatch || categoryMatch;
         });
         
-        // Nur passende Videos anzeigen, KEIN Fallback
         setRelatedVideos(filtered.slice(0, 3));
       }
     } catch (e) {
