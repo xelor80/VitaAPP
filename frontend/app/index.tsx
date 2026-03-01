@@ -61,10 +61,18 @@ export default function HomeScreen() {
     }
     setIsLoading(true);
     try {
+      // Get profile_id for personalized analysis
+      const profileId = await AsyncStorage.getItem('health_profile_id');
+      
       const res = await fetch(`${API_URL}/api/symptoms/analyze`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: symptomText, tags: selectedTags, lang }),
+        body: JSON.stringify({ 
+          text: symptomText, 
+          tags: selectedTags, 
+          lang,
+          profile_id: profileId || undefined
+        }),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
