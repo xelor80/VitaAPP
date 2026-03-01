@@ -799,3 +799,130 @@ async function deleteVideo(videoId) {
         console.error('Error deleting video:', err);
     }
 }
+
+// ============ LABEL ANALYSIS ============
+let currentLabelProductId = null;
+let selectedLabelFile = null;
+
+async function openLabelModal(productId, productName) {
+    currentLabelProductId = productId;
+    selectedLabelFile = null;
+    
+    document.getElementById('label-product-id').value = productId;
+    document.getElementById('label-product-name').value = productName;
+    document.getElementById('label-file-input').value = '';
+    document.getElementById('label-file-preview').style.display = 'none';
+    document.getElementById('label-analyze-btn').disabled = true;
+    document.getElementById('label-loading').style.display = 'none';
+    
+    // Load existing label data
+    try {
+        const res = await apiCall(`/products/${productId}/label`);
+        const data = await res.json();
+        
+        if (data.label_image) {
+            document.getElementById('label-current').style.display = 'block';
+            document.getElementById('label-image-preview').src = data.label_image;
+            
+            if (data.analysis) {
+                const a = data.analysis;
+                let html = '<div style="font-size:13px">';
+                if (a.dosage) html += `<p><strong>Dosierung:</strong> ${a.dosage}</p>`;
+                if (a.intake_recommendation) html += `<p><strong>Einnahme:</strong> ${a.intake_recommendation}</p>`;
+                if (a.ingredients && a.ingredients.length) {
+                    html += `<p><strong>Inhaltsstoffe:</strong></p><ul style="margin:5px 0 10px 20px">`;
+                    a.ingredients.slice(0, 5).forEach(i => html += `<li>${i}</li>`);
+                    if (a.ingredients.length > 5) html += `<li>... +${a.ingredients.length - 5} weitere</li>`;
+                    html += '</ul>';
+                }
+                if (a.warnings && a.warnings.length) {
+                    html += `<p style="color:#F59E0B"><strong>Warnhinweise:</strong></p><ul style="margin:5px 0 10px 20px">`;
+                    a.warnings.forEach(w => html += `<li>${w}</li>`);
+                    html += '</ul>';
+                }
+                html += '</div>';
+                document.getElementById('label-analysis-display').innerHTML = html;
+            }
+        } else {
+            document.getElementById('label-current').style.display = 'none';
+        }
+    } catch (err) {
+        document.getElementById('label-current').style.display = 'none';
+    }
+    
+    document.getElementById('label-modal').classList.remove('hidden');
+}
+
+function closeLabelModal() {
+    document.getElementById('label-modal').classList.add('hidden');
+    currentLabelProductId = null;
+    selectedLabelFile = null;
+}
+
+function previewLabelFile() {
+    const fileInput = document.getElementById('label-file-input');
+    const file = fileInput.files[0];
+    
+    if (file) {
+        selectedLabelFile = file;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            document.getElementById('label-new-preview').src = e.target.result;
+            document.getElementById('label-file-name').textContent = file.name;
+            document.getElementById('label-file-preview').style.display = 'block';
+            document.getElementById('label-analyze-btn').disabled = false;
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+async function analyzeLabel() {
+    if (!selectedLabelFile || !currentLabelProductId) return;
+    
+    document.getElementById('label-loading').style.display = 'block';
+    document.getElementById('label-analyze-btn').disabled = true;
+    
+    const formData = new FormData();
+    formData.append('file', selectedLabelFile);
+    formData.append('lang', currentLang);
+    
+    try {
+        const res = await fetch(`${API_BASE}/products/${currentLabelProductId}/label`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${sessionStorage.getItem('admin_token')}`
+            },
+            body: formData
+        });
+        
+        if (res.ok) {
+            const data = await res.json();
+            alert('Etikett erfolgreich analysiert!');
+            closeLabelModal();
+            loadProducts();
+        } else {
+            const err = await res.json();
+            alert('Fehler: ' + (err.detail || 'Analyse fehlgeschlagen'));
+        }
+    } catch (err) {
+        console.error('Label analysis error:', err);
+        alert('Fehler bei der Analyse');
+    } finally {
+        document.getElementById('label-loading').style.display = 'none';
+        document.getElementById('label-analyze-btn').disabled = false;
+    }
+}
+
+async function deleteLabel() {
+    if (!confirm('Etikett-Daten wirklich löschen?')) return;
+    
+    try {
+        await apiCall(`/products/${currentLabelProductId}/label`, { method: 'DELETE' });
+        alert('Etikett gelöscht');
+        closeLabelModal();
+        loadProducts();
+    } catch (err) {
+        console.error('Delete label error:', err);
+        alert('Fehler beim Löschen');
+    }
+}
