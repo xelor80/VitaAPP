@@ -597,6 +597,79 @@
         </div>
     </div>
 
+    <!-- Video Modal -->
+    <div id="video-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="video-modal-title">Neues Video</h2>
+                <button class="btn-close" onclick="closeVideoModal()">&times;</button>
+            </div>
+            <form id="video-form" onsubmit="saveVideo(event)">
+                <div class="form-group">
+                    <label>Titel *</label>
+                    <input type="text" id="video-title" required placeholder="Video-Titel">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>YouTube-URL *</label>
+                        <input type="url" id="video-youtube-url" required placeholder="https://www.youtube.com/watch?v=...">
+                    </div>
+                    <div class="form-group">
+                        <label>YouTube-ID *</label>
+                        <input type="text" id="video-youtube-id" required placeholder="z.B. pJGwTQl7gHU">
+                        <small style="color:#94A3B8">Die ID aus der URL (nach v=)</small>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Beschreibung</label>
+                    <textarea id="video-description" rows="3" placeholder="Kurze Beschreibung des Videos"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Kategorie *</label>
+                        <select id="video-category" required>
+                            <option value="articolazioni">Gelenke & Mobilität</option>
+                            <option value="digestione">Verdauung & Detox</option>
+                            <option value="peso">Gewichtskontrolle</option>
+                            <option value="cuore">Herz & Kreislauf</option>
+                            <option value="energia">Energie & Vitalität</option>
+                            <option value="pelle">Haut, Haare & Nägel</option>
+                            <option value="immunsystem">Immunsystem</option>
+                            <option value="schlaf">Schlaf & Entspannung</option>
+                            <option value="memoria">Gedächtnis & Konzentration</option>
+                            <option value="allgemein">Allgemein</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Sprache *</label>
+                        <select id="video-lang" required>
+                            <option value="it">Italienisch</option>
+                            <option value="de">Deutsch</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Dauer</label>
+                        <input type="text" id="video-duration" placeholder="z.B. 5:30">
+                    </div>
+                    <div class="form-group">
+                        <label>Reihenfolge</label>
+                        <input type="number" id="video-order" value="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Tags (kommagetrennt)</label>
+                    <input type="text" id="video-tags" placeholder="magnesium, schlaf, energie">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeVideoModal()">Abbrechen</button>
+                    <button type="submit" class="btn-save">Speichern</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="/api/admin-app/app.js"></script>
 </body>
 </html>
