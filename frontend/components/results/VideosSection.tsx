@@ -213,12 +213,31 @@ const styles = StyleSheet.create({
   durationBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 6,
   },
   durationText: {
     fontSize: 11,
     color: '#5C7A6F',
     marginLeft: 4,
+  },
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 6,
+    gap: 12,
+  },
+  youtubeBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FEE2E2',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  youtubeText: {
+    fontSize: 10,
+    color: '#991B1B',
+    marginLeft: 3,
+    fontWeight: '500',
   },
   modalOverlay: {
     flex: 1,
