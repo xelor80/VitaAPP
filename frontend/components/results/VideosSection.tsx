@@ -292,19 +292,4 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
   },
-  youtubeBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FEE2E2',
-    borderRadius: 10,
-    padding: 12,
-    marginTop: 16,
-  },
-  youtubeBtnText: {
-    color: '#991B1B',
-    fontSize: 14,
-    fontWeight: '600',
-    marginLeft: 8,
-  },
 });
