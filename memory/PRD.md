@@ -50,12 +50,13 @@ Health-focused, bilingual (German/Italian) mobile web app. Core: LLM-based sympt
   - `GET /api/tracking/compliance/{profile_id}` - Compliance history
 
 ### YouTube Video Integration - Completed 2026-03-01
-- **Home Screen**: "Videos & Tipps" button with YouTube icon navigates to /videos
-- **Videos Screen**: Displays videos grouped by health categories (Gelenke, Verdauung, Herz, etc.)
-- **Language Separation**: Videos filtered by DE/IT based on app language
+- **Videos in Results**: Videos are now shown in symptom analysis results, matched by tags to symptoms
+- **Embedded Player**: Videos play directly in the app via YouTube iframe (modal)
 - **Video Categories**: 10 health-related categories (articolazioni, digestione, peso, cuore, energia, pelle, immunsystem, schlaf, memoria, allgemein)
 - **Admin Panel**: Full CRUD for video management with thumbnail preview, category filter, language toggle
-- **YouTube Channel Link**: Direct link to @joachim_kaeser_italia channel
+- **Language Separation**: Videos filtered by DE/IT based on app language
+- **Tag Matching**: Videos matched to symptoms via category tags for personalized recommendations
+- **Removed**: Home screen button (Videos now integrated into results flow)
 - **Backend APIs**:
   - `GET /api/videos/categories` - Get all video categories
   - `GET /api/videos` - Get videos with optional lang/category filters
