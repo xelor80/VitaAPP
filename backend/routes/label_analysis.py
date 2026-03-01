@@ -30,9 +30,14 @@ async def analyze_label_with_gpt4o(image_base64: str, lang: str = "de") -> dict:
     """Analysiert ein Produkt-Etikett mit GPT-4o Vision."""
     try:
         import os
-        import uuid
         import json
-        from emergentintegrations.llm.chat import LlmChat, UserMessage, ImageContent
+        from openai import AsyncOpenAI
+        
+        # Use OpenAI API directly for vision
+        client = AsyncOpenAI(
+            api_key=os.environ.get("EMERGENT_LLM_KEY"),
+            base_url="https://llm.emergentmethods.ai/v1"
+        )
         
         system_prompt = """Du bist ein Experte für Nahrungsergänzungsmittel-Etiketten. 
 Analysiere das Produktetikett und extrahiere folgende Informationen:
@@ -54,30 +59,29 @@ Antworte NUR im folgenden JSON-Format (keine Markdown-Formatierung):
 
         user_prompt = f"Analysiere dieses Produktetikett und extrahiere die Informationen auf {'Deutsch' if lang == 'de' else 'Italienisch'}."
         
-        # Create chat session with GPT-4o
-        session_id = str(uuid.uuid4())
-        
-        chat = LlmChat(
-            api_key=os.environ.get("EMERGENT_LLM_KEY"),
-            session_id=session_id,
-            system_message=system_prompt
-        ).with_model("openai", "gpt-4o")
-        
-        # Create ImageContent for the image (base64 encoded)
-        image_content = ImageContent(
-            image_base64=image_base64
-        )
-        
-        # Send message with image
-        response_text = await chat.send_message(
-            UserMessage(
-                text=user_prompt,
-                file_contents=[image_content]
-            )
+        # Call GPT-4o with image
+        response = await client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": user_prompt},
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{image_base64}"
+                            }
+                        }
+                    ]
+                }
+            ],
+            max_tokens=2000
         )
         
         # Parse JSON response
-        response_text = response_text.strip()
+        response_text = response.choices[0].message.content.strip()
         
         # Entferne mögliche Markdown-Formatierung
         if response_text.startswith("```"):
