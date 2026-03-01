@@ -37,47 +37,35 @@ Health-focused, bilingual (German/Italian) mobile web app. Core: LLM-based sympt
 ### Health Tracking & Progress System (P0) - Completed 2026-02-28
 - **Home Screen**: "Mein Fortschritt" button navigates to /tracking
 - **Progress Dashboard**: Overall progress %, streak days, days tracked, compliance rate
-- **Symptom Tracking**: Daily rating (1-10) for overall + 5 categories (energy, sleep, mood, concentration, digestion)
+- **Symptom Tracking**: Daily rating (1-10) for overall + 5 categories
 - **Compliance Tracking**: Checklist for supplement intake based on user's plan
-- **Trend Analysis**: Line charts showing symptom and compliance trends over time
-- **Milestones**: Gamified achievements (3/7/14/30 day streaks, 80%/90% compliance)
-- **Coach Insights**: AI-powered personalized feedback based on tracking data
-- **Backend APIs**: 
-  - `POST /api/tracking/symptoms` - Save symptom ratings
-  - `POST /api/tracking/compliance` - Save supplement compliance
-  - `GET /api/tracking/dashboard/{profile_id}` - Full dashboard data
-  - `GET /api/tracking/symptoms/{profile_id}` - Symptom history
-  - `GET /api/tracking/compliance/{profile_id}` - Compliance history
+- **Trend Analysis**: Line charts showing symptom and compliance trends
+- **Milestones**: Gamified achievements
+- **Coach Insights**: AI-powered personalized feedback
 
 ### YouTube Video Integration - Completed 2026-03-01
-- **Videos in Results**: Videos are now shown in symptom analysis results, matched by tags to symptoms
-- **Embedded Player**: Videos play directly in the app via YouTube iframe (modal)
-- **Video Categories**: 10 health-related categories (articolazioni, digestione, peso, cuore, energia, pelle, immunsystem, schlaf, memoria, allgemein)
-- **Admin Panel**: Full CRUD for video management with thumbnail preview, category filter, language toggle
-- **Language Separation**: Videos filtered by DE/IT based on app language
-- **Tag Matching**: Videos matched to symptoms via category tags for personalized recommendations
-- **Removed**: Home screen button (Videos now integrated into results flow)
-- **Backend APIs**:
-  - `GET /api/videos/categories` - Get all video categories
-  - `GET /api/videos` - Get videos with optional lang/category filters
-  - `GET /api/videos/by-category/{lang}` - Get videos grouped by category
-  - `POST /api/videos` - Create new video
-  - `PUT /api/videos/{video_id}` - Update video
-  - `DELETE /api/videos/{video_id}` - Delete video
+- Videos in symptom analysis results, matched by tags
+- Video player: YouTube app on mobile, embedded on web
+- Admin Panel: Full CRUD for video management
 
-### Push Notifications for Supplement Reminders (P2) - Completed 2026-03-01
-- **NotificationService**: Created `src/services/NotificationService.ts` with full notification management
-- **Expo Notifications**: Native push notifications for iOS/Android using `expo-notifications`
-- **Web Browser Notifications**: Fallback for web using the Notification API
-- **Reminder Settings**: Configurable times for morning, noon, and evening reminders
-- **Test Notification**: Button to test notification delivery
-- **Permission Handling**: Automatic permission requests with user feedback
-- **Features**:
-  - Toggle to enable/disable reminders
-  - Customizable reminder times (HH:MM format)
-  - Daily recurring notifications based on supplement schedule
-  - Alert confirmation when reminders are activated
-  - Persistence of settings in backend
+### Push Notifications for Supplement Reminders - Completed 2026-03-01
+- NotificationService with expo-notifications
+- Configurable reminder times for morning, noon, evening
+
+### Enhanced Symptom Analysis (v2.0) - Completed 2026-03-01
+- Health profile integration, scientific tone, deep symptom analysis
+- Label data used in recommendations
+
+### Product Label Analysis - Fixed 2026-03-01
+- **Model**: GPT-4.1 via emergentintegrations (upgraded from GPT-4o for better vision)
+- **Image Processing**: Auto-resize to max 2048px, JPEG optimization
+- **Error Handling**: Separate library error catching, user-friendly German messages
+- **Cache-Busting**: Admin panel serves JS/CSS with no-cache headers
+- **API Endpoints**:
+  - `POST /api/products/{product_id}/label` - Upload + AI analysis
+  - `GET /api/products/{product_id}/label` - Retrieve analysis
+  - `DELETE /api/products/{product_id}/label` - Delete label data
+- **Testing**: Backend tests passed with various image sizes (400x300 to 4000x3000)
 
 ## Key Routes
 - `/` - Home | `/onboarding` - Wizard | `/health-profile` - Profile
@@ -85,37 +73,19 @@ Health-focused, bilingual (German/Italian) mobile web app. Core: LLM-based sympt
 - `/results` - Analysis | `/diary` - Diary
 - `/api/admin-app` - Admin (Password: `Wk220480xel!`)
 
+## Known Issues
+- OverviewTab.tsx line 38: `nutrition_tips` contains objects instead of strings (frontend render error in Expo logs)
+
 ## Prioritized Backlog
 - **P3**: Recipe Catalog Search/Filter UI
 - **P4**: Admin Health Statistics Dashboard
-- **Refactoring**: admin_app/app.js modularization
-
-## Recent Improvements (2026-03-01)
-
-### Enhanced Symptom Analysis (v2.0)
-- **Gesundheitsprofil-Integration**: Analyse berücksichtigt Alter, Geschlecht, Lebensstil, bestehende Beschwerden
-- **Wissenschaftlicher Ton**: Biochemische Erklärungen, Wirkmechanismen, Evidenzstufen
-- **Symptom-Tiefenanalyse**: Mögliche Ursachen, Zusammenhänge zwischen Symptomen
-- **Etikett-Daten**: Produktinformationen aus analysierten Etiketten werden in Empfehlungen einbezogen
-- **Strukturierte Ausgabe**: Klare Abschnitte (Analyse → Ursachen → Empfehlungen → Zeitplan)
-- **Verbesserungs-Zeitplan**: Kurzfristige und mittelfristige Erwartungen
-
-### Product Label Analysis (Admin Panel) - Fixed & Completed 2026-03-01
-- **Etikett-Upload**: Bilder von Produktetiketten hochladen
-- **GPT-4o Vision**: KI analysiert automatisch Inhaltsstoffe, Dosierung, Einnahmeempfehlung, Warnhinweise
-- **Integration**: Verwendet `emergentintegrations.llm.chat` (LlmChat + ImageContent) statt raw OpenAI-Client
-- **Datenbank-Integration**: Analysierte Daten werden beim Produkt gespeichert (field: `product_id`)
-- **API Endpoints**:
-  - `POST /api/products/{product_id}/label` - Upload + AI-Analyse
-  - `GET /api/products/{product_id}/label` - Analyse abrufen
-  - `DELETE /api/products/{product_id}/label` - Etikett-Daten löschen
-- **Testing**: 100% (9/9 Backend, Full Frontend) - iteration_18.json
+- **Refactoring**: admin_webapp/app.js modularization
 
 ## Key Database Collections
 - `health_profiles` - User health data from onboarding
 - `supplement_plans` - Generated supplement plans
 - `symptom_tracking` - Daily symptom ratings
 - `compliance_tracking` - Daily supplement compliance
-- `products_de`, `products_it` - Affiliate products
+- `products_de`, `products_it` - Affiliate products (with label_image, label_analysis fields)
 - `videos` - YouTube video metadata with category and language
 - `settings` - Dynamic UI content
