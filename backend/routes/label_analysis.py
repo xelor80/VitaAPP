@@ -22,7 +22,7 @@ router = APIRouter()
 UPLOAD_DIR = "/app/backend/uploads/labels"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-MAX_IMAGE_DIMENSION = 1024
+MAX_IMAGE_DIMENSION = 2048
 
 
 class LabelAnalysisResult(BaseModel):
@@ -34,7 +34,7 @@ class LabelAnalysisResult(BaseModel):
 
 
 def resize_image_if_needed(image_bytes: bytes) -> bytes:
-    """Resize image to max 1024px on longest side to reduce payload size."""
+    """Resize image to max 2048px on longest side to reduce payload size."""
     try:
         from PIL import Image
         img = Image.open(io.BytesIO(image_bytes))
@@ -48,11 +48,16 @@ def resize_image_if_needed(image_bytes: bytes) -> bytes:
             if img.mode == "RGBA":
                 img = img.convert("RGB")
             buf = io.BytesIO()
-            img.save(buf, format="JPEG", quality=85)
+            img.save(buf, format="JPEG", quality=90)
             result = buf.getvalue()
             logger.info(f"Resized image: {new_size[0]}x{new_size[1]}, {len(result)} bytes")
             return result
-        return image_bytes
+        # Even if not resizing, ensure it's JPEG and reasonable quality
+        if img.mode == "RGBA":
+            img = img.convert("RGB")
+        buf = io.BytesIO()
+        img.save(buf, format="JPEG", quality=90)
+        return buf.getvalue()
     except Exception as e:
         logger.warning(f"Image resize failed, using original: {e}")
         return image_bytes
