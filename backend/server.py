@@ -7,13 +7,14 @@ import secrets
 from pathlib import Path
 
 from core.config import client, logger
-from routes import analysis, products, tracking, diary, admin, settings, health_profile, supplement_plan, progress, videos
+from routes import analysis, products, tracking, diary, admin, settings, health_profile, supplement_plan, progress, videos, label_analysis
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
 # Admin webapp directory
 ADMIN_WEBAPP_DIR = Path(__file__).parent / "admin_webapp"
+UPLOADS_DIR = Path(__file__).parent / "uploads"
 
 # Admin password (hashed)
 ADMIN_PASSWORD = "Wk220480xel!"
