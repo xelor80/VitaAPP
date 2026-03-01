@@ -13,6 +13,7 @@ import { OverviewTab } from '../components/tabs/OverviewTab';
 import { SupplementsTab } from '../components/tabs/SupplementsTab';
 import { NutritionTab } from '../components/tabs/NutritionTab';
 import { RecipesTab } from '../components/tabs/RecipesTab';
+import { VideosSection } from '../components/results/VideosSection';
 import { styles } from '../components/styles/resultsStyles';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
