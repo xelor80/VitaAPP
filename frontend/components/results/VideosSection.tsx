@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Modal, StyleSheet, Dimensions, Platform } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { WebView } from 'react-native-webview';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -36,8 +37,14 @@ export function VideosSection({ videos, lang, title }: VideosSectionProps) {
 
   if (videos.length === 0) return null;
 
-  const playerWidth = Math.min(SCREEN_WIDTH - 60, 600);
+  const playerWidth = Platform.OS === 'web' 
+    ? Math.min(SCREEN_WIDTH - 60, 600) 
+    : SCREEN_WIDTH - 40;
   const playerHeight = playerWidth * 0.5625;
+
+  const youtubeEmbedUrl = playingVideoId 
+    ? `https://www.youtube.com/embed/${playingVideoId}?autoplay=1&rel=0&playsinline=1` 
+    : '';
 
   return (
     <View style={styles.container}>
@@ -84,7 +91,7 @@ export function VideosSection({ videos, lang, title }: VideosSectionProps) {
         onRequestClose={closeVideo}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+          <View style={[styles.modalContent, Platform.OS !== 'web' && { width: SCREEN_WIDTH - 20 }]}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle} numberOfLines={2}>
                 {playingTitle}
@@ -94,28 +101,39 @@ export function VideosSection({ videos, lang, title }: VideosSectionProps) {
               </TouchableOpacity>
             </View>
             
-            {playingVideoId && Platform.OS === 'web' && (
-              <View style={styles.playerContainer}>
-                <div 
-                  style={{ 
-                    width: playerWidth, 
-                    height: playerHeight, 
-                    borderRadius: 8, 
-                    overflow: 'hidden',
-                    backgroundColor: '#000'
-                  }}
-                  dangerouslySetInnerHTML={{
-                    __html: `<iframe 
-                      width="${playerWidth}" 
-                      height="${playerHeight}" 
-                      src="https://www.youtube.com/embed/${playingVideoId}?autoplay=1&rel=0" 
-                      frameborder="0" 
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                      allowfullscreen
-                      style="border-radius: 8px;">
-                    </iframe>`
-                  }}
-                />
+            {playingVideoId && (
+              <View style={[styles.playerContainer, { width: playerWidth, height: playerHeight }]}>
+                {Platform.OS === 'web' ? (
+                  <div 
+                    style={{ 
+                      width: playerWidth, 
+                      height: playerHeight, 
+                      borderRadius: 8, 
+                      overflow: 'hidden',
+                      backgroundColor: '#000'
+                    }}
+                    dangerouslySetInnerHTML={{
+                      __html: `<iframe 
+                        width="${playerWidth}" 
+                        height="${playerHeight}" 
+                        src="${youtubeEmbedUrl}" 
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                        allowfullscreen
+                        style="border-radius: 8px;">
+                      </iframe>`
+                    }}
+                  />
+                ) : (
+                  <WebView
+                    source={{ uri: youtubeEmbedUrl }}
+                    style={{ width: playerWidth, height: playerHeight, borderRadius: 8 }}
+                    allowsFullscreenVideo={true}
+                    mediaPlaybackRequiresUserAction={false}
+                    javaScriptEnabled={true}
+                    domStorageEnabled={true}
+                  />
+                )}
               </View>
             )}
 
