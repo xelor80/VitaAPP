@@ -90,6 +90,22 @@ Health-focused, bilingual (German/Italian) mobile web app. Core: LLM-based sympt
 - **P4**: Admin Health Statistics Dashboard
 - **Refactoring**: admin_app/app.js modularization
 
+## Recent Improvements (2026-03-01)
+
+### Enhanced Symptom Analysis (v2.0)
+- **Gesundheitsprofil-Integration**: Analyse berücksichtigt Alter, Geschlecht, Lebensstil, bestehende Beschwerden
+- **Wissenschaftlicher Ton**: Biochemische Erklärungen, Wirkmechanismen, Evidenzstufen
+- **Symptom-Tiefenanalyse**: Mögliche Ursachen, Zusammenhänge zwischen Symptomen
+- **Etikett-Daten**: Produktinformationen aus analysierten Etiketten werden in Empfehlungen einbezogen
+- **Strukturierte Ausgabe**: Klare Abschnitte (Analyse → Ursachen → Empfehlungen → Zeitplan)
+- **Verbesserungs-Zeitplan**: Kurzfristige und mittelfristige Erwartungen
+
+### Product Label Analysis (Admin Panel)
+- **Etikett-Upload**: Bilder von Produktetiketten hochladen
+- **GPT-4o Vision**: KI analysiert automatisch Inhaltsstoffe, Dosierung, Einnahmeempfehlung, Warnhinweise
+- **Datenbank-Integration**: Analysierte Daten werden beim Produkt gespeichert
+- **API**: `/api/products/{id}/label` für Upload und Analyse
+
 ## Key Database Collections
 - `health_profiles` - User health data from onboarding
 - `supplement_plans` - Generated supplement plans
