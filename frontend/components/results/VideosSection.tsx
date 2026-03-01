@@ -230,6 +230,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  playerContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#000',
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
   closeFullBtn: {
     backgroundColor: '#4A8B71',
     borderRadius: 10,
