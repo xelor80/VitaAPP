@@ -8,6 +8,7 @@ class SymptomInput(BaseModel):
     duration: str = ""
     intensity: str = ""
     lang: str = "de"
+    profile_id: Optional[str] = None  # Optional health profile ID for personalized analysis
 
 
 class ClickEventInput(BaseModel):
