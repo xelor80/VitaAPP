@@ -30,7 +30,9 @@ async def analyze_label_with_gpt4o(image_base64: str, lang: str = "de") -> dict:
     """Analysiert ein Produkt-Etikett mit GPT-4o Vision."""
     try:
         import os
-        from emergentintegrations.llm.chat import LlmChat, UserMessage
+        import uuid
+        import json
+        from emergentintegrations.llm.chat import LlmChat, UserMessage, FileContent
         
         system_prompt = """Du bist ein Experte für Nahrungsergänzungsmittel-Etiketten. 
 Analysiere das Produktetikett und extrahiere folgende Informationen:
@@ -53,7 +55,6 @@ Antworte NUR im folgenden JSON-Format (keine Markdown-Formatierung):
         user_prompt = f"Analysiere dieses Produktetikett und extrahiere die Informationen auf {'Deutsch' if lang == 'de' else 'Italienisch'}."
         
         # Create chat session with GPT-4o
-        import uuid
         session_id = str(uuid.uuid4())
         
         chat = LlmChat(
@@ -62,16 +63,21 @@ Antworte NUR im folgenden JSON-Format (keine Markdown-Formatierung):
             system_message=system_prompt
         ).with_model("openai", "gpt-4o")
         
-        # Send message with image
+        # Create FileContent for the image
+        image_content = FileContent(
+            content_type="image/jpeg",
+            file_content_base64=image_base64
+        )
+        
+        # Send message with image using file_contents
         response_text = await chat.send_message(
             UserMessage(
                 text=user_prompt,
-                images=[f"data:image/jpeg;base64,{image_base64}"]
+                file_contents=[image_content]
             )
         )
         
         # Parse JSON response
-        import json
         response_text = response_text.strip()
         
         # Entferne mögliche Markdown-Formatierung
