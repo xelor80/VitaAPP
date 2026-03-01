@@ -318,6 +318,16 @@ export default function SupplementPlanScreen() {
                     />
                   </View>
                 ))}
+                <TouchableOpacity 
+                  style={[styles.reminderSaveBtn, { backgroundColor: '#6B7280', marginTop: 12, marginBottom: 8 }]} 
+                  onPress={() => sendTestNotification(lang)}
+                  testID="test-notification-btn"
+                >
+                  <MaterialCommunityIcons name="bell-ring" size={18} color="#FFFFFF" />
+                  <Text style={[styles.reminderSaveBtnText, { marginLeft: 8 }]}>
+                    {lang === 'de' ? 'Test-Benachrichtigung' : 'Notifica di prova'}
+                  </Text>
+                </TouchableOpacity>
               </View>
             )}
             <TouchableOpacity style={styles.reminderSaveBtn} onPress={saveReminders}>
