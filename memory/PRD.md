@@ -1,21 +1,21 @@
 # VitaGuide PRD - Product Requirements Document
 
 ## Original Problem Statement
-Health-focused, bilingual (German/Italian) mobile web app. Core: LLM-based symptom analysis for nutrition tips, supplement info, affiliate links. Features: recipe catalog, symptom diary, safety disclaimers, intelligent onboarding, evidence-based supplement planning, dynamic admin-managed content, health profile dashboard, affiliate product recommendations, health tracking & progress system, YouTube video integration.
+Health-focused, bilingual (German/Italian) mobile web app. Core: LLM-based symptom analysis for nutrition tips, supplement info, affiliate links. Features: recipe catalog, symptom diary, safety disclaimers, intelligent onboarding, evidence-based supplement planning, dynamic admin-managed content, health tracking & progress system, YouTube video integration, product label analysis.
 
 ## Architecture
 - **Frontend**: React Native (Expo for Web)
 - **Backend**: FastAPI (Python)
 - **Database**: MongoDB
 - **Admin Panel**: Standalone HTML/CSS/JS at `/api/admin-app`
-- **LLM**: OpenAI/Anthropic/Google via emergentintegrations
+- **LLM**: OpenAI/Anthropic/Google via emergentintegrations (GPT-4.1 for vision)
 - **Charts**: react-native-chart-kit for data visualization
 
 ## Completed Features
 
 ### Core Features
 1. Symptom Analysis, Recipe Catalog, Symptom Diary
-2. Admin Panel (products, recipes, texts, chips, disclaimers, AI settings, supplements, **videos**)
+2. Admin Panel (products, recipes, texts, chips, disclaimers, AI settings, supplements, videos)
 3. Click Tracking with geolocation
 4. Data Migration to MongoDB
 
@@ -25,67 +25,58 @@ Health-focused, bilingual (German/Italian) mobile web app. Core: LLM-based sympt
 
 ### Supplement Plan + Affiliate Products
 - 17 supplements, 8-week plan, 4 phases, LLM summary, reminders
-- **Home screen button** with alert modal when no profile exists
-- **Affiliate product recommendations** in supplement cards (matched by nutrient tags)
+- Home screen button with alert modal when no profile exists
+- Affiliate product recommendations in supplement cards
 - Click tracking for affiliate links
-- Admin panel supplement management
 
 ### Dynamic Content (P1)
 - SettingsProvider fetches translations, chips, disclaimer from backend
 - Admin changes reflected in app
 
-### Health Tracking & Progress System (P0) - Completed 2026-02-28
-- **Home Screen**: "Mein Fortschritt" button navigates to /tracking
-- **Progress Dashboard**: Overall progress %, streak days, days tracked, compliance rate
-- **Symptom Tracking**: Daily rating (1-10) for overall + 5 categories
-- **Compliance Tracking**: Checklist for supplement intake based on user's plan
-- **Trend Analysis**: Line charts showing symptom and compliance trends
-- **Milestones**: Gamified achievements
-- **Coach Insights**: AI-powered personalized feedback
+### Health Tracking & Progress System - Completed 2026-02-28
+- Progress Dashboard, Symptom Tracking, Compliance Tracking
+- Trend Analysis with charts, Milestones, Coach Insights
 
 ### YouTube Video Integration - Completed 2026-03-01
-- Videos in symptom analysis results, matched by tags
+- Videos in symptom analysis, matched by tags
 - Video player: YouTube app on mobile, embedded on web
 - Admin Panel: Full CRUD for video management
 
-### Push Notifications for Supplement Reminders - Completed 2026-03-01
+### Push Notifications - Completed 2026-03-01
 - NotificationService with expo-notifications
-- Configurable reminder times for morning, noon, evening
+- Configurable reminder times
 
 ### Enhanced Symptom Analysis (v2.0) - Completed 2026-03-01
-- Health profile integration, scientific tone, deep symptom analysis
-- Label data used in recommendations
+- Health profile integration, scientific tone, deep analysis
 
-### Product Label Analysis - Fixed 2026-03-01
-- **Model**: GPT-4.1 via emergentintegrations (upgraded from GPT-4o for better vision)
-- **Image Processing**: Auto-resize to max 2048px, JPEG optimization
-- **Error Handling**: Separate library error catching, user-friendly German messages
-- **Cache-Busting**: Admin panel serves JS/CSS with no-cache headers
+### Product Label Analysis (Image + PDF) - Completed 2026-03-02
+- **Image Upload**: GPT-4.1 Vision via emergentintegrations (ImageContent)
+- **PDF Upload**: Text extraction via PyMuPDF + GPT-4.1 text analysis
+- **Both simultaneously**: Image stored + PDF preferred for analysis (more reliable)
+- **Image Processing**: Auto-resize to max 2048px
+- **Admin UI**: Dual upload (Bild/PDF), existing label display with PDF link
 - **API Endpoints**:
-  - `POST /api/products/{product_id}/label` - Upload + AI analysis
+  - `POST /api/products/{product_id}/label` - Upload image/PDF + AI analysis
   - `GET /api/products/{product_id}/label` - Retrieve analysis
   - `DELETE /api/products/{product_id}/label` - Delete label data
-- **Testing**: Backend tests passed with various image sizes (400x300 to 4000x3000)
+- **DB fields**: `label_image`, `label_pdf`, `label_analysis`, `label_analyzed_at`
+- **Testing**: All 4 scenarios passed (image-only, pdf-only, both, no-file)
 
 ## Key Routes
 - `/` - Home | `/onboarding` - Wizard | `/health-profile` - Profile
-- `/supplement-plan` - Plan | `/tracking` - Progress Dashboard | `/videos` - Video Library
+- `/supplement-plan` - Plan | `/tracking` - Progress Dashboard
 - `/results` - Analysis | `/diary` - Diary
 - `/api/admin-app` - Admin (Password: `Wk220480xel!`)
 
 ## Known Issues
-- OverviewTab.tsx line 38: `nutrition_tips` contains objects instead of strings (frontend render error in Expo logs)
+- OverviewTab.tsx: `nutrition_tips` contains objects instead of strings (frontend render error)
 
 ## Prioritized Backlog
 - **P3**: Recipe Catalog Search/Filter UI
 - **P4**: Admin Health Statistics Dashboard
 - **Refactoring**: admin_webapp/app.js modularization
 
-## Key Database Collections
-- `health_profiles` - User health data from onboarding
-- `supplement_plans` - Generated supplement plans
-- `symptom_tracking` - Daily symptom ratings
-- `compliance_tracking` - Daily supplement compliance
-- `products_de`, `products_it` - Affiliate products (with label_image, label_analysis fields)
-- `videos` - YouTube video metadata with category and language
-- `settings` - Dynamic UI content
+## Key DB Collections
+- `health_profiles`, `supplement_plans`, `symptom_tracking`, `compliance_tracking`
+- `products_de/it` (with label_image, label_pdf, label_analysis fields)
+- `videos`, `settings`
