@@ -701,17 +701,31 @@
                 
                 <div class="form-group">
                     <label>Neues Etikett hochladen</label>
-                    <div style="border:2px dashed #334155;border-radius:12px;padding:30px;text-align:center;margin-top:10px">
-                        <i class="fas fa-cloud-upload-alt" style="font-size:40px;color:#4A8B71;margin-bottom:10px"></i>
-                        <p style="color:#94A3B8;margin-bottom:15px">Bild des Produkt-Etiketts hochladen</p>
-                        <input type="file" id="label-file-input" accept="image/*" onchange="previewLabelFile()" style="display:none">
-                        <button type="button" class="btn-add" onclick="document.getElementById('label-file-input').click()">
-                            <i class="fas fa-image"></i> Bild auswählen
-                        </button>
+                    <div style="display:flex;gap:15px;margin-top:10px">
+                        <div style="flex:1;border:2px dashed #334155;border-radius:12px;padding:20px;text-align:center">
+                            <i class="fas fa-image" style="font-size:32px;color:#4A8B71;margin-bottom:8px"></i>
+                            <p style="color:#94A3B8;margin-bottom:10px;font-size:13px">Bild des Etiketts</p>
+                            <input type="file" id="label-file-input" accept="image/*" onchange="previewLabelFile()" style="display:none">
+                            <button type="button" class="btn-add" onclick="document.getElementById('label-file-input').click()" style="font-size:13px">
+                                <i class="fas fa-image"></i> Bild
+                            </button>
+                        </div>
+                        <div style="flex:1;border:2px dashed #334155;border-radius:12px;padding:20px;text-align:center">
+                            <i class="fas fa-file-pdf" style="font-size:32px;color:#EF4444;margin-bottom:8px"></i>
+                            <p style="color:#94A3B8;margin-bottom:10px;font-size:13px">PDF des Etiketts</p>
+                            <input type="file" id="label-pdf-input" accept="application/pdf" onchange="previewPdfFile()" style="display:none">
+                            <button type="button" class="btn-add" onclick="document.getElementById('label-pdf-input').click()" style="font-size:13px">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </button>
+                        </div>
                     </div>
                     <div id="label-file-preview" style="display:none;margin-top:15px;text-align:center">
                         <img id="label-new-preview" src="" style="max-width:300px;max-height:300px;border-radius:8px">
                         <p id="label-file-name" style="color:#94A3B8;margin-top:8px"></p>
+                    </div>
+                    <div id="label-pdf-preview" style="display:none;margin-top:15px;text-align:center">
+                        <i class="fas fa-file-pdf" style="font-size:48px;color:#EF4444"></i>
+                        <p id="label-pdf-name" style="color:#94A3B8;margin-top:8px"></p>
                     </div>
                 </div>
                 
