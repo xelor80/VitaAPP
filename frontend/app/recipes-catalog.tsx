@@ -5,13 +5,14 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLang } from '../src/LangContext';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
 const TEXTS = {
   de: {
-    title: 'Rezeptkatalog',
+    title: 'Deine Rezepte',
     subtitle: 'Gesunde Rezepte entdecken',
     searchPlaceholder: 'Rezept suchen...',
     categories: 'Kategorien',
@@ -30,7 +31,7 @@ const TEXTS = {
     recipes: 'Rezepte',
   },
   it: {
-    title: 'Catalogo Ricette',
+    title: 'Le tue Ricette',
     subtitle: 'Scopri ricette salutari',
     searchPlaceholder: 'Cerca ricetta...',
     categories: 'Categorie',
