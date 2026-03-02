@@ -28,6 +28,8 @@ class RecipeCreate(BaseModel):
     time_min: int = 20
     symptom_tags: list[str] = []
     image_url: str = ""
+    category: str = ""
+    active: bool = True
 
 
 # ============== HEALTH & STATS ==============
@@ -149,8 +151,8 @@ async def delete_product(product_id: str, lang: str = "de"):
 
 # ============== RECIPES CRUD ==============
 @router.get("/recipes")
-async def list_recipes(search: str = "", skip: int = 0, limit: int = 50):
-    """List recipes with optional search."""
+async def list_recipes(search: str = "", category: str = "", active_only: str = "", skip: int = 0, limit: int = 50):
+    """List recipes with optional search, category filter, and active filter."""
     query = {}
     if search:
         query["$or"] = [
@@ -158,10 +160,16 @@ async def list_recipes(search: str = "", skip: int = 0, limit: int = 50):
             {"it.title": {"$regex": search, "$options": "i"}},
             {"id": {"$regex": search, "$options": "i"}}
         ]
-    
+    if category:
+        query["category"] = category
+    if active_only == "true":
+        query["active"] = {"$ne": False}
+    elif active_only == "false":
+        query["active"] = False
+
     total = await db.recipes.count_documents(query)
     recipes = await db.recipes.find(query, {"_id": 0}).skip(skip).limit(limit).to_list(limit)
-    
+
     return {"total": total, "recipes": recipes}
 
 
@@ -199,8 +207,147 @@ async def delete_recipe(recipe_id: str):
     result = await db.recipes.delete_one({"id": recipe_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Recipe not found")
-    
+
     return {"success": True, "deleted": recipe_id}
+
+
+@router.patch("/recipes/{recipe_id}/toggle")
+async def toggle_recipe(recipe_id: str):
+    """Toggle recipe active/inactive status."""
+    doc = await db.recipes.find_one({"id": recipe_id})
+    if not doc:
+        raise HTTPException(status_code=404, detail="Recipe not found")
+
+    current = doc.get("active", True)
+    new_status = not current
+    await db.recipes.update_one({"id": recipe_id}, {"$set": {"active": new_status}})
+    return {"success": True, "recipe_id": recipe_id, "active": new_status}
+
+
+@router.get("/recipes/categories")
+async def get_recipe_categories():
+    """Get all available recipe categories."""
+    cats = await db.recipes.distinct("category")
+    cats = [c for c in cats if c]
+    default_cats = [
+        "fruehstueck", "mittagessen", "abendessen", "snack",
+        "smoothie", "suppe", "salat", "dessert"
+    ]
+    all_cats = list(set(default_cats + cats))
+    all_cats.sort()
+    return {"categories": all_cats}
+
+
+class RecipeGenerateRequest(BaseModel):
+    category: str = ""
+    count: int = 3
+    focus: str = ""
+
+
+@router.post("/recipes/generate")
+async def generate_recipes(req: RecipeGenerateRequest):
+    """Use LLM to generate new healthy recipes."""
+    import json, uuid, os
+
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+
+        ai_config = await db.ai_config.find_one({"_id": "active"})
+        provider = ai_config.get("provider", "openai") if ai_config else "openai"
+        model = ai_config.get("model", "gpt-4o") if ai_config else "gpt-4o"
+
+        category_label = req.category or "allgemein"
+        focus_text = f"\nSchwerpunkt: {req.focus}" if req.focus else ""
+
+        system_msg = f"""Du bist ein professioneller Ernaehrungsberater und Koch.
+Erstelle {req.count} gesunde Rezepte fuer die Kategorie "{category_label}".{focus_text}
+
+Antworte AUSSCHLIESSLICH mit validem JSON-Array:
+[
+  {{
+    "de": {{
+      "title": "Rezeptname auf Deutsch",
+      "ingredients": ["200g Quinoa", "1 Avocado", ...],
+      "steps": ["Quinoa kochen.", "Avocado schneiden.", ...],
+      "tags": ["glutenfrei", "proteinreich"]
+    }},
+    "it": {{
+      "title": "Nome ricetta in italiano",
+      "ingredients": ["200g di quinoa", "1 avocado", ...],
+      "steps": ["Cuocere la quinoa.", "Tagliare l'avocado.", ...],
+      "tags": ["senza glutine", "ricco di proteine"]
+    }},
+    "time_min": 25,
+    "category": "{category_label}",
+    "symptom_tags": ["energie", "verdauung"]
+  }}
+]
+
+Regeln:
+- Alle Rezepte muessen gesund und naehrstoffreich sein
+- Realistische Zubereitungszeiten
+- Mindestens 4 Zutaten und 3 Schritte pro Rezept
+- symptom_tags aus: energie, schlaf, stimmung, konzentration, verdauung, immunsystem, haut, gelenke
+- Bilingual: Deutsch und Italienisch
+- Keine Markdown, nur JSON-Array"""
+
+        session_id = str(uuid.uuid4())
+        chat = LlmChat(
+            api_key=os.environ.get('EMERGENT_LLM_KEY', ''),
+            session_id=session_id,
+            system_message=system_msg
+        ).with_model(provider, model)
+
+        response = await chat.send_message(
+            UserMessage(text=f"Erstelle {req.count} Rezepte fuer Kategorie '{category_label}'.{focus_text} Antworte nur mit JSON.")
+        )
+        raw = response if isinstance(response, str) else str(response)
+
+        # Parse JSON
+        text = raw.strip()
+        if text.startswith("```"):
+            lines = text.split("\n")
+            lines = [l for l in lines if not l.strip().startswith("```")]
+            text = "\n".join(lines)
+
+        try:
+            recipes = json.loads(text)
+        except json.JSONDecodeError:
+            start = text.find("[")
+            end = text.rfind("]") + 1
+            if start >= 0 and end > start:
+                recipes = json.loads(text[start:end])
+            else:
+                raise HTTPException(status_code=500, detail="KI-Antwort konnte nicht geparst werden")
+
+        if not isinstance(recipes, list):
+            raise HTTPException(status_code=500, detail="Ungueltiges Format")
+
+        # Save generated recipes to DB
+        saved = []
+        for r in recipes:
+            recipe_id = f"ai_{uuid.uuid4().hex[:8]}"
+            doc = {
+                "id": recipe_id,
+                "de": r.get("de", {}),
+                "it": r.get("it", {}),
+                "time_min": r.get("time_min", 20),
+                "category": r.get("category", category_label),
+                "symptom_tags": r.get("symptom_tags", []),
+                "image_url": "",
+                "active": True,
+                "ai_generated": True,
+                "created_at": datetime.now(timezone.utc).isoformat()
+            }
+            await db.recipes.insert_one(doc)
+            saved.append({"id": recipe_id, "title_de": doc["de"].get("title", "")})
+
+        return {"success": True, "generated": len(saved), "recipes": saved}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Fehler bei der Rezept-Generierung: {str(e)}")
 
 
 # ============== AFFILIATE CLICKS ==============

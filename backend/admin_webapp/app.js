@@ -219,24 +219,66 @@ async function deleteProduct(productId) {
 // ============ RECIPES ============
 async function loadRecipes() {
     const search = document.getElementById('recipe-search').value;
+    const category = document.getElementById('recipe-category-filter').value;
+    const activeOnly = document.getElementById('recipe-active-filter').value;
     try {
-        const res = await apiCall(`/admin/recipes?search=${encodeURIComponent(search)}`);
+        let url = `/admin/recipes?search=${encodeURIComponent(search)}`;
+        if (category) url += `&category=${encodeURIComponent(category)}`;
+        if (activeOnly) url += `&active_only=${activeOnly}`;
+        const res = await apiCall(url);
         const data = await res.json();
-        
+
+        const catLabels = {
+            fruehstueck: 'Frühstück', mittagessen: 'Mittagessen', abendessen: 'Abendessen',
+            snack: 'Snack', smoothie: 'Smoothie', suppe: 'Suppe', salat: 'Salat', dessert: 'Dessert'
+        };
+
         const tbody = document.getElementById('recipes-table');
-        tbody.innerHTML = data.recipes.map(r => `
-            <tr>
-                <td>${r.id}</td>
+        tbody.innerHTML = data.recipes.map(r => {
+            const active = r.active !== false;
+            const aiGenerated = r.ai_generated ? '<i class="fas fa-robot" style="color:#8B5CF6;margin-left:4px" title="KI-generiert"></i>' : '';
+            return `
+            <tr style="${!active ? 'opacity:0.5' : ''}">
+                <td><code>${r.id}</code>${aiGenerated}</td>
                 <td>${r.de?.title || '-'}</td>
                 <td>${r.it?.title || '-'}</td>
+                <td><span class="badge">${catLabels[r.category] || r.category || '-'}</span></td>
                 <td>${r.time_min} min</td>
                 <td>
-                    <button class="btn-edit" onclick="editRecipe('${r.id}')">Edit</button>
-                    <button class="btn-delete" onclick="deleteRecipe('${r.id}')">Del</button>
+                    <button onclick="toggleRecipe('${r.id}')" style="background:none;border:none;cursor:pointer;font-size:18px;color:${active ? '#10B981' : '#EF4444'}" title="${active ? 'Deaktivieren' : 'Aktivieren'}">
+                        <i class="fas fa-${active ? 'toggle-on' : 'toggle-off'}"></i>
+                    </button>
                 </td>
-            </tr>
-        `).join('');
+                <td>
+                    <button class="btn-edit" onclick="editRecipe('${r.id}')"><i class="fas fa-edit"></i></button>
+                    <button class="btn-delete" onclick="deleteRecipe('${r.id}')"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>`;
+        }).join('');
     } catch (err) { console.error('Error:', err); }
+    loadRecipeCategories();
+}
+
+async function loadRecipeCategories() {
+    try {
+        const res = await apiCall('/admin/recipes/categories');
+        const data = await res.json();
+        const select = document.getElementById('recipe-category-filter');
+        const current = select.value;
+        const catLabels = {
+            fruehstueck: 'Frühstück', mittagessen: 'Mittagessen', abendessen: 'Abendessen',
+            snack: 'Snack', smoothie: 'Smoothie', suppe: 'Suppe', salat: 'Salat', dessert: 'Dessert'
+        };
+        select.innerHTML = '<option value="">Alle Kategorien</option>' +
+            data.categories.map(c => `<option value="${c}" ${c === current ? 'selected' : ''}>${catLabels[c] || c}</option>`).join('');
+    } catch (err) { console.error('Error loading categories:', err); }
+}
+
+async function toggleRecipe(recipeId) {
+    try {
+        const res = await apiCall(`/admin/recipes/${recipeId}/toggle`, { method: 'PATCH' });
+        if (res.ok) loadRecipes();
+    } catch (err) { alert('Fehler'); }
 }
 
 function searchRecipes() { loadRecipes(); }
@@ -290,6 +332,66 @@ async function saveRecipe(e) {
 async function deleteRecipe(recipeId) {
     if (!confirm(`Rezept "${recipeId}" löschen?`)) return;
     try { const res = await apiCall(`/admin/recipes/${recipeId}`, { method: 'DELETE' }); if (res.ok) { loadRecipes(); loadStats(); } } catch (err) { alert('Fehler'); }
+}
+
+// ============ RECIPE GENERATION ============
+function openGenerateModal() {
+    document.getElementById('gen-loading').style.display = 'none';
+    document.getElementById('gen-result').style.display = 'none';
+    document.getElementById('gen-result').innerHTML = '';
+    document.getElementById('gen-btn').disabled = false;
+    document.getElementById('gen-focus').value = '';
+    document.getElementById('generate-modal').classList.remove('hidden');
+}
+
+function closeGenerateModal() {
+    document.getElementById('generate-modal').classList.add('hidden');
+}
+
+async function generateRecipes() {
+    const category = document.getElementById('gen-category').value;
+    const count = parseInt(document.getElementById('gen-count').value);
+    const focus = document.getElementById('gen-focus').value;
+
+    document.getElementById('gen-loading').style.display = 'block';
+    document.getElementById('gen-result').style.display = 'none';
+    document.getElementById('gen-btn').disabled = true;
+
+    try {
+        const res = await apiCall('/admin/recipes/generate', {
+            method: 'POST',
+            body: JSON.stringify({ category, count, focus })
+        });
+        const data = await res.json();
+
+        document.getElementById('gen-loading').style.display = 'none';
+
+        if (data.success) {
+            const resultHtml = `
+                <div style="color:#10B981;margin-bottom:10px">
+                    <i class="fas fa-check-circle"></i> <strong>${data.generated} Rezepte generiert!</strong>
+                </div>
+                ${data.recipes.map(r => `
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;border-bottom:1px solid #334155">
+                        <span style="color:#E2E8F0">${r.title_de}</span>
+                        <code style="font-size:11px;color:#94A3B8">${r.id}</code>
+                    </div>
+                `).join('')}
+            `;
+            document.getElementById('gen-result').innerHTML = resultHtml;
+            document.getElementById('gen-result').style.display = 'block';
+            loadRecipes();
+            loadStats();
+        } else {
+            alert(data.detail || 'Fehler bei der Generierung');
+            document.getElementById('gen-btn').disabled = false;
+        }
+    } catch (err) {
+        document.getElementById('gen-loading').style.display = 'none';
+        document.getElementById('gen-btn').disabled = false;
+        alert('Fehler bei der Rezept-Generierung');
+        console.error('Error:', err);
+    }
 }
 
 // ============ TRANSLATIONS ============

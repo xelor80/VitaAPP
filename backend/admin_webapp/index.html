@@ -144,8 +144,19 @@
                         <i class="fas fa-search"></i>
                         <input type="text" id="recipe-search" placeholder="Rezept suchen..." oninput="searchRecipes()">
                     </div>
+                    <select id="recipe-category-filter" onchange="loadRecipes()" style="background:#1E293B;color:#E2E8F0;border:1px solid #334155;border-radius:8px;padding:8px 12px;font-size:14px">
+                        <option value="">Alle Kategorien</option>
+                    </select>
+                    <select id="recipe-active-filter" onchange="loadRecipes()" style="background:#1E293B;color:#E2E8F0;border:1px solid #334155;border-radius:8px;padding:8px 12px;font-size:14px">
+                        <option value="">Alle Status</option>
+                        <option value="true">Aktiv</option>
+                        <option value="false">Inaktiv</option>
+                    </select>
                     <button class="btn-add" onclick="openRecipeModal()">
                         <i class="fas fa-plus"></i> Neues Rezept
+                    </button>
+                    <button class="btn-add" onclick="openGenerateModal()" style="background:#8B5CF6">
+                        <i class="fas fa-robot"></i> KI Rezepte generieren
                     </button>
                 </div>
                 <div class="table-container">
@@ -155,7 +166,9 @@
                                 <th>ID</th>
                                 <th>Titel (DE)</th>
                                 <th>Titel (IT)</th>
+                                <th>Kategorie</th>
                                 <th>Zeit</th>
+                                <th>Status</th>
                                 <th>Aktionen</th>
                             </tr>
                         </thead>
@@ -607,6 +620,56 @@
             </form>
         </div>
     </div>
+
+    <!-- Recipe Generate Modal -->
+    <div id="generate-modal" class="modal hidden">
+        <div class="modal-content" style="max-width:500px">
+            <div class="modal-header">
+                <h2><i class="fas fa-robot" style="color:#8B5CF6"></i> KI Rezepte generieren</h2>
+                <button class="btn-close" onclick="closeGenerateModal()">&times;</button>
+            </div>
+            <div style="padding:20px">
+                <div class="form-group">
+                    <label>Kategorie</label>
+                    <select id="gen-category" style="width:100%;background:#1E293B;color:#E2E8F0;border:1px solid #334155;border-radius:8px;padding:10px;font-size:14px">
+                        <option value="fruehstueck">Frühstück</option>
+                        <option value="mittagessen">Mittagessen</option>
+                        <option value="abendessen">Abendessen</option>
+                        <option value="snack">Snack</option>
+                        <option value="smoothie">Smoothie</option>
+                        <option value="suppe">Suppe</option>
+                        <option value="salat">Salat</option>
+                        <option value="dessert">Dessert</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Anzahl Rezepte</label>
+                    <select id="gen-count" style="width:100%;background:#1E293B;color:#E2E8F0;border:1px solid #334155;border-radius:8px;padding:10px;font-size:14px">
+                        <option value="2">2 Rezepte</option>
+                        <option value="3" selected>3 Rezepte</option>
+                        <option value="5">5 Rezepte</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Schwerpunkt (optional)</label>
+                    <input type="text" id="gen-focus" placeholder="z.B. proteinreich, vegan, gegen Müdigkeit..." style="width:100%;background:#1E293B;color:#E2E8F0;border:1px solid #334155;border-radius:8px;padding:10px;font-size:14px">
+                </div>
+                <div id="gen-loading" style="display:none;text-align:center;padding:20px">
+                    <i class="fas fa-spinner fa-spin" style="font-size:24px;color:#8B5CF6"></i>
+                    <p style="color:#94A3B8;margin-top:10px">KI generiert Rezepte...</p>
+                </div>
+                <div id="gen-result" style="display:none;padding:10px;background:#0F172A;border-radius:8px;margin-top:12px">
+                </div>
+                <div class="modal-footer" style="margin-top:16px">
+                    <button type="button" class="btn-cancel" onclick="closeGenerateModal()">Abbrechen</button>
+                    <button type="button" id="gen-btn" class="btn-save" onclick="generateRecipes()" style="background:#8B5CF6">
+                        <i class="fas fa-robot"></i> Generieren
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <!-- Chip Modal -->
     <div id="chip-modal" class="modal hidden">

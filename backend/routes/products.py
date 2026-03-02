@@ -26,7 +26,7 @@ async def get_products(tags: str = "", lang: str = "de"):
 @router.get("/recipes")
 async def get_recipes(tags: str = "", lang: str = "de", search: str = "", category: str = "", max_time: int = 0):
     """Get recipes from MongoDB with search, category and time filters."""
-    cursor = db.recipes.find({}, {"_id": 0})
+    cursor = db.recipes.find({"active": {"$ne": False}}, {"_id": 0})
     recipes_raw = await cursor.to_list(length=None)
     
     results = []
