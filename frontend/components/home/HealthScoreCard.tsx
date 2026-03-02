@@ -61,7 +61,7 @@ export function HealthScoreCard({ lang, onPress }: Props) {
 
   useEffect(() => {
     loadScore();
-  }, []);
+  }, [lang]);
 
   const loadScore = async () => {
     try {
