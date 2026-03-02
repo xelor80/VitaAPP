@@ -70,6 +70,7 @@ api_router.include_router(diary.router)
 api_router.include_router(videos.router)
 api_router.include_router(label_analysis.router)
 api_router.include_router(health_score.router)
+api_router.include_router(admin_health_stats.router)
 
 # Serve uploaded files (labels)
 @api_router.get("/uploads/labels/{filename}")
