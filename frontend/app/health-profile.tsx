@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity,
-  SafeAreaView, ActivityIndicator
+  SafeAreaView, ActivityIndicator, StyleSheet
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -224,7 +224,7 @@ export default function HealthProfileScreen() {
           </View>
         </View>
 
-        {/* Deficiency Cards */}
+        {/* Deficiency Cards with CTAs */}
         {deficiencies.map((d: any) => (
           <View key={d.nutrient} style={[styles.defCard, { backgroundColor: RISK_BG[d.risk_level] || '#F0FDF4', borderLeftColor: RISK_COLORS[d.risk_level] || '#10B981' }]}>
             <View style={styles.defHeader}>
@@ -240,6 +240,46 @@ export default function HealthProfileScreen() {
             </View>
             {d.reasons?.length > 0 && (
               <Text style={styles.defReason}>{d.reasons.join(', ')}</Text>
+            )}
+
+            {/* CTAs for HIGH and MEDIUM risk */}
+            {(d.risk_level === 'high' || d.risk_level === 'medium') && (
+              <View style={ctaStyles.ctaWrap}>
+                <TouchableOpacity
+                  data-testid={`cta-plan-${d.nutrient}`}
+                  style={[ctaStyles.primaryBtn, {
+                    backgroundColor: d.risk_level === 'high' ? '#EF4444' : '#F59E0B'
+                  }]}
+                  onPress={() => router.push({ pathname: '/supplement-plan', params: { profileId: profileId || '' } })}
+                >
+                  <MaterialCommunityIcons name="clipboard-check-outline" size={15} color="#FFF" />
+                  <Text style={ctaStyles.primaryBtnText}>
+                    {lang === 'de' ? 'Optimierungsplan anzeigen' : 'Mostra piano ottimizzazione'}
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  data-testid={`cta-products-${d.nutrient}`}
+                  style={[ctaStyles.secondaryBtn, {
+                    borderColor: d.risk_level === 'high' ? '#EF4444' : '#F59E0B'
+                  }]}
+                  onPress={() => router.push({
+                    pathname: '/product-comparison',
+                    params: { nutrient: d.nutrient, risk: d.risk_level }
+                  })}
+                >
+                  <MaterialCommunityIcons
+                    name="shopping-outline"
+                    size={15}
+                    color={d.risk_level === 'high' ? '#EF4444' : '#F59E0B'}
+                  />
+                  <Text style={[ctaStyles.secondaryBtnText, {
+                    color: d.risk_level === 'high' ? '#EF4444' : '#F59E0B'
+                  }]}>
+                    {lang === 'de' ? 'Empfohlene Produkte ansehen' : 'Vedi prodotti consigliati'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
             )}
           </View>
         ))}
@@ -312,3 +352,18 @@ export default function HealthProfileScreen() {
     </SafeAreaView>
   );
 }
+
+const ctaStyles = StyleSheet.create({
+  ctaWrap: { marginTop: 10, gap: 8 },
+  primaryBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    gap: 8, borderRadius: 10, paddingVertical: 10, paddingHorizontal: 14,
+  },
+  primaryBtnText: { color: '#FFF', fontSize: 13, fontWeight: '600' },
+  secondaryBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    gap: 8, borderRadius: 10, paddingVertical: 10, paddingHorizontal: 14,
+    backgroundColor: '#FFF', borderWidth: 1.5,
+  },
+  secondaryBtnText: { fontSize: 13, fontWeight: '600' },
+});

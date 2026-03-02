@@ -3,6 +3,59 @@ from core.config import db
 
 router = APIRouter()
 
+# Mapping: nutrient key → product tags
+NUTRIENT_TAG_MAP = {
+    "iron": ["eisen"],
+    "zinc": ["zink"],
+    "omega3": ["omega-3"],
+    "vitamin_d": ["vitamin-d"],
+    "vitamin_b12": ["b-vitamine"],
+    "vitamin_c": ["vitamin-c"],
+    "magnesium": ["magnesium"],
+    "calcium": ["calcium"],
+    "b_vitamins": ["b-vitamine"],
+    "coq10": ["q10"],
+    "probiotics": ["probiotika"],
+    "folate": ["b-vitamine"],
+    "selenium": ["mineralstoffe"],
+    "iodine": ["mineralstoffe"],
+    "vitamin_k2": ["knochen", "calcium"],
+    "vitamin_e": ["antioxidantien", "zellschutz"],
+}
+
+NUTRIENT_QUALITY_INFO = {
+    "iron": {"daily_dose_hint": "14-20 mg", "form": "Eisen-Bisglycinat", "tip": "Nicht zusammen mit Kaffee/Tee einnehmen"},
+    "zinc": {"daily_dose_hint": "10-15 mg", "form": "Kolloidales Zink", "tip": "Am besten abends, nüchtern einnehmen"},
+    "omega3": {"daily_dose_hint": "1-2 g EPA/DHA", "form": "Triglycerid-Form", "tip": "Zu einer fetthaltigen Mahlzeit einnehmen"},
+    "vitamin_d": {"daily_dose_hint": "1000-4000 IE", "form": "Vitamin D3 + K2", "tip": "Immer mit Fett einnehmen"},
+    "vitamin_b12": {"daily_dose_hint": "500-1000 µg", "form": "Methylcobalamin", "tip": "Morgens sublingual einnehmen"},
+    "vitamin_c": {"daily_dose_hint": "500-1000 mg", "form": "Retard-Form", "tip": "Über den Tag verteilt einnehmen"},
+    "magnesium": {"daily_dose_hint": "300-400 mg", "form": "Magnesiumcitrat", "tip": "Abends einnehmen für besseren Schlaf"},
+    "calcium": {"daily_dose_hint": "500-1000 mg", "form": "Calciumcitrat", "tip": "Nicht zusammen mit Eisen einnehmen"},
+    "b_vitamins": {"daily_dose_hint": "Komplex", "form": "Bioaktive Formen", "tip": "Morgens einnehmen für Energie"},
+    "coq10": {"daily_dose_hint": "100-200 mg", "form": "Ubiquinol", "tip": "Mit einer fetthaltigen Mahlzeit einnehmen"},
+    "probiotics": {"daily_dose_hint": "10-20 Mrd. KBE", "form": "Mehrere Stämme", "tip": "Morgens nüchtern einnehmen"},
+}
+
+
+@router.get("/products/by-nutrient/{nutrient}")
+async def get_products_by_nutrient(nutrient: str, lang: str = "de"):
+    """Get products matched to a specific nutrient deficiency."""
+    tags = NUTRIENT_TAG_MAP.get(nutrient, [])
+    if not tags:
+        return {"products": [], "quality_info": None}
+
+    collection = db.products_de if lang == "de" else db.products_it
+    regex_pattern = f"^({'|'.join(tags)})$"
+    cursor = collection.find(
+        {"tags": {"$elemMatch": {"$regex": regex_pattern, "$options": "i"}}},
+        {"_id": 0}
+    )
+    products = await cursor.to_list(length=None)
+    quality_info = NUTRIENT_QUALITY_INFO.get(nutrient)
+    return {"products": products, "quality_info": quality_info}
+
+
 
 @router.get("/products")
 async def get_products(tags: str = "", lang: str = "de"):
