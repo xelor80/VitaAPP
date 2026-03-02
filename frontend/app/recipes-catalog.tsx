@@ -66,6 +66,24 @@ export default function RecipesCatalogScreen() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [timeFilter, setTimeFilter] = useState<TimeFilter>(null);
   const [expandedRecipe, setExpandedRecipe] = useState<string | null>(null);
+  const [recommendations, setRecommendations] = useState<any[]>([]);
+  const [recsLoading, setRecsLoading] = useState(true);
+  const [expandedRec, setExpandedRec] = useState<string | null>(null);
+
+  // Load recommendations once
+  useEffect(() => {
+    (async () => {
+      setRecsLoading(true);
+      try {
+        const profileId = await AsyncStorage.getItem('health_profile_id');
+        const params = new URLSearchParams({ lang, limit: '3' });
+        if (profileId) params.set('profile_id', profileId);
+        const res = await fetch(`${API_URL}/api/recipes/recommendations?${params}`);
+        if (res.ok) setRecommendations(await res.json());
+      } catch {}
+      setRecsLoading(false);
+    })();
+  }, [lang]);
 
   // Load filters once
   useEffect(() => {
