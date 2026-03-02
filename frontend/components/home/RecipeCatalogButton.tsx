@@ -17,17 +17,17 @@ export function RecipeCatalogButton({ lang, onPress }: Props) {
       onPress={onPress}
     >
       <View style={styles.recipeCatalogIconWrap}>
-        <MaterialCommunityIcons name="chef-hat" size={18} color="#FFF" />
+        <MaterialCommunityIcons name="chef-hat" size={16} color="#FFF" />
       </View>
       <View style={{ flex: 1 }}>
         <Text style={styles.recipeCatalogBtnTitle}>
           {lang === 'de' ? 'Deine Rezepte' : 'Le tue Ricette'}
         </Text>
-        <Text style={styles.recipeCatalogBtnSub}>
+        <Text style={styles.recipeCatalogBtnSub} numberOfLines={1}>
           {lang === 'de' ? 'Personalisierte & gesunde Rezepte' : 'Ricette personalizzate e salutari'}
         </Text>
       </View>
-      <MaterialCommunityIcons name="chevron-right" size={20} color="#D4E8DC" />
+      <MaterialCommunityIcons name="chevron-right" size={18} color="#D4E8DC" />
     </TouchableOpacity>
   );
 }

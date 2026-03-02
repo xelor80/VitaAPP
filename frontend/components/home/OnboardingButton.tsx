@@ -27,7 +27,7 @@ export function OnboardingButton({ lang, onPress, onProfilePress }: OnboardingBu
       onPress={hasProfile && onProfilePress ? onProfilePress : onPress}
     >
       <View style={styles.onboardingIconWrap}>
-        <MaterialCommunityIcons name={hasProfile ? 'account-heart' : 'clipboard-pulse'} size={18} color="#FFFFFF" />
+        <MaterialCommunityIcons name={hasProfile ? 'account-heart' : 'clipboard-pulse'} size={16} color="#FFFFFF" />
       </View>
       <View style={{ flex: 1 }}>
         <Text style={styles.onboardingBtnTitle}>
@@ -35,13 +35,13 @@ export function OnboardingButton({ lang, onPress, onProfilePress }: OnboardingBu
             ? (lang === 'de' ? 'Gesundheitsprofil anzeigen' : 'Mostra profilo salute')
             : (lang === 'de' ? 'Gesundheits-Check starten' : 'Avvia check salute')}
         </Text>
-        <Text style={styles.onboardingBtnSub}>
+        <Text style={styles.onboardingBtnSub} numberOfLines={1}>
           {hasProfile
             ? (lang === 'de' ? 'Ihre persoenliche Naehrstoff-Analyse' : 'La tua analisi nutrizionale personale')
-            : (lang === 'de' ? 'Personalisierte Naehrstoff-Empfehlungen erhalten' : 'Ricevi raccomandazioni nutrizionali personalizzate')}
+            : (lang === 'de' ? 'Personalisierte Naehrstoff-Empfehlungen' : 'Ricevi raccomandazioni personalizzate')}
         </Text>
       </View>
-      <MaterialCommunityIcons name="chevron-right" size={20} color="#FFFFFF" />
+      <MaterialCommunityIcons name="chevron-right" size={18} color="#FFFFFF" />
     </TouchableOpacity>
   );
 }

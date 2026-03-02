@@ -17,17 +17,17 @@ export function ProgressButton({ lang, onPress }: ProgressButtonProps) {
       onPress={onPress}
     >
       <View style={styles.progressIconWrap}>
-        <MaterialCommunityIcons name="chart-line" size={18} color="#FFFFFF" />
+        <MaterialCommunityIcons name="chart-line" size={16} color="#FFFFFF" />
       </View>
       <View style={{ flex: 1 }}>
         <Text style={styles.progressBtnTitle}>
           {lang === 'de' ? 'Mein Fortschritt' : 'Il mio progresso'}
         </Text>
-        <Text style={styles.progressBtnSub}>
-          {lang === 'de' ? 'Symptome, Einnahme & Meilensteine tracken' : 'Traccia sintomi, assunzione e traguardi'}
+        <Text style={styles.progressBtnSub} numberOfLines={1}>
+          {lang === 'de' ? 'Symptome, Einnahme & Meilensteine' : 'Traccia sintomi e traguardi'}
         </Text>
       </View>
-      <MaterialCommunityIcons name="chevron-right" size={20} color="#FFFFFF" />
+      <MaterialCommunityIcons name="chevron-right" size={18} color="#FFFFFF" />
     </TouchableOpacity>
   );
 }

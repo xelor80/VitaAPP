@@ -37,17 +37,17 @@ export function SupplementPlanButton({ lang, onPress, onNoProfile }: SupplementP
         onPress={handlePress}
       >
         <View style={styles.supplementPlanIconWrap}>
-          <MaterialCommunityIcons name="pill" size={18} color="#FFFFFF" />
+          <MaterialCommunityIcons name="pill" size={16} color="#FFFFFF" />
         </View>
         <View style={{ flex: 1 }}>
           <Text style={styles.supplementPlanBtnTitle}>
             {lang === 'de' ? 'Supplement-Plan' : 'Piano supplementi'}
           </Text>
-          <Text style={styles.supplementPlanBtnSub}>
-            {lang === 'de' ? 'Ihr personalisierter 8-Wochen Mikronaehrstoff-Plan' : 'Il tuo piano personalizzato di 8 settimane'}
+          <Text style={styles.supplementPlanBtnSub} numberOfLines={1}>
+            {lang === 'de' ? '8-Wochen Mikronaehrstoff-Plan' : 'Piano personalizzato di 8 settimane'}
           </Text>
         </View>
-        <MaterialCommunityIcons name="chevron-right" size={20} color="#FFFFFF" />
+        <MaterialCommunityIcons name="chevron-right" size={18} color="#FFFFFF" />
       </TouchableOpacity>
 
       {showAlert && (
