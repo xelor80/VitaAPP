@@ -42,6 +42,11 @@ Health-focused, bilingual (German/Italian) mobile app. LLM analyzes user symptom
 - **Kategorie & Status Filter**: Dropdown filters in the recipe table
 - **Mobile Filter**: Mobile app only shows active recipes (`active != false`)
 - Endpoints: `POST /api/admin/recipes/generate`, `PATCH /api/admin/recipes/{id}/toggle`, `GET /api/admin/recipes/categories`
+
+## Evidenz-Level System (Mar 2026)
+- Color-coded evidence badges on each supplement: Green (Hohe Evidenz), Yellow (Mittlere Evidenz), Orange (Explorativ)
+- Expanded detail card with understandable explanation (no study citations)
+- Data comes from `evidence_level` field in supplement_engine.py SUPPLEMENT_DB
 - Shows: Overall trend, symptom bars, compliance bars, KI-Erkenntnisse, recommendations
 - Endpoint: GET `/api/tracking/correlation-analysis/{profile_id}?days=30&lang=de`
 
