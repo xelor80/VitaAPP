@@ -353,7 +353,8 @@ Rispondi ESCLUSIVAMENTE con un oggetto JSON valido. Nessun Markdown, nessun test
     "possible_causes": ["Possibile causa 1 con spiegazione", "Possibile causa 2"],
     "lifestyle_factors": ["Fattore rilevante dal profilo"]
   }},
-  "summary": "Riassunto professionale ed empatico (3-4 frasi)",
+  "summary": "Riassunto professionale nel formato di un rapporto medico (3-4 frasi). NESSUN stile chat, NESSUNA prima persona. Formulazione come in un rapporto medico: oggettivo, chiaro, empatico.",
+  "priority_level": "alta|media|bassa",
   "red_flags": [
     {{"flag": "Descrizione del segnale di allarme", "action": "Raccomandazione concreta", "urgency": "alta|media|bassa"}}
   ],
