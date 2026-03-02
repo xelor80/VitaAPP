@@ -169,7 +169,7 @@ async def upload_and_analyze_label(
     label_data = {}
     analysis = None
 
-    # Handle image upload
+    # Handle image upload (save file)
     if file and file.filename:
         if not file.content_type.startswith("image/"):
             raise HTTPException(status_code=400, detail="Bilddatei muss ein Bildformat sein (JPG, PNG, etc.)")
@@ -180,10 +180,9 @@ async def upload_and_analyze_label(
         with open(img_path, "wb") as f:
             f.write(contents)
         label_data["label_image"] = f"/api/uploads/labels/{img_name}"
-        # Analyze image
-        analysis = await analyze_image_label(contents, lang)
 
-    # Handle PDF upload
+    # Handle PDF upload (save file + extract text)
+    pdf_text = None
     if pdf_file and pdf_file.filename:
         if pdf_file.content_type != "application/pdf" and not pdf_file.filename.lower().endswith(".pdf"):
             raise HTTPException(status_code=400, detail="PDF-Datei muss im PDF-Format sein.")
@@ -193,12 +192,15 @@ async def upload_and_analyze_label(
         with open(pdf_path, "wb") as f:
             f.write(pdf_contents)
         label_data["label_pdf"] = f"/api/uploads/labels/{pdf_name}"
-        # Analyze PDF (overrides image analysis if both provided – PDF text is more reliable)
         pdf_text = extract_pdf_text(pdf_contents)
-        if pdf_text.strip():
-            analysis = await analyze_pdf_label(pdf_text, lang)
-        elif not analysis:
-            raise HTTPException(status_code=422, detail="Die PDF-Datei enthält keinen lesbaren Text.")
+
+    # Analyze: prefer PDF text (more reliable), fallback to image vision
+    if pdf_text and pdf_text.strip():
+        analysis = await analyze_pdf_label(pdf_text, lang)
+    elif file and file.filename:
+        analysis = await analyze_image_label(contents, lang)
+    else:
+        raise HTTPException(status_code=422, detail="Die PDF-Datei enthält keinen lesbaren Text und kein Bild vorhanden.")
 
     if analysis:
         label_data["label_analysis"] = analysis
