@@ -1,5 +1,5 @@
 """
-Label Analysis API - Etikett-Analyse mit GPT-4o Vision
+Label Analysis API - Etikett-Analyse mit GPT-4.1 Vision + PDF
 """
 import os
 import re
@@ -7,6 +7,7 @@ import io
 import base64
 import uuid
 import json
+from typing import Optional
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 from pydantic import BaseModel
 from datetime import datetime, timezone
@@ -18,52 +19,10 @@ load_dotenv()
 
 router = APIRouter()
 
-# Bild-Speicherort
 UPLOAD_DIR = "/app/backend/uploads/labels"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 MAX_IMAGE_DIMENSION = 2048
-
-
-class LabelAnalysisResult(BaseModel):
-    ingredients: list[str] = []
-    dosage: str = ""
-    intake_recommendation: str = ""
-    warnings: list[str] = []
-    additional_info: str = ""
-
-
-def resize_image_if_needed(image_bytes: bytes) -> bytes:
-    """Resize image to max 2048px on longest side to reduce payload size."""
-    try:
-        from PIL import Image
-        img = Image.open(io.BytesIO(image_bytes))
-        w, h = img.size
-        logger.info(f"Original image size: {w}x{h}, {len(image_bytes)} bytes")
-        if max(w, h) > MAX_IMAGE_DIMENSION:
-            ratio = MAX_IMAGE_DIMENSION / max(w, h)
-            new_size = (int(w * ratio), int(h * ratio))
-            img = img.resize(new_size, Image.LANCZOS)
-            # Convert to RGB if RGBA
-            if img.mode == "RGBA":
-                img = img.convert("RGB")
-            buf = io.BytesIO()
-            img.save(buf, format="JPEG", quality=90)
-            result = buf.getvalue()
-            logger.info(f"Resized image: {new_size[0]}x{new_size[1]}, {len(result)} bytes")
-            return result
-        # Even if not resizing, ensure it's JPEG and reasonable quality
-        if img.mode == "RGBA":
-            img = img.convert("RGB")
-            buf = io.BytesIO()
-            img.save(buf, format="JPEG", quality=90)
-            return buf.getvalue()
-        # Return original bytes if no conversion needed
-        return image_bytes
-    except Exception as e:
-        logger.warning(f"Image resize failed, using original: {e}")
-        return image_bytes
-
 
 SYSTEM_PROMPT = """Du bist ein Experte für Nahrungsergänzungsmittel-Etiketten. 
 Analysiere das Produktetikett und extrahiere folgende Informationen:
@@ -84,150 +43,210 @@ Antworte NUR im folgenden JSON-Format (keine Markdown-Formatierung):
 }"""
 
 
-async def analyze_label_with_gpt4o(image_bytes: bytes, lang: str = "de") -> dict:
-    """Analysiert ein Produkt-Etikett mit GPT-4o Vision via emergentintegrations."""
+def resize_image_if_needed(image_bytes: bytes) -> bytes:
+    """Resize image to max 2048px on longest side."""
+    try:
+        from PIL import Image
+        img = Image.open(io.BytesIO(image_bytes))
+        w, h = img.size
+        logger.info(f"Original image size: {w}x{h}, {len(image_bytes)} bytes")
+        if max(w, h) > MAX_IMAGE_DIMENSION:
+            ratio = MAX_IMAGE_DIMENSION / max(w, h)
+            new_size = (int(w * ratio), int(h * ratio))
+            img = img.resize(new_size, Image.LANCZOS)
+            if img.mode == "RGBA":
+                img = img.convert("RGB")
+            buf = io.BytesIO()
+            img.save(buf, format="JPEG", quality=90)
+            logger.info(f"Resized: {new_size[0]}x{new_size[1]}, {len(buf.getvalue())} bytes")
+            return buf.getvalue()
+        if img.mode == "RGBA":
+            img = img.convert("RGB")
+            buf = io.BytesIO()
+            img.save(buf, format="JPEG", quality=90)
+            return buf.getvalue()
+        return image_bytes
+    except Exception as e:
+        logger.warning(f"Image resize failed: {e}")
+        return image_bytes
+
+
+def extract_pdf_text(pdf_bytes: bytes) -> str:
+    """Extract text content from a PDF file."""
+    import fitz  # pymupdf
+    text_parts = []
+    doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+    for page in doc:
+        text_parts.append(page.get_text())
+    doc.close()
+    full_text = "\n".join(text_parts).strip()
+    logger.info(f"Extracted {len(full_text)} chars from PDF ({doc.page_count} pages)")
+    return full_text
+
+
+def _parse_analysis_json(response_text: str) -> dict:
+    """Extract and parse JSON from model response."""
+    if not response_text:
+        raise HTTPException(status_code=500, detail="Analyse: leere Antwort vom Modell")
+
+    json_match = re.search(r'\{[\s\S]*\}', response_text)
+    if not json_match:
+        logger.warning(f"No JSON in response: {response_text[:300]}")
+        raise HTTPException(
+            status_code=422,
+            detail="Das Etikett konnte nicht gelesen werden. Bitte versuche es mit einem klareren Foto oder einer PDF-Datei."
+        )
+
+    try:
+        return json.loads(json_match.group())
+    except json.JSONDecodeError as e:
+        logger.error(f"JSON parse error: {e} – extracted: {json_match.group()[:300]}")
+        raise HTTPException(status_code=500, detail="Analyse: ungültiges JSON vom Modell")
+
+
+async def analyze_image_label(image_bytes: bytes, lang: str = "de") -> dict:
+    """Analyse via GPT-4.1 Vision (image)."""
     from emergentintegrations.llm.chat import LlmChat, UserMessage, ImageContent
 
-    user_prompt = f"Analysiere dieses Produktetikett und extrahiere die Informationen auf {'Deutsch' if lang == 'de' else 'Italienisch'}."
-
-    # Resize large images to avoid API payload issues
-    processed_bytes = resize_image_if_needed(image_bytes)
-    image_base64 = base64.b64encode(processed_bytes).decode("utf-8")
-    logger.info(f"Base64 payload size: {len(image_base64)} chars")
-
-    image_content = ImageContent(image_base64=image_base64)
+    processed = resize_image_if_needed(image_bytes)
+    image_b64 = base64.b64encode(processed).decode("utf-8")
+    logger.info(f"Image base64 size: {len(image_b64)} chars")
 
     chat = LlmChat(
         api_key=os.environ.get("EMERGENT_LLM_KEY"),
-        session_id=f"label-{uuid.uuid4().hex[:8]}",
+        session_id=f"label-img-{uuid.uuid4().hex[:8]}",
         system_message=SYSTEM_PROMPT,
     ).with_model("openai", "gpt-4.1")
 
-    # Call GPT-4o Vision - catch errors from the library itself
-    response_text = None
+    prompt = f"Analysiere dieses Produktetikett auf {'Deutsch' if lang == 'de' else 'Italienisch'}."
+
     try:
         response_text = await chat.send_message(
-            UserMessage(text=user_prompt, file_contents=[image_content])
+            UserMessage(text=prompt, file_contents=[ImageContent(image_base64=image_b64)])
         )
     except Exception as e:
-        logger.error(f"chat.send_message() failed: {type(e).__name__}: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Bildanalyse fehlgeschlagen: KI-Service nicht erreichbar. Bitte versuche es erneut."
-        )
+        logger.error(f"Image analysis failed: {type(e).__name__}: {e}")
+        raise HTTPException(status_code=500, detail="Bildanalyse fehlgeschlagen. Bitte versuche es erneut.")
 
-    logger.info(f"GPT-4o raw response (first 300 chars): {repr(response_text[:300]) if response_text else 'NONE'}")
+    logger.info(f"Image analysis response: {repr(response_text[:300]) if response_text else 'NONE'}")
+    return _parse_analysis_json(response_text)
 
-    if not response_text:
-        raise HTTPException(status_code=500, detail="Bildanalyse: leere Antwort vom Modell")
 
-    # Extract JSON from response
-    json_match = re.search(r'\{[\s\S]*\}', response_text)
-    if not json_match:
-        # GPT-4o couldn't read the label - give a helpful error
-        logger.warning(f"GPT-4o couldn't extract label data: {response_text[:300]}")
-        raise HTTPException(
-            status_code=422,
-            detail="Das Etikett konnte nicht gelesen werden. Bitte versuche es mit einem klareren, gut beleuchteten Foto des Etiketts."
-        )
+async def analyze_pdf_label(pdf_text: str, lang: str = "de") -> dict:
+    """Analyse via GPT-4.1 Text (PDF content)."""
+    from emergentintegrations.llm.chat import LlmChat, UserMessage
+
+    chat = LlmChat(
+        api_key=os.environ.get("EMERGENT_LLM_KEY"),
+        session_id=f"label-pdf-{uuid.uuid4().hex[:8]}",
+        system_message=SYSTEM_PROMPT,
+    ).with_model("openai", "gpt-4.1")
+
+    prompt = f"Hier ist der Text von einem Nahrungsergänzungsmittel-Etikett (aus PDF extrahiert). Analysiere ihn auf {'Deutsch' if lang == 'de' else 'Italienisch'}:\n\n{pdf_text[:4000]}"
 
     try:
-        result = json.loads(json_match.group())
-    except json.JSONDecodeError as e:
-        logger.error(f"JSON parse error: {e} – extracted: {json_match.group()[:300]}")
-        raise HTTPException(status_code=500, detail="Bildanalyse: ungültiges JSON vom Modell")
+        response_text = await chat.send_message(UserMessage(text=prompt))
+    except Exception as e:
+        logger.error(f"PDF analysis failed: {type(e).__name__}: {e}")
+        raise HTTPException(status_code=500, detail="PDF-Analyse fehlgeschlagen. Bitte versuche es erneut.")
 
-    return result
+    logger.info(f"PDF analysis response: {repr(response_text[:300]) if response_text else 'NONE'}")
+    return _parse_analysis_json(response_text)
 
 
 @router.post("/products/{product_id}/label")
 async def upload_and_analyze_label(
     product_id: str,
     lang: str = Form(default="de"),
-    file: UploadFile = File(...)
+    file: Optional[UploadFile] = File(default=None),
+    pdf_file: Optional[UploadFile] = File(default=None),
 ):
-    """Lädt ein Produktetikett hoch und analysiert es mit GPT-4o."""
-    
-    # Prüfe Dateityp
-    if not file.content_type.startswith("image/"):
-        raise HTTPException(status_code=400, detail="Nur Bilddateien erlaubt")
-    
-    # Lese Datei
-    contents = await file.read()
-    
-    # Speichere Datei
-    file_ext = file.filename.split(".")[-1] if "." in file.filename else "jpg"
-    filename = f"{product_id}_{uuid.uuid4().hex[:8]}.{file_ext}"
-    filepath = os.path.join(UPLOAD_DIR, filename)
-    
-    with open(filepath, "wb") as f:
-        f.write(contents)
-    
-    # Analysiere mit GPT-4o (raw bytes)
-    analysis = await analyze_label_with_gpt4o(contents, lang)
-    
-    # Speichere in Datenbank
-    label_data = {
-        "label_image": f"/api/uploads/labels/{filename}",
-        "label_analysis": analysis,
-        "label_analyzed_at": datetime.now(timezone.utc).isoformat()
-    }
-    
-    # Update Produkt in beiden Sprach-Collections
+    """Upload image and/or PDF label, analyze with GPT-4.1."""
+    if not file and not pdf_file:
+        raise HTTPException(status_code=400, detail="Bitte mindestens ein Bild oder eine PDF-Datei hochladen.")
+
+    label_data = {}
+    analysis = None
+
+    # Handle image upload
+    if file and file.filename:
+        if not file.content_type.startswith("image/"):
+            raise HTTPException(status_code=400, detail="Bilddatei muss ein Bildformat sein (JPG, PNG, etc.)")
+        contents = await file.read()
+        ext = file.filename.rsplit(".", 1)[-1] if "." in file.filename else "jpg"
+        img_name = f"{product_id}_{uuid.uuid4().hex[:8]}.{ext}"
+        img_path = os.path.join(UPLOAD_DIR, img_name)
+        with open(img_path, "wb") as f:
+            f.write(contents)
+        label_data["label_image"] = f"/api/uploads/labels/{img_name}"
+        # Analyze image
+        analysis = await analyze_image_label(contents, lang)
+
+    # Handle PDF upload
+    if pdf_file and pdf_file.filename:
+        if pdf_file.content_type != "application/pdf" and not pdf_file.filename.lower().endswith(".pdf"):
+            raise HTTPException(status_code=400, detail="PDF-Datei muss im PDF-Format sein.")
+        pdf_contents = await pdf_file.read()
+        pdf_name = f"{product_id}_{uuid.uuid4().hex[:8]}.pdf"
+        pdf_path = os.path.join(UPLOAD_DIR, pdf_name)
+        with open(pdf_path, "wb") as f:
+            f.write(pdf_contents)
+        label_data["label_pdf"] = f"/api/uploads/labels/{pdf_name}"
+        # Analyze PDF (overrides image analysis if both provided – PDF text is more reliable)
+        pdf_text = extract_pdf_text(pdf_contents)
+        if pdf_text.strip():
+            analysis = await analyze_pdf_label(pdf_text, lang)
+        elif not analysis:
+            raise HTTPException(status_code=422, detail="Die PDF-Datei enthält keinen lesbaren Text.")
+
+    if analysis:
+        label_data["label_analysis"] = analysis
+        label_data["label_analyzed_at"] = datetime.now(timezone.utc).isoformat()
+
+    # Update product in both language collections
     for collection in ["products_de", "products_it"]:
-        await db[collection].update_one(
-            {"product_id": product_id},
-            {"$set": label_data}
-        )
-    
+        await db[collection].update_one({"product_id": product_id}, {"$set": label_data})
+
     return {
         "status": "success",
         "product_id": product_id,
-        "label_image": label_data["label_image"],
-        "analysis": analysis
+        "label_image": label_data.get("label_image"),
+        "label_pdf": label_data.get("label_pdf"),
+        "analysis": analysis,
     }
 
 
 @router.get("/products/{product_id}/label")
 async def get_label_analysis(product_id: str):
-    """Holt die Etikett-Analyse für ein Produkt."""
     product = await db.products_de.find_one({"product_id": product_id}, {"_id": 0})
     if not product:
         product = await db.products_it.find_one({"product_id": product_id}, {"_id": 0})
-    
     if not product:
         raise HTTPException(status_code=404, detail="Produkt nicht gefunden")
-    
+
     return {
         "product_id": product_id,
         "label_image": product.get("label_image"),
+        "label_pdf": product.get("label_pdf"),
         "analysis": product.get("label_analysis"),
-        "analyzed_at": product.get("label_analyzed_at")
+        "analyzed_at": product.get("label_analyzed_at"),
     }
 
 
 @router.delete("/products/{product_id}/label")
 async def delete_label(product_id: str):
-    """Löscht die Etikett-Daten eines Produkts."""
-    # Hole aktuelles Produkt
     product = await db.products_de.find_one({"product_id": product_id})
-    if product and product.get("label_image"):
-        # Lösche Bilddatei
-        filename = product["label_image"].split("/")[-1]
-        filepath = os.path.join(UPLOAD_DIR, filename)
-        if os.path.exists(filepath):
-            os.remove(filepath)
-    
-    # Entferne Label-Daten aus DB
-    update = {
-        "$unset": {
-            "label_image": "",
-            "label_analysis": "",
-            "label_analyzed_at": ""
-        }
-    }
-    
+    if product:
+        for key in ["label_image", "label_pdf"]:
+            url = product.get(key)
+            if url:
+                fname = url.split("/")[-1]
+                fpath = os.path.join(UPLOAD_DIR, fname)
+                if os.path.exists(fpath):
+                    os.remove(fpath)
+
+    update = {"$unset": {"label_image": "", "label_pdf": "", "label_analysis": "", "label_analyzed_at": ""}}
     for collection in ["products_de", "products_it"]:
         await db[collection].update_one({"product_id": product_id}, update)
-    
+
     return {"status": "deleted"}
