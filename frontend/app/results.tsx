@@ -212,14 +212,6 @@ export default function ResultsScreen() {
             title={lang === 'de' ? 'Passende Videos' : 'Video correlati'}
           />
         )}
-
-        {/* Disclaimer */}
-        <View style={styles.disclaimerFooter}>
-          <MaterialCommunityIcons name="information-outline" size={14} color="#8FA39B" />
-          <Text style={styles.disclaimerText}>
-            {analysis.disclaimer_short || t(lang, 'disclaimer_footer', translations)}
-          </Text>
-        </View>
       </ScrollView>
     </SafeAreaView>
   );
