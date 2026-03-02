@@ -10,7 +10,7 @@ import time
 from typing import Dict, Any
 
 # Production URL from frontend/.env
-BASE_URL = "https://vitality-planner-5.preview.emergentagent.com/api"
+BASE_URL = "https://nutrition-advisor-4.preview.emergentagent.com/api"
 
 def test_health_check():
     """Test 1: Health Check"""
