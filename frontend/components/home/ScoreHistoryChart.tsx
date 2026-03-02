@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Dimensions, Platform } from 'react-native';
-import Svg, { Path, Circle, Line } from 'react-native-svg';
+import { View, Text, StyleSheet, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
@@ -9,13 +8,9 @@ const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 interface HistoryEntry { date: string; score: number; }
 interface Props { lang: string; }
 
-const W = Math.min(Dimensions.get('window').width - 64, 420);
-const H = 150;
-const PAD = { top: 10, right: 12, bottom: 28, left: 32 };
-const CW = W - PAD.left - PAD.right;
-const CH = H - PAD.top - PAD.bottom;
+const BAR_HEIGHT = 120;
 
-function scoreColor(s: number): string {
+function barColor(s: number): string {
   if (s >= 71) return '#22C55E';
   if (s >= 41) return '#EAB308';
   return '#EF4444';
@@ -23,7 +18,6 @@ function scoreColor(s: number): string {
 
 export function ScoreHistoryChart({ lang }: Props) {
   const [history, setHistory] = useState<HistoryEntry[]>([]);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -33,62 +27,28 @@ export function ScoreHistoryChart({ lang }: Props) {
         const res = await fetch(`${API_URL}/api/health-score/${pid}/history?weeks=12`);
         if (res.ok) {
           const d = await res.json();
-          if (d.history?.length > 1) {
-            setHistory(d.history);
-          }
+          if (d.history?.length > 1) setHistory(d.history);
         }
-      } catch (e: any) {
-        setError(e?.message || 'unknown');
-      }
+      } catch {}
     })();
   }, [lang]);
-
-  if (error) {
-    if (Platform.OS === 'web') console.warn('ScoreHistoryChart error:', error);
-    return null;
-  }
 
   if (history.length < 2) return null;
 
   const scores = history.map(e => e.score);
-  const minS = Math.max(0, Math.min(...scores) - 10);
-  const maxS = Math.min(100, Math.max(...scores) + 10);
-  const range = maxS - minS || 1;
-
-  const xPos = (i: number) => PAD.left + (i / (history.length - 1)) * CW;
-  const yPos = (s: number) => PAD.top + CH - ((s - minS) / range) * CH;
-
-  // Build smooth bezier path
-  const pts = history.map((e, i) => ({ x: xPos(i), y: yPos(e.score) }));
-  let pathD = `M ${pts[0].x} ${pts[0].y}`;
-  for (let i = 1; i < pts.length; i++) {
-    const cpx1 = pts[i - 1].x + (pts[i].x - pts[i - 1].x) * 0.4;
-    const cpx2 = pts[i].x - (pts[i].x - pts[i - 1].x) * 0.4;
-    pathD += ` C ${cpx1} ${pts[i - 1].y}, ${cpx2} ${pts[i].y}, ${pts[i].x} ${pts[i].y}`;
-  }
-
-  // Fill area path
-  const fillD = `${pathD} L ${pts[pts.length - 1].x} ${PAD.top + CH} L ${pts[0].x} ${PAD.top + CH} Z`;
-
   const first = scores[0];
   const last = scores[scores.length - 1];
   const diff = last - first;
   const improving = diff >= 0;
 
-  // Y-axis labels
-  const yTicks = [minS, Math.round((minS + maxS) / 2), maxS];
-
-  // X-axis label positions
-  const fmt = (d: string) => { const p = d.split('-'); return `${p[2]}.${p[1]}`; };
-  const mid = Math.floor(history.length / 2);
-  const xLabels = [
-    { i: 0, text: fmt(history[0].date) },
-    { i: mid, text: fmt(history[mid].date) },
-    { i: history.length - 1, text: fmt(history[history.length - 1].date) },
-  ];
+  const fmt = (d: string) => {
+    const p = d.split('-');
+    return `${p[2]}.${p[1]}`;
+  };
 
   return (
-    <View style={styles.card} testID="score-history-chart">
+    <View style={styles.card}>
+      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>
           {lang === 'de' ? 'Score-Verlauf' : 'Andamento Score'}
@@ -107,38 +67,54 @@ export function ScoreHistoryChart({ lang }: Props) {
         )}
       </View>
 
-      {/* Chart with SVG + RN Text overlays */}
-      <View style={{ width: W, height: H, position: 'relative' }}>
-        <Svg width={W} height={H}>
-          {/* Y grid lines */}
-          {yTicks.map(t => (
-            <Line key={`g-${t}`} x1={PAD.left} y1={yPos(t)} x2={W - PAD.right} y2={yPos(t)} stroke="#F1F5F9" strokeWidth={1} />
-          ))}
-          {/* Fill area */}
-          <Path d={fillD} fill={improving ? '#22C55E' : '#EAB308'} opacity={0.08} />
-          {/* Line */}
-          <Path d={pathD} fill="none" stroke={improving ? '#22C55E' : '#EAB308'} strokeWidth={2.5} strokeLinecap="round" />
-          {/* Dots */}
-          {pts.map((p, i) => (
-            <Circle key={`d-${i}`} cx={p.x} cy={p.y} r={3.5} fill="#FFF" stroke={scoreColor(scores[i])} strokeWidth={2} />
-          ))}
-        </Svg>
+      {/* Bar chart */}
+      <View style={styles.chartArea}>
+        {/* Y-axis reference lines */}
+        <View style={styles.refLines}>
+          <View style={styles.refLine}>
+            <Text style={styles.refLabel}>100</Text>
+            <View style={styles.refDash} />
+          </View>
+          <View style={styles.refLine}>
+            <Text style={styles.refLabel}>70</Text>
+            <View style={[styles.refDash, { borderColor: '#22C55E40' }]} />
+          </View>
+          <View style={styles.refLine}>
+            <Text style={styles.refLabel}>40</Text>
+            <View style={[styles.refDash, { borderColor: '#EAB30840' }]} />
+          </View>
+          <View style={styles.refLine}>
+            <Text style={styles.refLabel}>0</Text>
+            <View style={styles.refDash} />
+          </View>
+        </View>
 
-        {/* Y-axis labels (RN Text overlay) */}
-        {yTicks.map(t => (
-          <Text key={`yl-${t}`} style={[styles.axisLabel, { position: 'absolute', top: yPos(t) - 7, left: 0 }]}>
-            {t}
-          </Text>
-        ))}
-
-        {/* X-axis labels (RN Text overlay) */}
-        {xLabels.map(l => (
-          <Text key={`xl-${l.i}`} style={[styles.axisLabel, { position: 'absolute', bottom: 0, left: xPos(l.i) - 18, width: 36, textAlign: 'center' }]}>
-            {l.text}
-          </Text>
-        ))}
+        {/* Bars */}
+        <View style={styles.barsContainer}>
+          {history.map((entry, i) => {
+            const h = (entry.score / 100) * BAR_HEIGHT;
+            const color = barColor(entry.score);
+            const isLast = i === history.length - 1;
+            return (
+              <View key={entry.date} style={styles.barCol}>
+                <View style={styles.barWrap}>
+                  {isLast && (
+                    <Text style={[styles.barValue, { color }]}>{entry.score}</Text>
+                  )}
+                  <View style={[styles.bar, {
+                    height: h,
+                    backgroundColor: color,
+                    opacity: isLast ? 1 : 0.5 + (i / history.length) * 0.5,
+                  }]} />
+                </View>
+                <Text style={styles.barDate}>{fmt(entry.date)}</Text>
+              </View>
+            );
+          })}
+        </View>
       </View>
 
+      {/* Legend */}
       <View style={styles.legend}>
         {[
           { c: '#22C55E', t: lang === 'de' ? '71-100 Gut' : '71-100 Buono' },
@@ -161,23 +137,15 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 16,
     marginBottom: 20,
-    ...(Platform.OS === 'web' ? {
-      boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-    } : {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.08,
-      shadowRadius: 12,
-      elevation: 4,
-    }),
-    alignItems: 'center',
+    ...(Platform.OS === 'web'
+      ? { boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }
+      : { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 4 }),
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    width: '100%',
-    marginBottom: 8,
+    marginBottom: 16,
   },
   title: { fontSize: 15, fontWeight: '700', color: '#1E293B' },
   badge: {
@@ -189,16 +157,75 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   badgeText: { fontSize: 12, fontWeight: '700' },
-  axisLabel: {
-    fontSize: 10,
+  chartArea: {
+    position: 'relative',
+    paddingLeft: 30,
+    marginBottom: 12,
+  },
+  refLines: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 20,
+    width: '100%',
+    justifyContent: 'space-between',
+  },
+  refLine: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  refLabel: {
+    fontSize: 9,
     color: '#94A3B8',
+    width: 24,
+    textAlign: 'right',
+    marginRight: 6,
+  },
+  refDash: {
+    flex: 1,
+    height: 0,
+    borderTopWidth: 1,
+    borderColor: '#F1F5F9',
+    borderStyle: 'dashed',
+  },
+  barsContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-around',
+    height: BAR_HEIGHT + 24,
+    paddingTop: 20,
+  },
+  barCol: {
+    flex: 1,
+    alignItems: 'center',
+    maxWidth: 50,
+  },
+  barWrap: {
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    height: BAR_HEIGHT + 20,
+  },
+  bar: {
+    width: 14,
+    borderRadius: 7,
+    minHeight: 4,
+  },
+  barValue: {
+    fontSize: 11,
+    fontWeight: '800',
+    marginBottom: 3,
+  },
+  barDate: {
+    fontSize: 8,
+    color: '#94A3B8',
+    marginTop: 5,
     fontWeight: '500',
   },
   legend: {
     flexDirection: 'row',
     justifyContent: 'center',
     gap: 16,
-    marginTop: 6,
+    marginTop: 4,
   },
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   dot: { width: 8, height: 8, borderRadius: 4 },
