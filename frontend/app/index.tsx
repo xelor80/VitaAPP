@@ -16,7 +16,6 @@ import { OnboardingButton } from '../components/home/OnboardingButton';
 import { SupplementPlanButton } from '../components/home/SupplementPlanButton';
 import { ProgressButton } from '../components/home/ProgressButton';
 import { RecipeCatalogButton } from '../components/home/RecipeCatalogButton';
-import { RecipeRecommendations } from '../components/home/RecipeRecommendations';
 import { HealthScoreCard } from '../components/home/HealthScoreCard';
 import { ScoreHistoryChart } from '../components/home/ScoreHistoryChart';
 import { FooterDisclaimer } from '../components/home/FooterDisclaimer';
@@ -139,10 +138,6 @@ export default function HomeScreen() {
           <RecipeCatalogButton
             lang={lang}
             onPress={() => router.push('/recipes-catalog')}
-          />
-          <RecipeRecommendations
-            lang={lang}
-            onViewAll={() => router.push('/recipes-catalog')}
           />
           <HealthScoreCard lang={lang} />
           <ScoreHistoryChart lang={lang} />
