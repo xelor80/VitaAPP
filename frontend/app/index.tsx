@@ -158,10 +158,18 @@ export default function HomeScreen() {
               lang={lang}
               onShowAnalysis={() => router.push('/results')}
               onNewAnalysis={() => {
+                if (!symptomText.trim() && selectedTags.length === 0) {
+                  Alert.alert(
+                    lang === 'de' ? 'Hinweis' : 'Avviso',
+                    lang === 'de'
+                      ? 'Bitte beschreiben Sie Ihre Symptome oder wählen Sie Bereiche aus.'
+                      : 'Si prega di descrivere i sintomi o selezionare le aree.'
+                  );
+                  return;
+                }
                 clearCurrentAnalysis();
                 setHasSaved(false);
-                setSymptomText('');
-                setSelectedTags([]);
+                analyzeSymptoms();
               }}
             />
           )}
