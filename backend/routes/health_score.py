@@ -38,15 +38,15 @@ def _base_score(profile: dict, symptoms_30d: list, compliance_entries: list) -> 
     compliance_score = round((taken_checks / total_checks * 100)) if total_checks > 0 else 50
 
     # --- Sleep (from profile) ---
-    sleep_q = profile.get("sleep_quality", 5)
+    sleep_q = profile.get("sleep_quality") or 5
     sleep_score = round(sleep_q / 10 * 100)
 
     # --- Stress (from profile, inverted - lower stress = higher score) ---
-    stress_lvl = profile.get("stress_level", 5)
+    stress_lvl = profile.get("stress_level") or 5
     stress_score = round((10 - stress_lvl) / 9 * 100)
 
     # --- Energy (from profile) ---
-    energy_lvl = profile.get("energy_level", 5)
+    energy_lvl = profile.get("energy_level") or 5
     energy_score = round(energy_lvl / 10 * 100)
 
     # --- Mikronährstoff-Risiko ---
