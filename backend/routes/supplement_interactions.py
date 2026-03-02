@@ -145,7 +145,8 @@ Wichtig:
 - Sortiere interactions: rot zuerst, dann gelb, dann gruen
 - Sei spezifisch und evidence-based
 - Mindestens 3 interactions und 2 optimizations
-- Keine Markdown, nur reines JSON"""
+- Keine Markdown, nur reines JSON
+- ALLE Texte MUESSEN auf Deutsch sein (title, description, recommendation, summary, score_label, etc.)"""
     else:
         return """Sei un esperto farmaceutico di interazioni tra supplementi.
 Analizza lo stack di supplementi di un utente e identifica:
@@ -183,7 +184,8 @@ Importante:
 - Ordina interactions: rosso prima, poi giallo, poi verde
 - Sii specifico e evidence-based
 - Almeno 3 interactions e 2 optimizations
-- Nessun Markdown, solo JSON puro"""
+- Nessun Markdown, solo JSON puro
+- TUTTI i testi DEVONO essere in italiano (title, description, recommendation, summary, score_label, ecc.)"""
 
 
 def _build_user_prompt(stack_text: str, profile_context: str, lang: str) -> str:
