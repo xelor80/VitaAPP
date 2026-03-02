@@ -14,8 +14,9 @@ Health-focused, bilingual (German/Italian) mobile app. Core functionality: LLM a
 8. YouTube video integration
 9. Product label analysis (Image + PDF) with AI vision
 10. Health Score Dashboard with 8-week trend chart
-11. **Searchable/filterable recipe catalog** (NEW)
-12. **Admin health statistics dashboard** (NEW)
+11. Searchable/filterable recipe catalog
+12. Admin health statistics dashboard
+13. **Personalized recipe recommendations on home screen** (NEW)
 
 ## Tech Stack
 - **Frontend:** React Native (Expo) for web
@@ -30,6 +31,7 @@ Health-focused, bilingual (German/Italian) mobile app. Core functionality: LLM a
 | `/api/analyze` | POST | Symptom analysis |
 | `/api/recipes` | GET | Recipes (with search, category, time filters) |
 | `/api/recipes/filters` | GET | Available filter options for recipe catalog |
+| `/api/recipes/recommendations` | GET | Personalized recipe recommendations |
 | `/api/health-score` | GET | AI-calculated health score |
 | `/api/health-score/history` | GET | 8-week score history |
 | `/api/health-profile` | GET/POST | User health profile |
@@ -55,7 +57,7 @@ backend/
     health_profile.py     # Onboarding/health profile
     health_score.py       # Health score calculation
     label_analysis.py     # Product label AI analysis
-    products.py           # Public recipe/product endpoints
+    products.py           # Public recipe/product endpoints + recommendations
     supplement_plan.py    # Supplement plan
     tracking.py           # Health tracking
     videos.py             # Video management
@@ -67,12 +69,13 @@ backend/
 frontend/
   app/
     index.tsx             # Home screen
-    recipes-catalog.tsx   # Recipe catalog with search/filter (NEW)
+    recipes-catalog.tsx   # Recipe catalog with search/filter
     results.tsx           # Analysis results
     _layout.tsx           # Navigation
   components/
     home/
-      RecipeCatalogButton.tsx  # (NEW)
+      RecipeCatalogButton.tsx
+      RecipeRecommendations.tsx  # NEW - Personalized recommendations
       HealthScoreCard.tsx
       ScoreHistoryChart.tsx
     tabs/, tracking/, onboarding/
@@ -80,15 +83,16 @@ frontend/
 ```
 
 ## What's Implemented (as of 2026-03-02)
-- All 12 core features listed above
+- All 13 core features listed above
 - P0: Product label analysis (fixed, enhanced with PDF + GPT-4.1 vision)
 - P1: Searchable/filterable recipe catalog with search, category, tag, time filters
 - P2: Admin health statistics dashboard with 15+ aggregated metrics
+- P3: Personalized recipe recommendations on home screen (complaint-based matching)
 - Refactoring: health stats extracted to own route, unused imports removed
 
 ## Backlog (Remaining)
 - No known pending issues or bugs
-- Potential: More chart types in admin dashboard
 - Potential: Export health stats data as CSV
 - Potential: Recipe favorites/bookmarks
 - Potential: Push notification reminders for supplement plan
+- Potential: More chart types in admin dashboard
