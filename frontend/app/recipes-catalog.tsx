@@ -53,6 +53,23 @@ const TEXTS = {
 
 type TimeFilter = null | 'quick' | 'medium' | 'long';
 
+const REASON_LABELS: Record<string, Record<string, string>> = {
+  de: {
+    fatigue: 'Gegen Müdigkeit', headache: 'Gegen Kopfschmerzen', digestive: 'Für die Verdauung',
+    joint_pain: 'Für die Gelenke', muscle_pain: 'Gegen Muskelschmerzen', skin_problems: 'Für Haut & Haare',
+    concentration: 'Für Konzentration', mood_swings: 'Gegen Stimmungsschwankungen',
+    anxiety_symptoms: 'Gegen Stress', sleep_problems: 'Für besseren Schlaf',
+    immune_weakness: 'Für das Immunsystem', cold_hands_feet: 'Für die Durchblutung',
+  },
+  it: {
+    fatigue: 'Contro la stanchezza', headache: 'Contro il mal di testa', digestive: 'Per la digestione',
+    joint_pain: 'Per le articolazioni', muscle_pain: 'Contro i dolori', skin_problems: 'Per pelle e capelli',
+    concentration: 'Per la concentrazione', mood_swings: 'Contro gli sbalzi',
+    anxiety_symptoms: 'Contro stress', sleep_problems: 'Per dormire meglio',
+    immune_weakness: 'Per il sistema immunitario', cold_hands_feet: 'Per la circolazione',
+  },
+};
+
 export default function RecipesCatalogScreen() {
   const router = useRouter();
   const { lang } = useLang();
