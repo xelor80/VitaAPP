@@ -110,6 +110,7 @@ async def analyze_symptoms(data: SymptomInput, request: Request):
     result = {
         "id": analysis_id,
         "summary": parsed.get("summary", ""),
+        "priority_level": parsed.get("priority_level", "mittel"),
         "red_flags": parsed.get("red_flags", []),
         "supplements_general_info": parsed.get("supplements_general_info", []),
         "brand_products": parsed.get("brand_products", []),
