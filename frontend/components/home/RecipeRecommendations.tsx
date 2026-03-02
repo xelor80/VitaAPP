@@ -66,9 +66,12 @@ export function RecipeRecommendations({ lang, onViewAll }: Props) {
       if (profileId) params.set('profile_id', profileId);
       const res = await fetch(`${API_URL}/api/recipes/recommendations?${params}`);
       if (res.ok) {
-        setRecipes(await res.json());
+        const data = await res.json();
+        setRecipes(data);
       }
-    } catch {}
+    } catch (e) {
+      console.warn('RecipeRecommendations fetch error:', e);
+    }
     setLoading(false);
   };
 
