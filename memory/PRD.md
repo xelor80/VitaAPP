@@ -1,9 +1,9 @@
 # VitaGuide PRD - Product Requirements Document
 
 ## Original Problem Statement
-Health-focused, bilingual (German/Italian) mobile app. Core functionality: LLM analyzes user-inputted symptoms to provide nutrition tips, supplement info, and affiliate links.
+Health-focused, bilingual (German/Italian) mobile app. LLM analyzes user symptoms to provide nutrition tips, supplement info, and affiliate links.
 
-## Core Features
+## Core Features (All Implemented)
 1. Symptom analysis with AI (GPT-4.1 via Emergent LLM Key)
 2. Bilingual UI (DE/IT)
 3. Affiliate product recommendations with click tracking
@@ -16,31 +16,25 @@ Health-focused, bilingual (German/Italian) mobile app. Core functionality: LLM a
 10. Health Score Dashboard with 8-week trend chart
 11. Searchable/filterable recipe catalog ("Deine Rezepte")
 12. Admin health statistics dashboard
-13. Personalized recipe recommendations (inside recipe catalog)
+13. Personalized recipe recommendations (in catalog page)
+14. **Medical report format for analysis results** (NEW)
 
-## Architecture
-```
-backend/routes/
-  products.py     # Recipes, recommendations, filters
-  admin.py        # Product/recipe CRUD, stats
-  admin_health_stats.py  # Health statistics
-  ...
+## Medical Report Structure
+The analysis results are now displayed as a structured medical report:
+1. **Zusammenfassung** - Summary with priority badge (hoch/mittel/niedrig)
+2. **Wahrscheinliche Ursachen** - Deficiency cards with evidence level, mechanism, natural sources, cautions
+3. **Empfohlene Strategie** - Supplement schedule + product cards with dosage, timing, affiliate links
+4. **Erwarteter Zeitraum bis Wirkung** - Short-term (1-2 weeks) and medium-term (4-8 weeks) timeline
+5. **Sicherheitshinweise** - Red flags and legal disclaimer
 
-frontend/app/
-  index.tsx              # Home: "Deine Rezepte" button
-  recipes-catalog.tsx    # Catalog with inline recommendations
-frontend/components/home/
-  RecipeCatalogButton.tsx  # "Deine Rezepte" button
-  RecipeRecommendations.tsx  # Standalone component (kept for reuse)
-```
-
-## What's Implemented (as of 2026-03-02)
-- All 13 core features
-- Recommendations moved from home screen INTO recipe catalog page
-- "Rezeptkatalog" renamed to "Deine Rezepte" everywhere
+## Key Files Modified
+- `backend/data/prompts.py` - Added `priority_level` to LLM prompt
+- `backend/routes/analysis.py` - Added `priority_level` to response
+- `frontend/components/tabs/OverviewTab.tsx` - Complete rewrite as medical report
+- `frontend/app/results.tsx` - Tab renamed to "Bericht", removed duplicate disclaimer/red flag banner
 
 ## Backlog
 - Recipe favorites/bookmarks
+- Weekly meal plan generator
 - Export health stats as CSV
 - Push notifications for supplement plan
-- Weekly meal plan generator
