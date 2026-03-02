@@ -8,6 +8,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLang } from '../src/LangContext';
 import { planStyles as styles } from '../components/supplement/planStyles';
+import { InteractionAnalysis } from '../components/supplement/InteractionAnalysis';
 import {
   scheduleSupplementReminders,
   sendTestNotification,
@@ -60,7 +61,7 @@ export default function SupplementPlanScreen() {
   const [plan, setPlan] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
-  const [activeTab, setActiveTab] = useState<'stack' | 'schedule' | 'phases'>('stack');
+  const [activeTab, setActiveTab] = useState<'stack' | 'schedule' | 'phases' | 'interactions'>('stack');
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
   const [reminders, setReminders] = useState({ enabled: false, morning_time: '08:00', noon_time: '12:00', evening_time: '20:00' });
   const [showReminders, setShowReminders] = useState(false);
@@ -339,9 +340,10 @@ export default function SupplementPlanScreen() {
         {/* Tabs */}
         <View style={styles.tabs}>
           {[
-            { key: 'stack' as const, label: lang === 'de' ? 'Supplement-Stack' : 'Stack', icon: 'pill' },
-            { key: 'schedule' as const, label: lang === 'de' ? 'Tagesplan' : 'Piano giornaliero', icon: 'clock-outline' },
-            { key: 'phases' as const, label: lang === 'de' ? 'Wochenplan' : 'Piano settimanale', icon: 'calendar-week' },
+            { key: 'stack' as const, label: lang === 'de' ? 'Stack' : 'Stack', icon: 'pill' },
+            { key: 'schedule' as const, label: lang === 'de' ? 'Tagesplan' : 'Piano', icon: 'clock-outline' },
+            { key: 'phases' as const, label: lang === 'de' ? 'Wochen' : 'Settimane', icon: 'calendar-week' },
+            { key: 'interactions' as const, label: lang === 'de' ? 'Analyse' : 'Analisi', icon: 'shield-search' },
           ].map(tab => (
             <TouchableOpacity
               key={tab.key}
