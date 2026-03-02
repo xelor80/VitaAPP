@@ -61,6 +61,7 @@ Health-focused, bilingual (German/Italian) mobile app. LLM analyzes user symptom
 - **Bug Fix (P0)**: `useFocusEffect` from `@react-navigation/native` crashed app on web. Replaced with synchronous state init from in-memory store (`getCurrentAnalysis() !== null`)
 - `SavedAnalysisButtons` simplified to pure presentational component (no internal state)
 - `clearCurrentAnalysis()` added to store.ts for proper cleanup
+- **UX Improvement**: "Neue Analyse starten" now directly starts analysis with current symptoms (validates first, shows loading spinner "Analysiere...", auto-navigates to results). Uses `setHasSaved(false) + setTimeout(analyzeSymptoms, 50)` pattern.
 
 ## Key Files
 - `backend/routes/supplement_interactions.py` - Interaction analysis endpoint
