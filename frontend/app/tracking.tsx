@@ -13,6 +13,7 @@ import { ComplianceTracker } from '../components/tracking/ComplianceTracker';
 import { MilestonesCard } from '../components/tracking/MilestonesCard';
 import { InsightsCard } from '../components/tracking/InsightsCard';
 import { ProgressHeader } from '../components/tracking/ProgressHeader';
+import { CorrelationAnalysis } from '../components/tracking/CorrelationAnalysis';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -36,7 +37,7 @@ export default function TrackingScreen() {
   const [profileId, setProfileId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
-  const [activeTab, setActiveTab] = useState<'symptoms' | 'compliance'>('symptoms');
+  const [activeTab, setActiveTab] = useState<'symptoms' | 'compliance' | 'correlations'>('symptoms');
   const [supplements, setSupplements] = useState<any[]>([]);
 
   useEffect(() => {
@@ -173,6 +174,15 @@ export default function TrackingScreen() {
               {lang === 'de' ? 'Einnahme' : 'Assunzione'}
             </Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            testID="tab-correlations"
+            style={[styles.tab, activeTab === 'correlations' && styles.tabActive]}
+            onPress={() => setActiveTab('correlations')}
+          >
+            <Text style={[styles.tabText, activeTab === 'correlations' && styles.tabTextActive]}>
+              {lang === 'de' ? 'Analyse' : 'Analisi'}
+            </Text>
+          </TouchableOpacity>
         </View>
 
         {/* Symptom Tracker Tab */}
@@ -197,6 +207,11 @@ export default function TrackingScreen() {
             complianceTrend={dashboard?.compliance_trend}
             onSave={refreshDashboard}
           />
+        )}
+
+        {/* Correlation Analysis Tab */}
+        {activeTab === 'correlations' && (
+          <CorrelationAnalysis profileId={profileId} lang={lang} />
         )}
 
         {/* Milestones */}
