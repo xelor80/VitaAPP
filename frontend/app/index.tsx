@@ -19,6 +19,7 @@ import { RecipeCatalogButton } from '../components/home/RecipeCatalogButton';
 import { HealthScoreCard } from '../components/home/HealthScoreCard';
 import { ScoreHistoryChart } from '../components/home/ScoreHistoryChart';
 import { FooterDisclaimer } from '../components/home/FooterDisclaimer';
+import { SavedAnalysisButtons } from '../components/home/SavedAnalysisButtons';
 import { styles } from '../components/home/homeStyles';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
@@ -143,6 +144,11 @@ export default function HomeScreen() {
           <ScoreHistoryChart lang={lang} />
           <SymptomInput lang={lang} value={symptomText} onChangeText={setSymptomText} />
           <SymptomChips lang={lang} selectedTags={selectedTags} onToggleTag={toggleTag} />
+          <SavedAnalysisButtons
+            lang={lang}
+            onShowAnalysis={() => router.push('/results')}
+            onNewAnalysis={analyzeSymptoms}
+          />
           <AnalyzeButton lang={lang} isLoading={isLoading} onPress={analyzeSymptoms} />
           <FooterDisclaimer lang={lang} />
         </ScrollView>

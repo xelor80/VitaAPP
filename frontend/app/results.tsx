@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { getCurrentAnalysis } from '../src/store';
+import { getCurrentAnalysis, loadSavedAnalysis } from '../src/store';
 import { useLang } from '../src/LangContext';
 import { t } from '../src/i18n';
 import { useSettings } from '../src/SettingsContext';
@@ -48,7 +48,14 @@ export default function ResultsScreen() {
       loadRelatedVideos(data);
       setIsLoading(false);
     } else {
-      setIsLoading(false);
+      // Try loading from AsyncStorage
+      loadSavedAnalysis().then(saved => {
+        if (saved) {
+          setAnalysis(saved);
+          loadRelatedVideos(saved);
+        }
+        setIsLoading(false);
+      });
     }
   }, []);
 
