@@ -166,7 +166,8 @@ export default function HomeScreen() {
                   if (typeof window !== 'undefined') window.alert(msg);
                   return;
                 }
-                analyzeSymptoms();
+                setHasSaved(false);
+                setTimeout(analyzeSymptoms, 50);
               }}
             />
           )}
