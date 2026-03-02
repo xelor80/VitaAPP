@@ -74,6 +74,13 @@ Health-focused, bilingual (German/Italian) mobile app. LLM analyzes user symptom
 - `frontend/app/tracking.tsx` - 3-tab tracking page
 - `frontend/app/results.tsx` - Loads saved analysis from store
 
+## Recipe Catalog UX Improvement (Mar 2026)
+- Initially hide all recipe cards, show only filter options + "Für dich empfohlen"
+- "Kategorie oder Tag wählen" prompt when no filter active
+- Recommendations hidden when filter active
+- Header shows "Gesunde Rezepte entdecken" → "[N] Rezepte" when filter applied
+- Reset via "Alle" button or filter-reset icon
+
 ## Backlog (P1)
 - Symptom Severity Tracking (1-10 scale with visualization)
 - Recipe favorites/bookmarks
