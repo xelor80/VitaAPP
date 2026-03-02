@@ -160,7 +160,9 @@ export default function RecipesCatalogScreen() {
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
           <Text style={s.headerTitle}>{tx.title}</Text>
-          <Text style={s.headerSub}>{recipes.length} {tx.recipes}</Text>
+          <Text style={s.headerSub}>
+            {hasActiveFilters ? `${recipes.length} ${tx.recipes}` : tx.subtitle}
+          </Text>
         </View>
         {hasActiveFilters && (
           <TouchableOpacity testID="reset-filters-btn" onPress={resetFilters} style={s.resetBtn}>
@@ -189,8 +191,8 @@ export default function RecipesCatalogScreen() {
       </View>
 
       <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
-        {/* Personalized Recommendations */}
-        {!recsLoading && recommendations.length > 0 && (
+        {/* Personalized Recommendations - only when no filter active */}
+        {!hasActiveFilters && !recsLoading && recommendations.length > 0 && (
           <View style={s.recsSection}>
             <View style={s.recsHeader}>
               <MaterialCommunityIcons name="lightbulb-on-outline" size={18} color="#4A8B71" />
@@ -334,23 +336,35 @@ export default function RecipesCatalogScreen() {
           </View>
         )}
 
-        {/* No Results */}
-        {!isLoading && recipes.length === 0 && (
+        {/* Recipe Cards - only show when filters are active */}
+        {!isLoading && hasActiveFilters && recipes.length === 0 && (
           <View style={s.emptyState}>
             <MaterialCommunityIcons name="chef-hat" size={48} color="#8FA39B" />
             <Text style={s.emptyTitle}>{tx.noResults}</Text>
             <Text style={s.emptySub}>{tx.noResultsSub}</Text>
-            {hasActiveFilters && (
-              <TouchableOpacity testID="empty-reset-btn" style={s.emptyResetBtn} onPress={resetFilters}>
-                <MaterialCommunityIcons name="refresh" size={16} color="#4A8B71" />
-                <Text style={s.emptyResetText}>{tx.resetFilters}</Text>
-              </TouchableOpacity>
-            )}
+            <TouchableOpacity testID="empty-reset-btn" style={s.emptyResetBtn} onPress={resetFilters}>
+              <MaterialCommunityIcons name="refresh" size={16} color="#4A8B71" />
+              <Text style={s.emptyResetText}>{tx.resetFilters}</Text>
+            </TouchableOpacity>
           </View>
         )}
 
-        {/* Recipe Cards */}
-        {!isLoading && recipes.map((recipe, i) => {
+        {/* Prompt to select filter when no filter is active */}
+        {!isLoading && !hasActiveFilters && (
+          <View style={s.emptyState}>
+            <MaterialCommunityIcons name="filter-variant" size={48} color="#8FA39B" />
+            <Text style={s.emptyTitle}>
+              {lang === 'de' ? 'Kategorie oder Tag wählen' : 'Seleziona categoria o tag'}
+            </Text>
+            <Text style={s.emptySub}>
+              {lang === 'de'
+                ? 'Wähle oben eine Kategorie, Tags oder Zeitfilter um passende Rezepte zu sehen.'
+                : 'Seleziona sopra una categoria, tag o filtro tempo per vedere le ricette.'}
+            </Text>
+          </View>
+        )}
+
+        {!isLoading && hasActiveFilters && recipes.map((recipe, i) => {
           const isExpanded = expandedRecipe === recipe.id;
           return (
             <TouchableOpacity
