@@ -1,14 +1,15 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 interface Props {
   lang: string;
+  isLoading?: boolean;
   onShowAnalysis: () => void;
   onNewAnalysis: () => void;
 }
 
-export function SavedAnalysisButtons({ lang, onShowAnalysis, onNewAnalysis }: Props) {
+export function SavedAnalysisButtons({ lang, isLoading, onShowAnalysis, onNewAnalysis }: Props) {
   return (
     <View style={styles.wrap} data-testid="saved-analysis-buttons">
       <TouchableOpacity
@@ -16,6 +17,7 @@ export function SavedAnalysisButtons({ lang, onShowAnalysis, onNewAnalysis }: Pr
         style={styles.showBtn}
         onPress={onShowAnalysis}
         activeOpacity={0.7}
+        disabled={isLoading}
       >
         <MaterialCommunityIcons name="file-document-outline" size={18} color="#FFF" />
         <Text style={styles.showBtnText}>
@@ -24,13 +26,20 @@ export function SavedAnalysisButtons({ lang, onShowAnalysis, onNewAnalysis }: Pr
       </TouchableOpacity>
       <TouchableOpacity
         data-testid="new-analysis-btn"
-        style={styles.newBtn}
+        style={[styles.newBtn, isLoading && styles.newBtnLoading]}
         onPress={onNewAnalysis}
         activeOpacity={0.7}
+        disabled={isLoading}
       >
-        <MaterialCommunityIcons name="plus-circle-outline" size={18} color="#4A8B71" />
+        {isLoading ? (
+          <ActivityIndicator size="small" color="#4A8B71" />
+        ) : (
+          <MaterialCommunityIcons name="plus-circle-outline" size={18} color="#4A8B71" />
+        )}
         <Text style={styles.newBtnText}>
-          {lang === 'de' ? 'Neue Analyse starten' : 'Nuova analisi'}
+          {isLoading
+            ? (lang === 'de' ? 'Analysiere...' : 'Analisi in corso...')
+            : (lang === 'de' ? 'Neue Analyse starten' : 'Nuova analisi')}
         </Text>
       </TouchableOpacity>
     </View>
@@ -76,5 +85,8 @@ const styles = StyleSheet.create({
     color: '#4A8B71',
     fontSize: 13,
     fontWeight: '600',
+  },
+  newBtnLoading: {
+    opacity: 0.7,
   },
 });

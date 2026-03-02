@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
-import { setCurrentAnalysis, getCurrentAnalysis, clearCurrentAnalysis } from '../src/store';
+import { setCurrentAnalysis, getCurrentAnalysis } from '../src/store';
 import { useLang } from '../src/LangContext';
 import { DisclaimerScreen } from '../components/home/DisclaimerScreen';
 import { HomeHeader } from '../components/home/HomeHeader';
@@ -156,19 +156,16 @@ export default function HomeScreen() {
           {hasSaved && (
             <SavedAnalysisButtons
               lang={lang}
+              isLoading={isLoading}
               onShowAnalysis={() => router.push('/results')}
               onNewAnalysis={() => {
                 if (!symptomText.trim() && selectedTags.length === 0) {
-                  Alert.alert(
-                    lang === 'de' ? 'Hinweis' : 'Avviso',
-                    lang === 'de'
-                      ? 'Bitte beschreiben Sie Ihre Symptome oder wählen Sie Bereiche aus.'
-                      : 'Si prega di descrivere i sintomi o selezionare le aree.'
-                  );
+                  const msg = lang === 'de'
+                    ? 'Bitte beschreiben Sie Ihre Symptome oder wählen Sie Bereiche aus.'
+                    : 'Si prega di descrivere i sintomi o selezionare le aree.';
+                  if (typeof window !== 'undefined') window.alert(msg);
                   return;
                 }
-                clearCurrentAnalysis();
-                setHasSaved(false);
                 analyzeSymptoms();
               }}
             />
