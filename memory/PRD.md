@@ -18,7 +18,17 @@ Health-focused, bilingual (German/Italian) mobile app. LLM analyzes user symptom
 12. Admin health statistics dashboard
 13. Personalized recipe recommendations (in catalog page)
 14. Medical report format for analysis results
-15. **Compact home screen UI** (Feb 2026) - Reduced button sizes, margins, icons
+15. Compact home screen UI (Feb 2026)
+16. **Supplement Interaction Analysis** (Mar 2026) - LLM-powered stack optimizer with traffic-light warning system
+
+## Supplement Interaction Analysis
+New "Analyse" tab in the Supplement Plan page that:
+- **Detects**: Double dosages, overdose risks, mutual inhibitions, synergies
+- **Warning System**: Red (risk), Yellow (caution), Green (synergy) color-coded cards
+- **Optimizations**: Timing changes, dosage adjustments, supplement replacements
+- **Score**: Overall stack health score (0-100)
+- **Caching**: Results cached in MongoDB for instant reload
+- **Endpoints**: POST `/api/supplement-plan/{id}/analyze-interactions`, GET `/api/supplement-plan/{id}/interactions`
 
 ## Medical Report Structure
 The analysis results are now displayed as a structured medical report:
@@ -28,14 +38,12 @@ The analysis results are now displayed as a structured medical report:
 4. **Erwarteter Zeitraum bis Wirkung** - Short-term (1-2 weeks) and medium-term (4-8 weeks) timeline
 5. **Sicherheitshinweise** - Red flags and legal disclaimer
 
-## Key Files Modified
-- `backend/data/prompts.py` - Added `priority_level` to LLM prompt
-- `backend/routes/analysis.py` - Added `priority_level` to response
-- `frontend/components/tabs/OverviewTab.tsx` - Complete rewrite as medical report
-- `frontend/app/results.tsx` - Tab renamed to "Bericht", removed duplicate disclaimer/red flag banner
+## Key Files
+- `backend/routes/supplement_interactions.py` - Interaction analysis endpoint + LLM prompts
+- `frontend/components/supplement/InteractionAnalysis.tsx` - Analyse tab UI component
+- `frontend/app/supplement-plan.tsx` - 4-tab supplement plan page
 - `frontend/components/home/homeStyles.ts` - Compact button/card styles
-- `frontend/components/home/HealthScoreCard.tsx` - Smaller circle chart (RADIUS 42)
-- `frontend/components/home/ScoreHistoryChart.tsx` - Reduced bar height (80px)
+- `frontend/components/home/HealthScoreCard.tsx` - Smaller circle chart
 
 ## Backlog (P1)
 - Symptom Severity Tracking (user rates symptoms 1-10, trend visualization)
