@@ -5,8 +5,7 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
-import { useFocusEffect } from '@react-navigation/native';
-import { setCurrentAnalysis } from '../src/store';
+import { setCurrentAnalysis, getCurrentAnalysis, clearCurrentAnalysis } from '../src/store';
 import { useLang } from '../src/LangContext';
 import { DisclaimerScreen } from '../components/home/DisclaimerScreen';
 import { HomeHeader } from '../components/home/HomeHeader';
@@ -32,7 +31,7 @@ export default function HomeScreen() {
   const [symptomText, setSymptomText] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [hasSaved, setHasSaved] = useState(false);
+  const [hasSaved, setHasSaved] = useState(() => getCurrentAnalysis() !== null);
   const scrollRef = React.useRef<ScrollView>(null);
   const inputYRef = React.useRef(0);
 
@@ -40,20 +39,11 @@ export default function HomeScreen() {
     AsyncStorage.getItem('disclaimer_accepted').then(val => {
       setDisclaimerAccepted(val === 'true');
     }).catch(() => setDisclaimerAccepted(false));
-    // Check for saved analysis
+    // Check for saved analysis (fallback for cold start / page refresh)
     AsyncStorage.getItem('saved_analysis').then(val => {
-      setHasSaved(!!val);
+      if (val) setHasSaved(true);
     }).catch(() => {});
   }, []);
-
-  // Re-check saved analysis every time screen comes into focus
-  useFocusEffect(
-    useCallback(() => {
-      AsyncStorage.getItem('saved_analysis').then(val => {
-        setHasSaved(!!val);
-      }).catch(() => {});
-    }, [])
-  );
 
   const acceptDisclaimer = useCallback(async () => {
     await AsyncStorage.setItem('disclaimer_accepted', 'true');
@@ -167,13 +157,12 @@ export default function HomeScreen() {
             <SavedAnalysisButtons
               lang={lang}
               onShowAnalysis={() => router.push('/results')}
-              onNewAnalysis={async () => {
-                await AsyncStorage.removeItem('saved_analysis');
+              onNewAnalysis={() => {
+                clearCurrentAnalysis();
                 setHasSaved(false);
                 setSymptomText('');
                 setSelectedTags([]);
               }}
-              onStatusChange={setHasSaved}
             />
           )}
           {!hasSaved && <AnalyzeButton lang={lang} isLoading={isLoading} onPress={analyzeSymptoms} />}

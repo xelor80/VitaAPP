@@ -1,27 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { hasSavedAnalysis } from '../../src/store';
 
 interface Props {
   lang: string;
   onShowAnalysis: () => void;
   onNewAnalysis: () => void;
-  onStatusChange?: (hasSaved: boolean) => void;
 }
 
-export function SavedAnalysisButtons({ lang, onShowAnalysis, onNewAnalysis, onStatusChange }: Props) {
-  const [hasAnalysis, setHasAnalysis] = useState(false);
-
-  useEffect(() => {
-    hasSavedAnalysis().then(val => {
-      setHasAnalysis(val);
-      onStatusChange?.(val);
-    });
-  }, []);
-
-  if (!hasAnalysis) return null;
-
+export function SavedAnalysisButtons({ lang, onShowAnalysis, onNewAnalysis }: Props) {
   return (
     <View style={styles.wrap} data-testid="saved-analysis-buttons">
       <TouchableOpacity

@@ -13,6 +13,11 @@ export function setCurrentAnalysis(data: AnalysisData): void {
   AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(data)).catch(() => {});
 }
 
+export function clearCurrentAnalysis(): void {
+  _currentAnalysis = null;
+  AsyncStorage.removeItem(STORAGE_KEY).catch(() => {});
+}
+
 export function getCurrentAnalysis(): AnalysisData | null {
   return _currentAnalysis;
 }

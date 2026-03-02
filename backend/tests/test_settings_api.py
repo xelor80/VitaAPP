@@ -7,7 +7,7 @@ import requests
 import os
 import uuid
 
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://health-compact.preview.emergentagent.com')
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://vitality-planner-5.preview.emergentagent.com')
 ADMIN_PASSWORD = "Wk220480xel!"
 
 

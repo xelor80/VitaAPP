@@ -32,7 +32,7 @@
   },
   "test_credentials": {
     "admin_password": "Wk220480xel!",
-    "admin_url": "https://health-compact.preview.emergentagent.com/api/admin-app"
+    "admin_url": "https://vitality-planner-5.preview.emergentagent.com/api/admin-app"
   },
   "seed_data_creation": "Generated 2 dessert recipes via LLM for testing (Kokosnuss-Chia-Pudding, Schokoladen-Avocado-Mousse)",
   "retest_needed": false,

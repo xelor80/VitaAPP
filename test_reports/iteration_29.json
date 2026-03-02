@@ -1,0 +1,73 @@
+{
+  "summary": "P0 Bug Fix Verified - All 8 test cases passed. The 'Couldn't find a navigation object' error from useFocusEffect has been fixed. After creating a symptom analysis and navigating back to home, the two buttons ('Letzte Analyse anzeigen' / 'Neue Analyse starten') now correctly appear instead of the single 'Analyse starten' button.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/test_reports/iteration_29.json"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "index.tsx: Line 34 - Synchronous state initialization `useState(() => getCurrentAnalysis() !== null)` correctly handles initial state without useFocusEffect",
+    "index.tsx: Lines 156-167 - hasSaved conditional rendering correctly shows SavedAnalysisButtons when analysis exists",
+    "SavedAnalysisButtons.tsx: Simplified to pure presentational component with no internal state - correct approach",
+    "store.ts: In-memory store with AsyncStorage persistence working correctly for state management across navigation"
+  ],
+  "updated_files": [],
+  "success_rate": {
+    "backend": "N/A - Frontend only testing",
+    "frontend": "100% (8/8 tests passed)"
+  },
+  "test_credentials": {
+    "app_url": "https://vitality-planner-5.preview.emergentagent.com"
+  },
+  "seed_data_creation": "Created test symptom analyses: 'Kopfschmerzen und Müdigkeit' and 'Stress und Schlafprobleme'",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "P0 Bug Fix VERIFIED. The useFocusEffect removal and synchronous state initialization fix is working correctly. All navigation flows work: disclaimer acceptance, symptom analysis creation, results viewing, back navigation shows two buttons, 'Letzte Analyse anzeigen' navigates to saved results, 'Neue Analyse starten' resets to input view.",
+  "features_tested": {
+    "test1_home_loads_without_crash": {
+      "status": "PASS",
+      "details": "No 'Couldn't find a navigation object' error - useFocusEffect removal successful"
+    },
+    "test2_disclaimer_screen": {
+      "status": "PASS",
+      "details": "Disclaimer screen shows with 'Verstanden & Zustimmen' button, acceptance works"
+    },
+    "test3_initial_state_analyze_button": {
+      "status": "PASS",
+      "details": "'Analyse starten' button visible when no saved analysis exists"
+    },
+    "test4_create_analysis_navigate_results": {
+      "status": "PASS",
+      "details": "Symptom analysis creation works, navigates to results page"
+    },
+    "test5_p0_bug_fix_two_buttons": {
+      "status": "PASS",
+      "details": "CRITICAL P0 FIX: After returning from results, TWO buttons appear ('Letzte Analyse anzeigen' and 'Neue Analyse starten')"
+    },
+    "test6_show_saved_analysis": {
+      "status": "PASS",
+      "details": "'Letzte Analyse anzeigen' button navigates to results page with saved analysis"
+    },
+    "test7_new_analysis_reset": {
+      "status": "PASS",
+      "details": "'Neue Analyse starten' button resets state, shows 'Analyse starten' button again"
+    },
+    "test8_repeat_analysis_flow": {
+      "status": "PASS",
+      "details": "After second analysis, returning home shows two buttons again"
+    }
+  },
+  "p0_bug_fix_verification": {
+    "original_issue": "useFocusEffect from @react-navigation/native crashed the app with 'Couldn't find a navigation object' error",
+    "fix_applied": "Removed useFocusEffect, added synchronous state initialization via getCurrentAnalysis() !== null, simplified SavedAnalysisButtons to pure presentational component",
+    "verification_result": "FIXED - All navigation flows work correctly, two buttons appear as expected after analysis"
+  }
+}
