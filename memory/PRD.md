@@ -35,6 +35,13 @@ Health-focused, bilingual (German/Italian) mobile app. LLM analyzes user symptom
 - Period selector: 14/30/60 days
 - Calculates: % improvement, trend direction, overall score
 - LLM-powered personalized insights (e.g. "Seit Beginn der Magnesium-Einnahme hat sich dein Schlaf um 26% verbessert")
+
+## Admin Recipe Management (Mar 2026)
+- **KI Rezepte generieren**: GPT-4o generates bilingual recipes by category with optional focus
+- **Aktiv/Inaktiv Toggle**: Admin can enable/disable recipes per toggle button
+- **Kategorie & Status Filter**: Dropdown filters in the recipe table
+- **Mobile Filter**: Mobile app only shows active recipes (`active != false`)
+- Endpoints: `POST /api/admin/recipes/generate`, `PATCH /api/admin/recipes/{id}/toggle`, `GET /api/admin/recipes/categories`
 - Shows: Overall trend, symptom bars, compliance bars, KI-Erkenntnisse, recommendations
 - Endpoint: GET `/api/tracking/correlation-analysis/{profile_id}?days=30&lang=de`
 
