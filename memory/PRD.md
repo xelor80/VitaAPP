@@ -43,8 +43,11 @@ Health-focused, bilingual (German/Italian) mobile app. LLM analyzes user symptom
 - `backend/routes/correlation_analysis.py` - Correlation analysis endpoint
 - `frontend/components/supplement/InteractionAnalysis.tsx` - Supplement analyse tab
 - `frontend/components/tracking/CorrelationAnalysis.tsx` - Tracking analyse tab
+- `frontend/components/home/SavedAnalysisButtons.tsx` - Persistent analysis buttons
+- `frontend/src/store.ts` - AsyncStorage persistence for analysis results
 - `frontend/app/supplement-plan.tsx` - 4-tab supplement plan page
 - `frontend/app/tracking.tsx` - 3-tab tracking page
+- `frontend/app/results.tsx` - Loads saved analysis from AsyncStorage
 
 ## Backlog (P1)
 - Recipe favorites/bookmarks
