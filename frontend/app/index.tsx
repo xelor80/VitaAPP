@@ -135,6 +135,10 @@ export default function HomeScreen() {
             lang={lang}
             onPress={() => router.push('/tracking')}
           />
+          <RecipeCatalogButton
+            lang={lang}
+            onPress={() => router.push('/recipes-catalog')}
+          />
           <HealthScoreCard lang={lang} />
           <ScoreHistoryChart lang={lang} />
           <SymptomInput lang={lang} value={symptomText} onChangeText={setSymptomText} />
