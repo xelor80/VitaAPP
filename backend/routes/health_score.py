@@ -187,12 +187,40 @@ async def get_health_score(profile_id: str, lang: str = "de"):
     # AI assessment
     ai = await _ai_assessment(total_cur, base_cur, profile, lang)
 
+    # Save score snapshot (max once per day)
+    today = now.strftime("%Y-%m-%d")
+    await db.health_score_history.update_one(
+        {"profile_id": profile_id, "date": today},
+        {"$set": {
+            "profile_id": profile_id,
+            "date": today,
+            "score": total_cur,
+            "categories": ai.get("categories", {}),
+            "base_scores": base_cur,
+            "timestamp": now.isoformat(),
+        }},
+        upsert=True,
+    )
+
     return {
         "score": total_cur,
         "label": ai.get("label", ""),
         "recommendation": ai.get("recommendation", ""),
-        "trend_change": trend_change,  # +5 means 5 points better than last month
+        "trend_change": trend_change,
         "categories": ai.get("categories", {}),
         "base_scores": base_cur,
         "has_tracking_data": len(symptoms_cur) > 0 or len(compliance_cur) > 0,
     }
+
+
+@router.get("/health-score/{profile_id}/history")
+async def get_health_score_history(profile_id: str, weeks: int = 12):
+    """Return score history for the last N weeks."""
+    cutoff = (datetime.now(timezone.utc) - timedelta(weeks=weeks)).strftime("%Y-%m-%d")
+
+    entries = await db.health_score_history.find(
+        {"profile_id": profile_id, "date": {"$gte": cutoff}},
+        {"_id": 0},
+    ).sort("date", 1).to_list(500)
+
+    return {"history": entries}
