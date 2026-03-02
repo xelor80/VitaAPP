@@ -191,14 +191,14 @@ const styles = StyleSheet.create({
   barsContainer: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    justifyContent: 'space-around',
+    justifyContent: 'center',
     height: BAR_HEIGHT + 24,
     paddingTop: 20,
+    gap: 6,
   },
   barCol: {
-    flex: 1,
     alignItems: 'center',
-    maxWidth: 50,
+    width: 32,
   },
   barWrap: {
     alignItems: 'center',
@@ -206,8 +206,8 @@ const styles = StyleSheet.create({
     height: BAR_HEIGHT + 20,
   },
   bar: {
-    width: 14,
-    borderRadius: 7,
+    width: 20,
+    borderRadius: 10,
     minHeight: 4,
   },
   barValue: {
