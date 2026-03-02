@@ -22,12 +22,12 @@ export const styles = StyleSheet.create({
 
   // Card
   card: {
-    backgroundColor: '#FFFFFF', borderRadius: 16, padding: 16, marginBottom: 20,
+    backgroundColor: '#FFFFFF', borderRadius: 14, padding: 14, marginBottom: 12,
     shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05,
     shadowRadius: 8, elevation: 2,
   },
-  cardTitle: { fontSize: 18, fontWeight: '700', color: '#1A2D26', marginBottom: 4 },
-  cardSubtitle: { fontSize: 14, color: '#5C7A6F', marginBottom: 12 },
+  cardTitle: { fontSize: 16, fontWeight: '700', color: '#1A2D26', marginBottom: 3 },
+  cardSubtitle: { fontSize: 13, color: '#5C7A6F', marginBottom: 10 },
   textInput: {
     backgroundColor: '#F7F9F6', borderRadius: 12, padding: 14, fontSize: 15,
     color: '#1A2D26', minHeight: 100, borderWidth: 1, borderColor: '#E0E6E2',
@@ -118,7 +118,7 @@ export const styles = StyleSheet.create({
 
   // Footer
   footerWrap: {
-    flexDirection: 'row', alignItems: 'flex-start', marginTop: 20, paddingHorizontal: 8, gap: 6,
+    flexDirection: 'row', alignItems: 'flex-start', marginTop: 12, paddingHorizontal: 8, gap: 6,
   },
   footerText: { fontSize: 12, color: '#8FA39B', flex: 1, lineHeight: 18 },
 
