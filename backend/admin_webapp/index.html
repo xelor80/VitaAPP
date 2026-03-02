@@ -689,7 +689,15 @@
                 <div id="label-current" style="display:none;margin-bottom:20px">
                     <label>Aktuelles Etikett</label>
                     <div style="display:flex;align-items:flex-start;gap:20px;margin-top:10px">
-                        <img id="label-image-preview" src="" style="max-width:200px;max-height:200px;border-radius:8px;border:1px solid #334155">
+                        <div>
+                            <img id="label-image-preview" src="" style="max-width:200px;max-height:200px;border-radius:8px;border:1px solid #334155;display:none">
+                            <div id="label-pdf-link" style="display:none">
+                                <a id="label-pdf-href" href="#" target="_blank" style="color:#4A8B71;text-decoration:none;display:flex;align-items:center;gap:8px">
+                                    <i class="fas fa-file-pdf" style="font-size:32px;color:#EF4444"></i>
+                                    <span>PDF ansehen</span>
+                                </a>
+                            </div>
+                        </div>
                         <div style="flex:1">
                             <div id="label-analysis-display"></div>
                         </div>
