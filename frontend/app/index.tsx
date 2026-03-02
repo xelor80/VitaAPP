@@ -16,6 +16,7 @@ import { OnboardingButton } from '../components/home/OnboardingButton';
 import { SupplementPlanButton } from '../components/home/SupplementPlanButton';
 import { ProgressButton } from '../components/home/ProgressButton';
 import { HealthScoreCard } from '../components/home/HealthScoreCard';
+import { ScoreHistoryChart } from '../components/home/ScoreHistoryChart';
 import { FooterDisclaimer } from '../components/home/FooterDisclaimer';
 import { styles } from '../components/home/homeStyles';
 
@@ -134,6 +135,7 @@ export default function HomeScreen() {
             onPress={() => router.push('/tracking')}
           />
           <HealthScoreCard lang={lang} />
+          <ScoreHistoryChart lang={lang} />
           <SymptomInput lang={lang} value={symptomText} onChangeText={setSymptomText} />
           <SymptomChips lang={lang} selectedTags={selectedTags} onToggleTag={toggleTag} />
           <AnalyzeButton lang={lang} isLoading={isLoading} onPress={analyzeSymptoms} />
