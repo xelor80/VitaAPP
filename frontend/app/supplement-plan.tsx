@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity,
-  SafeAreaView, ActivityIndicator, TextInput, Linking, Alert
+  SafeAreaView, ActivityIndicator, TextInput, Linking, Alert, StyleSheet
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -62,7 +62,6 @@ export default function SupplementPlanScreen() {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [activeTab, setActiveTab] = useState<'stack' | 'schedule' | 'phases' | 'interactions'>('stack');
-  const [expandedItem, setExpandedItem] = useState<string | null>(null);
   const [reminders, setReminders] = useState({ enabled: false, morning_time: '08:00', noon_time: '12:00', evening_time: '20:00' });
   const [showReminders, setShowReminders] = useState(false);
   const [products, setProducts] = useState<any[]>([]);
@@ -356,8 +355,14 @@ export default function SupplementPlanScreen() {
           ))}
         </View>
 
-        {/* Stack Tab */}
-        {activeTab === 'stack' && plan.stack?.map((s: any) => {
+        {/* Stack Tab - Structured Medical Report Style */}
+        {activeTab === 'stack' && plan.stack?.map((s: any, idx: number) => {
+          const riskColor = RISK_COLORS[s.risk_level] || '#10B981';
+          const riskBg = s.risk_level === 'high' ? '#FEF2F2' : s.risk_level === 'medium' ? '#FFFBEB' : '#F0FDF4';
+          const riskLabel = s.risk_level === 'high'
+            ? (lang === 'de' ? 'HOCH' : 'ALTO')
+            : s.risk_level === 'medium' ? (lang === 'de' ? 'MITTEL' : 'MEDIO')
+            : (lang === 'de' ? 'NIEDRIG' : 'BASSO');
           const evColor = s.evidence_level === 'high' ? '#16A34A' : s.evidence_level === 'medium' ? '#D97706' : '#EA580C';
           const evBg = s.evidence_level === 'high' ? '#DCFCE7' : s.evidence_level === 'medium' ? '#FEF3C7' : '#FFEDD5';
           const evIcon = s.evidence_level === 'high' ? 'check-decagram' : s.evidence_level === 'medium' ? 'flask-outline' : 'magnify';
@@ -366,153 +371,123 @@ export default function SupplementPlanScreen() {
             : s.evidence_level === 'medium'
             ? (lang === 'de' ? 'Mittlere Evidenz' : 'Evidenza media')
             : (lang === 'de' ? 'Explorativ' : 'Esplorativo');
+          const timingIcon = s.timing === 'morning' ? 'weather-sunny' : s.timing === 'evening' ? 'weather-night' : 'weather-partly-cloudy';
 
           return (
-          <TouchableOpacity
-            key={s.id}
-            style={styles.supplementCard}
-            onPress={() => setExpandedItem(expandedItem === s.id ? null : s.id)}
-            activeOpacity={0.8}
-          >
-            <View style={styles.supplementHeader}>
-              <View style={[styles.riskDot, { backgroundColor: RISK_COLORS[s.risk_level] || '#10B981' }]} />
-              <View style={{ flex: 1 }}>
-                <Text style={styles.supplementName}>{s.name}</Text>
-                <Text style={styles.supplementDosage}>{s.dosage} {s.unit} - {s.timing_label} - {s.with_food_label}</Text>
-              </View>
-              <View style={[styles.evidenceBadge, { backgroundColor: evBg, borderColor: evColor + '40' }]} data-testid={`evidence-badge-${s.id}`}>
-                <MaterialCommunityIcons name={evIcon as any} size={12} color={evColor} />
-                <Text style={[styles.evidenceBadgeText, { color: evColor }]}>{evLabel}</Text>
-              </View>
-              <MaterialCommunityIcons name={expandedItem === s.id ? 'chevron-up' : 'chevron-down'} size={24} color="#8FA39B" />
-            </View>
-
-            {expandedItem === s.id && (
-              <View style={styles.supplementDetails}>
-                {/* Evidence Card */}
-                <View style={[styles.evidenceCard, { backgroundColor: evBg, borderColor: evColor + '30' }]} data-testid={`evidence-detail-${s.id}`}>
-                  <View style={styles.evidenceCardHeader}>
-                    <MaterialCommunityIcons name={evIcon as any} size={18} color={evColor} />
-                    <Text style={[styles.evidenceCardTitle, { color: evColor }]}>{evLabel}</Text>
-                  </View>
-                  <Text style={styles.evidenceCardDesc}>
-                    {s.evidence_level === 'high'
-                      ? (lang === 'de'
-                        ? 'Durch mehrere hochwertige Studien und Meta-Analysen gut belegt. Breiter wissenschaftlicher Konsens.'
-                        : 'Ben supportato da studi di alta qualita e meta-analisi. Ampio consenso scientifico.')
-                      : s.evidence_level === 'medium'
-                      ? (lang === 'de'
-                        ? 'Begrenzte Studienlage mit vielversprechenden Ergebnissen. Weitere Forschung empfohlen.'
-                        : 'Evidenza limitata con risultati promettenti. Ulteriori ricerche raccomandate.')
-                      : (lang === 'de'
-                        ? 'Erste Hinweise aus praeklinischen Studien. Langzeitdaten stehen noch aus.'
-                        : 'Prime indicazioni da studi preclinici. Dati a lungo termine non ancora disponibili.')}
-                  </Text>
+            <View key={s.id} style={ms.card} data-testid={`supplement-card-${s.id}`}>
+              {/* 1. Header: Name + Status */}
+              <View style={ms.cardHeader}>
+                <View style={[ms.statusStripe, { backgroundColor: riskColor }]} />
+                <View style={{ flex: 1 }}>
+                  <Text style={ms.supplementNum}>{lang === 'de' ? `Supplement ${idx + 1}/${plan.stack.length}` : `Supplemento ${idx + 1}/${plan.stack.length}`}</Text>
+                  <Text style={ms.supplementName}>{s.name}</Text>
                 </View>
+                <View style={[ms.statusBadge, { backgroundColor: riskBg, borderColor: riskColor }]}>
+                  <View style={[ms.statusDot, { backgroundColor: riskColor }]} />
+                  <Text style={[ms.statusText, { color: riskColor }]}>{riskLabel}</Text>
+                </View>
+              </View>
 
-                {/* Recommendation Reasons */}
-                {s.recommendation_reasons?.length > 0 && (
-                  <View style={styles.reasonsCard} data-testid={`reasons-${s.id}`}>
-                    <Text style={styles.reasonsTitle}>
-                      {lang === 'de' ? 'Empfohlen aufgrund von:' : 'Raccomandato in base a:'}
-                    </Text>
-                    {s.recommendation_reasons.map((reason: string, ri: number) => (
-                      <View key={ri} style={styles.reasonRow}>
-                        <View style={styles.reasonDot} />
-                        <Text style={styles.reasonText}>{reason}</Text>
+              {/* 2. Wirkung */}
+              <View style={ms.section}>
+                <Text style={ms.sectionLabel}>{lang === 'de' ? 'WIRKUNG' : 'EFFETTO'}</Text>
+                <Text style={ms.effectText}>{s.reason}</Text>
+              </View>
+
+              {/* 3. Warum empfohlen */}
+              {s.recommendation_reasons?.length > 0 && (
+                <View style={ms.section}>
+                  <Text style={ms.sectionLabel}>{lang === 'de' ? 'WARUM EMPFOHLEN' : 'PERCHE RACCOMANDATO'}</Text>
+                  <View style={ms.reasonsList}>
+                    {s.recommendation_reasons.map((r: string, ri: number) => (
+                      <View key={ri} style={ms.reasonItem}>
+                        <MaterialCommunityIcons name="checkbox-marked-circle" size={14} color={riskColor} />
+                        <Text style={ms.reasonText}>{r}</Text>
                       </View>
                     ))}
                   </View>
-                )}
-
-                <View style={styles.detailRow}>
-                  <MaterialCommunityIcons name="flask" size={16} color="#4A8B71" />
-                  <Text style={styles.detailLabel}>{lang === 'de' ? 'Warum empfohlen' : 'Perche raccomandato'}</Text>
                 </View>
-                <Text style={styles.detailText}>{s.reason}</Text>
+              )}
 
-                <View style={styles.detailRow}>
+              {/* 4. Structured Data Grid */}
+              <View style={ms.dataGrid}>
+                {/* Dosierung */}
+                <View style={ms.dataCell}>
+                  <MaterialCommunityIcons name="pill" size={16} color="#4A8B71" />
+                  <Text style={ms.dataCellLabel}>{lang === 'de' ? 'Dosierung' : 'Dosaggio'}</Text>
+                  <Text style={ms.dataCellValue}>{s.dosage} {s.unit}</Text>
+                </View>
+                {/* Einnahmezeitpunkt */}
+                <View style={ms.dataCell}>
+                  <MaterialCommunityIcons name={timingIcon as any} size={16} color="#4A8B71" />
+                  <Text style={ms.dataCellLabel}>{lang === 'de' ? 'Einnahme' : 'Assunzione'}</Text>
+                  <Text style={ms.dataCellValue}>{s.timing_label}</Text>
+                  <Text style={ms.dataCellSub}>{s.with_food_label}</Text>
+                </View>
+                {/* Evidenz */}
+                <View style={[ms.dataCell, { backgroundColor: evBg }]}>
+                  <MaterialCommunityIcons name={evIcon as any} size={16} color={evColor} />
+                  <Text style={ms.dataCellLabel}>{lang === 'de' ? 'Evidenz' : 'Evidenza'}</Text>
+                  <Text style={[ms.dataCellValue, { color: evColor }]}>{evLabel}</Text>
+                </View>
+                {/* Wirkungseintritt */}
+                <View style={ms.dataCell}>
                   <MaterialCommunityIcons name="timer-sand" size={16} color="#4A8B71" />
-                  <Text style={styles.detailLabel}>{lang === 'de' ? 'Wirkungseintritt' : 'Inizio effetto'}</Text>
+                  <Text style={ms.dataCellLabel}>{lang === 'de' ? 'Wirkung ab' : 'Effetto da'}</Text>
+                  <Text style={ms.dataCellValue}>{s.onset_weeks} {lang === 'de' ? 'Wo.' : 'sett.'}</Text>
                 </View>
-                <Text style={styles.detailText}>{s.onset_label}</Text>
-
-                {s.synergies?.length > 0 && (
-                  <>
-                    <View style={styles.detailRow}>
-                      <MaterialCommunityIcons name="link-variant" size={16} color="#4A8B71" />
-                      <Text style={styles.detailLabel}>{lang === 'de' ? 'Synergien mit' : 'Sinergie con'}</Text>
-                    </View>
-                    <Text style={styles.detailText}>{s.synergies.join(', ')}</Text>
-                  </>
-                )}
-
-                {s.side_effects?.length > 0 && (
-                  <>
-                    <View style={styles.detailRow}>
-                      <MaterialCommunityIcons name="alert-circle-outline" size={16} color="#F59E0B" />
-                      <Text style={styles.detailLabel}>{lang === 'de' ? 'Moegliche Nebenwirkungen' : 'Possibili effetti collaterali'}</Text>
-                    </View>
-                    {s.side_effects.map((se: string, i: number) => (
-                      <Text key={i} style={styles.sideEffectText}>{se}</Text>
-                    ))}
-                  </>
-                )}
-
-                {s.med_warnings?.length > 0 && (
-                  <>
-                    <View style={styles.detailRow}>
-                      <MaterialCommunityIcons name="medical-bag" size={16} color="#DC2626" />
-                      <Text style={[styles.detailLabel, { color: '#DC2626' }]}>
-                        {lang === 'de' ? 'Medikamenten-Interaktion' : 'Interazione farmacologica'}
-                      </Text>
-                    </View>
-                    {s.med_warnings.map((mw: any, i: number) => (
-                      <Text key={i} style={styles.medWarningText}>{mw.warning_de}</Text>
-                    ))}
-                  </>
-                )}
-
-                {/* Affiliate Product Recommendations */}
-                {getMatchingProducts(s.id).length > 0 && (
-                  <>
-                    <View style={styles.detailRow}>
-                      <MaterialCommunityIcons name="shopping" size={16} color="#2D5A8B" />
-                      <Text style={[styles.detailLabel, { color: '#2D5A8B' }]}>
-                        {lang === 'de' ? 'Empfohlene Produkte' : 'Prodotti consigliati'}
-                      </Text>
-                    </View>
-                    {getMatchingProducts(s.id).map((prod: any) => (
-                      <TouchableOpacity
-                        key={prod.product_id}
-                        data-testid={`product-link-${prod.product_id}`}
-                        style={styles.productCard}
-                        onPress={() => {
-                          trackClick(prod.product_id);
-                          if (prod.affiliate_url) Linking.openURL(prod.affiliate_url);
-                        }}
-                      >
-                        {prod.image_url ? (
-                          <View style={styles.productImageWrap}>
-                            <MaterialCommunityIcons name="package-variant" size={24} color="#2D5A8B" />
-                          </View>
-                        ) : (
-                          <View style={styles.productImageWrap}>
-                            <MaterialCommunityIcons name="package-variant" size={24} color="#2D5A8B" />
-                          </View>
-                        )}
-                        <View style={{ flex: 1 }}>
-                          <Text style={styles.productName}>{prod.name}</Text>
-                          <Text style={styles.productDesc} numberOfLines={2}>{prod.description}</Text>
-                        </View>
-                        <MaterialCommunityIcons name="open-in-new" size={18} color="#2D5A8B" />
-                      </TouchableOpacity>
-                    ))}
-                  </>
-                )}
               </View>
-            )}
-          </TouchableOpacity>
+
+              {/* 5. Synergies */}
+              {s.synergies?.length > 0 && (
+                <View style={ms.synRow}>
+                  <MaterialCommunityIcons name="link-variant" size={14} color="#4A8B71" />
+                  <Text style={ms.synLabel}>{lang === 'de' ? 'Synergie:' : 'Sinergia:'}</Text>
+                  <Text style={ms.synText}>{s.synergies.join(', ')}</Text>
+                </View>
+              )}
+
+              {/* 6. Warnings (compact) */}
+              {s.side_effects?.length > 0 && (
+                <View style={ms.warnRow}>
+                  <MaterialCommunityIcons name="alert-circle-outline" size={14} color="#F59E0B" />
+                  <Text style={ms.warnText}>{s.side_effects.join(' | ')}</Text>
+                </View>
+              )}
+              {s.med_warnings?.length > 0 && (
+                <View style={[ms.warnRow, { backgroundColor: '#FEF2F2' }]}>
+                  <MaterialCommunityIcons name="medical-bag" size={14} color="#DC2626" />
+                  <Text style={[ms.warnText, { color: '#991B1B' }]}>{s.med_warnings.map((w: any) => w.warning_de || w.warning).join(' | ')}</Text>
+                </View>
+              )}
+
+              {/* 7. CTAs */}
+              <View style={ms.ctaWrap}>
+                <TouchableOpacity
+                  data-testid={`product-cta-${s.id}`}
+                  style={[ms.primaryCta, { backgroundColor: riskColor }]}
+                  onPress={() => router.push({
+                    pathname: '/product-comparison',
+                    params: { nutrient: s.id, risk: s.risk_level }
+                  })}
+                >
+                  <MaterialCommunityIcons name="shopping-outline" size={16} color="#FFF" />
+                  <Text style={ms.primaryCtaText}>{lang === 'de' ? 'Empfohlenes Produkt anzeigen' : 'Mostra prodotto consigliato'}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  data-testid={`compare-cta-${s.id}`}
+                  style={ms.secondaryCta}
+                  onPress={() => router.push({
+                    pathname: '/product-comparison',
+                    params: { nutrient: s.id, risk: s.risk_level }
+                  })}
+                >
+                  <Text style={ms.secondaryCtaText}>
+                    {lang === 'de' ? 'Qualitaetsgepruefte Optionen vergleichen' : 'Confronta opzioni certificate'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
           );
         })}
 
@@ -581,3 +556,68 @@ export default function SupplementPlanScreen() {
     </SafeAreaView>
   );
 }
+
+
+const ms = StyleSheet.create({
+  card: {
+    backgroundColor: '#FFF', borderRadius: 16, marginBottom: 16, overflow: 'hidden',
+  },
+  cardHeader: {
+    flexDirection: 'row', alignItems: 'center', padding: 16, gap: 12,
+  },
+  statusStripe: { width: 4, height: 48, borderRadius: 2 },
+  supplementNum: { fontSize: 11, color: '#8FA39B', fontWeight: '500', letterSpacing: 0.5, textTransform: 'uppercase' },
+  supplementName: { fontSize: 17, fontWeight: '700', color: '#1A2D26', marginTop: 2 },
+  statusBadge: {
+    flexDirection: 'row', alignItems: 'center', gap: 5,
+    paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20, borderWidth: 1,
+  },
+  statusDot: { width: 7, height: 7, borderRadius: 4 },
+  statusText: { fontSize: 11, fontWeight: '700', letterSpacing: 0.5 },
+
+  section: { paddingHorizontal: 16, marginBottom: 12 },
+  sectionLabel: {
+    fontSize: 10, fontWeight: '700', color: '#8FA39B',
+    letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 6,
+  },
+  effectText: { fontSize: 14, color: '#374151', lineHeight: 21 },
+
+  reasonsList: { gap: 6 },
+  reasonItem: { flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
+  reasonText: { fontSize: 13, color: '#374151', lineHeight: 20, flex: 1 },
+
+  dataGrid: {
+    flexDirection: 'row', flexWrap: 'wrap', gap: 8,
+    paddingHorizontal: 16, marginBottom: 12,
+  },
+  dataCell: {
+    flex: 1, minWidth: '45%' as any, backgroundColor: '#F8FAF9',
+    borderRadius: 10, padding: 10, gap: 3,
+  },
+  dataCellLabel: { fontSize: 10, color: '#8FA39B', fontWeight: '600', letterSpacing: 0.3 },
+  dataCellValue: { fontSize: 15, color: '#1A2D26', fontWeight: '700' },
+  dataCellSub: { fontSize: 11, color: '#5C7A6F' },
+
+  synRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    paddingHorizontal: 16, marginBottom: 8,
+    backgroundColor: '#F0FDF4', marginHorizontal: 16, borderRadius: 8, padding: 8,
+  },
+  synLabel: { fontSize: 12, fontWeight: '600', color: '#4A8B71' },
+  synText: { fontSize: 12, color: '#374151', flex: 1 },
+
+  warnRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    backgroundColor: '#FFFBEB', marginHorizontal: 16, borderRadius: 8, padding: 8, marginBottom: 6,
+  },
+  warnText: { fontSize: 11, color: '#92400E', flex: 1, lineHeight: 16 },
+
+  ctaWrap: { padding: 16, gap: 8, borderTopWidth: 1, borderTopColor: '#F0F4F2', marginTop: 4 },
+  primaryCta: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    gap: 8, borderRadius: 10, paddingVertical: 12,
+  },
+  primaryCtaText: { color: '#FFF', fontSize: 14, fontWeight: '600' },
+  secondaryCta: { alignItems: 'center', paddingVertical: 6 },
+  secondaryCtaText: { color: '#6B7280', fontSize: 12, fontWeight: '500', textDecorationLine: 'underline' },
+});
