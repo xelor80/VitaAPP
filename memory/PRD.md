@@ -46,6 +46,11 @@ Health-focused, bilingual (German/Italian) mobile app. LLM analyzes user symptom
 ## Evidenz-Level System (Mar 2026)
 - Color-coded evidence badges on each supplement: Green (Hohe Evidenz), Yellow (Mittlere Evidenz), Orange (Explorativ)
 - Expanded detail card with understandable explanation (no study citations)
+
+## Recommendation Reasons (Mar 2026)
+- "Empfohlen aufgrund von:" section with up to 4 personalized reasons per supplement
+- Deterministic mapping (SUPPLEMENT_TRIGGERS) from profile data: complaints, stress, sleep, diet, age, deficiencies
+- No LLM needed - computed from user health data instantly
 - Data comes from `evidence_level` field in supplement_engine.py SUPPLEMENT_DB
 - Shows: Overall trend, symptom bars, compliance bars, KI-Erkenntnisse, recommendations
 - Endpoint: GET `/api/tracking/correlation-analysis/{profile_id}?days=30&lang=de`
