@@ -6,8 +6,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
-const RADIUS = 58;
-const STROKE = 10;
+const RADIUS = 42;
+const STROKE = 8;
 const SIZE = (RADIUS + STROKE) * 2;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
@@ -180,9 +180,9 @@ export function HealthScoreCard({ lang, onPress }: Props) {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 16,
-    marginBottom: 20,
+    borderRadius: 16,
+    padding: 12,
+    marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
@@ -192,8 +192,8 @@ const styles = StyleSheet.create({
   topRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16,
-    marginBottom: 14,
+    gap: 12,
+    marginBottom: 10,
   },
   circleWrap: {
     width: SIZE,
@@ -206,19 +206,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   scoreNum: {
-    fontSize: 34,
+    fontSize: 26,
     fontWeight: '800',
-    lineHeight: 38,
+    lineHeight: 30,
   },
   scoreMax: {
-    fontSize: 13,
+    fontSize: 11,
     color: '#94A3B8',
     fontWeight: '600',
     marginTop: -2,
   },
   catCol: {
     flex: 1,
-    gap: 10,
+    gap: 6,
   },
   catRow: {
     flexDirection: 'row',
@@ -227,7 +227,7 @@ const styles = StyleSheet.create({
   },
   catName: {
     flex: 1,
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '600',
     color: '#334155',
   },
@@ -243,19 +243,19 @@ const styles = StyleSheet.create({
   labelRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 12,
-    borderRadius: 12,
-    gap: 12,
+    padding: 10,
+    borderRadius: 10,
+    gap: 10,
   },
   labelText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '700',
   },
   recText: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#64748B',
-    marginTop: 3,
-    lineHeight: 16,
+    marginTop: 2,
+    lineHeight: 15,
   },
   trendBox: {
     flexDirection: 'row',
