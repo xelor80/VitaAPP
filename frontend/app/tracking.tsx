@@ -191,6 +191,7 @@ export default function TrackingScreen() {
             profileId={profileId}
             lang={lang}
             overallChart={dashboard?.overall_chart || []}
+            symptomChart={dashboard?.symptom_chart}
             symptomTrend={dashboard?.symptom_trend}
             onSave={refreshDashboard}
           />
