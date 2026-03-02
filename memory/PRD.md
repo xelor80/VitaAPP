@@ -4,7 +4,7 @@
 Health-focused, bilingual (German/Italian) mobile app. LLM analyzes user symptoms to provide nutrition tips, supplement info, and affiliate links.
 
 ## Core Features (All Implemented)
-1. Symptom analysis with AI (GPT-4.1 via Emergent LLM Key)
+1. Symptom analysis with AI (GPT-4o via Emergent LLM Key)
 2. Bilingual UI (DE/IT)
 3. Affiliate product recommendations with click tracking
 4. Admin panel for full content management
@@ -17,7 +17,8 @@ Health-focused, bilingual (German/Italian) mobile app. LLM analyzes user symptom
 11. Searchable/filterable recipe catalog ("Deine Rezepte")
 12. Admin health statistics dashboard
 13. Personalized recipe recommendations (in catalog page)
-14. **Medical report format for analysis results** (NEW)
+14. Medical report format for analysis results
+15. **Compact home screen UI** (Feb 2026) - Reduced button sizes, margins, icons
 
 ## Medical Report Structure
 The analysis results are now displayed as a structured medical report:
@@ -32,8 +33,12 @@ The analysis results are now displayed as a structured medical report:
 - `backend/routes/analysis.py` - Added `priority_level` to response
 - `frontend/components/tabs/OverviewTab.tsx` - Complete rewrite as medical report
 - `frontend/app/results.tsx` - Tab renamed to "Bericht", removed duplicate disclaimer/red flag banner
+- `frontend/components/home/homeStyles.ts` - Compact button/card styles
+- `frontend/components/home/HealthScoreCard.tsx` - Smaller circle chart (RADIUS 42)
+- `frontend/components/home/ScoreHistoryChart.tsx` - Reduced bar height (80px)
 
-## Backlog
+## Backlog (P1)
+- Symptom Severity Tracking (user rates symptoms 1-10, trend visualization)
 - Recipe favorites/bookmarks
 - Weekly meal plan generator
 - Export health stats as CSV
