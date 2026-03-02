@@ -803,26 +803,41 @@ async function deleteVideo(videoId) {
 // ============ LABEL ANALYSIS ============
 let currentLabelProductId = null;
 let selectedLabelFile = null;
+let selectedPdfFile = null;
 
 async function openLabelModal(productId, productName) {
     currentLabelProductId = productId;
     selectedLabelFile = null;
+    selectedPdfFile = null;
     
     document.getElementById('label-product-id').value = productId;
     document.getElementById('label-product-name').value = productName;
     document.getElementById('label-file-input').value = '';
+    document.getElementById('label-pdf-input').value = '';
     document.getElementById('label-file-preview').style.display = 'none';
+    document.getElementById('label-pdf-preview').style.display = 'none';
     document.getElementById('label-analyze-btn').disabled = true;
     document.getElementById('label-loading').style.display = 'none';
+    document.getElementById('label-image-preview').style.display = 'none';
+    document.getElementById('label-pdf-link').style.display = 'none';
     
     // Load existing label data
     try {
         const res = await apiCall(`/products/${productId}/label`);
         const data = await res.json();
         
-        if (data.label_image) {
+        if (data.label_image || data.label_pdf || data.analysis) {
             document.getElementById('label-current').style.display = 'block';
-            document.getElementById('label-image-preview').src = data.label_image;
+            
+            if (data.label_image) {
+                document.getElementById('label-image-preview').src = data.label_image;
+                document.getElementById('label-image-preview').style.display = 'block';
+            }
+            
+            if (data.label_pdf) {
+                document.getElementById('label-pdf-href').href = data.label_pdf;
+                document.getElementById('label-pdf-link').style.display = 'block';
+            }
             
             if (data.analysis) {
                 const a = data.analysis;
@@ -857,6 +872,11 @@ function closeLabelModal() {
     document.getElementById('label-modal').classList.add('hidden');
     currentLabelProductId = null;
     selectedLabelFile = null;
+    selectedPdfFile = null;
+}
+
+function updateAnalyzeButton() {
+    document.getElementById('label-analyze-btn').disabled = !(selectedLabelFile || selectedPdfFile);
 }
 
 function previewLabelFile() {
@@ -870,20 +890,33 @@ function previewLabelFile() {
             document.getElementById('label-new-preview').src = e.target.result;
             document.getElementById('label-file-name').textContent = file.name;
             document.getElementById('label-file-preview').style.display = 'block';
-            document.getElementById('label-analyze-btn').disabled = false;
+            updateAnalyzeButton();
         };
         reader.readAsDataURL(file);
     }
 }
 
+function previewPdfFile() {
+    const fileInput = document.getElementById('label-pdf-input');
+    const file = fileInput.files[0];
+    
+    if (file) {
+        selectedPdfFile = file;
+        document.getElementById('label-pdf-name').textContent = file.name;
+        document.getElementById('label-pdf-preview').style.display = 'block';
+        updateAnalyzeButton();
+    }
+}
+
 async function analyzeLabel() {
-    if (!selectedLabelFile || !currentLabelProductId) return;
+    if ((!selectedLabelFile && !selectedPdfFile) || !currentLabelProductId) return;
     
     document.getElementById('label-loading').style.display = 'block';
     document.getElementById('label-analyze-btn').disabled = true;
     
     const formData = new FormData();
-    formData.append('file', selectedLabelFile);
+    if (selectedLabelFile) formData.append('file', selectedLabelFile);
+    if (selectedPdfFile) formData.append('pdf_file', selectedPdfFile);
     formData.append('lang', currentLang);
     
     try {
