@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Dimensions } from 'react-native';
-import Svg, { Path, Circle, Line, Text as SvgText } from 'react-native-svg';
+import { View, Text, StyleSheet, Dimensions, Platform } from 'react-native';
+import Svg, { Path, Circle, Line } from 'react-native-svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
@@ -23,6 +23,7 @@ function scoreColor(s: number): string {
 
 export function ScoreHistoryChart({ lang }: Props) {
   const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -32,11 +33,20 @@ export function ScoreHistoryChart({ lang }: Props) {
         const res = await fetch(`${API_URL}/api/health-score/${pid}/history?weeks=12`);
         if (res.ok) {
           const d = await res.json();
-          if (d.history?.length > 1) setHistory(d.history);
+          if (d.history?.length > 1) {
+            setHistory(d.history);
+          }
         }
-      } catch { /* silent */ }
+      } catch (e: any) {
+        setError(e?.message || 'unknown');
+      }
     })();
   }, [lang]);
+
+  if (error) {
+    if (Platform.OS === 'web') console.warn('ScoreHistoryChart error:', error);
+    return null;
+  }
 
   if (history.length < 2) return null;
 
@@ -45,11 +55,11 @@ export function ScoreHistoryChart({ lang }: Props) {
   const maxS = Math.min(100, Math.max(...scores) + 10);
   const range = maxS - minS || 1;
 
-  const x = (i: number) => PAD.left + (i / (history.length - 1)) * CW;
-  const y = (s: number) => PAD.top + CH - ((s - minS) / range) * CH;
+  const xPos = (i: number) => PAD.left + (i / (history.length - 1)) * CW;
+  const yPos = (s: number) => PAD.top + CH - ((s - minS) / range) * CH;
 
-  // Build smooth path
-  const pts = history.map((e, i) => ({ x: x(i), y: y(e.score) }));
+  // Build smooth bezier path
+  const pts = history.map((e, i) => ({ x: xPos(i), y: yPos(e.score) }));
   let pathD = `M ${pts[0].x} ${pts[0].y}`;
   for (let i = 1; i < pts.length; i++) {
     const cpx1 = pts[i - 1].x + (pts[i].x - pts[i - 1].x) * 0.4;
@@ -57,7 +67,7 @@ export function ScoreHistoryChart({ lang }: Props) {
     pathD += ` C ${cpx1} ${pts[i - 1].y}, ${cpx2} ${pts[i].y}, ${pts[i].x} ${pts[i].y}`;
   }
 
-  // Fill area
+  // Fill area path
   const fillD = `${pathD} L ${pts[pts.length - 1].x} ${PAD.top + CH} L ${pts[0].x} ${PAD.top + CH} Z`;
 
   const first = scores[0];
@@ -65,10 +75,10 @@ export function ScoreHistoryChart({ lang }: Props) {
   const diff = last - first;
   const improving = diff >= 0;
 
-  // Y-axis labels (3 ticks)
+  // Y-axis labels
   const yTicks = [minS, Math.round((minS + maxS) / 2), maxS];
 
-  // X-axis labels (first, mid, last)
+  // X-axis label positions
   const fmt = (d: string) => { const p = d.split('-'); return `${p[2]}.${p[1]}`; };
   const mid = Math.floor(history.length / 2);
   const xLabels = [
@@ -78,7 +88,7 @@ export function ScoreHistoryChart({ lang }: Props) {
   ];
 
   return (
-    <View style={styles.card} data-testid="score-history-chart">
+    <View style={styles.card} testID="score-history-chart">
       <View style={styles.header}>
         <Text style={styles.title}>
           {lang === 'de' ? 'Score-Verlauf' : 'Andamento Score'}
@@ -97,28 +107,37 @@ export function ScoreHistoryChart({ lang }: Props) {
         )}
       </View>
 
-      <Svg width={W} height={H}>
-        {/* Y grid lines */}
+      {/* Chart with SVG + RN Text overlays */}
+      <View style={{ width: W, height: H, position: 'relative' }}>
+        <Svg width={W} height={H}>
+          {/* Y grid lines */}
+          {yTicks.map(t => (
+            <Line key={`g-${t}`} x1={PAD.left} y1={yPos(t)} x2={W - PAD.right} y2={yPos(t)} stroke="#F1F5F9" strokeWidth={1} />
+          ))}
+          {/* Fill area */}
+          <Path d={fillD} fill={improving ? '#22C55E' : '#EAB308'} opacity={0.08} />
+          {/* Line */}
+          <Path d={pathD} fill="none" stroke={improving ? '#22C55E' : '#EAB308'} strokeWidth={2.5} strokeLinecap="round" />
+          {/* Dots */}
+          {pts.map((p, i) => (
+            <Circle key={`d-${i}`} cx={p.x} cy={p.y} r={3.5} fill="#FFF" stroke={scoreColor(scores[i])} strokeWidth={2} />
+          ))}
+        </Svg>
+
+        {/* Y-axis labels (RN Text overlay) */}
         {yTicks.map(t => (
-          <Line key={t} x1={PAD.left} y1={y(t)} x2={W - PAD.right} y2={y(t)} stroke="#F1F5F9" strokeWidth={1} />
+          <Text key={`yl-${t}`} style={[styles.axisLabel, { position: 'absolute', top: yPos(t) - 7, left: 0 }]}>
+            {t}
+          </Text>
         ))}
-        {/* Y labels */}
-        {yTicks.map(t => (
-          <SvgText key={`yl-${t}`} x={PAD.left - 6} y={y(t) + 4} textAnchor="end" fill="#94A3B8" fontSize={10}>{t}</SvgText>
-        ))}
-        {/* Fill gradient area */}
-        <Path d={fillD} fill={improving ? '#22C55E' : '#EAB308'} opacity={0.1} />
-        {/* Line */}
-        <Path d={pathD} fill="none" stroke={improving ? '#22C55E' : '#EAB308'} strokeWidth={2.5} strokeLinecap="round" />
-        {/* Dots */}
-        {pts.map((p, i) => (
-          <Circle key={i} cx={p.x} cy={p.y} r={3.5} fill="#FFF" stroke={scoreColor(scores[i])} strokeWidth={2} />
-        ))}
-        {/* X labels */}
+
+        {/* X-axis labels (RN Text overlay) */}
         {xLabels.map(l => (
-          <SvgText key={`xl-${l.i}`} x={x(l.i)} y={H - 4} textAnchor="middle" fill="#94A3B8" fontSize={10}>{l.text}</SvgText>
+          <Text key={`xl-${l.i}`} style={[styles.axisLabel, { position: 'absolute', bottom: 0, left: xPos(l.i) - 18, width: 36, textAlign: 'center' }]}>
+            {l.text}
+          </Text>
         ))}
-      </Svg>
+      </View>
 
       <View style={styles.legend}>
         {[
@@ -142,11 +161,15 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 16,
     marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 4,
+    ...(Platform.OS === 'web' ? {
+      boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+    } : {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.08,
+      shadowRadius: 12,
+      elevation: 4,
+    }),
     alignItems: 'center',
   },
   header: {
@@ -166,6 +189,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   badgeText: { fontSize: 12, fontWeight: '700' },
+  axisLabel: {
+    fontSize: 10,
+    color: '#94A3B8',
+    fontWeight: '500',
+  },
   legend: {
     flexDirection: 'row',
     justifyContent: 'center',
