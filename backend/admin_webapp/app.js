@@ -85,6 +85,7 @@ function switchTab(tab) {
         case 'logs': loadLogs(); break;
         case 'supplements': loadSupplements(); break;
         case 'videos': loadVideos(); break;
+        case 'health-stats': loadHealthStats(); break;
     }
 }
 
