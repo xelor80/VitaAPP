@@ -8,7 +8,7 @@ import base64
 import uuid
 import json
 from typing import Optional
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form
+from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Request
 from pydantic import BaseModel
 from datetime import datetime, timezone
 from dotenv import load_dotenv
