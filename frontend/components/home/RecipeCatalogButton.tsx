@@ -21,10 +21,10 @@ export function RecipeCatalogButton({ lang, onPress }: Props) {
       </View>
       <View style={{ flex: 1 }}>
         <Text style={styles.recipeCatalogBtnTitle}>
-          {lang === 'de' ? 'Rezeptkatalog' : 'Catalogo Ricette'}
+          {lang === 'de' ? 'Deine Rezepte' : 'Le tue Ricette'}
         </Text>
         <Text style={styles.recipeCatalogBtnSub}>
-          {lang === 'de' ? 'Gesunde Rezepte durchstöbern & filtern' : 'Sfoglia e filtra ricette salutari'}
+          {lang === 'de' ? 'Personalisierte & gesunde Rezepte' : 'Ricette personalizzate e salutari'}
         </Text>
       </View>
       <MaterialCommunityIcons name="chevron-right" size={22} color="#D4E8DC" />
