@@ -357,7 +357,17 @@ export default function SupplementPlanScreen() {
         </View>
 
         {/* Stack Tab */}
-        {activeTab === 'stack' && plan.stack?.map((s: any) => (
+        {activeTab === 'stack' && plan.stack?.map((s: any) => {
+          const evColor = s.evidence_level === 'high' ? '#16A34A' : s.evidence_level === 'medium' ? '#D97706' : '#EA580C';
+          const evBg = s.evidence_level === 'high' ? '#DCFCE7' : s.evidence_level === 'medium' ? '#FEF3C7' : '#FFEDD5';
+          const evIcon = s.evidence_level === 'high' ? 'check-decagram' : s.evidence_level === 'medium' ? 'flask-outline' : 'magnify';
+          const evLabel = s.evidence_level === 'high'
+            ? (lang === 'de' ? 'Hohe Evidenz' : 'Alta evidenza')
+            : s.evidence_level === 'medium'
+            ? (lang === 'de' ? 'Mittlere Evidenz' : 'Evidenza media')
+            : (lang === 'de' ? 'Explorativ' : 'Esplorativo');
+
+          return (
           <TouchableOpacity
             key={s.id}
             style={styles.supplementCard}
@@ -370,22 +380,41 @@ export default function SupplementPlanScreen() {
                 <Text style={styles.supplementName}>{s.name}</Text>
                 <Text style={styles.supplementDosage}>{s.dosage} {s.unit} - {s.timing_label} - {s.with_food_label}</Text>
               </View>
+              <View style={[styles.evidenceBadge, { backgroundColor: evBg, borderColor: evColor + '40' }]} data-testid={`evidence-badge-${s.id}`}>
+                <MaterialCommunityIcons name={evIcon as any} size={12} color={evColor} />
+                <Text style={[styles.evidenceBadgeText, { color: evColor }]}>{evLabel}</Text>
+              </View>
               <MaterialCommunityIcons name={expandedItem === s.id ? 'chevron-up' : 'chevron-down'} size={24} color="#8FA39B" />
             </View>
 
             {expandedItem === s.id && (
               <View style={styles.supplementDetails}>
+                {/* Evidence Card */}
+                <View style={[styles.evidenceCard, { backgroundColor: evBg, borderColor: evColor + '30' }]} data-testid={`evidence-detail-${s.id}`}>
+                  <View style={styles.evidenceCardHeader}>
+                    <MaterialCommunityIcons name={evIcon as any} size={18} color={evColor} />
+                    <Text style={[styles.evidenceCardTitle, { color: evColor }]}>{evLabel}</Text>
+                  </View>
+                  <Text style={styles.evidenceCardDesc}>
+                    {s.evidence_level === 'high'
+                      ? (lang === 'de'
+                        ? 'Durch mehrere hochwertige Studien und Meta-Analysen gut belegt. Breiter wissenschaftlicher Konsens.'
+                        : 'Ben supportato da studi di alta qualita e meta-analisi. Ampio consenso scientifico.')
+                      : s.evidence_level === 'medium'
+                      ? (lang === 'de'
+                        ? 'Begrenzte Studienlage mit vielversprechenden Ergebnissen. Weitere Forschung empfohlen.'
+                        : 'Evidenza limitata con risultati promettenti. Ulteriori ricerche raccomandate.')
+                      : (lang === 'de'
+                        ? 'Erste Hinweise aus praeklinischen Studien. Langzeitdaten stehen noch aus.'
+                        : 'Prime indicazioni da studi preclinici. Dati a lungo termine non ancora disponibili.')}
+                  </Text>
+                </View>
+
                 <View style={styles.detailRow}>
                   <MaterialCommunityIcons name="flask" size={16} color="#4A8B71" />
                   <Text style={styles.detailLabel}>{lang === 'de' ? 'Warum empfohlen' : 'Perche raccomandato'}</Text>
                 </View>
                 <Text style={styles.detailText}>{s.reason}</Text>
-
-                <View style={styles.detailRow}>
-                  <MaterialCommunityIcons name="school" size={16} color="#4A8B71" />
-                  <Text style={styles.detailLabel}>{lang === 'de' ? 'Evidenz' : 'Evidenza'}</Text>
-                </View>
-                <Text style={styles.detailText}>{s.evidence_label}</Text>
 
                 <View style={styles.detailRow}>
                   <MaterialCommunityIcons name="timer-sand" size={16} color="#4A8B71" />
@@ -469,7 +498,8 @@ export default function SupplementPlanScreen() {
               </View>
             )}
           </TouchableOpacity>
-        ))}
+          );
+        })}
 
         {/* Schedule Tab */}
         {activeTab === 'schedule' && (

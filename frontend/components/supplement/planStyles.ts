@@ -88,4 +88,12 @@ export const planStyles = StyleSheet.create({
   productImageWrap: { width: 40, height: 40, borderRadius: 10, backgroundColor: '#DBEAFE', justifyContent: 'center', alignItems: 'center' },
   productName: { fontSize: 14, fontWeight: '600', color: '#1E40AF' },
   productDesc: { fontSize: 12, color: '#6B7280', marginTop: 2, lineHeight: 16 },
+
+  // Evidence Badges
+  evidenceBadge: { flexDirection: 'row', alignItems: 'center', gap: 3, borderRadius: 8, paddingHorizontal: 7, paddingVertical: 3, borderWidth: 1, marginRight: 6 },
+  evidenceBadgeText: { fontSize: 10, fontWeight: '700' },
+  evidenceCard: { borderRadius: 12, padding: 12, marginBottom: 12, borderWidth: 1 },
+  evidenceCardHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 },
+  evidenceCardTitle: { fontSize: 14, fontWeight: '700' },
+  evidenceCardDesc: { fontSize: 13, color: '#374151', lineHeight: 20 },
 });
