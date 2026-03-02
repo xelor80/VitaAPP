@@ -8,12 +8,13 @@ interface SymptomInputProps {
   lang: string;
   value: string;
   onChangeText: (text: string) => void;
+  onLayout?: (e: any) => void;
 }
 
-export function SymptomInput({ lang, value, onChangeText }: SymptomInputProps) {
+export function SymptomInput({ lang, value, onChangeText, onLayout }: SymptomInputProps) {
   const { translations } = useSettings();
   return (
-    <View style={styles.card}>
+    <View style={styles.card} onLayout={onLayout}>
       <Text style={styles.cardTitle}>
         {lang === 'de' ? 'Was beschäftigt Sie?' : 'Cosa ti preoccupa?'}
       </Text>

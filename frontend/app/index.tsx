@@ -32,6 +32,8 @@ export default function HomeScreen() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasSaved, setHasSaved] = useState(false);
+  const scrollRef = React.useRef<ScrollView>(null);
+  const inputYRef = React.useRef(0);
 
   useEffect(() => {
     AsyncStorage.getItem('disclaimer_accepted').then(val => {
@@ -118,6 +120,7 @@ export default function HomeScreen() {
         style={{ flex: 1 }}
       >
         <ScrollView
+          ref={scrollRef}
           contentContainerStyle={styles.content}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
@@ -143,12 +146,14 @@ export default function HomeScreen() {
           />
           <HealthScoreCard lang={lang} />
           <ScoreHistoryChart lang={lang} />
-          <SymptomInput lang={lang} value={symptomText} onChangeText={setSymptomText} />
+          <SymptomInput lang={lang} value={symptomText} onChangeText={setSymptomText} onLayout={(e: any) => { inputYRef.current = e.nativeEvent.layout.y; }} />
           <SymptomChips lang={lang} selectedTags={selectedTags} onToggleTag={toggleTag} />
           <SavedAnalysisButtons
             lang={lang}
             onShowAnalysis={() => router.push('/results')}
-            onNewAnalysis={analyzeSymptoms}
+            onNewAnalysis={() => {
+              scrollRef.current?.scrollTo({ y: inputYRef.current, animated: true });
+            }}
             onStatusChange={setHasSaved}
           />
           {!hasSaved && <AnalyzeButton lang={lang} isLoading={isLoading} onPress={analyzeSymptoms} />}
