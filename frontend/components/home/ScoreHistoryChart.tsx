@@ -8,7 +8,7 @@ const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 interface HistoryEntry { date: string; score: number; }
 interface Props { lang: string; }
 
-const BAR_HEIGHT = 120;
+const BAR_HEIGHT = 80;
 
 function barColor(s: number): string {
   if (s >= 71) return '#22C55E';
@@ -134,9 +134,9 @@ export function ScoreHistoryChart({ lang }: Props) {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 16,
-    marginBottom: 20,
+    borderRadius: 16,
+    padding: 12,
+    marginBottom: 12,
     ...(Platform.OS === 'web'
       ? { boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }
       : { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 4 }),
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 10,
   },
   title: { fontSize: 15, fontWeight: '700', color: '#1E293B' },
   badge: {
