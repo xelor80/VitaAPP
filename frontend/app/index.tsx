@@ -39,6 +39,10 @@ export default function HomeScreen() {
     AsyncStorage.getItem('disclaimer_accepted').then(val => {
       setDisclaimerAccepted(val === 'true');
     }).catch(() => setDisclaimerAccepted(false));
+    // Check for saved analysis
+    AsyncStorage.getItem('saved_analysis').then(val => {
+      setHasSaved(!!val);
+    }).catch(() => {});
   }, []);
 
   const acceptDisclaimer = useCallback(async () => {
@@ -148,14 +152,19 @@ export default function HomeScreen() {
           <ScoreHistoryChart lang={lang} />
           <SymptomInput lang={lang} value={symptomText} onChangeText={setSymptomText} onLayout={(e: any) => { inputYRef.current = e.nativeEvent.layout.y; }} />
           <SymptomChips lang={lang} selectedTags={selectedTags} onToggleTag={toggleTag} />
-          <SavedAnalysisButtons
-            lang={lang}
-            onShowAnalysis={() => router.push('/results')}
-            onNewAnalysis={() => {
-              scrollRef.current?.scrollTo({ y: inputYRef.current, animated: true });
-            }}
-            onStatusChange={setHasSaved}
-          />
+          {hasSaved && (
+            <SavedAnalysisButtons
+              lang={lang}
+              onShowAnalysis={() => router.push('/results')}
+              onNewAnalysis={async () => {
+                await AsyncStorage.removeItem('saved_analysis');
+                setHasSaved(false);
+                setSymptomText('');
+                setSelectedTags([]);
+              }}
+              onStatusChange={setHasSaved}
+            />
+          )}
           {!hasSaved && <AnalyzeButton lang={lang} isLoading={isLoading} onPress={analyzeSymptoms} />}
           <FooterDisclaimer lang={lang} />
         </ScrollView>
