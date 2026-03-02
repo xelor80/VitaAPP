@@ -31,6 +31,7 @@ export default function HomeScreen() {
   const [symptomText, setSymptomText] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasSaved, setHasSaved] = useState(false);
 
   useEffect(() => {
     AsyncStorage.getItem('disclaimer_accepted').then(val => {
@@ -148,8 +149,9 @@ export default function HomeScreen() {
             lang={lang}
             onShowAnalysis={() => router.push('/results')}
             onNewAnalysis={analyzeSymptoms}
+            onStatusChange={setHasSaved}
           />
-          <AnalyzeButton lang={lang} isLoading={isLoading} onPress={analyzeSymptoms} />
+          {!hasSaved && <AnalyzeButton lang={lang} isLoading={isLoading} onPress={analyzeSymptoms} />}
           <FooterDisclaimer lang={lang} />
         </ScrollView>
       </KeyboardAvoidingView>

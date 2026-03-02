@@ -7,13 +7,17 @@ interface Props {
   lang: string;
   onShowAnalysis: () => void;
   onNewAnalysis: () => void;
+  onStatusChange?: (hasSaved: boolean) => void;
 }
 
-export function SavedAnalysisButtons({ lang, onShowAnalysis, onNewAnalysis }: Props) {
+export function SavedAnalysisButtons({ lang, onShowAnalysis, onNewAnalysis, onStatusChange }: Props) {
   const [hasAnalysis, setHasAnalysis] = useState(false);
 
   useEffect(() => {
-    hasSavedAnalysis().then(setHasAnalysis);
+    hasSavedAnalysis().then(val => {
+      setHasAnalysis(val);
+      onStatusChange?.(val);
+    });
   }, []);
 
   if (!hasAnalysis) return null;
