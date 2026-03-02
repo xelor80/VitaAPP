@@ -483,44 +483,6 @@
                     </div>
                 </div>
             </div>
-                <div class="toolbar">
-                    <div class="lang-toggle">
-                        <button class="lang-btn active" data-lang="de" onclick="setVideoLang('de')">DE</button>
-                        <button class="lang-btn" data-lang="it" onclick="setVideoLang('it')">IT</button>
-                    </div>
-                    <select id="video-category-filter" onchange="loadVideos()" style="padding:10px;background:#1E293B;color:#F8FAFC;border:1px solid #334155;border-radius:8px;margin-left:10px">
-                        <option value="">Alle Kategorien</option>
-                        <option value="articolazioni">Gelenke & Mobilität</option>
-                        <option value="digestione">Verdauung & Detox</option>
-                        <option value="peso">Gewichtskontrolle</option>
-                        <option value="cuore">Herz & Kreislauf</option>
-                        <option value="energia">Energie & Vitalität</option>
-                        <option value="pelle">Haut, Haare & Nägel</option>
-                        <option value="immunsystem">Immunsystem</option>
-                        <option value="schlaf">Schlaf & Entspannung</option>
-                        <option value="memoria">Gedächtnis & Konzentration</option>
-                        <option value="allgemein">Allgemein</option>
-                    </select>
-                    <button class="btn-add" onclick="openVideoModal()">
-                        <i class="fas fa-plus"></i> Neues Video
-                    </button>
-                </div>
-                <div class="table-container">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Thumbnail</th>
-                                <th>Titel</th>
-                                <th>Kategorie</th>
-                                <th>Sprache</th>
-                                <th>Dauer</th>
-                                <th>Aktionen</th>
-                            </tr>
-                        </thead>
-                        <tbody id="videos-table"></tbody>
-                    </table>
-                </div>
-            </div>
         </div>
     </div>
     <div id="product-modal" class="modal hidden">
