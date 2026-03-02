@@ -6,7 +6,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://wellness-recipe-hub-2.preview.emergentagent.com')
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://symptom-analyzer-22.preview.emergentagent.com')
 
 class TestAdminHealth:
     """Admin health and stats endpoints"""
