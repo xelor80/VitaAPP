@@ -28,8 +28,8 @@ const TABS: { key: TabKey; icon: string }[] = [
 ];
 
 const TAB_LABELS: Record<string, Record<TabKey, string>> = {
-  de: { overview: 'Übersicht', supplements: 'Supplements', nutrition: 'Ernährung', recipes: 'Rezepte' },
-  it: { overview: 'Panoramica', supplements: 'Integratori', nutrition: 'Nutrizione', recipes: 'Ricette' },
+  de: { overview: 'Bericht', supplements: 'Supplements', nutrition: 'Ernährung', recipes: 'Rezepte' },
+  it: { overview: 'Rapporto', supplements: 'Integratori', nutrition: 'Nutrizione', recipes: 'Ricette' },
 };
 
 export default function ResultsScreen() {
