@@ -89,7 +89,7 @@ async def get_health_stats():
     ]).to_list(15)
 
     bmi_data = await db.health_profiles.aggregate([
-        {"$match": {"height": {"$ne": None}, "weight": {"$ne": None}, "height": {"$gt": 0}}},
+        {"$match": {"height": {"$gt": 0, "$ne": None}, "weight": {"$ne": None}}},
         {"$addFields": {"bmi": {"$divide": ["$weight", {"$pow": [{"$divide": ["$height", 100]}, 2]}]}}},
         {"$bucket": {
             "groupBy": "$bmi",
