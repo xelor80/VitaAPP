@@ -1,6 +1,5 @@
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException
 from datetime import datetime, timezone
-from typing import Optional
 from pydantic import BaseModel
 
 from core.config import db
