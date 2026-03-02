@@ -3,10 +3,10 @@ import { StyleSheet } from 'react-native';
 export const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#F7F9F6' },
   centered: { justifyContent: 'center', alignItems: 'center' },
-  content: { padding: 20, paddingBottom: 40 },
+  content: { padding: 16, paddingBottom: 40 },
 
   // Header
-  header: { alignItems: 'center', marginTop: 16, marginBottom: 24 },
+  header: { alignItems: 'center', marginTop: 10, marginBottom: 14 },
   headerTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%' },
   logoRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   logoText: { fontSize: 28, fontWeight: '700', color: '#1A2D26' },
