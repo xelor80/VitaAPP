@@ -3,10 +3,10 @@ import { StyleSheet } from 'react-native';
 export const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#F7F9F6' },
   centered: { justifyContent: 'center', alignItems: 'center' },
-  content: { padding: 16, paddingBottom: 40 },
+  content: { padding: 14, paddingBottom: 32 },
 
   // Header
-  header: { alignItems: 'center', marginTop: 10, marginBottom: 14 },
+  header: { alignItems: 'center', marginTop: 6, marginBottom: 8 },
   headerTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%' },
   logoRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   logoText: { fontSize: 28, fontWeight: '700', color: '#1A2D26' },
@@ -73,38 +73,38 @@ export const styles = StyleSheet.create({
   // Onboarding Button
   onboardingButton: {
     flexDirection: 'row', alignItems: 'center', backgroundColor: '#4A8B71',
-    borderRadius: 14, padding: 10, marginBottom: 8, gap: 10,
+    borderRadius: 12, padding: 8, marginBottom: 5, gap: 8,
   },
   onboardingIconWrap: {
-    width: 36, height: 36, borderRadius: 10, backgroundColor: '#3A7A60',
+    width: 30, height: 30, borderRadius: 8, backgroundColor: '#3A7A60',
     justifyContent: 'center', alignItems: 'center',
   },
-  onboardingBtnTitle: { fontSize: 14, fontWeight: '700', color: '#FFFFFF' },
-  onboardingBtnSub: { fontSize: 12, color: '#D4E7DC', marginTop: 1 },
+  onboardingBtnTitle: { fontSize: 13, fontWeight: '700', color: '#FFFFFF' },
+  onboardingBtnSub: { fontSize: 11, color: '#D4E7DC', marginTop: 0 },
 
   // Supplement Plan Button
   supplementPlanButton: {
     flexDirection: 'row', alignItems: 'center', backgroundColor: '#2D5A8B',
-    borderRadius: 14, padding: 10, marginBottom: 8, gap: 10,
+    borderRadius: 12, padding: 8, marginBottom: 5, gap: 8,
   },
   supplementPlanIconWrap: {
-    width: 36, height: 36, borderRadius: 10, backgroundColor: '#1E4A7A',
+    width: 30, height: 30, borderRadius: 8, backgroundColor: '#1E4A7A',
     justifyContent: 'center', alignItems: 'center',
   },
-  supplementPlanBtnTitle: { fontSize: 14, fontWeight: '700', color: '#FFFFFF' },
-  supplementPlanBtnSub: { fontSize: 12, color: '#B8D4E8', marginTop: 1 },
+  supplementPlanBtnTitle: { fontSize: 13, fontWeight: '700', color: '#FFFFFF' },
+  supplementPlanBtnSub: { fontSize: 11, color: '#B8D4E8', marginTop: 0 },
 
   // Progress Button
   progressButton: {
     flexDirection: 'row', alignItems: 'center', backgroundColor: '#6B4E8B',
-    borderRadius: 14, padding: 10, marginBottom: 8, gap: 10,
+    borderRadius: 12, padding: 8, marginBottom: 5, gap: 8,
   },
   progressIconWrap: {
-    width: 36, height: 36, borderRadius: 10, backgroundColor: '#5A3D7A',
+    width: 30, height: 30, borderRadius: 8, backgroundColor: '#5A3D7A',
     justifyContent: 'center', alignItems: 'center',
   },
-  progressBtnTitle: { fontSize: 14, fontWeight: '700', color: '#FFFFFF' },
-  progressBtnSub: { fontSize: 12, color: '#D4C8E8', marginTop: 1 },
+  progressBtnTitle: { fontSize: 13, fontWeight: '700', color: '#FFFFFF' },
+  progressBtnSub: { fontSize: 11, color: '#D4C8E8', marginTop: 0 },
 
   // Alert Modal
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 30 },
@@ -152,12 +152,12 @@ export const styles = StyleSheet.create({
   // Recipe Catalog Button
   recipeCatalogButton: {
     flexDirection: 'row', alignItems: 'center', backgroundColor: '#2D7A5A',
-    borderRadius: 14, padding: 10, marginBottom: 8, gap: 10,
+    borderRadius: 12, padding: 8, marginBottom: 5, gap: 8,
   },
   recipeCatalogIconWrap: {
-    width: 36, height: 36, borderRadius: 10, backgroundColor: '#1E6A4A',
+    width: 30, height: 30, borderRadius: 8, backgroundColor: '#1E6A4A',
     justifyContent: 'center', alignItems: 'center',
   },
-  recipeCatalogBtnTitle: { fontSize: 14, fontWeight: '700', color: '#FFFFFF' },
-  recipeCatalogBtnSub: { fontSize: 12, color: '#D4E8DC', marginTop: 1 },
+  recipeCatalogBtnTitle: { fontSize: 13, fontWeight: '700', color: '#FFFFFF' },
+  recipeCatalogBtnSub: { fontSize: 11, color: '#D4E8DC', marginTop: 0 },
 });
