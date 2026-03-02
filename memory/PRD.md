@@ -95,6 +95,14 @@ Health-focused, bilingual (German/Italian) mobile app. LLM analyzes user symptom
 - Header shows "Gesunde Rezepte entdecken" → "[N] Rezepte" when filter applied
 - Reset via "Alle" button or filter-reset icon
 
+## P1: Symptom Severity Tracking (Mar 2026)
+- Redesigned SymptomTracker with visual severity bars (1-10 scale)
+- Color-coded: 1-3 green (Gut), 4-6 yellow (Maessig), 7-10 red (Stark)
+- 7 categories: Energie, Schlafqualitaet, Stimmung, Konzentration, Verdauung, Schmerzen (NEW), Stress (NEW)
+- ALLGEMEINBEFINDEN overall severity section
+- Per-symptom mini sparkline charts when history data exists
+- Saves all ratings to backend, dashboard refreshes after save
+
 ## Backlog (P1)
 - Symptom Severity Tracking (1-10 scale with visualization)
 - Recipe favorites/bookmarks
