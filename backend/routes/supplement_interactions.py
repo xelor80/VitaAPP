@@ -25,12 +25,21 @@ async def analyze_interactions(profile_id: str, lang: str = "de"):
     # Build stack description for LLM
     stack_lines = []
     for s in stack:
-        stack_lines.append(
-            f"- {s['name']}: {s['dosage']} {s['unit']}, "
-            f"Einnahme: {s.get('timing_label', s.get('timing', ''))}, "
-            f"{'mit Essen' if s.get('with_food') else 'nuechtern'}, "
-            f"Risiko: {s.get('risk_level', 'low')}"
-        )
+        if lang == "it":
+            food_label = "con cibo" if s.get("with_food") else "a digiuno"
+            stack_lines.append(
+                f"- {s['name']}: {s['dosage']} {s['unit']}, "
+                f"Assunzione: {s.get('timing_label', s.get('timing', ''))}, "
+                f"{food_label}, "
+                f"Rischio: {s.get('risk_level', 'low')}"
+            )
+        else:
+            stack_lines.append(
+                f"- {s['name']}: {s['dosage']} {s['unit']}, "
+                f"Einnahme: {s.get('timing_label', s.get('timing', ''))}, "
+                f"{'mit Essen' if s.get('with_food') else 'nuechtern'}, "
+                f"Risiko: {s.get('risk_level', 'low')}"
+            )
     stack_text = "\n".join(stack_lines)
 
     # Get profile info for context
@@ -41,12 +50,20 @@ async def analyze_interactions(profile_id: str, lang: str = "de"):
     profile_context = ""
     if profile:
         meds = profile.get("medications", [])
-        meds_text = ", ".join(meds) if meds else "keine"
-        profile_context = (
-            f"Alter: {profile.get('age', 'unbekannt')}, "
-            f"Medikamente: {meds_text}, "
-            f"Ernaehrung: {profile.get('diet', 'unbekannt')}"
-        )
+        if lang == "it":
+            meds_text = ", ".join(meds) if meds else "nessuno"
+            profile_context = (
+                f"Eta: {profile.get('age', 'sconosciuta')}, "
+                f"Farmaci: {meds_text}, "
+                f"Alimentazione: {profile.get('diet', 'sconosciuta')}"
+            )
+        else:
+            meds_text = ", ".join(meds) if meds else "keine"
+            profile_context = (
+                f"Alter: {profile.get('age', 'unbekannt')}, "
+                f"Medikamente: {meds_text}, "
+                f"Ernaehrung: {profile.get('diet', 'unbekannt')}"
+            )
 
     analysis = await _run_llm_analysis(stack_text, profile_context, lang)
 
@@ -262,7 +279,7 @@ def _fallback_analysis(lang: str, error: str) -> dict:
         return {
             "overall_score": 0,
             "score_label": "Analyse fehlgeschlagen",
-            "summary": f"Die automatische Analyse konnte nicht durchgefuehrt werden. Bitte versuchen Sie es spaeter erneut.",
+            "summary": "Die automatische Analyse konnte nicht durchgefuehrt werden. Bitte versuchen Sie es spaeter erneut.",
             "interactions": [],
             "optimizations": [],
             "error": True
@@ -270,7 +287,7 @@ def _fallback_analysis(lang: str, error: str) -> dict:
     return {
         "overall_score": 0,
         "score_label": "Analisi fallita",
-        "summary": f"L'analisi automatica non ha potuto essere eseguita. Si prega di riprovare piu tardi.",
+        "summary": "L'analisi automatica non ha potuto essere eseguita. Si prega di riprovare piu tardi.",
         "interactions": [],
         "optimizations": [],
         "error": True

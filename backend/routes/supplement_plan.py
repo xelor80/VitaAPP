@@ -217,20 +217,31 @@ async def _generate_llm_summary(profile: dict, plan: dict, lang: str) -> str:
         )
 
         age = profile.get("age", "unbekannt")
-        gender_map = {"male": "maennlich", "female": "weiblich", "diverse": "divers"}
-        gender = gender_map.get(profile.get("gender", ""), "unbekannt")
-        diet = profile.get("diet", "unbekannt")
+        gender_map_de = {"male": "maennlich", "female": "weiblich", "diverse": "divers"}
+        gender_map_it = {"male": "maschile", "female": "femminile", "diverse": "diverso"}
         complaints_text = ", ".join([c.get("name", "") for c in (profile.get("complaints") or [])])
         warnings_text = "\n".join(plan.get("warnings", []))
 
-        user_msg = (
-            f"Profil: Alter {age}, Geschlecht {gender}, Ernaehrung: {diet}\n"
-            f"Beschwerden: {complaints_text or 'keine angegeben'}\n"
-            f"Stresslevel: {profile.get('stress_level', 5)}/10, Schlafqualitaet: {profile.get('sleep_quality', 7)}/10\n\n"
-            f"Supplement-Stack:\n{stack_summary}\n\n"
-            f"Warnungen: {warnings_text or 'keine'}\n\n"
-            f"Erstelle eine motivierende, persoenliche Zusammenfassung dieses 8-Wochen-Plans."
-        )
+        if lang == "de":
+            gender = gender_map_de.get(profile.get("gender", ""), "unbekannt")
+            user_msg = (
+                f"Profil: Alter {age}, Geschlecht {gender}, Ernaehrung: {profile.get('diet', 'unbekannt')}\n"
+                f"Beschwerden: {complaints_text or 'keine angegeben'}\n"
+                f"Stresslevel: {profile.get('stress_level', 5)}/10, Schlafqualitaet: {profile.get('sleep_quality', 7)}/10\n\n"
+                f"Supplement-Stack:\n{stack_summary}\n\n"
+                f"Warnungen: {warnings_text or 'keine'}\n\n"
+                f"Erstelle eine motivierende, persoenliche Zusammenfassung dieses 8-Wochen-Plans."
+            )
+        else:
+            gender = gender_map_it.get(profile.get("gender", ""), "sconosciuto")
+            user_msg = (
+                f"Profilo: Eta {age}, Sesso {gender}, Alimentazione: {profile.get('diet', 'sconosciuta')}\n"
+                f"Disturbi: {complaints_text or 'nessuno indicato'}\n"
+                f"Livello stress: {profile.get('stress_level', 5)}/10, Qualita sonno: {profile.get('sleep_quality', 7)}/10\n\n"
+                f"Stack supplementi:\n{stack_summary}\n\n"
+                f"Avvertenze: {warnings_text or 'nessuna'}\n\n"
+                f"Crea un riepilogo motivante e personalizzato di questo piano di 8 settimane."
+            )
 
         session_id = str(uuid.uuid4())
         chat = LlmChat(

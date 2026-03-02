@@ -22,7 +22,7 @@ SUPPLEMENT_DB = {
         "side_effects_de": ["Uebelkeit bei Ueberdosierung", "Hyperkalzaemie bei Langzeit-Ueberdosierung"],
         "side_effects_it": ["Nausea in caso di sovradosaggio", "Ipercalcemia in caso di sovradosaggio prolungato"],
         "contraindications": ["hypercalcemia", "sarcoidosis", "kidney_stones"],
-        "med_interactions": {"blood_thinners": "Kann Wirkung beeinflussen", "diuretics": "Erhoehtes Kalziumrisiko"},
+        "med_interactions": {"blood_thinners": {"de": "Kann Wirkung beeinflussen", "it": "Puo influenzare l'effetto"}, "diuretics": {"de": "Erhoehtes Kalziumrisiko", "it": "Aumento rischio calcio"}},
         "category": "vitamin"
     },
     "vitamin_k2": {
@@ -42,7 +42,7 @@ SUPPLEMENT_DB = {
         "side_effects_de": ["Sehr selten Unvertraeglichkeiten"],
         "side_effects_it": ["Molto raramente intolleranze"],
         "contraindications": [],
-        "med_interactions": {"blood_thinners": "KONTRAINDIZIERT - Hebt Wirkung von Vitamin-K-Antagonisten auf"},
+        "med_interactions": {"blood_thinners": {"de": "KONTRAINDIZIERT - Hebt Wirkung von Vitamin-K-Antagonisten auf", "it": "CONTROINDICATO - Annulla l'effetto degli antagonisti della vitamina K"}},
         "category": "vitamin"
     },
     "magnesium": {
@@ -62,7 +62,7 @@ SUPPLEMENT_DB = {
         "side_effects_de": ["Weicher Stuhl bei zu hoher Dosis", "Magen-Darm-Beschwerden"],
         "side_effects_it": ["Feci molli a dosi elevate", "Disturbi gastrointestinali"],
         "contraindications": ["kidney_disease"],
-        "med_interactions": {"antibiotics": "2h Abstand halten", "diuretics": "Verstaerkter Magnesiummangel"},
+        "med_interactions": {"antibiotics": {"de": "2h Abstand halten", "it": "Mantenere 2h di distanza"}, "diuretics": {"de": "Verstaerkter Magnesiummangel", "it": "Carenza di magnesio accentuata"}},
         "category": "mineral"
     },
     "omega3": {
@@ -82,7 +82,7 @@ SUPPLEMENT_DB = {
         "side_effects_de": ["Fischiges Aufstossen", "Leichte Verdauungsbeschwerden"],
         "side_effects_it": ["Eruttazione di pesce", "Lievi disturbi digestivi"],
         "contraindications": [],
-        "med_interactions": {"blood_thinners": "Kann Blutungsrisiko erhoehen - Arzt konsultieren"},
+        "med_interactions": {"blood_thinners": {"de": "Kann Blutungsrisiko erhoehen - Arzt konsultieren", "it": "Puo aumentare rischio sanguinamento - consultare medico"}},
         "category": "fatty_acid"
     },
     "vitamin_b12": {
@@ -102,7 +102,7 @@ SUPPLEMENT_DB = {
         "side_effects_de": ["Sehr selten allergische Reaktionen"],
         "side_effects_it": ["Molto raramente reazioni allergiche"],
         "contraindications": [],
-        "med_interactions": {"ppi": "PPI reduzieren B12-Aufnahme", "metformin": "Metformin reduziert B12-Aufnahme"},
+        "med_interactions": {"ppi": {"de": "PPI reduzieren B12-Aufnahme", "it": "I PPI riducono l'assorbimento di B12"}, "metformin": {"de": "Metformin reduziert B12-Aufnahme", "it": "Metformina riduce l'assorbimento di B12"}},
         "category": "vitamin"
     },
     "iron": {
@@ -122,7 +122,7 @@ SUPPLEMENT_DB = {
         "side_effects_de": ["Verstopfung", "Magen-Darm-Beschwerden", "Dunkler Stuhl"],
         "side_effects_it": ["Stitichezza", "Disturbi gastrointestinali", "Feci scure"],
         "contraindications": ["hemochromatosis"],
-        "med_interactions": {"ppi": "Reduzierte Aufnahme", "antibiotics": "2h Abstand halten", "thyroid_medication": "2h Abstand"},
+        "med_interactions": {"ppi": {"de": "Reduzierte Aufnahme", "it": "Assorbimento ridotto"}, "antibiotics": {"de": "2h Abstand halten", "it": "Mantenere 2h di distanza"}, "thyroid_medication": {"de": "2h Abstand", "it": "2h di distanza"}},
         "category": "mineral"
     },
     "zinc": {
@@ -142,7 +142,7 @@ SUPPLEMENT_DB = {
         "side_effects_de": ["Uebelkeit auf leeren Magen", "Kupfermangel bei Langzeiteinnahme"],
         "side_effects_it": ["Nausea a stomaco vuoto", "Carenza di rame con assunzione prolungata"],
         "contraindications": [],
-        "med_interactions": {"antibiotics": "2h Abstand halten", "diuretics": "Verstaerkter Zinkmangel"},
+        "med_interactions": {"antibiotics": {"de": "2h Abstand halten", "it": "Mantenere 2h di distanza"}, "diuretics": {"de": "Verstaerkter Zinkmangel", "it": "Carenza di zinco accentuata"}},
         "category": "mineral"
     },
     "vitamin_c": {
@@ -182,7 +182,7 @@ SUPPLEMENT_DB = {
         "side_effects_de": ["Gelbfaerbung des Urins (harmlos)", "Selten Hautreaktionen"],
         "side_effects_it": ["Colorazione gialla urine (innocuo)", "Raramente reazioni cutanee"],
         "contraindications": [],
-        "med_interactions": {"antidepressants": "B6 kann Wirkung beeinflussen"},
+        "med_interactions": {"antidepressants": {"de": "B6 kann Wirkung beeinflussen", "it": "B6 puo influenzare l'effetto"}},
         "category": "vitamin"
     },
     "calcium": {
@@ -202,7 +202,7 @@ SUPPLEMENT_DB = {
         "side_effects_de": ["Verstopfung", "Blaehungen"],
         "side_effects_it": ["Stitichezza", "Gonfiore"],
         "contraindications": ["hypercalcemia", "kidney_stones"],
-        "med_interactions": {"thyroid_medication": "4h Abstand", "antibiotics": "2h Abstand"},
+        "med_interactions": {"thyroid_medication": {"de": "4h Abstand", "it": "4h di distanza"}, "antibiotics": {"de": "2h Abstand", "it": "2h di distanza"}},
         "category": "mineral"
     },
     "folate": {
@@ -222,7 +222,7 @@ SUPPLEMENT_DB = {
         "side_effects_de": ["Sehr selten Unvertraeglichkeiten"],
         "side_effects_it": ["Molto raramente intolleranze"],
         "contraindications": [],
-        "med_interactions": {"metformin": "Kann Folsaeurespiegel senken"},
+        "med_interactions": {"metformin": {"de": "Kann Folsaeurespiegel senken", "it": "Puo abbassare i livelli di acido folico"}},
         "category": "vitamin"
     },
     "coq10": {
@@ -242,7 +242,7 @@ SUPPLEMENT_DB = {
         "side_effects_de": ["Selten Magen-Darm-Beschwerden", "Schlaflosigkeit bei abendlicher Einnahme"],
         "side_effects_it": ["Raramente disturbi gastrointestinali", "Insonnia se assunto di sera"],
         "contraindications": [],
-        "med_interactions": {"blood_thinners": "Kann Wirkung beeinflussen", "statins": "Statine senken Q10-Spiegel"},
+        "med_interactions": {"blood_thinners": {"de": "Kann Wirkung beeinflussen", "it": "Puo influenzare l'effetto"}, "statins": {"de": "Statine senken Q10-Spiegel", "it": "Le statine abbassano i livelli di Q10"}},
         "category": "antioxidant"
     },
     "probiotics": {
@@ -262,7 +262,7 @@ SUPPLEMENT_DB = {
         "side_effects_de": ["Anfangs Blaehungen moeglich", "Leichte Verdauungsaenderungen"],
         "side_effects_it": ["Inizialmente possibile gonfiore", "Lievi cambiamenti digestivi"],
         "contraindications": [],
-        "med_interactions": {"antibiotics": "2h Abstand halten"},
+        "med_interactions": {"antibiotics": {"de": "2h Abstand halten", "it": "Mantenere 2h di distanza"}},
         "category": "probiotic"
     },
     "ashwagandha": {
@@ -282,7 +282,7 @@ SUPPLEMENT_DB = {
         "side_effects_de": ["Magen-Darm-Beschwerden", "Schlafrigkeit"],
         "side_effects_it": ["Disturbi gastrointestinali", "Sonnolenza"],
         "contraindications": ["hashimoto", "hypothyroidism"],
-        "med_interactions": {"thyroid_medication": "Kann Schilddruesenfunktion beeinflussen", "antidepressants": "Vorsicht - kann Wirkung verstaerken"},
+        "med_interactions": {"thyroid_medication": {"de": "Kann Schilddruesenfunktion beeinflussen", "it": "Puo influenzare la funzione tiroidea"}, "antidepressants": {"de": "Vorsicht - kann Wirkung verstaerken", "it": "Attenzione - puo potenziare l'effetto"}},
         "category": "adaptogen"
     },
     "iodine": {
@@ -302,7 +302,7 @@ SUPPLEMENT_DB = {
         "side_effects_de": ["Schilddruesenueberfunktion bei Ueberdosierung"],
         "side_effects_it": ["Ipertiroidismo in caso di sovradosaggio"],
         "contraindications": ["hashimoto", "hyperthyroidism"],
-        "med_interactions": {"thyroid_medication": "Nur nach aerztlicher Ruecksprache"},
+        "med_interactions": {"thyroid_medication": {"de": "Nur nach aerztlicher Ruecksprache", "it": "Solo dopo consulto medico"}},
         "category": "mineral"
     },
     "selenium": {
@@ -322,7 +322,7 @@ SUPPLEMENT_DB = {
         "side_effects_de": ["Knoblauchartiger Atem bei Ueberdosierung", "Haarausfall bei chronischer Ueberdosis"],
         "side_effects_it": ["Alito agliaceo in caso di sovradosaggio", "Perdita capelli con sovradosaggio cronico"],
         "contraindications": [],
-        "med_interactions": {"statins": "Kann Wirkung beeinflussen"},
+        "med_interactions": {"statins": {"de": "Kann Wirkung beeinflussen", "it": "Puo influenzare l'effetto"}},
         "category": "mineral"
     },
     "vitamin_e": {
@@ -342,7 +342,7 @@ SUPPLEMENT_DB = {
         "side_effects_de": ["Erhoehtes Blutungsrisiko bei hoher Dosis"],
         "side_effects_it": ["Aumento rischio sanguinamento ad alte dosi"],
         "contraindications": [],
-        "med_interactions": {"blood_thinners": "Kann Blutungsrisiko erhoehen"},
+        "med_interactions": {"blood_thinners": {"de": "Kann Blutungsrisiko erhoehen", "it": "Puo aumentare il rischio di sanguinamento"}},
         "category": "vitamin"
     }
 }
@@ -559,16 +559,18 @@ def generate_supplement_plan(profile: dict, assessment: dict, lang: str = "de") 
         for med in medications:
             if med in info.get("med_interactions", {}):
                 interaction = info["med_interactions"][med]
-                if "KONTRAINDIZIERT" in interaction:
-                    w_text = {
-                        "de": f"{info['name_de']}: {interaction}",
-                        "it": f"{info['name_it']}: Controindicato con {med}"
-                    }
-                    warnings.append(w_text[lang])
+                # med_interactions are now bilingual dicts: {"de": "...", "it": "..."}
+                interaction_text = interaction[lang] if isinstance(interaction, dict) else interaction
+                interaction_de = interaction.get("de", interaction_text) if isinstance(interaction, dict) else interaction
+                if "KONTRAINDIZIERT" in interaction_de or "CONTROINDICATO" in interaction_text:
+                    w_text = f"{info[f'name_{lang}']}: {interaction_text}"
+                    warnings.append(w_text)
                     skip = True
                     break
                 else:
-                    med_warnings.append({"med": med, "warning_de": interaction, "warning_it": interaction})
+                    warning_de = interaction["de"] if isinstance(interaction, dict) else interaction
+                    warning_it = interaction["it"] if isinstance(interaction, dict) else interaction
+                    med_warnings.append({"med": med, "warning_de": warning_de, "warning_it": warning_it})
         if skip:
             continue
 

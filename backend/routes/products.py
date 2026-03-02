@@ -24,18 +24,75 @@ NUTRIENT_TAG_MAP = {
 }
 
 NUTRIENT_QUALITY_INFO = {
-    "iron": {"daily_dose_hint": "14-20 mg", "form": "Eisen-Bisglycinat", "tip": "Nicht zusammen mit Kaffee/Tee einnehmen"},
-    "zinc": {"daily_dose_hint": "10-15 mg", "form": "Kolloidales Zink", "tip": "Am besten abends, nüchtern einnehmen"},
-    "omega3": {"daily_dose_hint": "1-2 g EPA/DHA", "form": "Triglycerid-Form", "tip": "Zu einer fetthaltigen Mahlzeit einnehmen"},
-    "vitamin_d": {"daily_dose_hint": "1000-4000 IE", "form": "Vitamin D3 + K2", "tip": "Immer mit Fett einnehmen"},
-    "vitamin_b12": {"daily_dose_hint": "500-1000 µg", "form": "Methylcobalamin", "tip": "Morgens sublingual einnehmen"},
-    "vitamin_c": {"daily_dose_hint": "500-1000 mg", "form": "Retard-Form", "tip": "Über den Tag verteilt einnehmen"},
-    "magnesium": {"daily_dose_hint": "300-400 mg", "form": "Magnesiumcitrat", "tip": "Abends einnehmen für besseren Schlaf"},
-    "calcium": {"daily_dose_hint": "500-1000 mg", "form": "Calciumcitrat", "tip": "Nicht zusammen mit Eisen einnehmen"},
-    "b_vitamins": {"daily_dose_hint": "Komplex", "form": "Bioaktive Formen", "tip": "Morgens einnehmen für Energie"},
-    "coq10": {"daily_dose_hint": "100-200 mg", "form": "Ubiquinol", "tip": "Mit einer fetthaltigen Mahlzeit einnehmen"},
-    "probiotics": {"daily_dose_hint": "10-20 Mrd. KBE", "form": "Mehrere Stämme", "tip": "Morgens nüchtern einnehmen"},
+    "iron": {
+        "daily_dose_hint": "14-20 mg",
+        "form": {"de": "Eisen-Bisglycinat", "it": "Ferro bisglicinato"},
+        "tip": {"de": "Nicht zusammen mit Kaffee/Tee einnehmen", "it": "Non assumere con caffe/te"}
+    },
+    "zinc": {
+        "daily_dose_hint": "10-15 mg",
+        "form": {"de": "Kolloidales Zink", "it": "Zinco colloidale"},
+        "tip": {"de": "Am besten abends, nüchtern einnehmen", "it": "Meglio alla sera, a stomaco vuoto"}
+    },
+    "omega3": {
+        "daily_dose_hint": "1-2 g EPA/DHA",
+        "form": {"de": "Triglycerid-Form", "it": "Forma trigliceride"},
+        "tip": {"de": "Zu einer fetthaltigen Mahlzeit einnehmen", "it": "Assumere con un pasto ricco di grassi"}
+    },
+    "vitamin_d": {
+        "daily_dose_hint": "1000-4000 IE",
+        "form": {"de": "Vitamin D3 + K2", "it": "Vitamina D3 + K2"},
+        "tip": {"de": "Immer mit Fett einnehmen", "it": "Assumere sempre con grassi"}
+    },
+    "vitamin_b12": {
+        "daily_dose_hint": "500-1000 mcg",
+        "form": {"de": "Methylcobalamin", "it": "Metilcobalamina"},
+        "tip": {"de": "Morgens sublingual einnehmen", "it": "Assumere al mattino per via sublinguale"}
+    },
+    "vitamin_c": {
+        "daily_dose_hint": "500-1000 mg",
+        "form": {"de": "Retard-Form", "it": "Forma a rilascio prolungato"},
+        "tip": {"de": "Über den Tag verteilt einnehmen", "it": "Distribuire durante la giornata"}
+    },
+    "magnesium": {
+        "daily_dose_hint": "300-400 mg",
+        "form": {"de": "Magnesiumcitrat", "it": "Citrato di magnesio"},
+        "tip": {"de": "Abends einnehmen für besseren Schlaf", "it": "Assumere alla sera per un sonno migliore"}
+    },
+    "calcium": {
+        "daily_dose_hint": "500-1000 mg",
+        "form": {"de": "Calciumcitrat", "it": "Citrato di calcio"},
+        "tip": {"de": "Nicht zusammen mit Eisen einnehmen", "it": "Non assumere insieme al ferro"}
+    },
+    "b_vitamins": {
+        "daily_dose_hint": {"de": "Komplex", "it": "Complesso"},
+        "form": {"de": "Bioaktive Formen", "it": "Forme bioattive"},
+        "tip": {"de": "Morgens einnehmen für Energie", "it": "Assumere al mattino per energia"}
+    },
+    "coq10": {
+        "daily_dose_hint": "100-200 mg",
+        "form": {"de": "Ubiquinol", "it": "Ubiquinolo"},
+        "tip": {"de": "Mit einer fetthaltigen Mahlzeit einnehmen", "it": "Assumere con un pasto ricco di grassi"}
+    },
+    "probiotics": {
+        "daily_dose_hint": {"de": "10-20 Mrd. KBE", "it": "10-20 mld. UFC"},
+        "form": {"de": "Mehrere Stämme", "it": "Multi-ceppo"},
+        "tip": {"de": "Morgens nüchtern einnehmen", "it": "Assumere al mattino a stomaco vuoto"}
+    },
 }
+
+
+def _localize_quality_info(info: dict, lang: str) -> dict:
+    """Return quality info with strings resolved for the given language."""
+    if not info:
+        return info
+    result = {}
+    for key, val in info.items():
+        if isinstance(val, dict) and "de" in val:
+            result[key] = val.get(lang, val["de"])
+        else:
+            result[key] = val
+    return result
 
 
 @router.get("/products/by-nutrient/{nutrient}")
@@ -52,7 +109,7 @@ async def get_products_by_nutrient(nutrient: str, lang: str = "de"):
         {"_id": 0}
     )
     products = await cursor.to_list(length=None)
-    quality_info = NUTRIENT_QUALITY_INFO.get(nutrient)
+    quality_info = _localize_quality_info(NUTRIENT_QUALITY_INFO.get(nutrient), lang)
     return {"products": products, "quality_info": quality_info}
 
 

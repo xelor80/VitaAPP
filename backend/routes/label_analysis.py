@@ -24,7 +24,7 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 MAX_IMAGE_DIMENSION = 2048
 
-SYSTEM_PROMPT = """Du bist ein Experte für Nahrungsergänzungsmittel-Etiketten. 
+SYSTEM_PROMPT_DE = """Du bist ein Experte für Nahrungsergänzungsmittel-Etiketten. 
 Analysiere das Produktetikett und extrahiere folgende Informationen:
 
 1. **Inhaltsstoffe**: Liste aller Inhaltsstoffe mit Mengenangaben
@@ -40,7 +40,31 @@ Antworte NUR im folgenden JSON-Format (keine Markdown-Formatierung):
     "intake_recommendation": "z.B. Morgens mit Wasser einnehmen",
     "warnings": ["Warnung 1", "Warnung 2"],
     "additional_info": "Weitere Infos"
-}"""
+}
+ALLE Texte MUESSEN auf Deutsch sein."""
+
+SYSTEM_PROMPT_IT = """Sei un esperto di etichette di integratori alimentari.
+Analizza l'etichetta del prodotto ed estrai le seguenti informazioni:
+
+1. **Ingredienti**: Lista di tutti gli ingredienti con quantità
+2. **Dosaggio**: Dose giornaliera raccomandata
+3. **Raccomandazione di assunzione**: Quando e come assumere il prodotto
+4. **Avvertenze**: Tutti gli avvisi e controindicazioni
+5. **Informazioni aggiuntive**: Altre informazioni rilevanti
+
+Rispondi SOLO nel seguente formato JSON (nessuna formattazione Markdown):
+{
+    "ingredients": ["Ingrediente 1 (quantità)", "Ingrediente 2 (quantità)"],
+    "dosage": "es. 1 capsula al giorno",
+    "intake_recommendation": "es. Al mattino con acqua",
+    "warnings": ["Avvertenza 1", "Avvertenza 2"],
+    "additional_info": "Altre informazioni"
+}
+TUTTI i testi DEVONO essere in italiano."""
+
+
+def _get_label_system_prompt(lang: str = "de") -> str:
+    return SYSTEM_PROMPT_IT if lang == "it" else SYSTEM_PROMPT_DE
 
 
 def resize_image_if_needed(image_bytes: bytes) -> bytes:
@@ -88,21 +112,21 @@ def extract_pdf_text(pdf_bytes: bytes) -> str:
 def _parse_analysis_json(response_text: str) -> dict:
     """Extract and parse JSON from model response."""
     if not response_text:
-        raise HTTPException(status_code=500, detail="Analyse: leere Antwort vom Modell")
+        raise HTTPException(status_code=500, detail="Analyse: leere Antwort vom Modell / Analisi: risposta vuota dal modello")
 
     json_match = re.search(r'\{[\s\S]*\}', response_text)
     if not json_match:
         logger.warning(f"No JSON in response: {response_text[:300]}")
         raise HTTPException(
             status_code=422,
-            detail="Das Etikett konnte nicht gelesen werden. Bitte versuche es mit einem klareren Foto oder einer PDF-Datei."
+            detail="Das Etikett konnte nicht gelesen werden. / L'etichetta non ha potuto essere letta."
         )
 
     try:
         return json.loads(json_match.group())
     except json.JSONDecodeError as e:
         logger.error(f"JSON parse error: {e} – extracted: {json_match.group()[:300]}")
-        raise HTTPException(status_code=500, detail="Analyse: ungültiges JSON vom Modell")
+        raise HTTPException(status_code=500, detail="Analyse: ungültiges JSON vom Modell / Analisi: JSON non valido dal modello")
 
 
 async def analyze_image_label(image_bytes: bytes, lang: str = "de") -> dict:
@@ -116,10 +140,11 @@ async def analyze_image_label(image_bytes: bytes, lang: str = "de") -> dict:
     chat = LlmChat(
         api_key=os.environ.get("EMERGENT_LLM_KEY"),
         session_id=f"label-img-{uuid.uuid4().hex[:8]}",
-        system_message=SYSTEM_PROMPT,
+        system_message=_get_label_system_prompt(lang),
     ).with_model("openai", "gpt-4.1")
 
-    prompt = f"Analysiere dieses Produktetikett auf {'Deutsch' if lang == 'de' else 'Italienisch'}."
+    prompt = f"Analysiere dieses Produktetikett auf {'Deutsch' if lang == 'de' else 'Italienisch'}." if lang == "de" else \
+             f"Analizza questa etichetta del prodotto in italiano."
 
     try:
         response_text = await chat.send_message(
@@ -127,7 +152,9 @@ async def analyze_image_label(image_bytes: bytes, lang: str = "de") -> dict:
         )
     except Exception as e:
         logger.error(f"Image analysis failed: {type(e).__name__}: {e}")
-        raise HTTPException(status_code=500, detail="Bildanalyse fehlgeschlagen. Bitte versuche es erneut.")
+        detail = "Bildanalyse fehlgeschlagen. Bitte versuche es erneut." if lang == "de" else \
+                 "Analisi immagine fallita. Riprova."
+        raise HTTPException(status_code=500, detail=detail)
 
     logger.info(f"Image analysis response: {repr(response_text[:300]) if response_text else 'NONE'}")
     return _parse_analysis_json(response_text)
@@ -140,16 +167,21 @@ async def analyze_pdf_label(pdf_text: str, lang: str = "de") -> dict:
     chat = LlmChat(
         api_key=os.environ.get("EMERGENT_LLM_KEY"),
         session_id=f"label-pdf-{uuid.uuid4().hex[:8]}",
-        system_message=SYSTEM_PROMPT,
+        system_message=_get_label_system_prompt(lang),
     ).with_model("openai", "gpt-4.1")
 
-    prompt = f"Hier ist der Text von einem Nahrungsergänzungsmittel-Etikett (aus PDF extrahiert). Analysiere ihn auf {'Deutsch' if lang == 'de' else 'Italienisch'}:\n\n{pdf_text[:4000]}"
+    if lang == "de":
+        prompt = f"Hier ist der Text von einem Nahrungsergänzungsmittel-Etikett (aus PDF extrahiert). Analysiere ihn auf Deutsch:\n\n{pdf_text[:4000]}"
+    else:
+        prompt = f"Ecco il testo di un'etichetta di integratore alimentare (estratto da PDF). Analizzalo in italiano:\n\n{pdf_text[:4000]}"
 
     try:
         response_text = await chat.send_message(UserMessage(text=prompt))
     except Exception as e:
         logger.error(f"PDF analysis failed: {type(e).__name__}: {e}")
-        raise HTTPException(status_code=500, detail="PDF-Analyse fehlgeschlagen. Bitte versuche es erneut.")
+        detail = "PDF-Analyse fehlgeschlagen. Bitte versuche es erneut." if lang == "de" else \
+                 "Analisi PDF fallita. Riprova."
+        raise HTTPException(status_code=500, detail=detail)
 
     logger.info(f"PDF analysis response: {repr(response_text[:300]) if response_text else 'NONE'}")
     return _parse_analysis_json(response_text)
@@ -169,7 +201,9 @@ async def upload_and_analyze_label(product_id: str, request: Request):
     has_pdf = isinstance(pdf_upload, StarletteUpload) and pdf_upload.filename
 
     if not has_image and not has_pdf:
-        raise HTTPException(status_code=400, detail="Bitte mindestens ein Bild oder eine PDF-Datei hochladen.")
+        detail = "Bitte mindestens ein Bild oder eine PDF-Datei hochladen." if lang == "de" else \
+                 "Caricare almeno un'immagine o un file PDF."
+        raise HTTPException(status_code=400, detail=detail)
 
     label_data = {}
     contents = None
@@ -199,7 +233,9 @@ async def upload_and_analyze_label(product_id: str, request: Request):
     elif contents:
         analysis = await analyze_image_label(contents, lang)
     else:
-        raise HTTPException(status_code=422, detail="Keine analysierbaren Daten gefunden.")
+        detail = "Keine analysierbaren Daten gefunden." if lang == "de" else \
+                 "Nessun dato analizzabile trovato."
+        raise HTTPException(status_code=422, detail=detail)
 
     label_data["label_analysis"] = analysis
     label_data["label_analyzed_at"] = datetime.now(timezone.utc).isoformat()

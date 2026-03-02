@@ -86,7 +86,8 @@ async def _ai_assessment(total: int, base: dict, profile: dict, lang: str) -> di
     """Use LLM to generate textual assessment and refined sub-category scores."""
     from emergentintegrations.llm.chat import LlmChat, UserMessage
 
-    system = """Du bist ein Gesundheitsanalytiker. Basierend auf den Score-Daten:
+    if lang == "de":
+        system = """Du bist ein Gesundheitsanalytiker. Basierend auf den Score-Daten:
 - Gib eine kurze Einordnung (max 8 Worte, z.B. "Gut, aber Schlaf optimierbar")
 - Gib eine kurze Empfehlung (max 2 Sätze)
 - Bewerte 4 Unterkategorien (0-100): mikronährstoff_risiko, schlaf, stress, energie
@@ -101,17 +102,42 @@ Antworte NUR als JSON:
     "stress": 55,
     "energie": 72
   }
-}"""
+}
+ALLE Texte MUESSEN auf Deutsch sein."""
+    else:
+        system = """Sei un analista della salute. Basandoti sui dati del punteggio:
+- Dai una breve valutazione (max 8 parole, es. "Buono, ma sonno da ottimizzare")
+- Dai una breve raccomandazione (max 2 frasi)
+- Valuta 4 sottocategorie (0-100): mikronährstoff_risiko, schlaf, stress, energie
+
+Rispondi SOLO come JSON:
+{
+  "label": "Breve valutazione",
+  "recommendation": "Raccomandazione...",
+  "categories": {
+    "mikronährstoff_risiko": 65,
+    "schlaf": 79,
+    "stress": 55,
+    "energie": 72
+  }
+}
+TUTTI i testi DEVONO essere in italiano."""
 
     complaints_str = ", ".join([c.get("name", "") for c in profile.get("complaints", [])[:5]])
     deficiencies_str = ", ".join(profile.get("known_deficiencies", [])[:5])
 
-    prompt = f"""Gesundheits-Score: {total}/100
+    if lang == "de":
+        prompt = f"""Gesundheits-Score: {total}/100
 Teilwerte: Symptome={base['symptom']}, Einnahmetreue={base['compliance']}, Schlaf={base['sleep']}, Stress={base['stress']}, Energie={base['energy']}, Mikronährstoffe={base['nutrient']}
 Beschwerden: {complaints_str or 'Keine'}
 Bekannte Mängel: {deficiencies_str or 'Keine'}
-Alter: {profile.get('age', '?')}, Aktivität: {profile.get('activity_level', '?')}
-Sprache: {'Deutsch' if lang == 'de' else 'Italienisch'}"""
+Alter: {profile.get('age', '?')}, Aktivität: {profile.get('activity_level', '?')}"""
+    else:
+        prompt = f"""Punteggio salute: {total}/100
+Sottopunteggi: Sintomi={base['symptom']}, Compliance={base['compliance']}, Sonno={base['sleep']}, Stress={base['stress']}, Energia={base['energy']}, Micronutrienti={base['nutrient']}
+Disturbi: {complaints_str or 'Nessuno'}
+Carenze note: {deficiencies_str or 'Nessuna'}
+Età: {profile.get('age', '?')}, Attività: {profile.get('activity_level', '?')}"""
 
     try:
         chat = LlmChat(
@@ -128,7 +154,10 @@ Sprache: {'Deutsch' if lang == 'de' else 'Italienisch'}"""
         logger.error(f"AI health score assessment failed: {e}")
 
     # Fallback if AI fails
-    label = "Gut" if total >= 70 else ("Optimierbar" if total >= 40 else "Handlungsbedarf")
+    if lang == "de":
+        label = "Gut" if total >= 70 else ("Optimierbar" if total >= 40 else "Handlungsbedarf")
+    else:
+        label = "Buono" if total >= 70 else ("Ottimizzabile" if total >= 40 else "Intervento necessario")
     return {
         "label": label,
         "recommendation": "",
@@ -148,7 +177,7 @@ async def get_health_score(profile_id: str, lang: str = "de"):
     # Fetch profile
     profile = await db.health_profiles.find_one({"id": profile_id}, {"_id": 0})
     if not profile:
-        raise HTTPException(status_code=404, detail="Profil nicht gefunden")
+        raise HTTPException(status_code=404, detail="Profil nicht gefunden" if lang == "de" else "Profilo non trovato")
 
     now = datetime.now(timezone.utc)
     date_30d_ago = (now - timedelta(days=30)).strftime("%Y-%m-%d")

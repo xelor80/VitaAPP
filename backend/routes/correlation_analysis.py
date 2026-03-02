@@ -187,7 +187,7 @@ def _build_correlations(supplement_compliance, symptom_trends, symptoms, complia
     return correlations
 
 
-SUPPLEMENT_NAMES = {
+SUPPLEMENT_NAMES_DE = {
     "magnesium": "Magnesium",
     "b_vitamins": "Vitamin B-Komplex",
     "vitamin_c": "Vitamin C",
@@ -195,6 +195,36 @@ SUPPLEMENT_NAMES = {
     "zinc": "Zink",
     "omega3": "Omega-3",
     "probiotics": "Probiotika",
+    "vitamin_d": "Vitamin D3",
+    "vitamin_k2": "Vitamin K2",
+    "vitamin_b12": "Vitamin B12",
+    "iron": "Eisen",
+    "calcium": "Calcium",
+    "folate": "Folat",
+    "coq10": "Coenzym Q10",
+    "iodine": "Jod",
+    "selenium": "Selen",
+    "vitamin_e": "Vitamin E",
+}
+
+SUPPLEMENT_NAMES_IT = {
+    "magnesium": "Magnesio",
+    "b_vitamins": "Complesso Vitaminico B",
+    "vitamin_c": "Vitamina C",
+    "ashwagandha": "Ashwagandha",
+    "zinc": "Zinco",
+    "omega3": "Omega-3",
+    "probiotics": "Probiotici",
+    "vitamin_d": "Vitamina D3",
+    "vitamin_k2": "Vitamina K2",
+    "vitamin_b12": "Vitamina B12",
+    "iron": "Ferro",
+    "calcium": "Calcio",
+    "folate": "Folato",
+    "coq10": "Coenzima Q10",
+    "iodine": "Iodio",
+    "selenium": "Selenio",
+    "vitamin_e": "Vitamina E",
 }
 
 SYMPTOM_NAMES_DE = {
@@ -234,7 +264,8 @@ async def _get_llm_insights(supplement_compliance, symptom_trends, correlations,
 
         lines.append("\nSupplement-Einnahmetreue:" if lang == "de" else "\nCompliance supplementi:")
         for sid, comp in supplement_compliance.items():
-            name = SUPPLEMENT_NAMES.get(sid, sid)
+            sup_names = SUPPLEMENT_NAMES_DE if lang == "de" else SUPPLEMENT_NAMES_IT
+            name = sup_names.get(sid, sid)
             lines.append(f"- {name}: {comp['rate']}% ({comp['taken']}/{comp['total']} Tage)")
 
         lines.append("\nSymptom-Veraenderungen:" if lang == "de" else "\nVariazioni sintomi:")

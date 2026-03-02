@@ -23,7 +23,7 @@ async def get_product_catalog(lang: str):
 async def analyze_symptoms(data: SymptomInput, request: Request):
     client_ip = request.client.host if request.client else "unknown"
     if not check_rate_limit(client_ip):
-        raise HTTPException(status_code=429, detail="Zu viele Anfragen. Bitte warten Sie eine Minute.")
+        raise HTTPException(status_code=429, detail="Zu viele Anfragen. Bitte warten Sie eine Minute." if (data.lang or "de") == "de" else "Troppe richieste. Attendere un minuto.")
 
     lang = data.lang if data.lang in ("de", "it") else "de"
     catalog = await get_product_catalog(lang)
@@ -64,13 +64,22 @@ async def analyze_symptoms(data: SymptomInput, request: Request):
         response_text = str(e)
         latency_ms = 0
         llm_success = False
-        parsed = {
-            "summary": "Die Analyse konnte momentan nicht durchgeführt werden. Bitte versuchen Sie es später erneut.",
-            "red_flags": [], "supplements_general_info": [], "brand_products": [],
-            "nutrition_tips": [],
-            "recipes": [],
-            "disclaimer_short": "Dieser Inhalt dient nur der allgemeinen Information und ersetzt keine ärztliche Beratung."
-        }
+        if lang == "it":
+            parsed = {
+                "summary": "L'analisi non ha potuto essere eseguita al momento. Si prega di riprovare piu tardi.",
+                "red_flags": [], "supplements_general_info": [], "brand_products": [],
+                "nutrition_tips": [],
+                "recipes": [],
+                "disclaimer_short": "Questo contenuto e solo a scopo informativo e non sostituisce il parere medico."
+            }
+        else:
+            parsed = {
+                "summary": "Die Analyse konnte momentan nicht durchgeführt werden. Bitte versuchen Sie es später erneut.",
+                "red_flags": [], "supplements_general_info": [], "brand_products": [],
+                "nutrition_tips": [],
+                "recipes": [],
+                "disclaimer_short": "Dieser Inhalt dient nur der allgemeinen Information und ersetzt keine ärztliche Beratung."
+            }
 
     # Log LLM call
     try:
