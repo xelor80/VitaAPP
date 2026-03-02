@@ -14,85 +14,33 @@ Health-focused, bilingual (German/Italian) mobile app. Core functionality: LLM a
 8. YouTube video integration
 9. Product label analysis (Image + PDF) with AI vision
 10. Health Score Dashboard with 8-week trend chart
-11. Searchable/filterable recipe catalog
+11. Searchable/filterable recipe catalog ("Deine Rezepte")
 12. Admin health statistics dashboard
-13. **Personalized recipe recommendations on home screen** (NEW)
-
-## Tech Stack
-- **Frontend:** React Native (Expo) for web
-- **Backend:** FastAPI + MongoDB
-- **AI:** GPT-4.1 via emergentintegrations (Emergent LLM Key)
-- **PDF Processing:** PyMuPDF
-- **Image Processing:** Pillow
-
-## Key API Endpoints
-| Endpoint | Method | Description |
-|---|---|---|
-| `/api/analyze` | POST | Symptom analysis |
-| `/api/recipes` | GET | Recipes (with search, category, time filters) |
-| `/api/recipes/filters` | GET | Available filter options for recipe catalog |
-| `/api/recipes/recommendations` | GET | Personalized recipe recommendations |
-| `/api/health-score` | GET | AI-calculated health score |
-| `/api/health-score/history` | GET | 8-week score history |
-| `/api/health-profile` | GET/POST | User health profile |
-| `/api/supplement-plan` | GET/POST | Supplement plan |
-| `/api/admin/health-stats` | GET | Aggregated health statistics |
-| `/api/admin/stats` | GET | Admin dashboard stats |
-| `/api/products/{id}/label` | POST | Product label analysis |
-| `/api/admin-app` | GET | Admin panel webapp |
-
-## DB Collections
-- `products_de`, `products_it`, `recipes`, `analyses`, `clicks`
-- `health_profiles`, `health_score_history`
-- `symptom_tracking`, `compliance_tracking`, `diary_entries`
-- `supplement_plans`, `videos`, `settings`
+13. Personalized recipe recommendations (inside recipe catalog)
 
 ## Architecture
 ```
-backend/
-  routes/
-    admin.py              # Product/recipe CRUD, stats, clicks (288 lines)
-    admin_health_stats.py # Health statistics aggregation (130 lines)
-    analysis.py           # Symptom analysis
-    health_profile.py     # Onboarding/health profile
-    health_score.py       # Health score calculation
-    label_analysis.py     # Product label AI analysis
-    products.py           # Public recipe/product endpoints + recommendations
-    supplement_plan.py    # Supplement plan
-    tracking.py           # Health tracking
-    videos.py             # Video management
-    settings.py           # App settings
-  admin_webapp/           # Admin panel (HTML/JS/CSS)
-  models/schemas.py
-  core/config.py, analysis_engine_v2.py
+backend/routes/
+  products.py     # Recipes, recommendations, filters
+  admin.py        # Product/recipe CRUD, stats
+  admin_health_stats.py  # Health statistics
+  ...
 
-frontend/
-  app/
-    index.tsx             # Home screen
-    recipes-catalog.tsx   # Recipe catalog with search/filter
-    results.tsx           # Analysis results
-    _layout.tsx           # Navigation
-  components/
-    home/
-      RecipeCatalogButton.tsx
-      RecipeRecommendations.tsx  # NEW - Personalized recommendations
-      HealthScoreCard.tsx
-      ScoreHistoryChart.tsx
-    tabs/, tracking/, onboarding/
-  src/services/, src/i18n.ts
+frontend/app/
+  index.tsx              # Home: "Deine Rezepte" button
+  recipes-catalog.tsx    # Catalog with inline recommendations
+frontend/components/home/
+  RecipeCatalogButton.tsx  # "Deine Rezepte" button
+  RecipeRecommendations.tsx  # Standalone component (kept for reuse)
 ```
 
 ## What's Implemented (as of 2026-03-02)
-- All 13 core features listed above
-- P0: Product label analysis (fixed, enhanced with PDF + GPT-4.1 vision)
-- P1: Searchable/filterable recipe catalog with search, category, tag, time filters
-- P2: Admin health statistics dashboard with 15+ aggregated metrics
-- P3: Personalized recipe recommendations on home screen (complaint-based matching)
-- Refactoring: health stats extracted to own route, unused imports removed
+- All 13 core features
+- Recommendations moved from home screen INTO recipe catalog page
+- "Rezeptkatalog" renamed to "Deine Rezepte" everywhere
 
-## Backlog (Remaining)
-- No known pending issues or bugs
-- Potential: Export health stats data as CSV
-- Potential: Recipe favorites/bookmarks
-- Potential: Push notification reminders for supplement plan
-- Potential: More chart types in admin dashboard
+## Backlog
+- Recipe favorites/bookmarks
+- Export health stats as CSV
+- Push notifications for supplement plan
+- Weekly meal plan generator
