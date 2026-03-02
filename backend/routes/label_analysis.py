@@ -76,11 +76,12 @@ def extract_pdf_text(pdf_bytes: bytes) -> str:
     import fitz  # pymupdf
     text_parts = []
     doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+    page_count = doc.page_count
     for page in doc:
         text_parts.append(page.get_text())
     doc.close()
     full_text = "\n".join(text_parts).strip()
-    logger.info(f"Extracted {len(full_text)} chars from PDF ({doc.page_count} pages)")
+    logger.info(f"Extracted {len(full_text)} chars from PDF ({page_count} pages)")
     return full_text
 
 
