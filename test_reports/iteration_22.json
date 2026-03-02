@@ -16,7 +16,7 @@
   "action_items": [],
   "critical_code_review_comments": [
     "Backend GET /api/recipes/recommendations correctly returns 3 recipes by default",
-    "Personalized recommendations with profile_id=5ae69ad6-6bbd-4bbc-ae59-f3e1fba4782b correctly match fatigue complaint to energy/müdigkeit recipes",
+    "Personalized recommendations with profile_id=health-compact correctly match fatigue complaint to energy/müdigkeit recipes",
     "recommendation_reason field correctly populated for matched recipes (e.g., 'fatigue')",
     "Italian language param (?lang=it) returns Italian recipe titles (e.g., 'Porridge con Banana e Noci')",
     "Invalid profile_id gracefully falls back to random recipes",
@@ -47,7 +47,7 @@
     },
     "backend_recommendations_with_profile": {
       "status": "PASS",
-      "details": "GET /api/recipes/recommendations?profile_id=5ae69ad6-6bbd-4bbc-ae59-f3e1fba4782b returns 3 recipes matched to fatigue complaint"
+      "details": "GET /api/recipes/recommendations?profile_id=health-compact returns 3 recipes matched to fatigue complaint"
     },
     "backend_recommendation_reason_field": {
       "status": "PASS",

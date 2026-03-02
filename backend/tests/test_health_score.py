@@ -10,7 +10,7 @@ import requests
 import os
 import time
 
-BASE_URL = os.environ.get("EXPO_PUBLIC_BACKEND_URL", "https://symptom-analyzer-22.preview.emergentagent.com")
+BASE_URL = os.environ.get("EXPO_PUBLIC_BACKEND_URL", "https://health-compact.preview.emergentagent.com")
 
 # Test profile ID that exists in DB
 TEST_PROFILE_ID = "5ae69ad6-6bbd-4bbc-ae59-f3e1fba4782b"
