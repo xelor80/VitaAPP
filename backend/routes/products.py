@@ -76,6 +76,92 @@ async def get_recipes(tags: str = "", lang: str = "de", search: str = "", catego
     return results
 
 
+# Complaint name → recipe symptom_tags mapping
+COMPLAINT_TAG_MAP = {
+    "fatigue": ["müdigkeit", "energie", "stanchezza", "energia"],
+    "headache": ["kopfschmerzen", "mal di testa", "entzündung"],
+    "digestive": ["verdauung", "darm", "digestione"],
+    "joint_pain": ["gelenkschmerzen", "dolori articolari", "gelenke"],
+    "muscle_pain": ["rückenschmerzen", "muskeln", "mal di schiena"],
+    "skin_problems": ["hautprobleme", "haut", "pelle", "problemi di pelle"],
+    "hair_loss": ["hautprobleme", "haut", "pelle"],
+    "concentration": ["konzentration", "gedächtnis", "concentrazione", "memoria"],
+    "mood_swings": ["stress", "stimmung", "nerven"],
+    "anxiety_symptoms": ["stress", "nerven", "entspannung"],
+    "sleep_problems": ["schlafprobleme", "schlaf", "sonno", "problemi di sonno"],
+    "weight_issues": ["verdauung", "energie"],
+    "immune_weakness": ["immunsystem", "erkältung", "sistema immunitario", "raffreddore"],
+    "cold_hands_feet": ["energie", "müdigkeit"],
+}
+
+
+@router.get("/recipes/recommendations")
+async def get_recipe_recommendations(profile_id: str = "", lang: str = "de", limit: int = 3):
+    """Get personalized recipe recommendations based on user's health profile."""
+    import random
+
+    cursor = db.recipes.find({}, {"_id": 0})
+    recipes_raw = await cursor.to_list(length=None)
+
+    all_recipes = []
+    for r in recipes_raw:
+        loc = r.get(lang, r.get("de", {}))
+        all_recipes.append({
+            "id": r["id"],
+            "title": loc.get("title", ""),
+            "ingredients": loc.get("ingredients", []),
+            "steps": loc.get("steps", []),
+            "time_min": r.get("time_min", 20),
+            "tags": loc.get("tags", []),
+            "symptom_tags": r.get("symptom_tags", []),
+            "image_url": r.get("image_url", ""),
+        })
+
+    matched = []
+    reason_map = {}
+
+    if profile_id:
+        profile = await db.health_profiles.find_one({"id": profile_id}, {"_id": 0})
+        if profile:
+            complaints = profile.get("complaints", [])
+            # Sort complaints by intensity (highest first)
+            complaints.sort(key=lambda c: int(c.get("intensity", 0)), reverse=True)
+
+            for complaint in complaints:
+                c_name = complaint.get("name", "")
+                tags_to_match = COMPLAINT_TAG_MAP.get(c_name, [])
+                if not tags_to_match:
+                    continue
+
+                for recipe in all_recipes:
+                    if recipe["id"] in [m["id"] for m in matched]:
+                        continue
+                    recipe_st = [st.lower() for st in recipe["symptom_tags"]]
+                    if any(t.lower() in recipe_st for t in tags_to_match):
+                        matched.append(recipe)
+                        reason_map[recipe["id"]] = c_name
+
+                if len(matched) >= limit * 2:
+                    break
+
+    # If not enough matched, fill with random popular recipes
+    if len(matched) < limit:
+        remaining = [r for r in all_recipes if r["id"] not in [m["id"] for m in matched]]
+        random.shuffle(remaining)
+        for r in remaining:
+            if len(matched) >= limit:
+                break
+            matched.append(r)
+
+    # Trim to limit and add reason
+    result = []
+    for r in matched[:limit]:
+        r["recommendation_reason"] = reason_map.get(r["id"], "")
+        result.append(r)
+
+    return result
+
+
 @router.get("/recipes/filters")
 async def get_recipe_filters(lang: str = "de"):
     """Get available filter options for the recipe catalog."""
