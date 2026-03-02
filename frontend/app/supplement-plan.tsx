@@ -521,6 +521,11 @@ export default function SupplementPlanScreen() {
           </View>
         ))}
 
+        {/* Interactions Tab */}
+        {activeTab === 'interactions' && currentProfileId && (
+          <InteractionAnalysis profileId={currentProfileId} lang={lang} />
+        )}
+
         {/* Disclaimer */}
         <Text style={styles.disclaimerText}>
           {lang === 'de'
