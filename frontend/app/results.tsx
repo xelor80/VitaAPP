@@ -161,21 +161,6 @@ export default function ResultsScreen() {
         <View style={{ width: 40 }} />
       </View>
 
-      {/* Red Flag Banner */}
-      {hasRedFlags && (
-        <View testID="red-flag-banner" style={styles.redFlagBanner}>
-          <MaterialCommunityIcons name="alert-decagram" size={22} color="#D9534F" />
-          <View style={{ flex: 1, marginLeft: 10 }}>
-            <Text style={styles.redFlagTitle}>{lang === 'de' ? 'Wichtige Warnung' : 'Avviso importante'}</Text>
-            <Text style={styles.redFlagText}>
-              {lang === 'de'
-                ? 'Es wurden mögliche Warnsignale erkannt. Bitte konsultieren Sie umgehend einen Arzt.'
-                : 'Sono stati rilevati possibili segnali di allarme. Si prega di consultare immediatamente un medico.'}
-            </Text>
-          </View>
-        </View>
-      )}
-
       {/* Tab Bar */}
       <View style={styles.tabBar}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabScroll}>
