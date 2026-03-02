@@ -1,75 +1,64 @@
 # VitaGuide PRD - Product Requirements Document
 
 ## Original Problem Statement
-Health-focused, bilingual (German/Italian) mobile web app. Core: LLM-based symptom analysis for nutrition tips, supplement info, affiliate links. Features: recipe catalog, symptom diary, safety disclaimers, intelligent onboarding, evidence-based supplement planning, dynamic admin-managed content, health tracking & progress system, YouTube video integration, product label analysis.
+Health-focused, bilingual (German/Italian) mobile web app. Core: LLM-based symptom analysis for nutrition tips, supplement info, affiliate links. Features: recipe catalog, symptom diary, safety disclaimers, intelligent onboarding, evidence-based supplement planning, dynamic admin-managed content, health tracking & progress, YouTube video integration, product label analysis, health score dashboard.
 
 ## Architecture
 - **Frontend**: React Native (Expo for Web)
 - **Backend**: FastAPI (Python)
 - **Database**: MongoDB
 - **Admin Panel**: Standalone HTML/CSS/JS at `/api/admin-app`
-- **LLM**: OpenAI/Anthropic/Google via emergentintegrations (GPT-4.1 for vision)
-- **Charts**: react-native-chart-kit for data visualization
+- **LLM**: emergentintegrations (GPT-4o text, GPT-4.1 vision)
+- **Charts**: react-native-chart-kit, react-native-svg
 
 ## Completed Features
 
 ### Core Features
 1. Symptom Analysis, Recipe Catalog, Symptom Diary
 2. Admin Panel (products, recipes, texts, chips, disclaimers, AI settings, supplements, videos)
-3. Click Tracking with geolocation
-4. Data Migration to MongoDB
+3. Click Tracking, Data Migration
 
 ### Intelligent Onboarding + Health Profile
-- 6-step wizard with risk assessment engine
-- Health Profile screen with bio data, risk badges, deficiency cards
+- 6-step wizard, risk assessment, deficiency cards
 
 ### Supplement Plan + Affiliate Products
-- 17 supplements, 8-week plan, 4 phases, LLM summary, reminders
-- Home screen button with alert modal when no profile exists
-- Affiliate product recommendations in supplement cards
-- Click tracking for affiliate links
+- 17 supplements, 8-week plan, push notifications
 
-### Dynamic Content (P1)
-- SettingsProvider fetches translations, chips, disclaimer from backend
-- Admin changes reflected in app
-
-### Health Tracking & Progress System - Completed 2026-02-28
-- Progress Dashboard, Symptom Tracking, Compliance Tracking
-- Trend Analysis with charts, Milestones, Coach Insights
+### Health Tracking & Progress - Completed 2026-02-28
+- Progress Dashboard, Symptom/Compliance Tracking, Trend Charts, Milestones
 
 ### YouTube Video Integration - Completed 2026-03-01
-- Videos in symptom analysis, matched by tags
-- Video player: YouTube app on mobile, embedded on web
-- Admin Panel: Full CRUD for video management
-
-### Push Notifications - Completed 2026-03-01
-- NotificationService with expo-notifications
-- Configurable reminder times
+- Videos in analysis, admin CRUD, platform-specific player
 
 ### Enhanced Symptom Analysis (v2.0) - Completed 2026-03-01
-- Health profile integration, scientific tone, deep analysis
+- Health profile integration, scientific tone
 
 ### Product Label Analysis (Image + PDF) - Completed 2026-03-02
-- **Image Upload**: GPT-4.1 Vision via emergentintegrations (ImageContent)
-- **PDF Upload**: Text extraction via PyMuPDF + GPT-4.1 text analysis
-- **Both simultaneously**: Image stored + PDF preferred for analysis (more reliable)
-- **Image Processing**: Auto-resize to max 2048px
-- **Admin UI**: Dual upload (Bild/PDF), existing label display with PDF link
-- **API Endpoints**:
-  - `POST /api/products/{product_id}/label` - Upload image/PDF + AI analysis
-  - `GET /api/products/{product_id}/label` - Retrieve analysis
-  - `DELETE /api/products/{product_id}/label` - Delete label data
-- **DB fields**: `label_image`, `label_pdf`, `label_analysis`, `label_analyzed_at`
-- **Testing**: All 4 scenarios passed (image-only, pdf-only, both, no-file)
+- GPT-4.1 Vision for images, PyMuPDF for PDF text extraction
+- Dual upload in admin panel (Bild + PDF)
+
+### Health Score Dashboard - Completed 2026-03-02
+- **Backend**: `GET /api/health-score/{profile_id}?lang=de|it`
+  - Calculates 0-100 score from: symptom intensity, compliance, sleep, stress, energy, nutrient risk
+  - GPT-4o generates label + recommendation + sub-category scores
+  - Month-over-month trend comparison (30d vs 60d)
+- **Frontend**: `HealthScoreCard` component on home screen
+  - Circular SVG score indicator with gradient (Red 0-40, Yellow 41-70, Green 71-100)
+  - 4 sub-categories: Mikronährstoffe, Schlaf, Stress, Energie (with Gut/Mittel/Niedrig badges)
+  - AI-generated label and recommendation
+  - Trend change display (+/- points)
+  - Bilingual (DE/IT) with lang-reactive useEffect
+  - Only shows when health_profile_id exists in AsyncStorage
+- **Testing**: Backend 100% (6/6), Frontend 100% (after lang fix) - iteration_19.json
+
+### Bug Fixes - Completed 2026-03-02
+- nutrition_tips render error (OverviewTab + NutritionTab: objects vs strings)
 
 ## Key Routes
-- `/` - Home | `/onboarding` - Wizard | `/health-profile` - Profile
+- `/` - Home (with Health Score Card)
+- `/onboarding` - Wizard | `/health-profile` - Profile
 - `/supplement-plan` - Plan | `/tracking` - Progress Dashboard
-- `/results` - Analysis | `/diary` - Diary
 - `/api/admin-app` - Admin (Password: `Wk220480xel!`)
-
-## Known Issues
-- OverviewTab.tsx: `nutrition_tips` contains objects instead of strings (frontend render error)
 
 ## Prioritized Backlog
 - **P3**: Recipe Catalog Search/Filter UI
@@ -78,5 +67,4 @@ Health-focused, bilingual (German/Italian) mobile web app. Core: LLM-based sympt
 
 ## Key DB Collections
 - `health_profiles`, `supplement_plans`, `symptom_tracking`, `compliance_tracking`
-- `products_de/it` (with label_image, label_pdf, label_analysis fields)
-- `videos`, `settings`
+- `products_de/it`, `videos`, `settings`
