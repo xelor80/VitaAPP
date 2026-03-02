@@ -74,6 +74,12 @@ Health-focused, bilingual (German/Italian) mobile app. LLM analyzes user symptom
 - `frontend/app/tracking.tsx` - 3-tab tracking page
 - `frontend/app/results.tsx` - Loads saved analysis from store
 
+## Supplement Plan Restructured to Medical Report (Mar 2026)
+- Stack tab: accordion/flowing-text replaced with flat, structured medical report cards
+- Each card: counter (X/10), name, status badge (HOCH red/MITTEL orange), WIRKUNG, WARUM EMPFOHLEN (personalized reasons), 2x2 data grid (Dosierung/Einnahme/Evidenz/Wirkung ab), synergies, warnings
+- Dual CTAs per card: "Empfohlenes Produkt anzeigen" (primary) + "Qualitaetsgepruefte Optionen vergleichen" (secondary)
+- Cards are flat/non-collapsible - all info visible at once
+
 ## Nutrient Risk CTAs & Product Comparison (Mar 2026)
 - Enhanced deficiency cards in health profile with dual CTAs for HIGH/MEDIUM risk nutrients
 - Primary CTA: "Optimierungsplan anzeigen" → navigates to supplement plan
