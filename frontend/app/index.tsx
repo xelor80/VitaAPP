@@ -15,6 +15,7 @@ import { AnalyzeButton } from '../components/home/AnalyzeButton';
 import { OnboardingButton } from '../components/home/OnboardingButton';
 import { SupplementPlanButton } from '../components/home/SupplementPlanButton';
 import { ProgressButton } from '../components/home/ProgressButton';
+import { RecipeCatalogButton } from '../components/home/RecipeCatalogButton';
 import { HealthScoreCard } from '../components/home/HealthScoreCard';
 import { ScoreHistoryChart } from '../components/home/ScoreHistoryChart';
 import { FooterDisclaimer } from '../components/home/FooterDisclaimer';

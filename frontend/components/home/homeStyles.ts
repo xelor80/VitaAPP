@@ -148,4 +148,16 @@ export const styles = StyleSheet.create({
   disclaimerRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 },
   disclaimerBold: { fontSize: 16, fontWeight: '700', color: '#1A2D26' },
   disclaimerText: { fontSize: 14, color: '#5C7A6F', lineHeight: 22, paddingLeft: 30 },
+
+  // Recipe Catalog Button
+  recipeCatalogButton: {
+    flexDirection: 'row', alignItems: 'center', backgroundColor: '#2D7A5A',
+    borderRadius: 16, padding: 14, marginBottom: 20, gap: 12,
+  },
+  recipeCatalogIconWrap: {
+    width: 44, height: 44, borderRadius: 12, backgroundColor: '#1E6A4A',
+    justifyContent: 'center', alignItems: 'center',
+  },
+  recipeCatalogBtnTitle: { fontSize: 16, fontWeight: '700', color: '#FFFFFF' },
+  recipeCatalogBtnSub: { fontSize: 13, color: '#D4E8DC', marginTop: 2 },
 });
