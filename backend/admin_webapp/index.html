@@ -371,6 +371,80 @@
 
             <!-- Videos Tab -->
             <div id="videos-tab" class="tab-pane hidden">
+
+            <!-- Health Statistics Tab -->
+            <div id="health-stats-tab" class="tab-pane hidden">
+                <div id="health-stats-loading" style="text-align:center;padding:40px">
+                    <i class="fas fa-spinner fa-spin" style="font-size:30px;color:#4A8B71"></i>
+                    <p style="color:#94A3B8;margin-top:10px">Lade Gesundheitsstatistiken...</p>
+                </div>
+                <div id="health-stats-empty" style="display:none;text-align:center;padding:40px">
+                    <i class="fas fa-chart-bar" style="font-size:48px;color:#334155"></i>
+                    <p style="color:#94A3B8;margin-top:10px;font-size:16px">Noch keine Gesundheitsprofile vorhanden.</p>
+                </div>
+                <div id="health-stats-content" style="display:none">
+                    <!-- Summary Cards -->
+                    <div class="stats-container" id="health-summary-cards"></div>
+
+                    <!-- Charts Grid -->
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:20px;margin-top:20px">
+                        <!-- Gender -->
+                        <div class="stat-card">
+                            <h4 style="color:#94A3B8;margin-bottom:12px"><i class="fas fa-venus-mars"></i> Geschlechterverteilung</h4>
+                            <div id="hs-gender"></div>
+                        </div>
+                        <!-- Age -->
+                        <div class="stat-card">
+                            <h4 style="color:#94A3B8;margin-bottom:12px"><i class="fas fa-birthday-cake"></i> Altersverteilung</h4>
+                            <div id="hs-age"></div>
+                        </div>
+                        <!-- Diet -->
+                        <div class="stat-card">
+                            <h4 style="color:#94A3B8;margin-bottom:12px"><i class="fas fa-utensils"></i> Ernährungsform</h4>
+                            <div id="hs-diet"></div>
+                        </div>
+                        <!-- Activity -->
+                        <div class="stat-card">
+                            <h4 style="color:#94A3B8;margin-bottom:12px"><i class="fas fa-running"></i> Aktivitätslevel</h4>
+                            <div id="hs-activity"></div>
+                        </div>
+                        <!-- Sleep & Stress -->
+                        <div class="stat-card">
+                            <h4 style="color:#94A3B8;margin-bottom:12px"><i class="fas fa-bed"></i> Schlaf & Stress</h4>
+                            <div id="hs-sleep-stress"></div>
+                        </div>
+                        <!-- BMI -->
+                        <div class="stat-card">
+                            <h4 style="color:#94A3B8;margin-bottom:12px"><i class="fas fa-weight"></i> BMI-Verteilung</h4>
+                            <div id="hs-bmi"></div>
+                        </div>
+                    </div>
+
+                    <!-- Full width sections -->
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:20px;margin-top:20px">
+                        <!-- Top Complaints -->
+                        <div class="stat-card">
+                            <h4 style="color:#94A3B8;margin-bottom:12px"><i class="fas fa-exclamation-triangle"></i> Häufigste Beschwerden</h4>
+                            <div id="hs-complaints"></div>
+                        </div>
+                        <!-- Deficiencies -->
+                        <div class="stat-card">
+                            <h4 style="color:#94A3B8;margin-bottom:12px"><i class="fas fa-pills"></i> Bekannte Mängel</h4>
+                            <div id="hs-deficiencies"></div>
+                        </div>
+                        <!-- Conditions -->
+                        <div class="stat-card">
+                            <h4 style="color:#94A3B8;margin-bottom:12px"><i class="fas fa-notes-medical"></i> Vorerkrankungen</h4>
+                            <div id="hs-conditions"></div>
+                        </div>
+                        <!-- Medications -->
+                        <div class="stat-card">
+                            <h4 style="color:#94A3B8;margin-bottom:12px"><i class="fas fa-prescription-bottle-alt"></i> Medikamente</h4>
+                            <div id="hs-medications"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
                 <div class="toolbar">
                     <div class="lang-toggle">
                         <button class="lang-btn active" data-lang="de" onclick="setVideoLang('de')">DE</button>
