@@ -17,7 +17,7 @@ export function ProgressButton({ lang, onPress }: ProgressButtonProps) {
       onPress={onPress}
     >
       <View style={styles.progressIconWrap}>
-        <MaterialCommunityIcons name="chart-line" size={22} color="#FFFFFF" />
+        <MaterialCommunityIcons name="chart-line" size={18} color="#FFFFFF" />
       </View>
       <View style={{ flex: 1 }}>
         <Text style={styles.progressBtnTitle}>
@@ -27,7 +27,7 @@ export function ProgressButton({ lang, onPress }: ProgressButtonProps) {
           {lang === 'de' ? 'Symptome, Einnahme & Meilensteine tracken' : 'Traccia sintomi, assunzione e traguardi'}
         </Text>
       </View>
-      <MaterialCommunityIcons name="chevron-right" size={24} color="#FFFFFF" />
+      <MaterialCommunityIcons name="chevron-right" size={20} color="#FFFFFF" />
     </TouchableOpacity>
   );
 }

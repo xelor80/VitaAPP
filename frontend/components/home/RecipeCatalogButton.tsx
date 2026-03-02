@@ -17,7 +17,7 @@ export function RecipeCatalogButton({ lang, onPress }: Props) {
       onPress={onPress}
     >
       <View style={styles.recipeCatalogIconWrap}>
-        <MaterialCommunityIcons name="chef-hat" size={24} color="#FFF" />
+        <MaterialCommunityIcons name="chef-hat" size={18} color="#FFF" />
       </View>
       <View style={{ flex: 1 }}>
         <Text style={styles.recipeCatalogBtnTitle}>
@@ -27,7 +27,7 @@ export function RecipeCatalogButton({ lang, onPress }: Props) {
           {lang === 'de' ? 'Personalisierte & gesunde Rezepte' : 'Ricette personalizzate e salutari'}
         </Text>
       </View>
-      <MaterialCommunityIcons name="chevron-right" size={22} color="#D4E8DC" />
+      <MaterialCommunityIcons name="chevron-right" size={20} color="#D4E8DC" />
     </TouchableOpacity>
   );
 }

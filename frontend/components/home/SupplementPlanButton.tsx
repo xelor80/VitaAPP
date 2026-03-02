@@ -37,7 +37,7 @@ export function SupplementPlanButton({ lang, onPress, onNoProfile }: SupplementP
         onPress={handlePress}
       >
         <View style={styles.supplementPlanIconWrap}>
-          <MaterialCommunityIcons name="pill" size={22} color="#FFFFFF" />
+          <MaterialCommunityIcons name="pill" size={18} color="#FFFFFF" />
         </View>
         <View style={{ flex: 1 }}>
           <Text style={styles.supplementPlanBtnTitle}>
@@ -47,7 +47,7 @@ export function SupplementPlanButton({ lang, onPress, onNoProfile }: SupplementP
             {lang === 'de' ? 'Ihr personalisierter 8-Wochen Mikronaehrstoff-Plan' : 'Il tuo piano personalizzato di 8 settimane'}
           </Text>
         </View>
-        <MaterialCommunityIcons name="chevron-right" size={24} color="#FFFFFF" />
+        <MaterialCommunityIcons name="chevron-right" size={20} color="#FFFFFF" />
       </TouchableOpacity>
 
       {showAlert && (
