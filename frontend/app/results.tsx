@@ -148,8 +148,6 @@ export default function ResultsScreen() {
     );
   }
 
-  const hasRedFlags = analysis.red_flags && analysis.red_flags.length > 0;
-
   return (
     <SafeAreaView style={styles.safe}>
       {/* Header */}
