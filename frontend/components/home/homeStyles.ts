@@ -60,51 +60,51 @@ export const styles = StyleSheet.create({
   // Diary Button
   diaryButton: {
     flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF',
-    borderRadius: 16, padding: 14, marginBottom: 20, gap: 12,
+    borderRadius: 14, padding: 10, marginBottom: 8, gap: 10,
     borderWidth: 1, borderColor: '#D4E7DC',
   },
   diaryIconWrap: {
-    width: 44, height: 44, borderRadius: 12, backgroundColor: '#E3F0F7',
+    width: 36, height: 36, borderRadius: 10, backgroundColor: '#E3F0F7',
     justifyContent: 'center', alignItems: 'center',
   },
-  diaryBtnTitle: { fontSize: 16, fontWeight: '700', color: '#1A2D26' },
-  diaryBtnSub: { fontSize: 13, color: '#5C7A6F', marginTop: 2 },
+  diaryBtnTitle: { fontSize: 14, fontWeight: '700', color: '#1A2D26' },
+  diaryBtnSub: { fontSize: 12, color: '#5C7A6F', marginTop: 1 },
 
   // Onboarding Button
   onboardingButton: {
     flexDirection: 'row', alignItems: 'center', backgroundColor: '#4A8B71',
-    borderRadius: 16, padding: 14, marginBottom: 20, gap: 12,
+    borderRadius: 14, padding: 10, marginBottom: 8, gap: 10,
   },
   onboardingIconWrap: {
-    width: 44, height: 44, borderRadius: 12, backgroundColor: '#3A7A60',
+    width: 36, height: 36, borderRadius: 10, backgroundColor: '#3A7A60',
     justifyContent: 'center', alignItems: 'center',
   },
-  onboardingBtnTitle: { fontSize: 16, fontWeight: '700', color: '#FFFFFF' },
-  onboardingBtnSub: { fontSize: 13, color: '#D4E7DC', marginTop: 2 },
+  onboardingBtnTitle: { fontSize: 14, fontWeight: '700', color: '#FFFFFF' },
+  onboardingBtnSub: { fontSize: 12, color: '#D4E7DC', marginTop: 1 },
 
   // Supplement Plan Button
   supplementPlanButton: {
     flexDirection: 'row', alignItems: 'center', backgroundColor: '#2D5A8B',
-    borderRadius: 16, padding: 14, marginBottom: 20, gap: 12,
+    borderRadius: 14, padding: 10, marginBottom: 8, gap: 10,
   },
   supplementPlanIconWrap: {
-    width: 44, height: 44, borderRadius: 12, backgroundColor: '#1E4A7A',
+    width: 36, height: 36, borderRadius: 10, backgroundColor: '#1E4A7A',
     justifyContent: 'center', alignItems: 'center',
   },
-  supplementPlanBtnTitle: { fontSize: 16, fontWeight: '700', color: '#FFFFFF' },
-  supplementPlanBtnSub: { fontSize: 13, color: '#B8D4E8', marginTop: 2 },
+  supplementPlanBtnTitle: { fontSize: 14, fontWeight: '700', color: '#FFFFFF' },
+  supplementPlanBtnSub: { fontSize: 12, color: '#B8D4E8', marginTop: 1 },
 
   // Progress Button
   progressButton: {
     flexDirection: 'row', alignItems: 'center', backgroundColor: '#6B4E8B',
-    borderRadius: 16, padding: 14, marginBottom: 20, gap: 12,
+    borderRadius: 14, padding: 10, marginBottom: 8, gap: 10,
   },
   progressIconWrap: {
-    width: 44, height: 44, borderRadius: 12, backgroundColor: '#5A3D7A',
+    width: 36, height: 36, borderRadius: 10, backgroundColor: '#5A3D7A',
     justifyContent: 'center', alignItems: 'center',
   },
-  progressBtnTitle: { fontSize: 16, fontWeight: '700', color: '#FFFFFF' },
-  progressBtnSub: { fontSize: 13, color: '#D4C8E8', marginTop: 2 },
+  progressBtnTitle: { fontSize: 14, fontWeight: '700', color: '#FFFFFF' },
+  progressBtnSub: { fontSize: 12, color: '#D4C8E8', marginTop: 1 },
 
   // Alert Modal
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 30 },
@@ -152,12 +152,12 @@ export const styles = StyleSheet.create({
   // Recipe Catalog Button
   recipeCatalogButton: {
     flexDirection: 'row', alignItems: 'center', backgroundColor: '#2D7A5A',
-    borderRadius: 16, padding: 14, marginBottom: 20, gap: 12,
+    borderRadius: 14, padding: 10, marginBottom: 8, gap: 10,
   },
   recipeCatalogIconWrap: {
-    width: 44, height: 44, borderRadius: 12, backgroundColor: '#1E6A4A',
+    width: 36, height: 36, borderRadius: 10, backgroundColor: '#1E6A4A',
     justifyContent: 'center', alignItems: 'center',
   },
-  recipeCatalogBtnTitle: { fontSize: 16, fontWeight: '700', color: '#FFFFFF' },
-  recipeCatalogBtnSub: { fontSize: 13, color: '#D4E8DC', marginTop: 2 },
+  recipeCatalogBtnTitle: { fontSize: 14, fontWeight: '700', color: '#FFFFFF' },
+  recipeCatalogBtnSub: { fontSize: 12, color: '#D4E8DC', marginTop: 1 },
 });
