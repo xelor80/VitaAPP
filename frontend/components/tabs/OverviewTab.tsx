@@ -32,10 +32,10 @@ export function OverviewTab({ analysis, onShopPress, lang }: { analysis: any; on
             <MaterialCommunityIcons name="lightbulb-outline" size={20} color="#4A8B71" />
             <Text style={styles.cardTitle}>{t(lang, 'quick_tips')}</Text>
           </View>
-          {analysis.nutrition_tips.slice(0, 3).map((tip: string, i: number) => (
+          {analysis.nutrition_tips.slice(0, 3).map((tip: any, i: number) => (
             <View key={i} style={styles.tipRow}>
               <MaterialCommunityIcons name="check-circle" size={16} color="#4CAF50" />
-              <Text style={styles.tipText}>{tip}</Text>
+              <Text style={styles.tipText}>{typeof tip === 'string' ? tip : tip.tip}</Text>
             </View>
           ))}
         </View>
