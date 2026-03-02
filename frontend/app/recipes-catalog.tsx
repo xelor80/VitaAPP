@@ -189,6 +189,66 @@ export default function RecipesCatalogScreen() {
       </View>
 
       <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
+        {/* Personalized Recommendations */}
+        {!recsLoading && recommendations.length > 0 && (
+          <View style={s.recsSection}>
+            <View style={s.recsHeader}>
+              <MaterialCommunityIcons name="lightbulb-on-outline" size={18} color="#4A8B71" />
+              <Text style={s.recsTitle}>
+                {lang === 'de' ? 'Für dich empfohlen' : 'Consigliato per te'}
+              </Text>
+            </View>
+            {recommendations.map((rec, i) => {
+              const reason = rec.recommendation_reason;
+              const reasonLabel = reason ? (REASON_LABELS[lang]?.[reason] || '') : '';
+              const isExp = expandedRec === rec.id;
+              return (
+                <TouchableOpacity
+                  key={rec.id || i}
+                  testID={`rec-card-${i}`}
+                  style={s.recCard}
+                  activeOpacity={0.7}
+                  onPress={() => setExpandedRec(isExp ? null : rec.id)}
+                >
+                  <View style={s.recCardTop}>
+                    {reasonLabel ? (
+                      <View style={s.recBadge}>
+                        <Text style={s.recBadgeText}>{reasonLabel}</Text>
+                      </View>
+                    ) : null}
+                    <View style={{ flex: 1 }}>
+                      <Text style={s.recCardTitle}>{rec.title}</Text>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 3 }}>
+                        <MaterialCommunityIcons name="clock-outline" size={12} color="#8FA39B" />
+                        <Text style={{ fontSize: 12, color: '#8FA39B' }}>{rec.time_min} {tx.minutes}</Text>
+                      </View>
+                    </View>
+                    <MaterialCommunityIcons name={isExp ? 'chevron-up' : 'chevron-down'} size={20} color="#8FA39B" />
+                  </View>
+                  {rec.tags?.length > 0 && (
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginTop: 6 }}>
+                      {rec.tags.slice(0, 3).map((tag: string, j: number) => (
+                        <View key={j} style={s.recipeTag}><Text style={s.recipeTagTxt}>{tag}</Text></View>
+                      ))}
+                    </View>
+                  )}
+                  {isExp && rec.ingredients?.length > 0 && (
+                    <View style={{ marginTop: 10, borderTopWidth: 1, borderTopColor: '#F0F4F1', paddingTop: 10 }}>
+                      {rec.ingredients.map((ing: string, j: number) => (
+                        <View key={j} style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 2 }}>
+                          <View style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: '#4A8B71' }} />
+                          <Text style={{ fontSize: 13, color: '#1A2D26', flex: 1 }}>{ing}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  )}
+                </TouchableOpacity>
+              );
+            })}
+            <View style={s.recsDivider} />
+          </View>
+        )}
+
         {/* Time Filter */}
         <View style={s.filterSection}>
           <Text style={s.filterLabel}>{tx.time}</Text>
