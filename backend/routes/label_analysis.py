@@ -156,57 +156,54 @@ async def analyze_pdf_label(pdf_text: str, lang: str = "de") -> dict:
 
 
 @router.post("/products/{product_id}/label")
-async def upload_and_analyze_label(
-    product_id: str,
-    lang: str = Form(default="de"),
-    file: Optional[UploadFile] = File(default=None),
-    pdf_file: Optional[UploadFile] = File(default=None),
-):
+async def upload_and_analyze_label(product_id: str, request: Request):
     """Upload image and/or PDF label, analyze with GPT-4.1."""
-    if not file and not pdf_file:
+    from starlette.datastructures import UploadFile as StarletteUpload
+
+    form = await request.form()
+    lang = form.get("lang", "de")
+    image_file = form.get("file")
+    pdf_upload = form.get("pdf_file")
+
+    has_image = isinstance(image_file, StarletteUpload) and image_file.filename
+    has_pdf = isinstance(pdf_upload, StarletteUpload) and pdf_upload.filename
+
+    if not has_image and not has_pdf:
         raise HTTPException(status_code=400, detail="Bitte mindestens ein Bild oder eine PDF-Datei hochladen.")
 
     label_data = {}
-    analysis = None
+    contents = None
+    pdf_text = None
 
-    # Handle image upload (save file)
-    if file and file.filename:
-        if not file.content_type.startswith("image/"):
-            raise HTTPException(status_code=400, detail="Bilddatei muss ein Bildformat sein (JPG, PNG, etc.)")
-        contents = await file.read()
-        ext = file.filename.rsplit(".", 1)[-1] if "." in file.filename else "jpg"
+    # Handle image upload
+    if has_image:
+        contents = await image_file.read()
+        ext = image_file.filename.rsplit(".", 1)[-1] if "." in image_file.filename else "jpg"
         img_name = f"{product_id}_{uuid.uuid4().hex[:8]}.{ext}"
-        img_path = os.path.join(UPLOAD_DIR, img_name)
-        with open(img_path, "wb") as f:
+        with open(os.path.join(UPLOAD_DIR, img_name), "wb") as f:
             f.write(contents)
         label_data["label_image"] = f"/api/uploads/labels/{img_name}"
 
-    # Handle PDF upload (save file + extract text)
-    pdf_text = None
-    if pdf_file and pdf_file.filename:
-        if pdf_file.content_type != "application/pdf" and not pdf_file.filename.lower().endswith(".pdf"):
-            raise HTTPException(status_code=400, detail="PDF-Datei muss im PDF-Format sein.")
-        pdf_contents = await pdf_file.read()
+    # Handle PDF upload
+    if has_pdf:
+        pdf_contents = await pdf_upload.read()
         pdf_name = f"{product_id}_{uuid.uuid4().hex[:8]}.pdf"
-        pdf_path = os.path.join(UPLOAD_DIR, pdf_name)
-        with open(pdf_path, "wb") as f:
+        with open(os.path.join(UPLOAD_DIR, pdf_name), "wb") as f:
             f.write(pdf_contents)
         label_data["label_pdf"] = f"/api/uploads/labels/{pdf_name}"
         pdf_text = extract_pdf_text(pdf_contents)
 
-    # Analyze: prefer PDF text (more reliable), fallback to image vision
+    # Analyze: prefer PDF (more reliable), fallback to image vision
     if pdf_text and pdf_text.strip():
         analysis = await analyze_pdf_label(pdf_text, lang)
-    elif file and file.filename:
+    elif contents:
         analysis = await analyze_image_label(contents, lang)
     else:
-        raise HTTPException(status_code=422, detail="Die PDF-Datei enthält keinen lesbaren Text und kein Bild vorhanden.")
+        raise HTTPException(status_code=422, detail="Keine analysierbaren Daten gefunden.")
 
-    if analysis:
-        label_data["label_analysis"] = analysis
-        label_data["label_analyzed_at"] = datetime.now(timezone.utc).isoformat()
+    label_data["label_analysis"] = analysis
+    label_data["label_analyzed_at"] = datetime.now(timezone.utc).isoformat()
 
-    # Update product in both language collections
     for collection in ["products_de", "products_it"]:
         await db[collection].update_one({"product_id": product_id}, {"$set": label_data})
 
