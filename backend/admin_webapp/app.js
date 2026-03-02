@@ -960,3 +960,148 @@ async function deleteLabel() {
         alert('Fehler beim Löschen');
     }
 }
+
+// ============ HEALTH STATISTICS ============
+const LABEL_MAP = {
+    // Gender
+    male: 'Männlich', female: 'Weiblich', diverse: 'Divers', unbekannt: 'Unbekannt',
+    // Diet
+    omnivore: 'Allesfresser', vegetarian: 'Vegetarisch', vegan: 'Vegan',
+    pescetarian: 'Pescetarisch', keto: 'Ketogen', paleo: 'Paleo', low_carb: 'Low Carb',
+    // Activity
+    sedentary: 'Sitzend', light: 'Leicht', moderate: 'Moderat',
+    active: 'Aktiv', very_active: 'Sehr aktiv', professional_athlete: 'Profi-Sportler',
+    // Complaints
+    fatigue: 'Müdigkeit', headache: 'Kopfschmerzen', digestive: 'Verdauung',
+    joint_pain: 'Gelenkschmerzen', muscle_pain: 'Muskelschmerzen',
+    skin_problems: 'Hautprobleme', hair_loss: 'Haarausfall',
+    concentration: 'Konzentration', mood_swings: 'Stimmung',
+    anxiety_symptoms: 'Angst', sleep_problems: 'Schlafprobleme',
+    weight_issues: 'Gewicht', immune_weakness: 'Immunschwäche',
+    cold_hands_feet: 'Kalte Hände/Füße',
+    // Conditions
+    diabetes: 'Diabetes', hypothyroidism: 'Schilddrüsenunterfkt.', hashimoto: 'Hashimoto',
+    osteoporosis: 'Osteoporose', anemia: 'Anämie', ibs: 'Reizdarm',
+    depression: 'Depression', anxiety: 'Angststörung', migraine: 'Migräne',
+    pcos: 'PCOS', high_blood_pressure: 'Bluthochdruck', heart_disease: 'Herzkrankheit',
+    // Medications
+    ppi: 'Magensäureblocker', metformin: 'Metformin', statins: 'Statine',
+    blood_thinners: 'Blutverdünner', diuretics: 'Diuretika', antacids: 'Antazida',
+    birth_control: 'Verhütungspille', antidepressants: 'Antidepressiva',
+    antibiotics: 'Antibiotika', thyroid_medication: 'Schilddrüsenmed.',
+    // Deficiencies
+    vitamin_d: 'Vitamin D', vitamin_b12: 'Vitamin B12', iron: 'Eisen',
+    magnesium: 'Magnesium', zinc: 'Zink', folate: 'Folsäure',
+    omega3: 'Omega-3', calcium: 'Calcium',
+    // Sleep issues
+    falling_asleep: 'Einschlafen', staying_asleep: 'Durchschlafen',
+    early_waking: 'Frühes Aufwachen', not_rested: 'Nicht erholt',
+    // Stress types
+    work: 'Beruflich', private: 'Privat', financial: 'Finanziell', health: 'Gesundheitlich',
+    // Age buckets
+    '0': '<18', '18': '18-24', '25': '25-34', '35': '35-44', '45': '45-54', '55': '55-64', '65': '65+',
+    // BMI buckets
+    '0.0': '<18.5 (Untergewicht)', '18.5': '18.5-24.9 (Normal)', '25.0': '25-29.9 (Übergewicht)', '30.0': '30-34.9 (Adipositas I)', '35.0': '35+ (Adipositas II+)',
+};
+
+function getLabel(key) {
+    // Handle both string and numeric keys, and float keys for BMI
+    return LABEL_MAP[key] || LABEL_MAP[String(key)] || LABEL_MAP[parseFloat(key)?.toFixed(1)] || key || 'Unbekannt';
+}
+
+function renderBar(label, count, total, color) {
+    const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+    return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <div style="width:140px;font-size:13px;color:#CBD5E1;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${label}">${label}</div>
+        <div style="flex:1;background:#1E293B;border-radius:6px;height:22px;position:relative;overflow:hidden">
+            <div style="width:${pct}%;background:${color};height:100%;border-radius:6px;transition:width 0.5s"></div>
+        </div>
+        <div style="width:60px;font-size:12px;color:#94A3B8;text-align:right">${count} (${pct}%)</div>
+    </div>`;
+}
+
+function renderDistribution(container, data, total, color) {
+    if (!data || data.length === 0) {
+        container.innerHTML = '<p style="color:#475569;font-size:13px">Keine Daten</p>';
+        return;
+    }
+    container.innerHTML = data.map(d => renderBar(getLabel(d.label), d.count, total, color)).join('');
+}
+
+async function loadHealthStats() {
+    const loadingEl = document.getElementById('health-stats-loading');
+    const emptyEl = document.getElementById('health-stats-empty');
+    const contentEl = document.getElementById('health-stats-content');
+
+    loadingEl.style.display = 'block';
+    emptyEl.style.display = 'none';
+    contentEl.style.display = 'none';
+
+    try {
+        const res = await apiCall('/admin/health-stats');
+        const d = await res.json();
+
+        loadingEl.style.display = 'none';
+
+        if (d.total_profiles === 0) {
+            emptyEl.style.display = 'block';
+            return;
+        }
+
+        contentEl.style.display = 'block';
+        const total = d.total_profiles;
+
+        // Summary Cards
+        const sleep = d.sleep || {};
+        const stress = d.stress || {};
+        document.getElementById('health-summary-cards').innerHTML = `
+            <div class="stat-card"><div class="stat-value">${total}</div><div class="stat-label">Profile gesamt</div></div>
+            <div class="stat-card"><div class="stat-value">${sleep.avg_quality ? sleep.avg_quality.toFixed(1) : '-'}/10</div><div class="stat-label">Schlafqualität Ø</div></div>
+            <div class="stat-card"><div class="stat-value">${sleep.avg_duration ? sleep.avg_duration.toFixed(1) : '-'}h</div><div class="stat-label">Schlafdauer Ø</div></div>
+            <div class="stat-card"><div class="stat-value">${stress.avg_stress ? stress.avg_stress.toFixed(1) : '-'}/10</div><div class="stat-label">Stresslevel Ø</div></div>
+            <div class="stat-card"><div class="stat-value">${stress.avg_energy ? stress.avg_energy.toFixed(1) : '-'}/10</div><div class="stat-label">Energielevel Ø</div></div>
+        `;
+
+        // Distributions
+        renderDistribution(document.getElementById('hs-gender'), d.gender, total, '#4A8B71');
+        renderDistribution(document.getElementById('hs-age'), d.age, total, '#2C5F78');
+        renderDistribution(document.getElementById('hs-diet'), d.diet, total, '#6B4E8B');
+        renderDistribution(document.getElementById('hs-activity'), d.activity, total, '#D97706');
+        renderDistribution(document.getElementById('hs-bmi'), d.bmi, total, '#0891B2');
+
+        // Sleep & Stress details
+        const sleepStressEl = document.getElementById('hs-sleep-stress');
+        let ssHtml = '<p style="color:#CBD5E1;font-size:13px;margin-bottom:10px;font-weight:600">Schlafprobleme:</p>';
+        ssHtml += (d.sleep_issues || []).map(s => renderBar(getLabel(s.label), s.count, total, '#6366F1')).join('');
+        ssHtml += '<p style="color:#CBD5E1;font-size:13px;margin:12px 0 10px;font-weight:600">Stressquellen:</p>';
+        ssHtml += (d.stress_types || []).map(s => renderBar(getLabel(s.label), s.count, total, '#EF4444')).join('');
+        sleepStressEl.innerHTML = ssHtml;
+
+        // Complaints (with intensity)
+        const complaintsEl = document.getElementById('hs-complaints');
+        if (d.complaints && d.complaints.length > 0) {
+            complaintsEl.innerHTML = d.complaints.map(c => {
+                const pct = Math.round((c.count / total) * 100);
+                const intensityColor = c.avg_intensity > 7 ? '#EF4444' : c.avg_intensity > 4 ? '#D97706' : '#4A8B71';
+                return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+                    <div style="width:140px;font-size:13px;color:#CBD5E1;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${getLabel(c.label)}</div>
+                    <div style="flex:1;background:#1E293B;border-radius:6px;height:22px;position:relative;overflow:hidden">
+                        <div style="width:${pct}%;background:#D97706;height:100%;border-radius:6px"></div>
+                    </div>
+                    <div style="width:80px;font-size:11px;color:#94A3B8;text-align:right">${c.count}x ${c.avg_intensity ? '(Ø' + c.avg_intensity + ')' : ''}</div>
+                </div>`;
+            }).join('');
+        } else {
+            complaintsEl.innerHTML = '<p style="color:#475569;font-size:13px">Keine Daten</p>';
+        }
+
+        renderDistribution(document.getElementById('hs-deficiencies'), d.deficiencies, total, '#EF4444');
+        renderDistribution(document.getElementById('hs-conditions'), d.conditions, total, '#F59E0B');
+        renderDistribution(document.getElementById('hs-medications'), d.medications, total, '#8B5CF6');
+
+    } catch (err) {
+        console.error('Error loading health stats:', err);
+        loadingEl.style.display = 'none';
+        emptyEl.style.display = 'block';
+    }
+}
