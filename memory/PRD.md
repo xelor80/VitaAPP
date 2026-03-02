@@ -55,18 +55,26 @@ Health-focused, bilingual (German/Italian) mobile app. LLM analyzes user symptom
 - Shows: Overall trend, symptom bars, compliance bars, KI-Erkenntnisse, recommendations
 - Endpoint: GET `/api/tracking/correlation-analysis/{profile_id}?days=30&lang=de`
 
+## Persistent Analysis Feature & Bug Fix (Mar 2026)
+- Analysis results saved to in-memory store + AsyncStorage
+- Home screen shows conditional buttons: "Letzte Analyse anzeigen" / "Neue Analyse starten" when analysis exists
+- **Bug Fix (P0)**: `useFocusEffect` from `@react-navigation/native` crashed app on web. Replaced with synchronous state init from in-memory store (`getCurrentAnalysis() !== null`)
+- `SavedAnalysisButtons` simplified to pure presentational component (no internal state)
+- `clearCurrentAnalysis()` added to store.ts for proper cleanup
+
 ## Key Files
 - `backend/routes/supplement_interactions.py` - Interaction analysis endpoint
 - `backend/routes/correlation_analysis.py` - Correlation analysis endpoint
 - `frontend/components/supplement/InteractionAnalysis.tsx` - Supplement analyse tab
 - `frontend/components/tracking/CorrelationAnalysis.tsx` - Tracking analyse tab
-- `frontend/components/home/SavedAnalysisButtons.tsx` - Persistent analysis buttons
-- `frontend/src/store.ts` - AsyncStorage persistence for analysis results
+- `frontend/components/home/SavedAnalysisButtons.tsx` - Pure presentational buttons component
+- `frontend/src/store.ts` - In-memory + AsyncStorage persistence for analysis results
 - `frontend/app/supplement-plan.tsx` - 4-tab supplement plan page
 - `frontend/app/tracking.tsx` - 3-tab tracking page
-- `frontend/app/results.tsx` - Loads saved analysis from AsyncStorage
+- `frontend/app/results.tsx` - Loads saved analysis from store
 
 ## Backlog (P1)
+- Symptom Severity Tracking (1-10 scale with visualization)
 - Recipe favorites/bookmarks
 - Weekly meal plan generator
 - Export health stats as CSV
