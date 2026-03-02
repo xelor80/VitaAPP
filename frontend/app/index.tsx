@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import { setCurrentAnalysis } from '../src/store';
 import { useLang } from '../src/LangContext';
 import { DisclaimerScreen } from '../components/home/DisclaimerScreen';
@@ -44,6 +45,15 @@ export default function HomeScreen() {
       setHasSaved(!!val);
     }).catch(() => {});
   }, []);
+
+  // Re-check saved analysis every time screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      AsyncStorage.getItem('saved_analysis').then(val => {
+        setHasSaved(!!val);
+      }).catch(() => {});
+    }, [])
+  );
 
   const acceptDisclaimer = useCallback(async () => {
     await AsyncStorage.setItem('disclaimer_accepted', 'true');
