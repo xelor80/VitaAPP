@@ -74,6 +74,14 @@ Health-focused, bilingual (German/Italian) mobile app. LLM analyzes user symptom
 - `frontend/app/tracking.tsx` - 3-tab tracking page
 - `frontend/app/results.tsx` - Loads saved analysis from store
 
+## Nutrient Risk CTAs & Product Comparison (Mar 2026)
+- Enhanced deficiency cards in health profile with dual CTAs for HIGH/MEDIUM risk nutrients
+- Primary CTA: "Optimierungsplan anzeigen" → navigates to supplement plan
+- Secondary CTA: "Empfohlene Produkte ansehen" → navigates to product comparison page
+- Visual: HIGH = red accent (#EF4444), MEDIUM = orange accent (#F59E0B)
+- New product comparison page: risk banner, quality info (dose/form/tip), product cards with price/rating/affiliate links
+- New backend endpoint: `GET /api/products/by-nutrient/{nutrient}` with nutrient-to-tag mapping and quality info
+
 ## Recipe Catalog UX Improvement (Mar 2026)
 - Initially hide all recipe cards, show only filter options + "Für dich empfohlen"
 - "Kategorie oder Tag wählen" prompt when no filter active
