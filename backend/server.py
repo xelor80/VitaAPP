@@ -7,7 +7,7 @@ import secrets
 from pathlib import Path
 
 from core.config import client, logger
-from routes import analysis, products, tracking, diary, admin, settings, health_profile, supplement_plan, progress, videos, label_analysis, health_score, admin_health_stats, supplement_interactions
+from routes import analysis, products, tracking, diary, admin, settings, health_profile, supplement_plan, progress, videos, label_analysis, health_score, admin_health_stats, supplement_interactions, correlation_analysis
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
@@ -72,6 +72,7 @@ api_router.include_router(label_analysis.router)
 api_router.include_router(health_score.router)
 api_router.include_router(admin_health_stats.router)
 api_router.include_router(supplement_interactions.router)
+api_router.include_router(correlation_analysis.router)
 
 # Serve uploaded files (labels)
 @api_router.get("/uploads/labels/{filename}")
