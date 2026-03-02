@@ -523,4 +523,21 @@ const s = StyleSheet.create({
   },
   stepNumTxt: { fontSize: 13, fontWeight: '700', color: '#FFF' },
   stepText: { fontSize: 14, color: '#1A2D26', flex: 1, lineHeight: 20 },
+
+  // Recommendations section
+  recsSection: { marginBottom: 8 },
+  recsHeader: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 },
+  recsTitle: { fontSize: 15, fontWeight: '700', color: '#1A2D26' },
+  recCard: {
+    backgroundColor: '#FFF', borderRadius: 14, padding: 12, marginBottom: 8,
+    borderLeftWidth: 3, borderLeftColor: '#4A8B71',
+  },
+  recCardTop: { flexDirection: 'row', alignItems: 'center' },
+  recCardTitle: { fontSize: 15, fontWeight: '700', color: '#1A2D26' },
+  recBadge: {
+    backgroundColor: '#E8F5E9', borderRadius: 8, paddingVertical: 2, paddingHorizontal: 8,
+    marginRight: 10, alignSelf: 'flex-start',
+  },
+  recBadgeText: { fontSize: 10, fontWeight: '700', color: '#4A8B71' },
+  recsDivider: { height: 1, backgroundColor: '#E0E6E2', marginVertical: 12 },
 });
