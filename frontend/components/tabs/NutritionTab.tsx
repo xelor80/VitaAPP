@@ -82,12 +82,17 @@ export function NutritionTab({ analysis, onShopPress, lang }: { analysis: any; o
             <MaterialCommunityIcons name="food-apple-outline" size={20} color="#4A8B71" />
             <Text style={styles.cardTitle}>{t(lang, 'nutrition_tips_title')}</Text>
           </View>
-          {analysis.nutrition_tips.map((tip: string, i: number) => (
+          {analysis.nutrition_tips.map((tip: any, i: number) => (
             <View key={i} style={styles.nutritionTipCard}>
               <View style={styles.tipNumber}>
                 <Text style={styles.tipNumberText}>{i + 1}</Text>
               </View>
-              <Text style={styles.nutritionTipText}>{tip}</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.nutritionTipText}>{typeof tip === 'string' ? tip : tip.tip}</Text>
+                {typeof tip === 'object' && tip.explanation ? (
+                  <Text style={[styles.nutritionTipText, { fontSize: 12, color: '#8FA39B', marginTop: 4 }]}>{tip.explanation}</Text>
+                ) : null}
+              </View>
             </View>
           ))}
         </View>
