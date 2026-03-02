@@ -232,7 +232,8 @@ Antworte AUSSCHLIESSLICH mit einem validen JSON-Objekt. Kein Markdown, kein zus�
     "possible_causes": ["Mögliche Ursache 1 mit Erklärung", "Mögliche Ursache 2"],
     "lifestyle_factors": ["Relevanter Faktor aus dem Profil"]
   }},
-  "summary": "Professionelle, empathische Zusammenfassung (3-4 Sätze). Beginne mit Verständnis für die Situation, dann kurze Einordnung der Symptome.",
+  "summary": "Professionelle Zusammenfassung im Berichtsstil (3-4 Sätze). KEINE Ich-Form, KEIN Chat-Stil. Formulierung wie in einem medizinischen Kurzbericht: sachlich, klar, empathisch.",
+  "priority_level": "hoch|mittel|niedrig",
   "red_flags": [
     {{"flag": "Beschreibung des Warnsignals", "action": "Konkrete Handlungsempfehlung", "urgency": "hoch|mittel|niedrig"}}
   ],
