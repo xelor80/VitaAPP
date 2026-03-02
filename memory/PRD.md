@@ -19,34 +19,34 @@ Health-focused, bilingual (German/Italian) mobile app. LLM analyzes user symptom
 13. Personalized recipe recommendations (in catalog page)
 14. Medical report format for analysis results
 15. Compact home screen UI (Feb 2026)
-16. **Supplement Interaction Analysis** (Mar 2026) - LLM-powered stack optimizer with traffic-light warning system
+16. Supplement Interaction Analysis (Mar 2026) - LLM-powered stack optimizer
+17. **Health-Data Correlation Analysis** (Mar 2026) - Supplement intake vs symptom progression
 
 ## Supplement Interaction Analysis
-New "Analyse" tab in the Supplement Plan page that:
-- **Detects**: Double dosages, overdose risks, mutual inhibitions, synergies
-- **Warning System**: Red (risk), Yellow (caution), Green (synergy) color-coded cards
-- **Optimizations**: Timing changes, dosage adjustments, supplement replacements
-- **Score**: Overall stack health score (0-100)
-- **Caching**: Results cached in MongoDB for instant reload
-- **Endpoints**: POST `/api/supplement-plan/{id}/analyze-interactions`, GET `/api/supplement-plan/{id}/interactions`
+"Analyse" tab in Supplement Plan page:
+- Detects: Double dosages, overdose risks, mutual inhibitions, synergies
+- Warning system: Red/Yellow/Green color-coded cards
+- Optimizations: Timing, dosage, replacements
+- Endpoints: POST `/api/supplement-plan/{id}/analyze-interactions`, GET `/api/supplement-plan/{id}/interactions`
 
-## Medical Report Structure
-The analysis results are now displayed as a structured medical report:
-1. **Zusammenfassung** - Summary with priority badge (hoch/mittel/niedrig)
-2. **Wahrscheinliche Ursachen** - Deficiency cards with evidence level, mechanism, natural sources, cautions
-3. **Empfohlene Strategie** - Supplement schedule + product cards with dosage, timing, affiliate links
-4. **Erwarteter Zeitraum bis Wirkung** - Short-term (1-2 weeks) and medium-term (4-8 weeks) timeline
-5. **Sicherheitshinweise** - Red flags and legal disclaimer
+## Health-Data Correlation Analysis
+"Analyse" tab in Tracking/Progress page:
+- Compares per-supplement compliance rates with individual symptom trends
+- Period selector: 14/30/60 days
+- Calculates: % improvement, trend direction, overall score
+- LLM-powered personalized insights (e.g. "Seit Beginn der Magnesium-Einnahme hat sich dein Schlaf um 26% verbessert")
+- Shows: Overall trend, symptom bars, compliance bars, KI-Erkenntnisse, recommendations
+- Endpoint: GET `/api/tracking/correlation-analysis/{profile_id}?days=30&lang=de`
 
 ## Key Files
-- `backend/routes/supplement_interactions.py` - Interaction analysis endpoint + LLM prompts
-- `frontend/components/supplement/InteractionAnalysis.tsx` - Analyse tab UI component
+- `backend/routes/supplement_interactions.py` - Interaction analysis endpoint
+- `backend/routes/correlation_analysis.py` - Correlation analysis endpoint
+- `frontend/components/supplement/InteractionAnalysis.tsx` - Supplement analyse tab
+- `frontend/components/tracking/CorrelationAnalysis.tsx` - Tracking analyse tab
 - `frontend/app/supplement-plan.tsx` - 4-tab supplement plan page
-- `frontend/components/home/homeStyles.ts` - Compact button/card styles
-- `frontend/components/home/HealthScoreCard.tsx` - Smaller circle chart
+- `frontend/app/tracking.tsx` - 3-tab tracking page
 
 ## Backlog (P1)
-- Symptom Severity Tracking (user rates symptoms 1-10, trend visualization)
 - Recipe favorites/bookmarks
 - Weekly meal plan generator
 - Export health stats as CSV
