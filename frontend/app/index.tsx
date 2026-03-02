@@ -91,6 +91,7 @@ export default function HomeScreen() {
       }
       const data = await res.json();
       setCurrentAnalysis(data);
+      setHasSaved(true);
       router.push('/results');
     } catch (e: any) {
       Alert.alert(
