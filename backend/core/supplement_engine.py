@@ -360,6 +360,129 @@ EVIDENCE_LABELS = {
 }
 
 
+COMPLAINT_LABELS = {
+    "fatigue": {"de": "Chronische Muedigkeit", "it": "Stanchezza cronica"},
+    "sleep": {"de": "Schlechte Schlafqualitaet", "it": "Scarsa qualita del sonno"},
+    "stress": {"de": "Hoher Stresslevel", "it": "Alto livello di stress"},
+    "digestive": {"de": "Verdauungsbeschwerden", "it": "Problemi digestivi"},
+    "muscle": {"de": "Muskelverspannungen", "it": "Tensioni muscolari"},
+    "concentration": {"de": "Konzentrationsprobleme", "it": "Problemi di concentrazione"},
+    "immune": {"de": "Haeufige Infekte", "it": "Infezioni frequenti"},
+    "mood": {"de": "Stimmungsschwankungen", "it": "Sbalzi d'umore"},
+    "skin": {"de": "Hautprobleme", "it": "Problemi cutanei"},
+    "hair": {"de": "Haarausfall", "it": "Perdita di capelli"},
+    "joint": {"de": "Gelenkbeschwerden", "it": "Problemi articolari"},
+    "headache": {"de": "Kopfschmerzen", "it": "Mal di testa"},
+    "anxiety": {"de": "Angst/Unruhe", "it": "Ansia/irrequietezza"},
+}
+
+# Maps supplements to complaint/profile triggers
+SUPPLEMENT_TRIGGERS = {
+    "magnesium": {"complaints": ["fatigue", "sleep", "stress", "muscle", "headache", "anxiety"],
+                  "stress_threshold": 6, "sleep_threshold": 5},
+    "b_vitamins": {"complaints": ["fatigue", "stress", "concentration", "mood", "anxiety"],
+                   "stress_threshold": 5, "sleep_threshold": None},
+    "vitamin_c": {"complaints": ["immune", "fatigue", "skin", "stress"],
+                  "stress_threshold": 7, "sleep_threshold": None},
+    "ashwagandha": {"complaints": ["stress", "sleep", "anxiety", "fatigue"],
+                    "stress_threshold": 7, "sleep_threshold": 5},
+    "zinc": {"complaints": ["immune", "skin", "hair", "concentration"],
+             "stress_threshold": None, "sleep_threshold": None},
+    "omega3": {"complaints": ["concentration", "mood", "joint", "immune", "skin"],
+               "stress_threshold": None, "sleep_threshold": None},
+    "probiotics": {"complaints": ["digestive", "immune", "mood", "skin"],
+                   "stress_threshold": None, "sleep_threshold": None},
+    "vitamin_d": {"complaints": ["fatigue", "immune", "mood", "muscle"],
+                  "stress_threshold": None, "sleep_threshold": None},
+    "iron": {"complaints": ["fatigue", "concentration", "hair", "headache"],
+             "stress_threshold": None, "sleep_threshold": None},
+    "vitamin_b12": {"complaints": ["fatigue", "concentration", "mood"],
+                    "stress_threshold": None, "sleep_threshold": None},
+    "folate": {"complaints": ["fatigue", "mood", "concentration"],
+               "stress_threshold": None, "sleep_threshold": None},
+    "vitamin_k2": {"complaints": [], "stress_threshold": None, "sleep_threshold": None},
+    "calcium": {"complaints": ["muscle", "joint"], "stress_threshold": None, "sleep_threshold": None},
+    "vitamin_e": {"complaints": ["skin", "immune"], "stress_threshold": None, "sleep_threshold": None},
+    "selenium": {"complaints": ["immune", "hair", "skin"], "stress_threshold": None, "sleep_threshold": None},
+    "iodine": {"complaints": ["fatigue", "concentration"], "stress_threshold": None, "sleep_threshold": None},
+    "coq10": {"complaints": ["fatigue", "muscle"], "stress_threshold": None, "sleep_threshold": None},
+}
+
+
+def _build_recommendation_reasons(profile: dict, assessment: dict, deficiencies: list, lang: str) -> dict:
+    """Build personalized recommendation reasons for each supplement based on user data."""
+    complaints = profile.get("complaints", []) or []
+    complaint_names = [c.get("name", "") if isinstance(c, dict) else c for c in complaints]
+    stress = profile.get("stress_level") or 5
+    sleep = profile.get("sleep_quality") or 7
+    diet = profile.get("diet", "omnivore")
+    age = profile.get("age") or 30
+
+    # Build deficiency lookup
+    def_lookup = {}
+    for d in deficiencies:
+        def_lookup[d.get("nutrient", "")] = d
+
+    result = {}
+    for nutrient, triggers in SUPPLEMENT_TRIGGERS.items():
+        reasons = []
+
+        # Check deficiency score
+        if nutrient in def_lookup:
+            score = def_lookup[nutrient].get("score", 0)
+            risk = def_lookup[nutrient].get("risk_level", "low")
+            if risk == "high":
+                r = {"de": "Hohes Mangelrisiko laut Gesundheitsprofil", "it": "Alto rischio di carenza secondo il profilo"}
+                reasons.append(r[lang])
+            elif risk == "medium":
+                r = {"de": "Erhoehtes Mangelrisiko erkannt", "it": "Rischio di carenza elevato rilevato"}
+                reasons.append(r[lang])
+
+        # Check complaints
+        for comp in complaint_names:
+            if comp in triggers.get("complaints", []):
+                label = COMPLAINT_LABELS.get(comp, {}).get(lang, comp)
+                reasons.append(label)
+
+        # Check stress
+        threshold = triggers.get("stress_threshold")
+        if threshold and stress >= threshold:
+            r = {"de": f"Hoher Stresswert ({stress}/10)", "it": f"Alto livello di stress ({stress}/10)"}
+            reasons.append(r[lang])
+
+        # Check sleep
+        s_threshold = triggers.get("sleep_threshold")
+        if s_threshold and sleep <= s_threshold:
+            r = {"de": f"Niedrige Schlafqualitaet ({sleep}/10)", "it": f"Bassa qualita del sonno ({sleep}/10)"}
+            reasons.append(r[lang])
+
+        # Diet-based reasons
+        if diet in ("vegan", "vegetarian") and nutrient in ("vitamin_b12", "iron", "zinc", "omega3"):
+            r = {"de": f"Pflanzliche Ernaehrung ({diet})", "it": f"Alimentazione vegetale ({diet})"}
+            reasons.append(r[lang])
+
+        # Age-based reasons
+        if age >= 50 and nutrient in ("vitamin_d", "vitamin_b12", "calcium", "coq10"):
+            r = {"de": f"Altersbedingt erhoehter Bedarf (Alter: {age})", "it": f"Fabbisogno aumentato per eta ({age})"}
+            reasons.append(r[lang])
+
+        # Synergy reason (if Vitamin K2 is added because of Vitamin D)
+        if nutrient == "vitamin_k2" and "vitamin_d" in def_lookup:
+            r = {"de": "Synergie mit Vitamin D (verbesserte Aufnahme)", "it": "Sinergia con Vitamina D (assorbimento migliorato)"}
+            reasons.append(r[lang])
+
+        # Deduplicate and limit
+        seen = set()
+        unique = []
+        for r in reasons:
+            if r not in seen:
+                seen.add(r)
+                unique.append(r)
+        result[nutrient] = unique[:4]
+
+    return result
+
+
 def generate_supplement_plan(profile: dict, assessment: dict, lang: str = "de") -> dict:
     """
     Generate a personalized 8-week supplement plan based on health profile and assessment.
@@ -404,6 +527,9 @@ def generate_supplement_plan(profile: dict, assessment: dict, lang: str = "de") 
     # Build supplement stack
     stack = []
     warnings = []
+
+    # Build reason mapping from profile data
+    reason_map = _build_recommendation_reasons(profile, assessment, deficiencies, lang)
 
     for item in selected:
         nutrient = item["nutrient"]
@@ -472,7 +598,8 @@ def generate_supplement_plan(profile: dict, assessment: dict, lang: str = "de") 
             "med_warnings": med_warnings,
             "risk_level": risk,
             "score": item["score"],
-            "category": info["category"]
+            "category": info["category"],
+            "recommendation_reasons": reason_map.get(nutrient, [])[:4]
         }
         stack.append(entry)
 

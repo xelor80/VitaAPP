@@ -410,6 +410,21 @@ export default function SupplementPlanScreen() {
                   </Text>
                 </View>
 
+                {/* Recommendation Reasons */}
+                {s.recommendation_reasons?.length > 0 && (
+                  <View style={styles.reasonsCard} data-testid={`reasons-${s.id}`}>
+                    <Text style={styles.reasonsTitle}>
+                      {lang === 'de' ? 'Empfohlen aufgrund von:' : 'Raccomandato in base a:'}
+                    </Text>
+                    {s.recommendation_reasons.map((reason: string, ri: number) => (
+                      <View key={ri} style={styles.reasonRow}>
+                        <View style={styles.reasonDot} />
+                        <Text style={styles.reasonText}>{reason}</Text>
+                      </View>
+                    ))}
+                  </View>
+                )}
+
                 <View style={styles.detailRow}>
                   <MaterialCommunityIcons name="flask" size={16} color="#4A8B71" />
                   <Text style={styles.detailLabel}>{lang === 'de' ? 'Warum empfohlen' : 'Perche raccomandato'}</Text>

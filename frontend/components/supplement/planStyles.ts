@@ -96,4 +96,11 @@ export const planStyles = StyleSheet.create({
   evidenceCardHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 },
   evidenceCardTitle: { fontSize: 14, fontWeight: '700' },
   evidenceCardDesc: { fontSize: 13, color: '#374151', lineHeight: 20 },
+
+  // Recommendation Reasons
+  reasonsCard: { backgroundColor: '#F8FAF9', borderRadius: 12, padding: 12, marginBottom: 12, borderWidth: 1, borderColor: '#E0E6E2' },
+  reasonsTitle: { fontSize: 13, fontWeight: '700', color: '#1A2D26', marginBottom: 8 },
+  reasonRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 5 },
+  reasonDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#4A8B71' },
+  reasonText: { fontSize: 13, color: '#374151', lineHeight: 18 },
 });
