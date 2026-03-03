@@ -13,3 +13,16 @@ db = client[os.environ['DB_NAME']]
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger("vitaguide")
+
+
+async def get_products_collection(lang: str):
+    """Return the products collection for the given language.
+    Falls back to products_de if products_it is empty."""
+    if lang == "de":
+        return db.products_de
+    # Check if IT collection has products
+    it_count = await db.products_it.count_documents({})
+    if it_count > 0:
+        return db.products_it
+    # Fallback to DE products
+    return db.products_de

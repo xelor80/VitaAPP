@@ -6,7 +6,7 @@ A health-focused, bilingual (German/Italian) mobile app. Core functionality: LLM
 ## Architecture
 - **Frontend**: React Native (Expo) web app
 - **Backend**: FastAPI (Python)
-- **Database**: MongoDB
+- **Database**: MongoDB (DB: test_database)
 - **LLM**: OpenAI GPT-4o via Emergent LLM Key
 
 ## Implemented Features (Complete)
@@ -29,6 +29,7 @@ A health-focused, bilingual (German/Italian) mobile app. Core functionality: LLM
 17. Monetization CTAs (affiliate products)
 18. Symptom Severity Tracking (1-10 scale)
 19. **Full Italian Translation (P0)** - Completed March 2026
+20. **IT Product Linking Fix** - Completed March 2026
 
 ## Translation (i18n) Status
 ### Frontend
@@ -39,14 +40,18 @@ Files translated:
 - `core/supplement_engine.py`: SUPPLEMENT_DB med_interactions now bilingual dicts
 - `routes/health_score.py`: AI assessment prompt bilingual, fallback labels bilingual
 - `routes/label_analysis.py`: Separate DE/IT system prompts, bilingual error messages
-- `routes/products.py`: NUTRIENT_QUALITY_INFO bilingual with _localize_quality_info()
+- `routes/products.py`: NUTRIENT_QUALITY_INFO bilingual, NUTRIENT_TAG_MAP expanded for IT tags
 - `routes/supplement_interactions.py`: Stack description, profile context bilingual
 - `routes/supplement_plan.py`: LLM user message bilingual
 - `routes/correlation_analysis.py`: SUPPLEMENT_NAMES_DE/IT separate dicts
 - `routes/analysis.py`: Fallback text and rate limit error bilingual
-- `core/tracking_engine.py`: Already bilingual
-- `core/health_engine.py`: Already bilingual
-- `data/prompts.py`: Already bilingual (separate DE/IT prompt functions)
+- `core/config.py`: get_products_collection() with IT->DE fallback
+- `data/prompts.py`: Uses get_products_collection() for correct language products
+
+## Product Linking Fix (March 2026)
+- **Root cause**: NUTRIENT_TAG_MAP only had German tags (e.g., "eisen", "zink"), but IT products used Italian tags (e.g., "stanchezza", "muscoli", "cuore")
+- **Fix**: Extended NUTRIENT_TAG_MAP with both DE and IT tags for cross-language matching
+- **Fallback**: get_products_collection() in core/config.py falls back to DE products if IT collection is empty
 
 ## Backlog
 - Recipe favorites/bookmarks

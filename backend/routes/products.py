@@ -1,26 +1,27 @@
 from fastapi import APIRouter
-from core.config import db
+from core.config import db, get_products_collection
 
 router = APIRouter()
 
-# Mapping: nutrient key → product tags
+# Mapping: nutrient key -> product tags (both DE and IT tags for cross-language matching)
 NUTRIENT_TAG_MAP = {
-    "iron": ["eisen"],
-    "zinc": ["zink"],
-    "omega3": ["omega-3"],
-    "vitamin_d": ["vitamin-d"],
-    "vitamin_b12": ["b-vitamine"],
-    "vitamin_c": ["vitamin-c"],
-    "magnesium": ["magnesium"],
-    "calcium": ["calcium"],
-    "b_vitamins": ["b-vitamine"],
-    "coq10": ["q10"],
-    "probiotics": ["probiotika"],
-    "folate": ["b-vitamine"],
-    "selenium": ["mineralstoffe"],
-    "iodine": ["mineralstoffe"],
-    "vitamin_k2": ["knochen", "calcium"],
-    "vitamin_e": ["antioxidantien", "zellschutz"],
+    "iron": ["eisen", "ferro", "stanchezza", "müdigkeit", "blutarmut"],
+    "zinc": ["zink", "zinco", "sistema immunitario", "immunsystem"],
+    "omega3": ["omega-3", "omega", "herz", "cuore", "gehirn"],
+    "vitamin_d": ["vitamin-d", "vitamina d", "knochen", "ossa"],
+    "vitamin_b12": ["b-vitamine", "b-komplex", "energia", "nerven"],
+    "vitamin_c": ["vitamin-c", "vitamina-c"],
+    "magnesium": ["magnesium", "magnesio", "muskeln", "muscoli"],
+    "calcium": ["calcium", "knochen", "ossa"],
+    "b_vitamins": ["b-vitamine", "b-komplex", "energia", "nerven"],
+    "coq10": ["q10", "herz", "cuore"],
+    "probiotics": ["probiotika", "darm", "verdauung", "digestione", "microbiom"],
+    "folate": ["b-vitamine", "b-komplex"],
+    "selenium": ["mineralstoffe", "minerali", "spurenelemente"],
+    "iodine": ["mineralstoffe", "minerali", "spurenelemente"],
+    "vitamin_k2": ["knochen", "calcium", "ossa"],
+    "vitamin_e": ["antioxidantien", "zellschutz", "cellule", "zellen"],
+    "ashwagandha": ["stress", "cortisol", "cortisolo", "entspannung"],
 }
 
 NUTRIENT_QUALITY_INFO = {
@@ -102,7 +103,7 @@ async def get_products_by_nutrient(nutrient: str, lang: str = "de"):
     if not tags:
         return {"products": [], "quality_info": None}
 
-    collection = db.products_de if lang == "de" else db.products_it
+    collection = await get_products_collection(lang)
     regex_pattern = f"^({'|'.join(tags)})$"
     cursor = collection.find(
         {"tags": {"$elemMatch": {"$regex": regex_pattern, "$options": "i"}}},
@@ -117,7 +118,7 @@ async def get_products_by_nutrient(nutrient: str, lang: str = "de"):
 @router.get("/products")
 async def get_products(tags: str = "", lang: str = "de"):
     """Get products from MongoDB, optionally filtered by tags."""
-    collection = db.products_de if lang == "de" else db.products_it
+    collection = await get_products_collection(lang)
     
     if not tags:
         # Return all products, exclude MongoDB _id
@@ -331,7 +332,7 @@ async def get_recipe_filters(lang: str = "de"):
 @router.get("/products/{product_id}")
 async def get_product_by_id(product_id: str, lang: str = "de"):
     """Get a single product by ID."""
-    collection = db.products_de if lang == "de" else db.products_it
+    collection = await get_products_collection(lang)
     product = await collection.find_one({"product_id": product_id}, {"_id": 0})
     if not product:
         return {"error": "Product not found"}

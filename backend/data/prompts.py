@@ -129,7 +129,8 @@ def _format_health_profile(profile: dict, lang: str) -> str:
 
 async def get_system_prompt(lang: str = "de", profile_id: str = None) -> str:
     """Generate system prompt with current product catalog and optional health profile."""
-    collection = db.products_de if lang == "de" else db.products_it
+    from core.config import get_products_collection
+    collection = await get_products_collection(lang)
     cursor = collection.find({}, {"_id": 0})
     catalog = await cursor.to_list(length=None)
     
