@@ -33,7 +33,15 @@ A health-focused, bilingual (German/Italian) mobile app. Core functionality: LLM
 21. Shopify Shop Import (AI-powered) - Completed March 2026
 22. Auto-Sync Scheduler - Completed March 2026
 23. Intelligent Product Ranking (Top 3) - Completed March 2026
-24. **Email Health Report Export** - Completed March 2026
+24. Email Health Report Export - Completed March 2026
+25. **Automatic Language Detection** - Completed March 2026
+
+## Automatic Language Detection (March 2026)
+- Detects browser/device language on first app start
+- Italian browser → IT, otherwise → DE (fallback)
+- Manual DE/IT toggle buttons remain available
+- Once manually switched, choice is saved and persists across sessions
+- File: `frontend/src/LangContext.tsx`
 
 ## Email Export Feature (March 2026)
 ### Architecture
@@ -47,32 +55,7 @@ A health-focused, bilingual (German/Italian) mobile app. Core functionality: LLM
 - PDF attachment with same content, formatted for print
 - Bilingual (DE/IT) support
 
-### Configuration
-- SMTP_HOST: v091516.kasserver.com
-- SMTP_FROM: hello@kauzwerk.de
-- Sender: "VitaGuide <hello@kauzwerk.de>"
-
 ## Auto-Sync Feature (March 2026)
-### Architecture
-- **Config stored in**: MongoDB `sync_config` collection (per language)
-- **Scheduler**: Background asyncio loop, checks every hour
-- **Admin UI**: Two config cards (DE/IT) with toggle, interval, URL, manual trigger
-
-### Sync Behavior
-- **New products**: AI-analyzed and added
-- **Existing products**: Price, image, availability updated (no re-AI)
-- **Deleted products**: Removed from DB if no longer in Shopify shop
-- **Non-supplements**: Auto-skipped (workbooks, sets, clothing)
-
-### Endpoints
-- `GET /api/admin/sync-config` - Get all sync configurations
-- `POST /api/admin/sync-config` - Save/update sync config per language
-- `POST /api/admin/sync-now/{lang}` - Manually trigger sync
-- `POST /api/admin/shop-import` - Start manual import (full AI)
-- `GET /api/admin/shop-import/status/{job_id}` - Poll job progress
-- `POST /api/admin/shop-import/preview` - Preview without importing
-- `POST /api/export/email` - Send health report via email
-
 ### Shops
 - DE: https://joachim-kaeser.de (weekly sync)
 - IT: https://joachimkaeser.it (monthly sync)
