@@ -20,126 +20,132 @@ The project's scope has expanded significantly to include:
 16. **Personalized Recommendation Reasons:** Showing the user exactly why a specific supplement was recommended based on their health data.
 17. **Monetization CTAs:** Adding clear calls-to-action on the nutrient risk page to guide users to affiliate products.
 18. **Symptom Severity Tracking:** Allow users to periodically rate the severity of their main symptoms on a 1-10 scale.
+19. **Shopify Product Automation:** Import products from Shopify stores, use AI to enrich the data, and keep them synced automatically.
+20. **Intelligent Product Filtering:** Limit supplement recommendations to the top 3 most relevant products per nutrient.
+21. **Email Health Report:** Allow users to export their health data and supplement plan via email as an HTML body and PDF attachment.
 
 **User's preferred language**: German. The next agent MUST respond in German.
 
 **what currently exists?**
-A feature-rich full-stack application with a React Native (Expo) frontend and a FastAPI backend. Most features have been implemented, including a persistent home screen flow, enhanced recipe catalog filtering, monetization CTAs in the health profile, a completely redesigned supplement plan page, and an improved personalized symptom severity tracker. The application is largely functional, but some parts are not fully translated into Italian.
+A feature-rich full-stack application with a React Native (Expo) frontend and a FastAPI backend. The app is fully bilingual (German/Italian). Recent major additions include a comprehensive Shopify product import and sync automation feature in the admin panel, intelligent ranking of supplement recommendations (max 3 per nutrient), and the foundational work for an email export feature. Previous bugs related to translation and product linking have been resolved and tested.
 
 **Last working item**:
--   **Last item agent was working**: Addressing a user request to translate all remaining German text in the application to Italian. The user noted that backend-generated content like supplement intake tips, medical warnings, and effects were still appearing in German even when the app language was set to Italian. The agent had begun a systematic search for hardcoded German strings in the backend codebase.
+-   **Last item agent was working**: Implementing a feature for users to export their complete health report (analysis, supplement plan, etc.) via email. The user requested a well-formatted HTML email with a PDF attachment, sent from a custom SMTP server. The agent has installed the necessary dependencies (, , , ) and created the initial backend files for the service (), route (), and HTML template ().
 -   **Status**: IN PROGRESS
 -   **Agent Testing Done**: N
--   **Which testing method agent to use?**: manual testing by curl/ python -c. The agent should call backend endpoints (e.g., ) with the language parameter () and verify the JSON response contains only Italian text. Following that, a frontend screenshot of the relevant screens (like the supplement plan) would confirm the visual output.
--   **User Testing Done**: Y (User reported the issue).
+-   **Which testing method agent to use?**: backend testing agent. The agent must test the  endpoint. Since verifying a real email dispatch is difficult, the test should focus on confirming that the endpoint can be called successfully with a user profile and target email, generates the HTML/PDF content without errors, and returns a 200 OK status.
+-   **User Testing Done**: N
 
 **All Pending/In progress Issue list**:
--   **Issue 1: Incomplete Italian Translation (P0)**
-    -   **Description**: The user reported that despite setting the app's language to Italian, significant portions of text, particularly dynamically generated content from the backend (e.g., supplement details, recommendation reasons, warnings), remain in German.
-    -   **Attempted fixes**: The agent initiated an investigation by using  to search for hardcoded German strings within the  directory.
-    -   **Next debug checklist**:
-        1.  Analyze the  results to identify all files containing hardcoded German text.
-        2.  Focus on logic files like  and .
-        3.  For static strings, create a translation dictionary or mechanism in the backend, similar to .
-        4.  For LLM-generated content, ensure that the prompts sent to the AI explicitly include the instruction to respond in the requested language (e.g., Respond in Italian.).
-        5.  Verify that the  query parameter is correctly passed from the frontend API calls to all relevant backend services that generate text.
-    -   **Why fix this issue and what will be achieved with the fix?**: This is a core requirement for the bilingual app. Fixing it will provide a consistent and usable experience for Italian-speaking users.
-    -   **Status**: IN PROGRESS
-    -   **Is recurring issue?**: N
-    -   **Should Test frontend/backend/both after fix?**: Both.
-    -   **Blocked on other issue**: None.
+-   There are no pending bugs or issues. The agent is working on a new feature request.
 
 **In progress Task List**:
--   **Task 1: Complete Italian Translation (P0)**
-    -   **Where to resume**: Continue analyzing the  search results for German text in the  directory. The primary focus should be on files within  that generate dynamic content for the user.
-    -   **What will be achieved with this?**: A fully localized application, ensuring all text respects the user's language selection.
+-   **Task 1: Complete Email Export Feature (P0)**
+    -   **Description**: The user wants a button in the app that allows them to enter their email address and receive their full health report. The email should be sent from  using provided SMTP credentials, contain a nicely formatted HTML body, and have a PDF version of the report attached.
+    -   **Where to resume**:
+        1.  Finalize the backend logic in . This involves fetching all necessary user data (profile, analysis, supplement plan), rendering the HTML template with this data, generating a PDF from the HTML, and calling the email service.
+        2.  Implement the SMTP sending logic in  using the credentials provided by the user.
+        3.  Implement the required frontend changes: add a button to trigger the export and a modal to collect the user's email address.
+    -   **What will be achieved with this?**: Users will be able to get a persistent, shareable, and printable copy of their personalized health plan.
     -   **Status**: IN PROGRESS
     -   **Should Test frontend/backend/both after fix?**: Both
     -   **Blocked on something**: None
 
 **Upcoming and Future Tasks**
--   There are no explicitly defined upcoming tasks. The agent should consult with the user for the next steps after the translation is complete.
+-   No new tasks have been requested. After completing the email export feature, the agent should confirm with the user if the project is complete or if there are further requirements.
 
 **Completed work in this session**
--   **Bug Fix: Home Screen Button Flow (DONE)**: Resolved a persistent bug where the home screen state failed to update on navigation. The root cause was identified as  crashing on the web platform, and the fix involved using a synchronous state from the Zustand store.
--   **UX Improvement: Start New Analysis Flow (DONE)**: The Start New Analysis button now immediately triggers a new analysis with current symptoms and shows a loading state, providing a smoother user experience.
--   **UX Improvement: Recipe Catalog Filtering (DONE)**: The recipe catalog now starts empty and only displays recipes after a user actively selects a filter, as requested.
--   **Feature: Monetization CTAs (DONE)**: Implemented View Recommended Products buttons on the nutrient profile page, linking to a new product comparison page to drive affiliate revenue ().
--   **Feature: Restructured Supplement Plan (DONE)**: Redesigned the supplement plan page into a clear, structured medical report format, replacing the old accordion layout ().
--   **Feature: Personalized Symptom Severity Tracking (DONE)**: Implemented the P1 task from the previous handoff. The symptom tracking page now features personalized symptoms from the user's profile with severity sliders for input ().
+-   **Bug Fix: Incomplete Italian Translation (DONE)**: Systematically found and translated all hardcoded German strings and updated LLM prompts in the backend to ensure all dynamic content is fully bilingual. Verified with automated testing.
+-   **Bug Fix: Missing Italian Product Links (DONE)**: Fixed an issue where Italian products were not being recommended by expanding the  in  to include Italian tags, ensuring products are correctly matched to nutrient deficiencies.
+-   **Feature: Shopify Product Import Automation (DONE)**: Built a new Shop Import section in the admin panel. It fetches products from a Shopify store URL, uses an LLM to extract structured data (ingredients, dosage) and generate relevant health tags, and saves them to the database. The import runs as a background job with status polling to handle large catalogs.
+-   **Feature: Automated Product Sync (DONE)**: Implemented a recurring background job using  to automatically sync products from Shopify. The admin can enable/disable this and set the frequency (weekly/monthly) for both DE and IT shops independently. The sync adds, updates, and removes products.
+-   **Feature: Intelligent Product Ranking (DONE)**: Implemented a scoring algorithm that ranks recommended products based on relevance (e.g., if the nutrient is in the product name). The API now returns only the top 3 products per nutrient, improving user experience.
 
 **Earlier issues found/mentioned but not fixed**
 -   None.
 
 **Known issue recurrence from previous fork**
--   **Issue recurrence in previous fork**: The home screen state management () was a recurring blocker.
--   **Recurrence count**: Multiple.
--   **Status**: RESOLVED. The agent successfully debugged the issue, finding that  was incompatible with the web environment, and implemented a more robust synchronous state management solution that passed comprehensive testing.
+-   None. The major recurring issue from the previous fork (home screen state) was resolved and has not reappeared.
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
--   **React Native Web Compatibility:** Diagnosed and resolved a critical bug caused by an incompatibility of 's  hook with the web platform.
--   **Synchronous State Management:** Refactored state handling to use a synchronous value from a Zustand store for initializing UI, which proved more reliable across navigation events than  with .
--   **Internationalization (i18n):** The current task revolves around ensuring all backend-generated text respects the  parameter for full Italian translation.
--   **LLM Prompt Engineering:** LLM prompts for generating dynamic content (e.g., supplement reasons) need to be updated to include language instructions.
+-   **Background Jobs & Scheduling**: Used  to run long-running tasks (Shopify import) and schedule recurring jobs (auto-sync).
+-   **AI-Powered Data Extraction**: Leveraged an LLM to parse unstructured Shopify product descriptions to extract structured data (ingredients, dosage, health tags).
+-   **External API Integration (Shopify)**: Integrated with the public Shopify  endpoint.
+-   **SMTP Email Service**: Implementing an email service using Python's .
+-   **PDF Generation**: Using  to convert HTML content into PDF attachments for emails.
+-   **Intelligent Ranking/Scoring**: Developed a custom algorithm to rank and filter product recommendations for relevance.
 
 **key DB schema**
--   No schema changes were made in this session.
+-   , : Collections storing product data imported from Shopify, enriched with AI-generated tags and ingredients.
+-   : **NEW** collection storing auto-sync settings .
 
 **changes in tech stack**
--   None.
+-   **Backend**: Added , , , and  to .
 
 **All files of reference**
--   : Central file for frontend translations.
--   : A key file likely containing hardcoded German text or LLM prompts that need language instructions for the supplement plan.
--   : Another key file for symptom analysis text that needs translation.
--   The agent correctly started by -ing the entire  directory, which is the right approach to find all untranslated strings.
+-   : (New, In Progress) The main route for the current task.
+-   : (New, In Progress) The service that will handle sending emails.
+-   : (New, Completed) Core logic for the Shopify import feature.
+-   : (New, Completed) API for managing sync configurations.
+-   : (Modified, Completed) UI for the new admin features.
+-   : (Modified, Completed) JS logic for the new admin features.
 
 **Areas that need refactoring**:
--   **Backend Translation Logic:** Instead of adding scattered  checks, a centralized translation utility should be created in the backend for any hardcoded strings found. This will make future language additions easier.
+-   None.
 
 **key api endpoints**
--   : **NEW**. Fetches affiliate products associated with a specific nutrient.
+-   : **NEW**. Starts the Shopify product import background job.
+-   : **NEW**. Polls the status of the import job.
+-   : **NEW**. Manages auto-sync settings.
+-   : **NEW**. Manually triggers an auto-sync.
+-   : **NEW (IN PROGRESS)**. Endpoint for the new email export feature.
+-   : **MODIFIED**. Now returns a ranked and limited list of the top 3 products.
 
 **Critical Info for New Agent**
--   **User Language:** The user is German. All communication MUST be in German.
--   **IMMEDIATE TASK (P0):** Your first and only priority is to complete the Italian translation. The user is blocked until this is fixed. Systematically find all hardcoded German text in the backend, especially in  logic files, and ensure all LLM prompts enforce the output language.
--   **Testing Translations:** Use  to test API endpoints directly with the  parameter to confirm the JSON responses are fully translated before checking the frontend.
+-   **User Language**: The user is German. All communication MUST be in German.
+-   **IMMEDIATE TASK (P0)**: Your top priority is to complete the email export feature. The user has provided all necessary SMTP credentials. You need to finish the backend logic to generate and send the email with a PDF attachment, and then add the corresponding UI elements to the frontend.
+-   **SMTP Credentials**: The credentials (, , ) have been provided by the user. These must be configured as environment variables for security and used by the .
 
 **documents and test reports created in this job**
--    through 
--    (updated multiple times)
+-   
+-   
 
 **Last 10 User Messages and any pending HUMAN messages**
-10.  - User requests a redesign of the supplement plan page to be more structured and like a medical report. **Status: Implemented.**
-9.   - User requests to start work on the Symptom Severity Tracking feature. **Status: Implemented.**
-8.   - User reports that parts of the app are still in German when Italian is selected, specifically backend-generated content. **Status: IN PROGRESS.**
-7.   - User re-iterates the request to find and translate the remaining German text. **Status: IN PROGRESS.**
-6.  The agent confirms understanding and starts planning the implementation of the translation task. **Status: IN PROGRESS.**
-5.  The agent starts the investigation by listing relevant files. **Status: IN PROGRESS.**
-4.  The agent uses  to search for German strings in the frontend, confirming most are handled by . **Status: IN PROGRESS.**
-3.  The agent moves on to search for German strings in the backend codebase. **Status: IN PROGRESS.**
-2.  The agent executes . **Status: IN PROGRESS.**
-1.  The agent executes . **Status: IN PROGRESS.**
+10. **User**: Requests automatic product sync. **Status: Implemented.**
+9.  **User**: Provides choices for sync frequency (weekly/monthly). **Status: Implemented.**
+8.  **User**: Reports too many products are shown for one nutrient and asks for a limit of 3. **Status: Implemented.**
+7.  **User**: Requests an email export feature for health data. **Status: IN PROGRESS.**
+6.  **User**: Specifies they want to use their own email for sending. **Status: Requirement gathered.**
+5.  **User**: Specifies they want a nice layout and a PDF. **Status: Requirement gathered.**
+4.  **User**: Confirms they want both HTML and PDF. **Status: Requirement gathered.**
+3.  **User**: Provides the sending email address (). **Status: Requirement gathered.**
+2.  **User**: Provides the full SMTP credentials. **Status: Requirement gathered.**
+1.  **Agent**: (Internal monologue after receiving credentials) Perfekt, ich habe alle Infos! Ich baue jetzt den E-Mail-Export mit HTML-Mail + PDF-Anhang. **Status: Acknowledged, work started.**
 
 **Project Health Check:**
--   **Broken:** The application's bilingual functionality is broken, as Italian-speaking users see untranslated German text.
--   **Mocked:** None.
+-   **Broken**: None.
+-   **Mocked**: None.
 
 **3rd Party Integrations**
--   **OpenAI GPT-4o (via Emergent LLM Key):** Used for symptom analysis, supplement interaction analysis, correlation insights, and AI recipe generation. Prompts for this integration likely need to be updated to enforce output language.
+-   **OpenAI GPT-4o (via Emergent LLM Key)**: Used for symptom analysis, product data enrichment, and other AI tasks.
+-   **Shopify**: Integration with the public  API endpoint.
+-   **SMTP (kasserver.com)**: **NEW (In Progress)**. For sending emails via user-provided credentials.
 
 **Testing status**
--   **Testing agent used after significant changes**: YES, successfully used after every major feature implementation and bug fix in this session.
+-   **Testing agent used after significant changes**: YES, for translation fixes.
 -   **Troubleshoot agent used after agent stuck in loop**: NO
 -   **Test files created**: None.
--   **Known regressions**: None in this session. The major recurring bug from the previous fork was resolved.
+-   **Known regressions**: None.
 
 **Credentials to test flow:**
--   **Admin App URL**: 
 -   **Admin App Password**: 
+-   **SMTP Credentials**:
+    -   **Host**: 
+    -   **Username**: 
+    -   **Password**: 
 
 **What agent forgot to execute**
--   Nothing. The agent was actively working on the user's latest request when the session concluded.</analysis>
+-   Nothing. The agent is actively working on the user's latest request.</analysis>

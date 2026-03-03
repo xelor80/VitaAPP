@@ -36,7 +36,7 @@
     "frontend": "100% (9/9 tests passing)"
   },
   "test_credentials": {
-    "app_url": "https://nutrition-advisor-4.preview.emergentagent.com"
+    "app_url": "https://vitality-mail.preview.emergentagent.com"
   },
   "seed_data_creation": "Created test analyses with symptoms like 'Erste Test Analyse' and 'Verdauungsprobleme und Erschöpfung NEUE ANALYSE'",
   "retest_needed": false,

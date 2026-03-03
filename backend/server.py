@@ -8,7 +8,7 @@ import asyncio
 from pathlib import Path
 
 from core.config import client, logger
-from routes import analysis, products, tracking, diary, admin, settings, health_profile, supplement_plan, progress, videos, label_analysis, health_score, admin_health_stats, supplement_interactions, correlation_analysis, shop_import
+from routes import analysis, products, tracking, diary, admin, settings, health_profile, supplement_plan, progress, videos, label_analysis, health_score, admin_health_stats, supplement_interactions, correlation_analysis, shop_import, email_export
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
@@ -75,6 +75,7 @@ api_router.include_router(admin_health_stats.router)
 api_router.include_router(supplement_interactions.router)
 api_router.include_router(correlation_analysis.router)
 api_router.include_router(shop_import.router)
+api_router.include_router(email_export.router)
 
 # Serve uploaded files (labels)
 @api_router.get("/uploads/labels/{filename}")

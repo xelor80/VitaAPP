@@ -10,7 +10,7 @@ import requests
 import os
 import uuid
 
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://nutrition-advisor-4.preview.emergentagent.com')
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://vitality-mail.preview.emergentagent.com')
 
 class TestProductsAPI:
     """Tests for products API with tags for supplement matching"""
