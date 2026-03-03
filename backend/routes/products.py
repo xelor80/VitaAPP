@@ -222,6 +222,62 @@ async def get_products_by_nutrient(nutrient: str, lang: str = "de"):
     return {"products": top_products, "quality_info": quality_info}
 
 
+import re as _re
+
+def _parse_price(price_str: str) -> float | None:
+    """Extract numeric price from strings like '19.90 EUR' or '24,50 €'."""
+    if not price_str:
+        return None
+    cleaned = price_str.replace(",", ".").strip()
+    m = _re.search(r"(\d+\.?\d*)", cleaned)
+    return float(m.group(1)) if m else None
+
+
+@router.get("/products/pricing-summary")
+async def get_pricing_summary(nutrients: str = "", lang: str = "de"):
+    """Return price-per-day estimates for a list of nutrients."""
+    if not nutrients:
+        return {"pricing": {}}
+
+    nutrient_list = [n.strip() for n in nutrients.split(",") if n.strip()]
+    collection = await get_products_collection(lang)
+    result = {}
+
+    for nutrient in nutrient_list:
+        tags = NUTRIENT_TAG_MAP.get(nutrient, [])
+        if not tags:
+            continue
+        regex_pattern = f"^({'|'.join(tags)})$"
+        products = await collection.find(
+            {"tags": {"$elemMatch": {"$regex": regex_pattern, "$options": "i"}}},
+            {"_id": 0, "price": 1, "servings": 1}
+        ).limit(10).to_list(10)
+
+        prices_per_day = []
+        for p in products:
+            price = _parse_price(p.get("price", ""))
+            if price is None or price <= 0:
+                continue
+            servings = p.get("servings")
+            if servings and isinstance(servings, (int, float)) and servings > 0:
+                daily = price / servings
+            else:
+                daily = price / 30  # default: 30-day supply
+            prices_per_day.append(round(daily, 2))
+
+        if prices_per_day:
+            avg = round(sum(prices_per_day) / len(prices_per_day), 2)
+            result[nutrient] = {
+                "avg_per_day": avg,
+                "min_per_day": min(prices_per_day),
+                "max_per_day": max(prices_per_day),
+                "product_count": len(prices_per_day),
+            }
+
+    return {"pricing": result}
+
+
+
 
 @router.get("/products")
 async def get_products(tags: str = "", lang: str = "de"):

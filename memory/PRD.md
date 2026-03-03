@@ -11,28 +11,25 @@ A health-focused, bilingual (German/Italian) mobile app where an LLM analyzes us
 - **TTS**: OpenAI TTS via Emergent LLM Key
 - **Integrations**: Shopify (product import), SMTP (email export), Unsplash (recipe images)
 
-## Implemented Features (Complete) - 36 Features
+## Implemented Features (Complete) - 37 Features
 1-34: [See previous versions - onboarding through first name personalization]
-35. **Extended First Name Personalization** - Name used in DailyTasks section title ("Heute fuer Max wichtig"), supplement plan title ("Max, dein Mikronaehrstoff-Plan"), achievement streak labels ("Super, Max! Aktuelle Serie"), task reasons ("Max, dein Magnesium wartet"), and done messages
-36. **Swipe-Back Gesture** - Left-to-right swipe navigates back on all sub-screens (gestureEnabled: true + PanResponder-based useSwipeBack hook for web/cross-platform)
-
-## Key Files Modified (Session 2)
-- `/app/backend/routes/daily_tasks.py` - Fetches first_name, personalizes task titles/reasons, includes first_name in response
-- `/app/backend/routes/achievements.py` - Fetches first_name, personalizes streak labels, includes first_name in response
-- `/app/frontend/components/home/DailyTasks.tsx` - Uses first_name from API for section title and done message
-- `/app/frontend/app/supplement-plan.tsx` - Fetches first_name, personalizes plan title
-- `/app/frontend/app/_layout.tsx` - gestureEnabled: true, SwipeWrapper with useSwipeBack
-- `/app/frontend/src/useSwipeBack.ts` - NEW: PanResponder hook for edge-swipe back navigation
+35. Extended First Name Personalization (name in DailyTasks, supplement plan, achievements)
+36. Swipe-Back Gesture (gestureEnabled + PanResponder hook for web)
+37. **Preis-Transparenz unter CTA** - "Preis pro Tag: ca. X,XX EUR" Infozeile unter dem Supplement-CTA. Berechnet aus Affiliate-Produkten via `/api/products/pricing-summary`. Dezent grau, vertrauensbildend.
 
 ## Key API Endpoints
+- `GET /api/products/pricing-summary?nutrients=...&lang=de` - NEW: Returns avg/min/max price per day per nutrient
 - `POST /api/health-profile` - Creates profile (includes first_name)
 - `GET /api/health-profile/{profile_id}` - Returns profile with first_name
-- `GET /api/daily-tasks/{profile_id}` - Returns tasks + first_name field
-- `GET /api/achievements/{profile_id}` - Returns streaks + first_name field
+- `GET /api/daily-tasks/{profile_id}` - Returns tasks + first_name
+- `GET /api/achievements/{profile_id}` - Returns streaks + first_name
 - `POST /api/tts/generate` - TTS audio generation
-- `GET /api/stats/trust` - Trust statistics
+
+## Deployment Fixes Applied
+- Removed conflicting `package-lock.json` from frontend (yarn-only)
+- Added `.limit()` to unbounded MongoDB queries (production safety)
 
 ## Backlog
 - TTS auf Symptom-Analyse-Seite erweitern
 - `expo-av` zu `expo-audio` Migration (SDK 54)
-- `servings`-Feld fuer Preis/Tag-Berechnung befuellen
+- `servings`-Feld fuer Preis/Tag-Berechnung befuellen (currently uses price/30 as default)

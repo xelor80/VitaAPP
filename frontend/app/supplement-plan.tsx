@@ -71,6 +71,7 @@ export default function SupplementPlanScreen() {
   const [ttsLoading, setTtsLoading] = useState(false);
   const [ttsPlaying, setTtsPlaying] = useState(false);
   const [firstName, setFirstName] = useState<string | null>(null);
+  const [pricingMap, setPricingMap] = useState<Record<string, { avg_per_day: number; min_per_day: number; max_per_day: number; product_count: number }>>({});
   const soundRef = useRef<Audio.Sound | null>(null);
 
   const stopAudio = async () => {
@@ -143,6 +144,16 @@ export default function SupplementPlanScreen() {
     return () => { stopAudio(); };
   }, []);
 
+  // Fetch pricing when plan stack is available
+  useEffect(() => {
+    if (!plan.stack?.length) return;
+    const nutrients = plan.stack.map((s: any) => s.id).join(',');
+    fetch(`${API_URL}/api/products/pricing-summary?nutrients=${nutrients}&lang=${lang}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data?.pricing) setPricingMap(data.pricing); })
+      .catch(() => {});
+  }, [plan.stack, lang]);
+
   useEffect(() => {
     const init = async () => {
       let pid = params.profileId;
@@ -161,6 +172,7 @@ export default function SupplementPlanScreen() {
             if (profileData.profile?.first_name) setFirstName(profileData.profile.first_name);
           }
         } catch {}
+        // Load pricing after plan is loaded (needs nutrient IDs from plan)
       } else {
         setLoading(false);
       }
@@ -591,6 +603,16 @@ export default function SupplementPlanScreen() {
                       : (lang === 'de' ? 'Qualitaetsgepruefte Optionen vergleichen' : 'Confronta opzioni certificate')
                   }</Text>
                 </TouchableOpacity>
+                {pricingMap[s.id] && (
+                  <Text data-testid={`price-per-day-${s.id}`} style={ms.pricePerDay}>
+                    {lang === 'de'
+                      ? `Preis pro Tag: ca. ${pricingMap[s.id].avg_per_day.toFixed(2).replace('.', ',')} \u20AC`
+                      : `Prezzo al giorno: ca. ${pricingMap[s.id].avg_per_day.toFixed(2).replace('.', ',')} \u20AC`}
+                    {pricingMap[s.id].product_count > 1
+                      ? ` (${pricingMap[s.id].product_count} ${lang === 'de' ? 'Produkte verglichen' : 'prodotti confrontati'})`
+                      : ''}
+                  </Text>
+                )}
               </View>
             </View>
           );
@@ -754,6 +776,7 @@ const ms = StyleSheet.create({
     gap: 8, borderRadius: 10, paddingVertical: 12,
   },
   primaryCtaText: { color: '#FFF', fontSize: 14, fontWeight: '600' },
+  pricePerDay: { fontSize: 12, color: '#8FA39B', textAlign: 'center', marginTop: 2, fontWeight: '400' },
   secondaryCta: { alignItems: 'center', paddingVertical: 6 },
   secondaryCtaText: { color: '#6B7280', fontSize: 12, fontWeight: '500', textDecorationLine: 'underline' },
 });
