@@ -8,7 +8,7 @@ A health-focused, bilingual (German/Italian) mobile app where an LLM analyzes us
 - **Backend**: FastAPI (Python)
 - **Database**: MongoDB
 - **AI**: OpenAI GPT-4o via Emergent LLM Key
-- **TTS**: OpenAI TTS via Emergent LLM Key (emergentintegrations)
+- **TTS**: OpenAI TTS via Emergent LLM Key
 - **Integrations**: Shopify (product import), SMTP (email export), Unsplash (recipe images)
 
 ## Implemented Features (Complete)
@@ -39,33 +39,35 @@ A health-focused, bilingual (German/Italian) mobile app where an LLM analyzes us
 25. Redesigned Recipe Section (two-column image grid)
 26. Licensed Recipe Images (Unsplash, commercially safe)
 27. TTS Audio Playback (OpenAI TTS - read aloud personal summary, DE/IT)
-28. **Daily Tasks "Heute fuer dich wichtig"** (dynamic coach section on home screen)
+28. Daily Tasks "Heute fuer dich wichtig" (dynamic coach section)
+29. **Interactive Task Completion** (check off supplements + quick symptom rating from home screen)
 
 ## Key API Endpoints
-- `GET /api/daily-tasks/{profile_id}` - Get up to 3 prioritized daily tasks
-- `POST /api/tts/generate` - Generate TTS audio (text + lang -> base64 MP3)
+- `GET /api/daily-tasks/{profile_id}` - Get up to 3 prioritized daily tasks (with supplement items)
+- `POST /api/daily-tasks/complete-supplements` - Quick-complete supplements from home screen
+- `POST /api/daily-tasks/complete-symptom-check` - Quick symptom rating from home screen
+- `POST /api/tts/generate` - Generate TTS audio
 - `POST /api/export/email` - Email health report
 - `GET /api/supplement-plan/{id}` - Get enriched supplement plan
-- `GET /api/health-score/{profile_id}` - Get health score with AI assessment
-- `POST /api/admin/auth` - Admin authentication
+- `GET /api/health-score/{profile_id}` - Get health score
 
 ## Key Files
-- `/app/backend/routes/daily_tasks.py` - Daily tasks logic (supplements, symptoms, risks, goals)
+- `/app/backend/routes/daily_tasks.py` - Daily tasks + quick-complete endpoints
 - `/app/backend/routes/tts.py` - TTS endpoint
-- `/app/frontend/components/home/DailyTasks.tsx` - Daily tasks UI component
-- `/app/frontend/app/index.tsx` - Home screen with DailyTasks integration
-- `/app/frontend/app/supplement-plan.tsx` - Plan screen with TTS button
+- `/app/frontend/components/home/DailyTasks.tsx` - Interactive daily tasks with expand/collapse, checkboxes, severity bar
+- `/app/frontend/app/index.tsx` - Home screen
+- `/app/frontend/app/supplement-plan.tsx` - Plan screen with TTS
 
 ## Key Credentials
-- Admin Password: stored in `ADMIN_PASSWORD` env var in backend/.env
+- Admin Password: `ADMIN_PASSWORD` env var in backend/.env
 - SMTP: kasserver.com credentials in backend/.env
 - LLM/TTS: Emergent LLM Key in backend/.env
 
 ## Deployment Fix (March 2026)
-- Deleted conflicting `package-lock.json` (project uses yarn)
+- Deleted conflicting `package-lock.json`
 - Moved hardcoded admin password to environment variable
 
 ## Backlog
 - No pending feature requests
-- Consider migrating from expo-av to expo-audio (expo-av deprecated in SDK 54)
+- Consider migrating expo-av to expo-audio (SDK 54)
 - TTS on symptom analysis page (future enhancement)
