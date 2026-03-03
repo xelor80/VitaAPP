@@ -7,7 +7,7 @@ import requests
 import os
 import time
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://vitality-mail.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://nutrition-ai-plan.preview.emergentagent.com')
 
 # Test profile with 60 days of seed data
 TEST_PROFILE_ID = "b35d2eb1-c651-497c-b270-321a74f1a328"

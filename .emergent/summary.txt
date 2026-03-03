@@ -27,125 +27,132 @@ The project's scope has expanded significantly to include:
 **User's preferred language**: German. The next agent MUST respond in German.
 
 **what currently exists?**
-A feature-rich full-stack application with a React Native (Expo) frontend and a FastAPI backend. The app is fully bilingual (German/Italian). Recent major additions include a comprehensive Shopify product import and sync automation feature in the admin panel, intelligent ranking of supplement recommendations (max 3 per nutrient), and the foundational work for an email export feature. Previous bugs related to translation and product linking have been resolved and tested.
+A feature-rich full-stack application with a React Native (Expo) frontend and a FastAPI backend. The app is fully bilingual (German/Italian). The last session focused on completing the email export feature, implementing automatic language detection, fixing Android UI layout issues, significantly improving the daily supplement plan's clarity by using real product names and practical dosage units, and redesigning the recipe section with commercially licensed images. The app is functionally complete from the last set of user requests, but is currently failing to deploy.
 
 **Last working item**:
--   **Last item agent was working**: Implementing a feature for users to export their complete health report (analysis, supplement plan, etc.) via email. The user requested a well-formatted HTML email with a PDF attachment, sent from a custom SMTP server. The agent has installed the necessary dependencies (, , , ) and created the initial backend files for the service (), route (), and HTML template ().
--   **Status**: IN PROGRESS
+-   **Last item agent was working**: The user reported a deployment failure and provided build logs. The agent's task is to analyze these logs, identify the root cause, and implement a code-level fix to allow for a successful deployment.
+-   **Status**: NOT STARTED
 -   **Agent Testing Done**: N
--   **Which testing method agent to use?**: backend testing agent. The agent must test the  endpoint. Since verifying a real email dispatch is difficult, the test should focus on confirming that the endpoint can be called successfully with a user profile and target email, generates the HTML/PDF content without errors, and returns a 200 OK status.
+-   **Which testing method agent to use?**: The fix needs to be validated by the deployment process itself. However, before attempting another deployment, the agent must address any code-level inconsistencies found in the logs.
 -   **User Testing Done**: N
 
 **All Pending/In progress Issue list**:
--   There are no pending bugs or issues. The agent is working on a new feature request.
+-   **Issue 1: Deployment Failure (P0)**
+    -   **Description**: The application build is failing during the deployment process. The provided logs indicate the error  occurs during the  step. The logs also show a yarn install v1.22.22
+[1/4] Resolving packages...
+success Already up-to-date.
+Done in 0.38s. warning about a  file, which indicates a package manager conflict.
+    -   **Attempted fixes**: None.
+    -   **Next debug checklist**:
+        1.  **Resolve Package Manager Conflict:** The project uses yarn install v1.22.22
+[1/4] Resolving packages...
+success Already up-to-date.
+Done in 0.46s., but a  file exists. This can cause dependency mismatches and build failures. Remove this file immediately: .
+        2.  **Analyze Root Cause:** The  error when pushing a  tag is often a CI/CD pipeline configuration or permission issue, not a direct code error. Since the agent cannot modify the pipeline, the first step is to fix the obvious code-level problem (the lock file).
+        3.  **Next Step:** After removing the lock file, the user should be prompted to try deploying again. If the error persists, the agent should inform the user that the problem likely lies within the deployment environment's configuration for handling the  tag, which is outside the agent's control.
+    -   **Why fix this issue and what will be achieved with the fix?**: The application cannot be released or updated in production until this deployment issue is resolved.
+    -   **Status**: NOT STARTED
+    -   **Is recurring issue?**: N
+    -   **Should Test frontend/backend/both after fix?**: Neither. The fix is validated by a successful deployment.
+    -   **Blocked on other issue**: None.
 
 **In progress Task List**:
--   **Task 1: Complete Email Export Feature (P0)**
-    -   **Description**: The user wants a button in the app that allows them to enter their email address and receive their full health report. The email should be sent from  using provided SMTP credentials, contain a nicely formatted HTML body, and have a PDF version of the report attached.
-    -   **Where to resume**:
-        1.  Finalize the backend logic in . This involves fetching all necessary user data (profile, analysis, supplement plan), rendering the HTML template with this data, generating a PDF from the HTML, and calling the email service.
-        2.  Implement the SMTP sending logic in  using the credentials provided by the user.
-        3.  Implement the required frontend changes: add a button to trigger the export and a modal to collect the user's email address.
-    -   **What will be achieved with this?**: Users will be able to get a persistent, shareable, and printable copy of their personalized health plan.
-    -   **Status**: IN PROGRESS
-    -   **Should Test frontend/backend/both after fix?**: Both
-    -   **Blocked on something**: None
+-   None.
 
 **Upcoming and Future Tasks**
--   No new tasks have been requested. After completing the email export feature, the agent should confirm with the user if the project is complete or if there are further requirements.
+-   Once the deployment is successful, the agent should ask the user for the next set of features or if the project can be considered complete.
 
 **Completed work in this session**
--   **Bug Fix: Incomplete Italian Translation (DONE)**: Systematically found and translated all hardcoded German strings and updated LLM prompts in the backend to ensure all dynamic content is fully bilingual. Verified with automated testing.
--   **Bug Fix: Missing Italian Product Links (DONE)**: Fixed an issue where Italian products were not being recommended by expanding the  in  to include Italian tags, ensuring products are correctly matched to nutrient deficiencies.
--   **Feature: Shopify Product Import Automation (DONE)**: Built a new Shop Import section in the admin panel. It fetches products from a Shopify store URL, uses an LLM to extract structured data (ingredients, dosage) and generate relevant health tags, and saves them to the database. The import runs as a background job with status polling to handle large catalogs.
--   **Feature: Automated Product Sync (DONE)**: Implemented a recurring background job using  to automatically sync products from Shopify. The admin can enable/disable this and set the frequency (weekly/monthly) for both DE and IT shops independently. The sync adds, updates, and removes products.
--   **Feature: Intelligent Product Ranking (DONE)**: Implemented a scoring algorithm that ranks recommended products based on relevance (e.g., if the nutrient is in the product name). The API now returns only the top 3 products per nutrient, improving user experience.
+-   **Feature: Email Health Report (DONE)**: Finished the backend logic and frontend UI for exporting a user's health report via email with a PDF attachment. Tested and verified.
+-   **Feature: Automatic Language Detection (DONE)**: Implemented logic to automatically set the app's language based on the user's browser/device settings, with a fallback to German and the option for manual override.
+-   **Bug Fix: Android Navigation Bar Overlap (DONE)**: Fixed a UI bug where the Android system navigation bar would cover tappable elements by increasing bottom padding on all relevant screens.
+-   **Feature: Product-Driven Daily Plan (DONE)**: Overhauled the supplement plan display. It now shows actual product names instead of generic vitamin names and provides practical dosage instructions (e.g., 15 Sprühstöße) derived from product data, with fallbacks for clarity.
+-   **Feature: Redesigned Recipe Section (DONE)**: Completely redesigned the recipe catalog into a responsive, two-column image grid, as requested by the user's screenshot.
+-   **Feature: Licensed Recipe Images (DONE)**: Verified that all 37 recipes use commercially-safe, license-free images from Unsplash and added images for those that were missing them.
 
 **Earlier issues found/mentioned but not fixed**
 -   None.
 
 **Known issue recurrence from previous fork**
--   None. The major recurring issue from the previous fork (home screen state) was resolved and has not reappeared.
+-   None.
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
--   **Background Jobs & Scheduling**: Used  to run long-running tasks (Shopify import) and schedule recurring jobs (auto-sync).
--   **AI-Powered Data Extraction**: Leveraged an LLM to parse unstructured Shopify product descriptions to extract structured data (ingredients, dosage, health tags).
--   **External API Integration (Shopify)**: Integrated with the public Shopify  endpoint.
--   **SMTP Email Service**: Implementing an email service using Python's .
--   **PDF Generation**: Using  to convert HTML content into PDF attachments for emails.
--   **Intelligent Ranking/Scoring**: Developed a custom algorithm to rank and filter product recommendations for relevance.
+-   **Deployment Build Analysis**: Interpreting build logs from a CI/CD pipeline (Google Cloud Build) to diagnose failures.
+-   **Package Manager Hygiene**: The importance of using a single package manager (yarn install v1.22.22
+[1/4] Resolving packages...
+success Already up-to-date.
+Done in 0.42s.) and the need to remove conflicting lock files ().
+-   **Data-Driven UI**: Dynamically enriching API responses with related data (e.g., product details for a supplement plan) to create a richer user experience.
+-   **Defensive Programming**: Implementing fallback logic (e.g., inferring dosage from product names when explicit instructions are missing).
+-   **Image Licensing**: Sourcing and verifying that all visual assets (recipe photos) are properly licensed for commercial use via Unsplash.
+-   **Responsive Layouts**: Using React Native's  and flexbox to create responsive UIs that adapt to different screen sizes.
 
 **key DB schema**
--   , : Collections storing product data imported from Shopify, enriched with AI-generated tags and ingredients.
--   : **NEW** collection storing auto-sync settings .
+-   : The  field is now fully populated with license-free Unsplash URLs.
+-   /: Data is used to enrich the supplement plan in real-time. No schema change, but usage pattern was enhanced.
 
 **changes in tech stack**
--   **Backend**: Added , , , and  to .
-
-**All files of reference**
--   : (New, In Progress) The main route for the current task.
--   : (New, In Progress) The service that will handle sending emails.
--   : (New, Completed) Core logic for the Shopify import feature.
--   : (New, Completed) API for managing sync configurations.
--   : (Modified, Completed) UI for the new admin features.
--   : (Modified, Completed) JS logic for the new admin features.
-
-**Areas that need refactoring**:
 -   None.
 
+**All files of reference**
+-   **Deployment Logs**: The user-provided logs are the most critical reference for the immediate task.
+-   : The file that needs to be deleted.
+-   : The source of truth for frontend dependencies.
+
+**Areas that need refactoring**:
+-   The frontend directory contains a  which conflicts with . This file must be deleted.
+
 **key api endpoints**
--   : **NEW**. Starts the Shopify product import background job.
--   : **NEW**. Polls the status of the import job.
--   : **NEW**. Manages auto-sync settings.
--   : **NEW**. Manually triggers an auto-sync.
--   : **NEW (IN PROGRESS)**. Endpoint for the new email export feature.
--   : **MODIFIED**. Now returns a ranked and limited list of the top 3 products.
+-   : **COMPLETED**
+-   : **MODIFIED** to return plan enriched with product names and specific dosage instructions.
+-   : **MODIFIED** to fetch a single recipe, used by the redesigned recipe detail page.
 
 **Critical Info for New Agent**
--   **User Language**: The user is German. All communication MUST be in German.
--   **IMMEDIATE TASK (P0)**: Your top priority is to complete the email export feature. The user has provided all necessary SMTP credentials. You need to finish the backend logic to generate and send the email with a PDF attachment, and then add the corresponding UI elements to the frontend.
--   **SMTP Credentials**: The credentials (, , ) have been provided by the user. These must be configured as environment variables for security and used by the .
+-   **User Language**: All communication MUST be in German.
+-   **IMMEDIATE TASK (P0)**: Your top priority is to fix the deployment failure.
+-   **First Action**: The build logs show a  file is present while the project uses yarn install v1.22.22
+[1/4] Resolving packages...
+success Already up-to-date.
+Done in 0.39s.. This is a critical conflict. Your very first action should be to delete this file: .
+-   **Deployment Constraint**: You cannot modify the deployment scripts or Dockerfiles. The fix must be at the code/project file level. After deleting the lock file, if the deployment still fails, you must recognize that the  error is likely an infrastructure issue and communicate this to the user.
 
 **documents and test reports created in this job**
 -   
 -   
 
 **Last 10 User Messages and any pending HUMAN messages**
-10. **User**: Requests automatic product sync. **Status: Implemented.**
-9.  **User**: Provides choices for sync frequency (weekly/monthly). **Status: Implemented.**
-8.  **User**: Reports too many products are shown for one nutrient and asks for a limit of 3. **Status: Implemented.**
-7.  **User**: Requests an email export feature for health data. **Status: IN PROGRESS.**
-6.  **User**: Specifies they want to use their own email for sending. **Status: Requirement gathered.**
-5.  **User**: Specifies they want a nice layout and a PDF. **Status: Requirement gathered.**
-4.  **User**: Confirms they want both HTML and PDF. **Status: Requirement gathered.**
-3.  **User**: Provides the sending email address (). **Status: Requirement gathered.**
-2.  **User**: Provides the full SMTP credentials. **Status: Requirement gathered.**
-1.  **Agent**: (Internal monologue after receiving credentials) Perfekt, ich habe alle Infos! Ich baue jetzt den E-Mail-Export mit HTML-Mail + PDF-Anhang. **Status: Acknowledged, work started.**
+10. **User**: Reports deployment is failing and provides build logs. **Status: Pending (Current Task).**
+9.  **User**: Specifies that all recipe photos must be license-free and commercially usable. **Status: Implemented.**
+8.  **Agent**: Confirms all 37 recipes now have Unsplash images. **Status: Completed.**
+7.  **User**: Requests a redesign of the recipe section, providing a screenshot. **Status: Implemented.**
+6.  **Agent**: Shows the new recipe section design. **Status: Completed.**
+5.  **User**: Reports that the daily plan dosage instructions are incorrect for some products (e.g., spray vs. capsule). **Status: Implemented.**
+4.  **Agent**: Shows the corrected daily plan with product names and accurate dosages. **Status: Completed.**
+3.  **User**: Reports that Android navigation buttons are obscuring UI elements. **Status: Implemented.**
+2.  **Agent**: Confirms the padding fix has been applied to all relevant screens. **Status: Completed.**
+1.  **User**: Asks to display dosage in practical units (e.g., 2 capsules) instead of just measurements (e.g., 1000 mg). **Status: Implemented.**
 
 **Project Health Check:**
--   **Broken**: None.
+-   **Broken**: The deployment pipeline is failing, preventing the app from being released to production.
 -   **Mocked**: None.
 
 **3rd Party Integrations**
--   **OpenAI GPT-4o (via Emergent LLM Key)**: Used for symptom analysis, product data enrichment, and other AI tasks.
--   **Shopify**: Integration with the public  API endpoint.
--   **SMTP (kasserver.com)**: **NEW (In Progress)**. For sending emails via user-provided credentials.
+-   **OpenAI GPT-4o**: Used for various AI tasks, accessed via the Emergent LLM Key.
+-   **Shopify**: Integrated with the public  API endpoint for product imports.
+-   **SMTP (kasserver.com)**: Used for sending emails with user-provided credentials.
+-   **Unsplash**: Used as the source for all recipe images to ensure they are license-free and commercially usable.
 
 **Testing status**
--   **Testing agent used after significant changes**: YES, for translation fixes.
+-   **Testing agent used after significant changes**: YES, for the email export feature.
 -   **Troubleshoot agent used after agent stuck in loop**: NO
--   **Test files created**: None.
--   **Known regressions**: None.
+-   **Test files created**: None in this session.
+-   **Known regressions**: None in application functionality.
 
 **Credentials to test flow:**
 -   **Admin App Password**: 
--   **SMTP Credentials**:
-    -   **Host**: 
-    -   **Username**: 
-    -   **Password**: 
 
 **What agent forgot to execute**
--   Nothing. The agent is actively working on the user's latest request.</analysis>
+-   The previous agent had not yet started debugging the deployment failure reported by the user.</analysis>

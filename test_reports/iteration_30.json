@@ -69,7 +69,7 @@
     "frontend": "57% (4/7 tests passed)"
   },
   "test_credentials": {
-    "app_url": "https://vitality-mail.preview.emergentagent.com"
+    "app_url": "https://nutrition-ai-plan.preview.emergentagent.com"
   },
   "seed_data_creation": "Created test analyses with symptoms 'Kopfschmerzen und Müdigkeit', 'Schlafprobleme und Stress', 'Test Symptome'",
   "retest_needed": true,

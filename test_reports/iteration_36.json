@@ -68,8 +68,8 @@
     "frontend": "100% (All UI tests passed)"
   },
   "test_credentials": {
-    "app_url": "https://vitality-mail.preview.emergentagent.com",
-    "tracking_url": "https://vitality-mail.preview.emergentagent.com/tracking",
+    "app_url": "https://nutrition-ai-plan.preview.emergentagent.com",
+    "tracking_url": "https://nutrition-ai-plan.preview.emergentagent.com/tracking",
     "test_profile_id": "2c0ba8c7-729e-49b2-a144-1068e03c8301"
   },
   "seed_data_creation": "Used existing test profile with symptom entries created during testing",
