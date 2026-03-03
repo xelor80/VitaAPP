@@ -211,7 +211,7 @@ async def get_products_by_nutrient(nutrient: str, lang: str = "de"):
         {"tags": {"$elemMatch": {"$regex": regex_pattern, "$options": "i"}}},
         {"_id": 0}
     )
-    all_products = await cursor.to_list(length=None)
+    all_products = await cursor.to_list(length=500)
 
     # Score and rank products by relevance
     scored = [(p, _score_product(p, nutrient)) for p in all_products]

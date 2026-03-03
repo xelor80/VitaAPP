@@ -97,11 +97,11 @@ async def get_tracking_dashboard(profile_id: str, lang: str = "de"):
     # Fetch all data
     symptoms = await db.symptom_tracking.find(
         {"profile_id": profile_id}, {"_id": 0}
-    ).sort("date", 1).to_list(90)
+    ).sort("date", 1).limit(90).to_list(90)
 
     compliance = await db.compliance_tracking.find(
         {"profile_id": profile_id}, {"_id": 0}
-    ).sort("date", 1).to_list(90)
+    ).sort("date", 1).limit(90).to_list(90)
 
     # Symptom trend
     overall_values = [s["overall"] for s in symptoms]

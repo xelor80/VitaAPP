@@ -177,7 +177,7 @@ async def _enrich_schedule_with_products(weekly_schedule: dict, lang: str):
     """Enrich schedule items with real product names and dosage instructions."""
     collection = db.products_de if lang == "de" else db.products_it
     products = []
-    async for p in collection.find({}, {"_id": 0}):
+    async for p in collection.find({}, {"_id": 0}).limit(500):
         products.append(p)
 
     for timing_key in ["morning", "noon", "evening"]:
