@@ -80,6 +80,12 @@ def _parse_dosage_from_instructions(instructions: str, lang: str) -> dict | None
         return None
     text = instructions.lower()
 
+    # Skip useless instructions
+    useless = ["nicht angegeben", "keine angabe", "nicht spezifiziert", "unbekannt",
+               "nicht angegeben\n", "siehe verpackung", "empfohlene dosierung"]
+    if any(u in text for u in useless):
+        return None
+
     # Patterns for German
     patterns_de = [
         (r'(\d+)\s*sprühst', 'Sprühstöße', 'spray'),
@@ -119,13 +125,52 @@ def _parse_dosage_from_instructions(instructions: str, lang: str) -> dict | None
                 if form_word == "Kapseln": form_word = "Kapsel"
                 elif form_word == "Tabletten": form_word = "Tablette"
                 elif form_word == "Softgels": form_word = "Softgel"
-                elif form_word == "Messlöffel": pass
-                elif form_word == "Gummibärchen": pass
             elif count == 1 and lang == "it":
                 if form_word == "capsule": form_word = "capsula"
                 elif form_word == "compresse": form_word = "compressa"
             return {"count": count, "form_word": form_word, "label": f"{count} {form_word}"}
     return None
+
+
+def _infer_dosage_from_product_name(product_name: str, lang: str) -> dict:
+    """Infer dosage form from product name patterns when instructions are missing."""
+    name_lower = product_name.lower()
+
+    # Kolloidal/Kolloid products = spray
+    if "kolloid" in name_lower:
+        if lang == "de":
+            return {"count": 15, "form_word": "Sprühstöße", "label": "15 Sprühstöße"}
+        return {"count": 15, "form_word": "spray", "label": "15 spray"}
+
+    # "Direct" products = liquid/pipette
+    if "direct" in name_lower or "direkt" in name_lower or "diretto" in name_lower:
+        if lang == "de":
+            return {"count": 1, "form_word": "ml", "label": "1 ml"}
+        return {"count": 1, "form_word": "ml", "label": "1 ml"}
+
+    # "Gummies" products
+    if "gummi" in name_lower:
+        if lang == "de":
+            return {"count": 2, "form_word": "Gummibärchen", "label": "2 Gummibärchen"}
+        return {"count": 2, "form_word": "caramelle", "label": "2 caramelle"}
+
+    # Check for capsule count in product name like "60 Kapseln"
+    match = re.search(r'(\d+)\s*kapsel', name_lower)
+    if match:
+        if lang == "de":
+            return {"count": 1, "form_word": "Kapsel", "label": "1 Kapsel"}
+        return {"count": 1, "form_word": "capsula", "label": "1 capsula"}
+
+    # "Tabletten" in name
+    if "tablette" in name_lower or "compress" in name_lower:
+        if lang == "de":
+            return {"count": 1, "form_word": "Tablette", "label": "1 Tablette"}
+        return {"count": 1, "form_word": "compressa", "label": "1 compressa"}
+
+    # Default: capsule (most supplements from this shop are capsule-based)
+    if lang == "de":
+        return {"count": 1, "form_word": "Kapsel", "label": "1 Kapsel"}
+    return {"count": 1, "form_word": "capsula", "label": "1 capsula"}
 
 
 async def _enrich_schedule_with_products(weekly_schedule: dict, lang: str):
@@ -168,6 +213,9 @@ async def _enrich_schedule_with_products(weekly_schedule: dict, lang: str):
             # Parse real dosage form from product instructions
             ai = best.get("application_instructions", "")
             parsed = _parse_dosage_from_instructions(ai, lang)
+            if not parsed:
+                # Infer from product name patterns
+                parsed = _infer_dosage_from_product_name(best.get("name", ""), lang)
             if parsed:
                 item["form_label"] = parsed["label"]
                 item["form_count"] = parsed["count"]
