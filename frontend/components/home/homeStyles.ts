@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 export const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#F7F9F6' },
   centered: { justifyContent: 'center', alignItems: 'center' },
-  content: { padding: 14, paddingBottom: 32 },
+  content: { padding: 14, paddingBottom: 100 },
 
   // Header
   header: { alignItems: 'center', marginTop: 6, marginBottom: 8 },

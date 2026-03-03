@@ -3,7 +3,7 @@ const W = Dimensions.get('window').width;
 
 export const trackingStyles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F8FAF9' },
-  content: { padding: 20, paddingBottom: 40 },
+  content: { padding: 20, paddingBottom: 100 },
 
   header: { flexDirection: 'row', alignItems: 'center', marginBottom: 16, gap: 12 },
   backBtn: { width: 40, height: 40, borderRadius: 12, backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center' },

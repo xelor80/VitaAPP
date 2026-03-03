@@ -113,7 +113,7 @@ export default function RecipeScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#F7F9F6' },
   centered: { justifyContent: 'center', alignItems: 'center' },
-  content: { padding: 20, paddingBottom: 40 },
+  content: { padding: 20, paddingBottom: 100 },
 
   // Header
   headerBar: {

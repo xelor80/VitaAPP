@@ -474,7 +474,7 @@ const s = StyleSheet.create({
   },
   searchInput: { flex: 1, fontSize: 15, color: '#1A2D26', padding: 0 },
 
-  content: { padding: 16, paddingBottom: 40 },
+  content: { padding: 16, paddingBottom: 100 },
 
   // Filter sections
   filterSection: { marginBottom: 16 },

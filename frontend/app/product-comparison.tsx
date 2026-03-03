@@ -203,7 +203,7 @@ export default function ProductComparisonScreen() {
 
 const s = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#F8FAF9' },
-  content: { padding: 20, paddingBottom: 40 },
+  content: { padding: 20, paddingBottom: 100 },
   header: { flexDirection: 'row', alignItems: 'center', marginBottom: 16, gap: 12 },
   backBtn: { width: 40, height: 40, borderRadius: 12, backgroundColor: '#FFF', justifyContent: 'center', alignItems: 'center' },
   headerTitle: { fontSize: 20, fontWeight: '700', color: '#1A2D26' },

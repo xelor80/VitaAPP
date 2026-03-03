@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 
 export const onboardingStyles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F7F9F6' },
-  content: { flex: 1, padding: 20 },
+  content: { flex: 1, padding: 20, paddingBottom: 100 },
   
   // Progress
   progressContainer: { paddingHorizontal: 20, paddingTop: 20 },
