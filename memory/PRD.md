@@ -8,6 +8,7 @@ A health-focused, bilingual (German/Italian) mobile app where an LLM analyzes us
 - **Backend**: FastAPI (Python)
 - **Database**: MongoDB
 - **AI**: OpenAI GPT-4o via Emergent LLM Key
+- **TTS**: OpenAI TTS via Emergent LLM Key (emergentintegrations)
 - **Integrations**: Shopify (product import), SMTP (email export), Unsplash (recipe images)
 
 ## Implemented Features (Complete)
@@ -37,17 +38,25 @@ A health-focused, bilingual (German/Italian) mobile app where an LLM analyzes us
 24. Product-Driven Daily Plan (real product names, practical dosage)
 25. Redesigned Recipe Section (two-column image grid)
 26. Licensed Recipe Images (Unsplash, commercially safe)
+27. **TTS Audio Playback** (OpenAI TTS - read aloud personal summary, DE/IT)
 
 ## Deployment Fix (March 2026)
 - Deleted conflicting `package-lock.json` (project uses yarn)
-- Moved hardcoded admin password to environment variable
+- Moved hardcoded admin password to environment variable (`ADMIN_PASSWORD` in backend/.env)
 - `manifest invalid` error during docker-push is likely CI/CD infrastructure issue
+
+## Key API Endpoints
+- `POST /api/tts/generate` - Generate TTS audio (accepts text + lang, returns base64 MP3)
+- `POST /api/export/email` - Email health report
+- `GET /api/supplement-plan/{id}` - Get enriched supplement plan
+- `GET /api/recipes/{id}` - Get single recipe
+- `POST /api/admin/auth` - Admin authentication
 
 ## Key Credentials
 - Admin Password: stored in `ADMIN_PASSWORD` env var in backend/.env
 - SMTP: kasserver.com credentials in backend/.env
-- LLM: Emergent LLM Key in backend/.env
+- LLM/TTS: Emergent LLM Key in backend/.env
 
 ## Backlog
 - No pending feature requests
-- Awaiting user confirmation after successful deployment
+- Consider migrating from expo-av to expo-audio (expo-av deprecated in SDK 54)
