@@ -40,34 +40,33 @@ A health-focused, bilingual (German/Italian) mobile app where an LLM analyzes us
 26. Licensed Recipe Images (Unsplash, commercially safe)
 27. TTS Audio Playback (OpenAI TTS - read aloud personal summary, DE/IT)
 28. Daily Tasks "Heute fuer dich wichtig" (dynamic coach section)
-29. **Interactive Task Completion** (check off supplements + quick symptom rating from home screen)
+29. Interactive Task Completion (check off supplements + quick symptom rating from home)
+30. **Achievement System** (streaks, milestones, progress tracking, micro-animations)
 
 ## Key API Endpoints
-- `GET /api/daily-tasks/{profile_id}` - Get up to 3 prioritized daily tasks (with supplement items)
-- `POST /api/daily-tasks/complete-supplements` - Quick-complete supplements from home screen
-- `POST /api/daily-tasks/complete-symptom-check` - Quick symptom rating from home screen
+- `GET /api/achievements/{profile_id}` - Streaks, milestones, new badges
+- `GET /api/daily-tasks/{profile_id}` - Prioritized daily tasks
+- `POST /api/daily-tasks/complete-supplements` - Quick-complete supplements
+- `POST /api/daily-tasks/complete-symptom-check` - Quick symptom rating
 - `POST /api/tts/generate` - Generate TTS audio
 - `POST /api/export/email` - Email health report
-- `GET /api/supplement-plan/{id}` - Get enriched supplement plan
-- `GET /api/health-score/{profile_id}` - Get health score
+- `GET /api/supplement-plan/{id}` - Enriched supplement plan
+- `GET /api/health-score/{profile_id}` - Health score
 
-## Key Files
-- `/app/backend/routes/daily_tasks.py` - Daily tasks + quick-complete endpoints
+## Milestones Defined
+1. "7 Tage konsequent" - 7 days consecutive supplement intake
+2. "14 Tage Tracking" - 14 days consecutive symptom tracking
+3. "Stress -10%" - 10% stress reduction measured
+4. "Schlaf +15%" - 15% sleep quality improvement measured
+
+## Key Files (New in this session)
+- `/app/backend/routes/achievements.py` - Achievement engine
+- `/app/backend/routes/daily_tasks.py` - Daily tasks + quick-complete
 - `/app/backend/routes/tts.py` - TTS endpoint
-- `/app/frontend/components/home/DailyTasks.tsx` - Interactive daily tasks with expand/collapse, checkboxes, severity bar
-- `/app/frontend/app/index.tsx` - Home screen
-- `/app/frontend/app/supplement-plan.tsx` - Plan screen with TTS
-
-## Key Credentials
-- Admin Password: `ADMIN_PASSWORD` env var in backend/.env
-- SMTP: kasserver.com credentials in backend/.env
-- LLM/TTS: Emergent LLM Key in backend/.env
-
-## Deployment Fix (March 2026)
-- Deleted conflicting `package-lock.json`
-- Moved hardcoded admin password to environment variable
+- `/app/frontend/components/home/Achievements.tsx` - Streak + badges UI
+- `/app/frontend/components/home/DailyTasks.tsx` - Interactive daily tasks
 
 ## Backlog
 - No pending feature requests
-- Consider migrating expo-av to expo-audio (SDK 54)
-- TTS on symptom analysis page (future enhancement)
+- Consider migrating from expo-av to expo-audio (SDK 54)
+- TTS on symptom analysis page
