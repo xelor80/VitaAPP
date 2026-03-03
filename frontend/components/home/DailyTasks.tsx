@@ -64,8 +64,8 @@ export function DailyTasks({ lang, onNavigate }: Props) {
       const res = await fetch(`${API_URL}/api/daily-tasks/${profileId}?lang=${lang}`);
       if (res.ok) {
         const data = await res.json();
-        setTasks(data.tasks || []);
         setFirstName(data.first_name || null);
+        setTasks(data.tasks || []);
         setCheckedItems({});
         setCompletedTasks(new Set());
       }

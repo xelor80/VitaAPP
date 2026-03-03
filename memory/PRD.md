@@ -11,36 +11,26 @@ A health-focused, bilingual (German/Italian) mobile app where an LLM analyzes us
 - **TTS**: OpenAI TTS via Emergent LLM Key
 - **Integrations**: Shopify (product import), SMTP (email export), Unsplash (recipe images)
 
-## Implemented Features (Complete) - 34 Features
-1-26: [See previous PRD versions - onboarding through licensed recipe images]
-27. TTS Audio Playback (OpenAI TTS - read aloud personal summary, DE/IT)
-28. Daily Tasks "Heute fuer dich wichtig" (dynamic coach section)
-29. Interactive Task Completion (check off supplements + quick symptom rating from home)
-30. Achievement System (streaks, milestones, progress tracking, micro-animations)
-31. Optimized Affiliate CTAs (advisory tone, dynamic nutrient-specific CTAs, transparent disclaimers)
-32. Data-Driven Personalized Summary (no generic greetings, top 2 health drivers, strategic tone)
-33. Trust Elements & Social Proof (star ratings, review counts, Laborgeprüft badge, analysis counter)
-34. **First Name Personalization** (Vorname input in onboarding step 0, personalized "Hallo [Name]!" greeting on home screen)
+## Implemented Features (Complete) - 36 Features
+1-34: [See previous versions - onboarding through first name personalization]
+35. **Extended First Name Personalization** - Name used in DailyTasks section title ("Heute fuer Max wichtig"), supplement plan title ("Max, dein Mikronaehrstoff-Plan"), achievement streak labels ("Super, Max! Aktuelle Serie"), task reasons ("Max, dein Magnesium wartet"), and done messages
+36. **Swipe-Back Gesture** - Left-to-right swipe navigates back on all sub-screens (gestureEnabled: true + PanResponder-based useSwipeBack hook for web/cross-platform)
 
-## First Name Personalization Details (Feature #34)
-- Onboarding step 0 has "Vorname" input field
-- first_name saved to health_profiles collection
-- Home screen fetches profile and displays "Hallo [Name]!" / "Ciao [Name]!" in header
-- Graceful fallback: no greeting shown if no profile or no name set
+## Key Files Modified (Session 2)
+- `/app/backend/routes/daily_tasks.py` - Fetches first_name, personalizes task titles/reasons, includes first_name in response
+- `/app/backend/routes/achievements.py` - Fetches first_name, personalizes streak labels, includes first_name in response
+- `/app/frontend/components/home/DailyTasks.tsx` - Uses first_name from API for section title and done message
+- `/app/frontend/app/supplement-plan.tsx` - Fetches first_name, personalizes plan title
+- `/app/frontend/app/_layout.tsx` - gestureEnabled: true, SwipeWrapper with useSwipeBack
+- `/app/frontend/src/useSwipeBack.ts` - NEW: PanResponder hook for edge-swipe back navigation
 
 ## Key API Endpoints
 - `POST /api/health-profile` - Creates profile (includes first_name)
 - `GET /api/health-profile/{profile_id}` - Returns profile with first_name
-- `GET /api/stats/trust` - Trust statistics
-- `GET /api/achievements/{profile_id}` - Streaks, milestones
-- `GET /api/daily-tasks/{profile_id}` - Prioritized daily tasks
+- `GET /api/daily-tasks/{profile_id}` - Returns tasks + first_name field
+- `GET /api/achievements/{profile_id}` - Returns streaks + first_name field
 - `POST /api/tts/generate` - TTS audio generation
-
-## Key Files
-- `/app/backend/routes/health_profile.py` - Health profile CRUD + onboarding options
-- `/app/frontend/app/onboarding.tsx` - Onboarding wizard (Vorname in step 0)
-- `/app/frontend/app/index.tsx` - Home screen (fetches firstName, passes to header)
-- `/app/frontend/components/home/HomeHeader.tsx` - Displays personalized greeting
+- `GET /api/stats/trust` - Trust statistics
 
 ## Backlog
 - TTS auf Symptom-Analyse-Seite erweitern
