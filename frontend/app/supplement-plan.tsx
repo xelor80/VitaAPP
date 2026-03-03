@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity,
-  SafeAreaView, ActivityIndicator, TextInput, Linking, Alert, StyleSheet
+  SafeAreaView, ActivityIndicator, TextInput, Linking, Alert, StyleSheet, Platform
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Audio } from 'expo-av';
 import { useLang } from '../src/LangContext';
 import { planStyles as styles } from '../components/supplement/planStyles';
 import { InteractionAnalysis } from '../components/supplement/InteractionAnalysis';
@@ -67,6 +68,79 @@ export default function SupplementPlanScreen() {
   const [showReminders, setShowReminders] = useState(false);
   const [products, setProducts] = useState<any[]>([]);
   const [showEmailModal, setShowEmailModal] = useState(false);
+  const [ttsLoading, setTtsLoading] = useState(false);
+  const [ttsPlaying, setTtsPlaying] = useState(false);
+  const soundRef = useRef<Audio.Sound | null>(null);
+
+  const stopAudio = async () => {
+    if (soundRef.current) {
+      try {
+        await soundRef.current.stopAsync();
+        await soundRef.current.unloadAsync();
+      } catch (e) { /* ignore */ }
+      soundRef.current = null;
+    }
+    setTtsPlaying(false);
+  };
+
+  const playTTS = async (text: string) => {
+    if (ttsPlaying) {
+      await stopAudio();
+      return;
+    }
+    setTtsLoading(true);
+    try {
+      if (Platform.OS !== 'web') {
+        await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
+      }
+      const res = await fetch(`${API_URL}/api/tts/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, lang }),
+      });
+      if (!res.ok) throw new Error('TTS failed');
+      const data = await res.json();
+
+      if (Platform.OS === 'web') {
+        // Web: use HTML5 Audio
+        const audioSrc = `data:audio/mp3;base64,${data.audio_base64}`;
+        const audio = new window.Audio(audioSrc);
+        audio.onended = () => setTtsPlaying(false);
+        audio.play();
+        setTtsPlaying(true);
+        // Store ref for stop
+        (soundRef as any).current = { stopAsync: () => { audio.pause(); audio.currentTime = 0; return Promise.resolve(); }, unloadAsync: () => Promise.resolve() };
+      } else {
+        // Native: use expo-av
+        const { sound } = await Audio.Sound.createAsync(
+          { uri: `data:audio/mp3;base64,${data.audio_base64}` },
+          { shouldPlay: true }
+        );
+        soundRef.current = sound;
+        setTtsPlaying(true);
+        sound.setOnPlaybackStatusUpdate((status: any) => {
+          if (status.didJustFinish) {
+            setTtsPlaying(false);
+            sound.unloadAsync();
+            soundRef.current = null;
+          }
+        });
+      }
+    } catch (e) {
+      console.error('TTS error:', e);
+      Alert.alert(
+        lang === 'de' ? 'Fehler' : 'Errore',
+        lang === 'de' ? 'Audio konnte nicht generiert werden.' : 'Impossibile generare l\'audio.'
+      );
+    } finally {
+      setTtsLoading(false);
+    }
+  };
+
+  // Cleanup audio on unmount
+  useEffect(() => {
+    return () => { stopAudio(); };
+  }, []);
 
   useEffect(() => {
     const init = async () => {
@@ -265,7 +339,30 @@ export default function SupplementPlanScreen() {
         {/* Personal Summary */}
         {plan.personal_summary && (
           <View style={styles.summaryCard}>
-            <MaterialCommunityIcons name="account-heart" size={24} color="#4A8B71" />
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <MaterialCommunityIcons name="account-heart" size={24} color="#4A8B71" />
+              <TouchableOpacity
+                testID="tts-play-btn"
+                onPress={() => playTTS(plan.personal_summary)}
+                disabled={ttsLoading}
+                style={ttsStyles.playBtn}
+              >
+                {ttsLoading ? (
+                  <ActivityIndicator size="small" color="#4A8B71" />
+                ) : (
+                  <MaterialCommunityIcons
+                    name={ttsPlaying ? 'stop-circle' : 'play-circle'}
+                    size={32}
+                    color="#4A8B71"
+                  />
+                )}
+                <Text style={ttsStyles.playLabel}>
+                  {ttsPlaying
+                    ? (lang === 'de' ? 'Stopp' : 'Stop')
+                    : (lang === 'de' ? 'Vorlesen' : 'Ascolta')}
+                </Text>
+              </TouchableOpacity>
+            </View>
             <Text style={styles.summaryText}>{plan.personal_summary}</Text>
           </View>
         )}
@@ -656,4 +753,21 @@ const ms = StyleSheet.create({
   primaryCtaText: { color: '#FFF', fontSize: 14, fontWeight: '600' },
   secondaryCta: { alignItems: 'center', paddingVertical: 6 },
   secondaryCtaText: { color: '#6B7280', fontSize: 12, fontWeight: '500', textDecorationLine: 'underline' },
+});
+
+const ttsStyles = StyleSheet.create({
+  playBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#D7EDDF',
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  playLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#2D5A3F',
+  },
 });
