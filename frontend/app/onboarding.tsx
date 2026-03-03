@@ -18,6 +18,7 @@ const STEP_TITLES = {
 };
 
 interface ProfileData {
+  first_name: string;
   age: string;
   gender: string;
   height: string;
@@ -48,7 +49,7 @@ export default function OnboardingScreen() {
   const [profileId, setProfileId] = useState<string | null>(null);
   
   const [profile, setProfile] = useState<ProfileData>({
-    age: '', gender: '', height: '', weight: '',
+    first_name: '', age: '', gender: '', height: '', weight: '',
     diet: '', activity_level: '',
     sleep_quality: 7, sleep_duration: '7', sleep_issues: [],
     stress_level: 5, stress_type: [], energy_level: 5,
@@ -101,6 +102,7 @@ export default function OnboardingScreen() {
     setSubmitting(true);
     try {
       const payload = {
+        first_name: profile.first_name || null,
         age: parseInt(profile.age) || null,
         gender: profile.gender || null,
         height: parseFloat(profile.height) || null,
@@ -318,7 +320,16 @@ export default function OnboardingScreen() {
         {/* Step 1: Basic Data */}
         {step === 0 && (
           <View style={styles.card}>
-            <View style={styles.inputRow}>
+            <Text style={styles.label}>{lang === 'de' ? 'Vorname' : 'Nome'}</Text>
+            <TextInput
+              style={styles.input}
+              value={profile.first_name}
+              onChangeText={v => setProfile({ ...profile, first_name: v })}
+              placeholder={lang === 'de' ? 'Ihr Vorname' : 'Il tuo nome'}
+              placeholderTextColor="#8FA39B"
+              data-testid="onboarding-first-name"
+            />
+            <View style={[styles.inputRow, { marginTop: 16 }]}>
               <View style={styles.inputHalf}>
                 <Text style={styles.label}>{lang === 'de' ? 'Alter' : 'Età'}</Text>
                 <TextInput

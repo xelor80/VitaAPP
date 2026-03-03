@@ -42,8 +42,8 @@
     "frontend": "100% (13/13 tests passing)"
   },
   "test_credentials": {
-    "app_url": "https://nutrition-ai-plan.preview.emergentagent.com",
-    "recipes_catalog_url": "https://nutrition-ai-plan.preview.emergentagent.com/recipes-catalog"
+    "app_url": "https://wellness-profile-hub.preview.emergentagent.com",
+    "recipes_catalog_url": "https://wellness-profile-hub.preview.emergentagent.com/recipes-catalog"
   },
   "seed_data_creation": "Used existing recipe data - tested with 'Kopfschmerzen' category (3 recipes) and 'Schnell' time filter (20 recipes)",
   "retest_needed": false,

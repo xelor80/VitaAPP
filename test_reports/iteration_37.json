@@ -82,7 +82,7 @@
     "frontend": "N/A - backend only testing requested"
   },
   "test_credentials": {
-    "api_url": "https://nutrition-ai-plan.preview.emergentagent.com",
+    "api_url": "https://wellness-profile-hub.preview.emergentagent.com",
     "test_profile_id": "f0ab7890-2765-44b4-805f-c20d0629cbe8"
   },
   "seed_data_creation": "Used existing test profile with vegetarian diet, complaints: fatigue+sleep",

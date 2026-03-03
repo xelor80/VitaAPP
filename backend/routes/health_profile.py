@@ -11,6 +11,8 @@ router = APIRouter()
 
 
 class HealthProfileCreate(BaseModel):
+    # Personal
+    first_name: Optional[str] = None
     # Basic data
     age: Optional[int] = None
     gender: Optional[str] = None  # male, female, diverse
@@ -60,6 +62,7 @@ async def create_health_profile(data: HealthProfileCreate):
     
     profile_doc = {
         "id": profile_id,
+        "first_name": data.first_name,
         "age": data.age,
         "gender": data.gender,
         "height": data.height,
@@ -136,6 +139,7 @@ async def update_health_profile(profile_id: str, data: HealthProfileUpdate):
     now = datetime.now(timezone.utc)
     
     update_data = {
+        "first_name": data.first_name,
         "age": data.age,
         "gender": data.gender,
         "height": data.height,
