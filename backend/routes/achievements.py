@@ -121,6 +121,12 @@ async def _calc_symptom_change(profile_id: str, symptom_key: str, days: int = 30
 async def get_achievements(profile_id: str, lang: str = "de"):
     """Get user achievements, streaks, and milestones."""
 
+    # Fetch first_name for personalization
+    profile_doc = await db.health_profiles.find_one(
+        {"id": profile_id}, {"_id": 0, "first_name": 1}
+    )
+    first_name_user = (profile_doc or {}).get("first_name") or None
+
     # Calculate streaks
     compliance_streak = await _calc_streak("compliance_tracking", profile_id, "supplements")
     tracking_streak = await _calc_streak("symptom_tracking", profile_id)
@@ -197,6 +203,7 @@ async def get_achievements(profile_id: str, lang: str = "de"):
         )
 
     return {
+        "first_name": first_name_user,
         "streak": {
             "current": best_streak,
             "type": streak_type,
@@ -204,9 +211,9 @@ async def get_achievements(profile_id: str, lang: str = "de"):
             "tracking_streak": tracking_streak,
             "next_goal": next_goal,
             "label": (
-                (lang == "de" and f"Aktuelle Serie: {best_streak} Tage" or f"Serie attuale: {best_streak} giorni")
+                (lang == "de" and f"{'Super, ' + first_name_user + '! ' if first_name_user else ''}Aktuelle Serie: {best_streak} Tage" or f"{'Fantastico, ' + first_name_user + '! ' if first_name_user else ''}Serie attuale: {best_streak} giorni")
                 if best_streak > 0
-                else (lang == "de" and "Starten Sie Ihre Serie!" or "Inizia la tua serie!")
+                else (lang == "de" and f"{first_name_user + ', s' if first_name_user else 'S'}tarten Sie Ihre Serie!" or f"{first_name_user + ', i' if first_name_user else 'I'}nizia la tua serie!")
             ),
             "next_label": (
                 (lang == "de" and f"Naechstes Ziel: {next_goal} Tage" or f"Prossimo obiettivo: {next_goal} giorni")

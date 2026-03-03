@@ -53,6 +53,7 @@ export function DailyTasks({ lang, onNavigate }: Props) {
   const [symptomRating, setSymptomRating] = useState(5);
   const [saving, setSaving] = useState(false);
   const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set());
+  const [firstName, setFirstName] = useState<string | null>(null);
 
   useEffect(() => { loadTasks(); }, [lang]);
 
@@ -64,6 +65,7 @@ export function DailyTasks({ lang, onNavigate }: Props) {
       if (res.ok) {
         const data = await res.json();
         setTasks(data.tasks || []);
+        setFirstName(data.first_name || null);
         setCheckedItems({});
         setCompletedTasks(new Set());
       }
@@ -136,13 +138,17 @@ export function DailyTasks({ lang, onNavigate }: Props) {
         <View style={s.headerRow}>
           <MaterialCommunityIcons name="star-four-points" size={18} color="#4A8B71" />
           <Text style={s.sectionTitle}>
-            {lang === 'de' ? 'Heute fuer dich wichtig' : 'Importante per te oggi'}
+            {firstName
+              ? (lang === 'de' ? `Heute fuer ${firstName} wichtig` : `Importante per ${firstName} oggi`)
+              : (lang === 'de' ? 'Heute fuer dich wichtig' : 'Importante per te oggi')}
           </Text>
         </View>
         <View style={s.doneCard}>
           <MaterialCommunityIcons name="check-circle" size={28} color="#22C55E" />
           <Text style={s.doneText}>
-            {lang === 'de' ? 'Alles erledigt! Gut gemacht.' : 'Tutto fatto! Ben fatto.'}
+            {firstName
+              ? (lang === 'de' ? `Alles erledigt! Gut gemacht, ${firstName}.` : `Tutto fatto! Ben fatto, ${firstName}.`)
+              : (lang === 'de' ? 'Alles erledigt! Gut gemacht.' : 'Tutto fatto! Ben fatto.')}
           </Text>
         </View>
       </View>
@@ -154,7 +160,9 @@ export function DailyTasks({ lang, onNavigate }: Props) {
       <View style={s.headerRow}>
         <MaterialCommunityIcons name="star-four-points" size={18} color="#4A8B71" />
         <Text style={s.sectionTitle}>
-          {lang === 'de' ? 'Heute fuer dich wichtig' : 'Importante per te oggi'}
+          {firstName
+            ? (lang === 'de' ? `Heute fuer ${firstName} wichtig` : `Importante per ${firstName} oggi`)
+            : (lang === 'de' ? 'Heute fuer dich wichtig' : 'Importante per te oggi')}
         </Text>
       </View>
 

@@ -45,6 +45,12 @@ async def get_daily_tasks(profile_id: str, lang: str = "de"):
     now = datetime.now(timezone.utc)
     today = now.strftime("%Y-%m-%d")
 
+    # Fetch first_name for personalization
+    profile_doc = await db.health_profiles.find_one(
+        {"id": profile_id}, {"_id": 0, "first_name": 1}
+    )
+    first_name_user = (profile_doc or {}).get("first_name") or None
+
     # --- 1. Fällige Supplement-Einnahme (Priority: HIGHEST) ---
     plan_doc = await db.supplement_plans.find_one(
         {"profile_id": profile_id}, {"_id": 0}
@@ -77,10 +83,22 @@ async def get_daily_tasks(profile_id: str, lang: str = "de"):
 
                 if lang == "de":
                     title = f"{timing_lbl}: {count} Supplement{'e' if count > 1 else ''}"
-                    reason = f"{first_name}" + (f" + {count - 1} weitere" if count > 1 else "")
+                    if first_name_user:
+                        if count == 1:
+                            reason = f"{first_name_user}, dein {first_name} wartet"
+                        else:
+                            reason = f"{first_name_user}, {first_name} + {count - 1} weitere warten"
+                    else:
+                        reason = f"{first_name}" + (f" + {count - 1} weitere" if count > 1 else "")
                 else:
                     title = f"{timing_lbl}: {count} supplement{'i' if count > 1 else 'o'}"
-                    reason = f"{first_name}" + (f" + {count - 1} altri" if count > 1 else "")
+                    if first_name_user:
+                        if count == 1:
+                            reason = f"{first_name_user}, il tuo {first_name} ti aspetta"
+                        else:
+                            reason = f"{first_name_user}, {first_name} + {count - 1} altri ti aspettano"
+                    else:
+                        reason = f"{first_name}" + (f" + {count - 1} altri" if count > 1 else "")
 
                 # Calculate total compliance for today
                 all_items = []
@@ -191,11 +209,11 @@ async def get_daily_tasks(profile_id: str, lang: str = "de"):
                 break
 
         if lang == "de":
-            title = "Symptom-Check fällig"
-            reason = f"Streak: {streak} Tage" if streak > 0 else "Starten Sie Ihr tägliches Tracking"
+            title = f"{first_name_user + ', ' if first_name_user else ''}Symptom-Check faellig"
+            reason = f"Streak: {streak} Tage" if streak > 0 else "Starten Sie Ihr taegliches Tracking"
             cta = "Jetzt bewerten"
         else:
-            title = "Controllo sintomi dovuto"
+            title = f"{first_name_user + ', ' if first_name_user else ''}Controllo sintomi dovuto"
             reason = f"Serie: {streak} giorni" if streak > 0 else "Inizia il monitoraggio giornaliero"
             cta = "Valuta ora"
 
@@ -250,7 +268,7 @@ async def get_daily_tasks(profile_id: str, lang: str = "de"):
 
     # Sort by priority and return max 3
     tasks.sort(key=lambda t: t["priority"])
-    return {"tasks": tasks[:3], "total_available": len(tasks)}
+    return {"tasks": tasks[:3], "total_available": len(tasks), "first_name": first_name_user}
 
 
 @router.post("/daily-tasks/complete-supplements")

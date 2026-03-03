@@ -70,6 +70,7 @@ export default function SupplementPlanScreen() {
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [ttsLoading, setTtsLoading] = useState(false);
   const [ttsPlaying, setTtsPlaying] = useState(false);
+  const [firstName, setFirstName] = useState<string | null>(null);
   const soundRef = useRef<Audio.Sound | null>(null);
 
   const stopAudio = async () => {
@@ -152,6 +153,14 @@ export default function SupplementPlanScreen() {
         setCurrentProfileId(pid);
         await loadPlan(pid);
         await loadProducts();
+        // Load first name for personalization
+        try {
+          const profileRes = await fetch(`${API_URL}/api/health-profile/${pid}`);
+          if (profileRes.ok) {
+            const profileData = await profileRes.json();
+            if (profileData.profile?.first_name) setFirstName(profileData.profile.first_name);
+          }
+        } catch {}
       } else {
         setLoading(false);
       }
@@ -322,7 +331,9 @@ export default function SupplementPlanScreen() {
           </TouchableOpacity>
           <View style={{ flex: 1 }}>
             <Text style={styles.title}>
-              {lang === 'de' ? 'Ihr Mikronaehrstoff-Plan' : 'Il tuo piano micronutrienti'}
+              {firstName
+                ? (lang === 'de' ? `${firstName}, dein Mikronaehrstoff-Plan` : `${firstName}, il tuo piano micronutrienti`)
+                : (lang === 'de' ? 'Ihr Mikronaehrstoff-Plan' : 'Il tuo piano micronutrienti')}
             </Text>
             <Text style={styles.subtitle}>
               {lang === 'de' ? `${plan.total_supplements} Supplements - 8 Wochen` : `${plan.total_supplements} supplementi - 8 settimane`}
