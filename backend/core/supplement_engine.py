@@ -10,6 +10,7 @@ SUPPLEMENT_DB = {
         "name_it": "Vitamina D3",
         "dosage_default": {"amount": 2000, "unit": "IE", "unit_it": "UI"},
         "dosage_high_risk": {"amount": 4000, "unit": "IE", "unit_it": "UI"},
+        "form": {"type_de": "Tropfen", "type_it": "gocce", "per_unit": 1000, "unit": "IE"},
         "timing": "morning",
         "with_food": True,
         "duration_weeks": 8,
@@ -30,6 +31,7 @@ SUPPLEMENT_DB = {
         "name_it": "Vitamina K2 (MK-7)",
         "dosage_default": {"amount": 100, "unit": "mcg", "unit_it": "mcg"},
         "dosage_high_risk": {"amount": 200, "unit": "mcg", "unit_it": "mcg"},
+        "form": {"type_de": "Tropfen", "type_it": "gocce", "per_unit": 100, "unit": "mcg"},
         "timing": "morning",
         "with_food": True,
         "duration_weeks": 8,
@@ -50,6 +52,7 @@ SUPPLEMENT_DB = {
         "name_it": "Magnesio (Glicinato)",
         "dosage_default": {"amount": 300, "unit": "mg", "unit_it": "mg"},
         "dosage_high_risk": {"amount": 400, "unit": "mg", "unit_it": "mg"},
+        "form": {"type_de": "Kapsel", "type_it": "capsula", "per_unit": 200, "unit": "mg"},
         "timing": "evening",
         "with_food": False,
         "duration_weeks": 8,
@@ -70,6 +73,7 @@ SUPPLEMENT_DB = {
         "name_it": "Omega-3 (EPA/DHA)",
         "dosage_default": {"amount": 1000, "unit": "mg", "unit_it": "mg"},
         "dosage_high_risk": {"amount": 2000, "unit": "mg", "unit_it": "mg"},
+        "form": {"type_de": "Softgel", "type_it": "softgel", "per_unit": 500, "unit": "mg"},
         "timing": "morning",
         "with_food": True,
         "duration_weeks": 8,
@@ -90,6 +94,7 @@ SUPPLEMENT_DB = {
         "name_it": "Vitamina B12 (Metilcobalamina)",
         "dosage_default": {"amount": 500, "unit": "mcg", "unit_it": "mcg"},
         "dosage_high_risk": {"amount": 1000, "unit": "mcg", "unit_it": "mcg"},
+        "form": {"type_de": "Tropfen", "type_it": "gocce", "per_unit": 500, "unit": "mcg"},
         "timing": "morning",
         "with_food": False,
         "duration_weeks": 8,
@@ -110,6 +115,7 @@ SUPPLEMENT_DB = {
         "name_it": "Ferro (Bisglicinato)",
         "dosage_default": {"amount": 14, "unit": "mg", "unit_it": "mg"},
         "dosage_high_risk": {"amount": 20, "unit": "mg", "unit_it": "mg"},
+        "form": {"type_de": "Kapsel", "type_it": "capsula", "per_unit": 20, "unit": "mg"},
         "timing": "morning",
         "with_food": False,
         "duration_weeks": 8,
@@ -130,6 +136,7 @@ SUPPLEMENT_DB = {
         "name_it": "Zinco (Picolinato)",
         "dosage_default": {"amount": 15, "unit": "mg", "unit_it": "mg"},
         "dosage_high_risk": {"amount": 25, "unit": "mg", "unit_it": "mg"},
+        "form": {"type_de": "Kapsel", "type_it": "capsula", "per_unit": 25, "unit": "mg"},
         "timing": "evening",
         "with_food": True,
         "duration_weeks": 8,
@@ -150,6 +157,7 @@ SUPPLEMENT_DB = {
         "name_it": "Vitamina C",
         "dosage_default": {"amount": 500, "unit": "mg", "unit_it": "mg"},
         "dosage_high_risk": {"amount": 1000, "unit": "mg", "unit_it": "mg"},
+        "form": {"type_de": "Kapsel", "type_it": "capsula", "per_unit": 500, "unit": "mg"},
         "timing": "morning",
         "with_food": True,
         "duration_weeks": 8,
@@ -170,6 +178,7 @@ SUPPLEMENT_DB = {
         "name_it": "Complesso Vitaminico B",
         "dosage_default": {"amount": 1, "unit": "Kapsel", "unit_it": "capsula"},
         "dosage_high_risk": {"amount": 1, "unit": "Kapsel", "unit_it": "capsula"},
+        "form": {"type_de": "Kapsel", "type_it": "capsula", "per_unit": 1, "unit": "Kapsel"},
         "timing": "morning",
         "with_food": True,
         "duration_weeks": 8,
@@ -190,6 +199,7 @@ SUPPLEMENT_DB = {
         "name_it": "Calcio (Citrato)",
         "dosage_default": {"amount": 500, "unit": "mg", "unit_it": "mg"},
         "dosage_high_risk": {"amount": 800, "unit": "mg", "unit_it": "mg"},
+        "form": {"type_de": "Tablette", "type_it": "compressa", "per_unit": 400, "unit": "mg"},
         "timing": "evening",
         "with_food": True,
         "duration_weeks": 8,
@@ -210,6 +220,7 @@ SUPPLEMENT_DB = {
         "name_it": "Folato (5-MTHF)",
         "dosage_default": {"amount": 400, "unit": "mcg", "unit_it": "mcg"},
         "dosage_high_risk": {"amount": 800, "unit": "mcg", "unit_it": "mcg"},
+        "form": {"type_de": "Kapsel", "type_it": "capsula", "per_unit": 400, "unit": "mcg"},
         "timing": "morning",
         "with_food": False,
         "duration_weeks": 8,
@@ -230,6 +241,7 @@ SUPPLEMENT_DB = {
         "name_it": "Coenzima Q10 (Ubiquinolo)",
         "dosage_default": {"amount": 100, "unit": "mg", "unit_it": "mg"},
         "dosage_high_risk": {"amount": 200, "unit": "mg", "unit_it": "mg"},
+        "form": {"type_de": "Softgel", "type_it": "softgel", "per_unit": 100, "unit": "mg"},
         "timing": "morning",
         "with_food": True,
         "duration_weeks": 8,
@@ -250,6 +262,7 @@ SUPPLEMENT_DB = {
         "name_it": "Probiotici (Multi-ceppo)",
         "dosage_default": {"amount": 10, "unit": "Mrd. KBE", "unit_it": "mld. UFC"},
         "dosage_high_risk": {"amount": 20, "unit": "Mrd. KBE", "unit_it": "mld. UFC"},
+        "form": {"type_de": "Kapsel", "type_it": "capsula", "per_unit": 10, "unit": "Mrd. KBE"},
         "timing": "morning",
         "with_food": False,
         "duration_weeks": 8,
@@ -270,6 +283,7 @@ SUPPLEMENT_DB = {
         "name_it": "Ashwagandha (KSM-66)",
         "dosage_default": {"amount": 300, "unit": "mg", "unit_it": "mg"},
         "dosage_high_risk": {"amount": 600, "unit": "mg", "unit_it": "mg"},
+        "form": {"type_de": "Kapsel", "type_it": "capsula", "per_unit": 300, "unit": "mg"},
         "timing": "evening",
         "with_food": True,
         "duration_weeks": 8,
@@ -290,6 +304,7 @@ SUPPLEMENT_DB = {
         "name_it": "Iodio (Ioduro di potassio)",
         "dosage_default": {"amount": 150, "unit": "mcg", "unit_it": "mcg"},
         "dosage_high_risk": {"amount": 200, "unit": "mcg", "unit_it": "mcg"},
+        "form": {"type_de": "Tablette", "type_it": "compressa", "per_unit": 150, "unit": "mcg"},
         "timing": "morning",
         "with_food": True,
         "duration_weeks": 8,
@@ -310,6 +325,7 @@ SUPPLEMENT_DB = {
         "name_it": "Selenio (Selenometionina)",
         "dosage_default": {"amount": 100, "unit": "mcg", "unit_it": "mcg"},
         "dosage_high_risk": {"amount": 200, "unit": "mcg", "unit_it": "mcg"},
+        "form": {"type_de": "Kapsel", "type_it": "capsula", "per_unit": 100, "unit": "mcg"},
         "timing": "morning",
         "with_food": True,
         "duration_weeks": 8,
@@ -330,6 +346,7 @@ SUPPLEMENT_DB = {
         "name_it": "Vitamina E (Mix Tocoferoli)",
         "dosage_default": {"amount": 12, "unit": "mg", "unit_it": "mg"},
         "dosage_high_risk": {"amount": 20, "unit": "mg", "unit_it": "mg"},
+        "form": {"type_de": "Softgel", "type_it": "softgel", "per_unit": 12, "unit": "mg"},
         "timing": "morning",
         "with_food": True,
         "duration_weeks": 8,
@@ -626,7 +643,7 @@ def generate_supplement_plan(profile: dict, assessment: dict, lang: str = "de") 
 
 
 def _build_weekly_schedule(stack: list, lang: str) -> dict:
-    """Build daily schedule grouped by timing."""
+    """Build daily schedule grouped by timing with practical dosage forms."""
     schedule = {"morning": [], "noon": [], "evening": []}
 
     for item in stack[:10]:
@@ -639,6 +656,33 @@ def _build_weekly_schedule(stack: list, lang: str) -> dict:
             "with_food": item["with_food"],
             "with_food_label": item["with_food_label"],
         }
+        # Add practical dosage form info from SUPPLEMENT_DB
+        db_entry = SUPPLEMENT_DB.get(item["id"])
+        if db_entry and "form" in db_entry:
+            form_info = db_entry["form"]
+            per_unit = form_info["per_unit"]
+            form_type = form_info["type_de"] if lang == "de" else form_info["type_it"]
+            count = max(1, round(item["dosage"] / per_unit)) if per_unit > 0 else 1
+            # Build plural form
+            if lang == "de":
+                if count > 1 and form_type == "Kapsel":
+                    form_label = "Kapseln"
+                elif count > 1 and form_type == "Tablette":
+                    form_label = "Tabletten"
+                elif count > 1 and form_type == "Softgel":
+                    form_label = "Softgels"
+                else:
+                    form_label = form_type
+            else:
+                if count > 1 and form_type == "capsula":
+                    form_label = "capsule"
+                elif count > 1 and form_type == "compressa":
+                    form_label = "compresse"
+                else:
+                    form_label = form_type
+            entry["form_type"] = form_type
+            entry["form_count"] = count
+            entry["form_label"] = f"{count} {form_label}"
         schedule[timing].append(entry)
 
     return {

@@ -510,13 +510,27 @@ export default function SupplementPlanScreen() {
                     <Text style={styles.scheduleTitle}>{section.label}</Text>
                     <Text style={styles.scheduleCount}>{items.length}</Text>
                   </View>
-                  {items.map((item: any) => (
+                  {items.map((item: any) => {
+                    const isRedundant = item.form_label && item.unit === item.form_type;
+                    return (
                     <View key={item.id} style={styles.scheduleItem}>
                       <MaterialCommunityIcons name="pill" size={18} color="#5C7A6F" />
-                      <Text style={styles.scheduleItemName}>{item.name}</Text>
-                      <Text style={styles.scheduleItemDose}>{item.dosage} {item.unit}</Text>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.scheduleItemName}>{item.name}</Text>
+                      </View>
+                      <View style={{ alignItems: 'flex-end' }}>
+                        <Text style={styles.scheduleItemDose}>
+                          {item.form_label || `${item.dosage} ${item.unit}`}
+                        </Text>
+                        {item.form_label && !isRedundant && (
+                          <Text style={{ fontSize: 11, color: '#8FA39B' }}>
+                            ({item.dosage} {item.unit})
+                          </Text>
+                        )}
+                      </View>
                     </View>
-                  ))}
+                    );
+                  })}
                   <Text style={styles.scheduleNote}>
                     {items[0]?.with_food
                       ? (lang === 'de' ? 'Mit Mahlzeit einnehmen' : 'Assumere con pasto')
