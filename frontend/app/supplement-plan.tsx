@@ -573,20 +573,12 @@ export default function SupplementPlanScreen() {
                     params: { nutrient: s.id, risk: s.risk_level }
                   })}
                 >
-                  <MaterialCommunityIcons name="shopping-outline" size={16} color="#FFF" />
-                  <Text style={ms.primaryCtaText}>{lang === 'de' ? 'Empfohlenes Produkt anzeigen' : 'Mostra prodotto consigliato'}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  data-testid={`compare-cta-${s.id}`}
-                  style={ms.secondaryCta}
-                  onPress={() => router.push({
-                    pathname: '/product-comparison',
-                    params: { nutrient: s.id, risk: s.risk_level }
-                  })}
-                >
-                  <Text style={ms.secondaryCtaText}>
-                    {lang === 'de' ? 'Qualitaetsgepruefte Optionen vergleichen' : 'Confronta opzioni certificate'}
-                  </Text>
+                  <MaterialCommunityIcons name="shield-search" size={16} color="#FFF" />
+                  <Text style={ms.primaryCtaText}>{
+                    s.risk_level === 'high'
+                      ? (lang === 'de' ? `Optimale ${s.name?.split(' ')[0] || s.id}-Quelle finden` : `Trova fonte ottimale di ${s.name?.split(' ')[0] || s.id}`)
+                      : (lang === 'de' ? 'Qualitaetsgepruefte Optionen vergleichen' : 'Confronta opzioni certificate')
+                  }</Text>
                 </TouchableOpacity>
               </View>
             </View>

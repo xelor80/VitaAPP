@@ -57,22 +57,25 @@ export default function ProductComparisonScreen() {
   const nutrientName = NUTRIENT_NAMES[nutrient]?.[lang] || nutrient;
 
   const tx = {
-    title: lang === 'de' ? 'Empfohlene Produkte' : 'Prodotti consigliati',
+    title: lang === 'de' ? 'Qualitaetsgepruefte Optionen' : 'Opzioni verificate',
     for: lang === 'de' ? 'fuer' : 'per',
     dailyDose: lang === 'de' ? 'Empf. Tagesdosis' : 'Dose giornaliera',
     form: lang === 'de' ? 'Empf. Form' : 'Forma consigliata',
     tip: lang === 'de' ? 'Einnahme-Tipp' : 'Consiglio',
     price: lang === 'de' ? 'Preis' : 'Prezzo',
+    pricePerDay: lang === 'de' ? 'Preis/Tag' : 'Prezzo/giorno',
     rating: lang === 'de' ? 'Bewertung' : 'Valutazione',
     quality: lang === 'de' ? 'Qualitaetsmerkmale' : 'Qualita',
-    viewProduct: lang === 'de' ? 'Zum Produkt' : 'Vai al prodotto',
+    viewProduct: risk === 'high'
+      ? (lang === 'de' ? `Optimale ${nutrientName}-Quelle` : `Fonte ottimale di ${nutrientName}`)
+      : (lang === 'de' ? 'Optionen vergleichen' : 'Confronta opzioni'),
     noProducts: lang === 'de' ? 'Keine passenden Produkte gefunden' : 'Nessun prodotto trovato',
     noProductsSub: lang === 'de'
       ? 'Fuer diesen Naehrstoff sind aktuell keine Produkte verfuegbar.'
       : 'Al momento non sono disponibili prodotti per questo nutriente.',
     disclaimer: lang === 'de'
-      ? 'Affiliate-Links: Bei einem Kauf erhalten wir eine kleine Provision.'
-      : 'Link affiliati: riceviamo una piccola commissione per ogni acquisto.',
+      ? 'Transparenzhinweis: Diese Seite enthaelt Affiliate-Links. Bei einem Kauf ueber diese Links erhalten wir eine kleine Provision - fuer Sie ohne Mehrkosten.'
+      : 'Nota di trasparenza: questa pagina contiene link di affiliazione. Se acquisti tramite questi link, riceviamo una piccola commissione - senza costi aggiuntivi per te.',
     backToPlan: lang === 'de' ? 'Zum Supplement-Plan' : 'Vai al piano',
   };
 
@@ -183,13 +186,23 @@ export default function ProductComparisonScreen() {
 
               {/* Affiliate CTA */}
               <TouchableOpacity
-                style={[s.affiliateBtn, { backgroundColor: accentColor }]}
+                style={[s.affiliateBtn, { backgroundColor: '#4A8B71' }]}
                 onPress={() => p.affiliate_url && Linking.openURL(p.affiliate_url)}
                 data-testid={`affiliate-btn-${i}`}
               >
-                <MaterialCommunityIcons name="open-in-new" size={16} color="#FFF" />
+                <MaterialCommunityIcons name="shield-search" size={16} color="#FFF" />
                 <Text style={s.affiliateBtnText}>{tx.viewProduct}</Text>
               </TouchableOpacity>
+
+              {/* Price per day hint */}
+              {p.price && p.servings && (
+                <View style={s.pricePerDayRow}>
+                  <MaterialCommunityIcons name="calculator-variant" size={13} color="#5C7A6F" />
+                  <Text style={s.pricePerDayText}>
+                    {tx.pricePerDay}: ~{(parseFloat(p.price.replace(/[^0-9.,]/g, '').replace(',', '.')) / Math.max(1, parseInt(p.servings) || 30)).toFixed(2).replace('.', ',')} EUR
+                  </Text>
+                </View>
+              )}
             </View>
           ))
         )}
@@ -237,6 +250,9 @@ const s = StyleSheet.create({
 
   affiliateBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderRadius: 10, paddingVertical: 12 },
   affiliateBtnText: { color: '#FFF', fontSize: 14, fontWeight: '600' },
+
+  pricePerDayRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8, paddingHorizontal: 4 },
+  pricePerDayText: { fontSize: 12, color: '#5C7A6F' },
 
   emptyState: { alignItems: 'center', paddingVertical: 40 },
   emptyTitle: { fontSize: 17, fontWeight: '600', color: '#1A2D26', marginTop: 12 },

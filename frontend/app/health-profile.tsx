@@ -276,7 +276,9 @@ export default function HealthProfileScreen() {
                   <Text style={[ctaStyles.secondaryBtnText, {
                     color: d.risk_level === 'high' ? '#EF4444' : '#F59E0B'
                   }]}>
-                    {lang === 'de' ? 'Empfohlene Produkte ansehen' : 'Vedi prodotti consigliati'}
+                    {d.risk_level === 'high'
+                      ? (lang === 'de' ? `Optimale ${NUTRIENT_NAMES[d.nutrient]?.[lang] || d.nutrient}-Quelle finden` : `Trova fonte ottimale di ${NUTRIENT_NAMES[d.nutrient]?.[lang] || d.nutrient}`)
+                      : (lang === 'de' ? 'Qualitaetsgepruefte Optionen vergleichen' : 'Confronta opzioni certificate')}
                   </Text>
                 </TouchableOpacity>
               </View>

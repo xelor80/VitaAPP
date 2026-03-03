@@ -35,7 +35,7 @@ export function SupplementsTab({ analysis, onShopPress, lang }: { analysis: any;
       {analysis.brand_products?.length > 0 && (
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Passende Produkte</Text>
-          <Text style={styles.sectionSubtitle}>{lang === 'de' ? 'Von Joachim Kaeser (Werbung)' : 'Di Joachim Kaeser (Pubblicità)'}</Text>
+          <Text style={styles.sectionSubtitle}>{lang === 'de' ? 'Von Joachim Kaeser (Transparenzhinweis: Affiliate-Links)' : 'Di Joachim Kaeser (Nota: link di affiliazione)'}</Text>
         </View>
       )}
       {analysis.brand_products?.map((p: any, i: number) => (
@@ -64,8 +64,8 @@ export function SupplementsTab({ analysis, onShopPress, lang }: { analysis: any;
           <Text style={styles.productReason}>{p.reason}</Text>
           {p.note ? <Text style={styles.productNote}>{p.note}</Text> : null}
           <TouchableOpacity testID={`product-shop-btn-${p.product_id}`} style={styles.shopBtn} activeOpacity={0.7} onPress={() => onShopPress(p.product_id, p.affiliate_url)}>
-            <MaterialCommunityIcons name="open-in-new" size={16} color="#FFFFFF" />
-            <Text style={styles.shopBtnText}>  Zum Shop</Text>
+            <MaterialCommunityIcons name="shield-search" size={16} color="#FFFFFF" />
+            <Text style={styles.shopBtnText}>  {lang === 'de' ? 'Optionen vergleichen' : 'Confronta opzioni'}</Text>
           </TouchableOpacity>
         </View>
       ))}
