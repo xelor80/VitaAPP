@@ -36,15 +36,18 @@ A health-focused, bilingual (German/Italian) mobile app. Core functionality: LLM
 24. Email Health Report Export
 25. Automatic Language Detection
 26. Android Bottom Padding Fix
-27. **Practical Dosage Forms in Tagesplan** - Completed March 2026
+27. Practical Dosage Forms in Tagesplan
+28. **Real Product Names in Tagesplan** - Completed March 2026
 
-## Practical Dosage Forms (March 2026)
-- Each supplement in SUPPLEMENT_DB now has a `form` field: `{type_de, type_it, per_unit, unit}`
-- `_build_weekly_schedule()` calculates `form_count` and `form_label` (e.g., "2 Kapseln", "4 Tropfen")
-- Frontend shows: "4 Tropfen" as primary, "(4000 IE)" as secondary info
-- Redundant displays avoided (B-Komplex: "1 Kapsel" without brackets)
-- All 20 existing plans in DB migrated via one-time script
-- Dosage forms: Kapsel, Tropfen, Softgel, Tablette (+ Italian equivalents)
+## Real Product Names in Tagesplan (March 2026)
+- Tagesplan now shows actual product names from the Shopify shop instead of generic vitamin names
+- Product matching via existing NUTRIENT_TAG_MAP_SCORED scoring system
+- Dosage forms extracted from product `application_instructions` via regex parsing
+- Supported forms: Sprühstöße, Kapsel, Tablette, Softgel, Tropfen, ml, Messlöffel, Gummibärchen, Pipette
+- Products with parseable instructions preferred over those without (within score threshold)
+- Vitamin name shown as subtitle for reference
+- Measurable units (mg, IE, mcg) shown in brackets, non-measurable (Kapsel) omitted
+- Files: `backend/routes/supplement_plan.py` (_enrich_schedule_with_products, _parse_dosage_from_instructions)
 
 ## Backlog
 - Recipe favorites/bookmarks

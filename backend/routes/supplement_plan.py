@@ -8,6 +8,7 @@ import os
 from core.config import db
 from core.health_engine import generate_health_assessment, calculate_risk_scores
 from core.supplement_engine import generate_supplement_plan, SUPPLEMENT_DB
+from routes.products import NUTRIENT_TAG_MAP_SCORED, _score_product
 
 router = APIRouter()
 
@@ -70,12 +71,124 @@ async def generate_plan(profile_id: str, lang: str = "de"):
     return {"plan_id": plan_id, "plan": plan}
 
 
+import re
+
+
+def _parse_dosage_from_instructions(instructions: str, lang: str) -> dict | None:
+    """Extract practical dosage form from product application instructions."""
+    if not instructions:
+        return None
+    text = instructions.lower()
+
+    # Patterns for German
+    patterns_de = [
+        (r'(\d+)\s*sprühst', 'Sprühstöße', 'spray'),
+        (r'(\d+)\s*kapsel', 'Kapseln', 'capsule'),
+        (r'(\d+)\s*tablette', 'Tabletten', 'tablet'),
+        (r'(\d+)\s*softgel', 'Softgels', 'softgel'),
+        (r'(\d+)\s*tropfen', 'Tropfen', 'drops'),
+        (r'eine\s+kapsel', None, 'capsule'),
+        (r'(\d+)\s*ml', 'ml', 'liquid'),
+        (r'(\d+)\s*messlöffel', 'Messlöffel', 'powder'),
+        (r'(\d+)\s*gummibärchen', 'Gummibärchen', 'gummy'),
+        (r'1\s*pipette', None, 'pipette'),
+    ]
+    patterns_it = [
+        (r'(\d+)\s*spray', 'spray', 'spray'),
+        (r'(\d+)\s*capsul', 'capsule', 'capsule'),
+        (r'(\d+)\s*compress', 'compresse', 'tablet'),
+        (r'(\d+)\s*gocc', 'gocce', 'drops'),
+        (r'una\s+capsula', None, 'capsule'),
+        (r'(\d+)\s*ml', 'ml', 'liquid'),
+    ]
+
+    patterns = patterns_de if lang == "de" else patterns_it
+
+    for pattern, form_word, form_type in patterns:
+        match = re.search(pattern, text)
+        if match:
+            groups = match.groups()
+            count = int(groups[0]) if groups and groups[0] and groups[0].isdigit() else 1
+            if form_word is None:
+                if lang == "de":
+                    form_word = "Kapsel" if form_type == "capsule" else "Pipette"
+                else:
+                    form_word = "capsula" if form_type == "capsule" else "pipetta"
+            # Singular/Plural
+            if count == 1 and lang == "de":
+                if form_word == "Kapseln": form_word = "Kapsel"
+                elif form_word == "Tabletten": form_word = "Tablette"
+                elif form_word == "Softgels": form_word = "Softgel"
+                elif form_word == "Messlöffel": pass
+                elif form_word == "Gummibärchen": pass
+            elif count == 1 and lang == "it":
+                if form_word == "capsule": form_word = "capsula"
+                elif form_word == "compresse": form_word = "compressa"
+            return {"count": count, "form_word": form_word, "label": f"{count} {form_word}"}
+    return None
+
+
+async def _enrich_schedule_with_products(weekly_schedule: dict, lang: str):
+    """Enrich schedule items with real product names and dosage instructions."""
+    collection = db.products_de if lang == "de" else db.products_it
+    products = []
+    async for p in collection.find({}, {"_id": 0}):
+        products.append(p)
+
+    for timing_key in ["morning", "noon", "evening"]:
+        section = weekly_schedule.get(timing_key, {})
+        items = section.get("items", [])
+        for item in items:
+            supplement_id = item.get("id", "")
+            scored = NUTRIENT_TAG_MAP_SCORED.get(supplement_id)
+            if not scored or not products:
+                continue
+            # Score and rank products for this supplement
+            ranked = [(p, _score_product(p, supplement_id)) for p in products]
+            ranked.sort(key=lambda x: x[1], reverse=True)
+            # Only consider products with meaningful scores
+            candidates = [(p, s) for p, s in ranked if s >= 3]
+            if not candidates:
+                continue
+            top_score = candidates[0][1]
+            # Among near-top products (within 30% of best), prefer ones with parseable instructions
+            threshold = top_score * 0.7
+            near_top = [(p, s) for p, s in candidates if s >= threshold]
+            best = near_top[0][0]
+            for p, s in near_top:
+                ai = p.get("application_instructions", "")
+                parsed = _parse_dosage_from_instructions(ai, lang)
+                if parsed:
+                    best = p
+                    break
+
+            item["product_name"] = best.get("name", "")
+            item["product_image"] = best.get("image_url", "")
+            item["affiliate_url"] = best.get("affiliate_url", "")
+            # Parse real dosage form from product instructions
+            ai = best.get("application_instructions", "")
+            parsed = _parse_dosage_from_instructions(ai, lang)
+            if parsed:
+                item["form_label"] = parsed["label"]
+                item["form_count"] = parsed["count"]
+                item["form_type"] = parsed["form_word"]
+
+
 @router.get("/supplement-plan/{profile_id}")
 async def get_plan(profile_id: str):
-    """Get the supplement plan for a profile."""
+    """Get the supplement plan for a profile, enriched with real product names."""
     doc = await db.supplement_plans.find_one({"profile_id": profile_id}, {"_id": 0})
     if not doc:
         raise HTTPException(status_code=404, detail="No plan found. Generate one first.")
+
+    # Enrich schedule items with real product names and dosage instructions
+    lang = doc.get("lang", "de")
+    plan = doc.get("plan", {})
+    ws = plan.get("weekly_schedule", {})
+    if ws:
+        await _enrich_schedule_with_products(ws, lang)
+        doc["plan"]["weekly_schedule"] = ws
+
     return doc
 
 
