@@ -38,25 +38,34 @@ A health-focused, bilingual (German/Italian) mobile app where an LLM analyzes us
 24. Product-Driven Daily Plan (real product names, practical dosage)
 25. Redesigned Recipe Section (two-column image grid)
 26. Licensed Recipe Images (Unsplash, commercially safe)
-27. **TTS Audio Playback** (OpenAI TTS - read aloud personal summary, DE/IT)
-
-## Deployment Fix (March 2026)
-- Deleted conflicting `package-lock.json` (project uses yarn)
-- Moved hardcoded admin password to environment variable (`ADMIN_PASSWORD` in backend/.env)
-- `manifest invalid` error during docker-push is likely CI/CD infrastructure issue
+27. TTS Audio Playback (OpenAI TTS - read aloud personal summary, DE/IT)
+28. **Daily Tasks "Heute fuer dich wichtig"** (dynamic coach section on home screen)
 
 ## Key API Endpoints
-- `POST /api/tts/generate` - Generate TTS audio (accepts text + lang, returns base64 MP3)
+- `GET /api/daily-tasks/{profile_id}` - Get up to 3 prioritized daily tasks
+- `POST /api/tts/generate` - Generate TTS audio (text + lang -> base64 MP3)
 - `POST /api/export/email` - Email health report
 - `GET /api/supplement-plan/{id}` - Get enriched supplement plan
-- `GET /api/recipes/{id}` - Get single recipe
+- `GET /api/health-score/{profile_id}` - Get health score with AI assessment
 - `POST /api/admin/auth` - Admin authentication
+
+## Key Files
+- `/app/backend/routes/daily_tasks.py` - Daily tasks logic (supplements, symptoms, risks, goals)
+- `/app/backend/routes/tts.py` - TTS endpoint
+- `/app/frontend/components/home/DailyTasks.tsx` - Daily tasks UI component
+- `/app/frontend/app/index.tsx` - Home screen with DailyTasks integration
+- `/app/frontend/app/supplement-plan.tsx` - Plan screen with TTS button
 
 ## Key Credentials
 - Admin Password: stored in `ADMIN_PASSWORD` env var in backend/.env
 - SMTP: kasserver.com credentials in backend/.env
 - LLM/TTS: Emergent LLM Key in backend/.env
 
+## Deployment Fix (March 2026)
+- Deleted conflicting `package-lock.json` (project uses yarn)
+- Moved hardcoded admin password to environment variable
+
 ## Backlog
 - No pending feature requests
 - Consider migrating from expo-av to expo-audio (expo-av deprecated in SDK 54)
+- TTS on symptom analysis page (future enhancement)
