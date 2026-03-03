@@ -20,6 +20,7 @@ import { HealthScoreCard } from '../components/home/HealthScoreCard';
 import { ScoreHistoryChart } from '../components/home/ScoreHistoryChart';
 import { FooterDisclaimer } from '../components/home/FooterDisclaimer';
 import { SavedAnalysisButtons } from '../components/home/SavedAnalysisButtons';
+import { DailyTasks } from '../components/home/DailyTasks';
 import { styles } from '../components/home/homeStyles';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
@@ -149,6 +150,7 @@ export default function HomeScreen() {
             lang={lang}
             onPress={() => router.push('/recipes-catalog')}
           />
+          <DailyTasks lang={lang} onNavigate={(route) => router.push(route as any)} />
           <HealthScoreCard lang={lang} />
           <ScoreHistoryChart lang={lang} />
           <SymptomInput lang={lang} value={symptomText} onChangeText={setSymptomText} onLayout={(e: any) => { inputYRef.current = e.nativeEvent.layout.y; }} />
