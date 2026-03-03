@@ -354,7 +354,12 @@ async def update_supplement(supplement_id: str, data: dict):
 
 
 async def _generate_llm_summary(profile: dict, plan: dict, lang: str) -> str:
-    """Generate a personalized LLM summary of the supplement plan."""
+    """Generate a data-driven, personalized LLM summary of the supplement plan."""
+
+    # --- Step 1: Identify top 2 health drivers from profile data ---
+    drivers = _identify_health_drivers(profile, lang)
+    drivers_context = "\n".join([f"- {d['label']}: {d['detail']}" for d in drivers[:2]])
+
     try:
         from emergentintegrations.llm.chat import LlmChat, UserMessage
 
@@ -367,41 +372,63 @@ async def _generate_llm_summary(profile: dict, plan: dict, lang: str) -> str:
             for s in plan.get("stack", [])
         ])
 
-        system_msg = (
-            "Du bist ein evidenzbasierter Ernaehrungsberater. Erstelle eine kurze, persoenliche Zusammenfassung "
-            "eines Supplement-Plans. Sprich den Nutzer direkt an (Sie-Form). Keine medizinischen Diagnosen stellen. "
-            "Halte die Zusammenfassung unter 200 Woertern. Antworte auf Deutsch."
-            if lang == "de" else
-            "Sei un consulente nutrizionale basato sull'evidenza. Crea un breve riepilogo personalizzato "
-            "di un piano di supplementi. Rivolgiti direttamente all'utente. Non fare diagnosi mediche. "
-            "Mantieni il riepilogo sotto le 200 parole. Rispondi in italiano."
-        )
+        if lang == "de":
+            system_msg = (
+                "Du bist ein strategischer Ernaehrungsberater. Erstelle eine datenbasierte Zusammenfassung eines Supplement-Plans.\n\n"
+                "REGELN:\n"
+                "- Beginne NIEMALS mit einer Begruesssung ('Guten Tag', 'Willkommen', etc.)\n"
+                "- Beginne direkt mit den 2 wichtigsten Belastungsfaktoren des Nutzers\n"
+                "- Formuliere wie ein Arztbrief: sachlich, kompetent, praezise\n"
+                "- Nenne konkrete Zahlen aus den Daten (z.B. 'Stresslevel 8/10')\n"
+                "- Erklaere kurz, welche Supplements gezielt welchen Faktor adressieren\n"
+                "- Maximal 150 Woerter. Keine Floskeln, kein Motivationstext\n"
+                "- Sie-Form. Keine medizinischen Diagnosen."
+            )
+        else:
+            system_msg = (
+                "Sei un consulente nutrizionale strategico. Crea un riepilogo basato sui dati di un piano di supplementi.\n\n"
+                "REGOLE:\n"
+                "- NON iniziare MAI con un saluto ('Buongiorno', 'Benvenuto', etc.)\n"
+                "- Inizia direttamente con i 2 principali fattori di stress dell'utente\n"
+                "- Formula come un referto medico: oggettivo, competente, preciso\n"
+                "- Cita numeri concreti dai dati (es. 'livello stress 8/10')\n"
+                "- Spiega brevemente quali supplementi affrontano quale fattore\n"
+                "- Massimo 150 parole. Nessun testo motivazionale\n"
+                "- Dare del Lei. Nessuna diagnosi medica."
+            )
 
-        age = profile.get("age", "unbekannt")
-        gender_map_de = {"male": "maennlich", "female": "weiblich", "diverse": "divers"}
-        gender_map_it = {"male": "maschile", "female": "femminile", "diverse": "diverso"}
-        complaints_text = ", ".join([c.get("name", "") for c in (profile.get("complaints") or [])])
+        age = profile.get("age", "?")
+        gender_raw = profile.get("gender", "")
+        complaints_text = ", ".join([c.get("name", "") for c in (profile.get("complaints") or [])]) or ("keine" if lang == "de" else "nessuno")
         warnings_text = "\n".join(plan.get("warnings", []))
 
         if lang == "de":
-            gender = gender_map_de.get(profile.get("gender", ""), "unbekannt")
+            gender = {"male": "maennlich", "female": "weiblich", "diverse": "divers"}.get(gender_raw, "nicht angegeben")
             user_msg = (
-                f"Profil: Alter {age}, Geschlecht {gender}, Ernaehrung: {profile.get('diet', 'unbekannt')}\n"
-                f"Beschwerden: {complaints_text or 'keine angegeben'}\n"
-                f"Stresslevel: {profile.get('stress_level', 5)}/10, Schlafqualitaet: {profile.get('sleep_quality', 7)}/10\n\n"
-                f"Supplement-Stack:\n{stack_summary}\n\n"
+                f"PROFILDATEN:\n"
+                f"Alter: {age}, Geschlecht: {gender}\n"
+                f"Ernaehrung: {profile.get('diet', 'nicht angegeben')}\n"
+                f"Stresslevel: {profile.get('stress_level', 5)}/10\n"
+                f"Schlafqualitaet: {profile.get('sleep_quality', 7)}/10\n"
+                f"Beschwerden: {complaints_text}\n\n"
+                f"IDENTIFIZIERTE BELASTUNGSFAKTOREN (priorisiert):\n{drivers_context}\n\n"
+                f"SUPPLEMENT-STACK:\n{stack_summary}\n\n"
                 f"Warnungen: {warnings_text or 'keine'}\n\n"
-                f"Erstelle eine motivierende, persoenliche Zusammenfassung dieses 8-Wochen-Plans."
+                f"Erstelle eine strategische Zusammenfassung. Beginne mit den Belastungsfaktoren und erklaere, wie der Plan diese gezielt adressiert."
             )
         else:
-            gender = gender_map_it.get(profile.get("gender", ""), "sconosciuto")
+            gender = {"male": "maschile", "female": "femminile", "diverse": "diverso"}.get(gender_raw, "non specificato")
             user_msg = (
-                f"Profilo: Eta {age}, Sesso {gender}, Alimentazione: {profile.get('diet', 'sconosciuta')}\n"
-                f"Disturbi: {complaints_text or 'nessuno indicato'}\n"
-                f"Livello stress: {profile.get('stress_level', 5)}/10, Qualita sonno: {profile.get('sleep_quality', 7)}/10\n\n"
-                f"Stack supplementi:\n{stack_summary}\n\n"
+                f"DATI PROFILO:\n"
+                f"Eta: {age}, Sesso: {gender}\n"
+                f"Alimentazione: {profile.get('diet', 'non specificata')}\n"
+                f"Livello stress: {profile.get('stress_level', 5)}/10\n"
+                f"Qualita sonno: {profile.get('sleep_quality', 7)}/10\n"
+                f"Disturbi: {complaints_text}\n\n"
+                f"FATTORI DI STRESS IDENTIFICATI (prioritizzati):\n{drivers_context}\n\n"
+                f"STACK SUPPLEMENTI:\n{stack_summary}\n\n"
                 f"Avvertenze: {warnings_text or 'nessuna'}\n\n"
-                f"Crea un riepilogo motivante e personalizzato di questo piano di 8 settimane."
+                f"Crea un riepilogo strategico. Inizia con i fattori di stress e spiega come il piano li affronta in modo mirato."
             )
 
         session_id = str(uuid.uuid4())
@@ -415,19 +442,118 @@ async def _generate_llm_summary(profile: dict, plan: dict, lang: str) -> str:
         return response if isinstance(response, str) else str(response)
 
     except Exception as e:
-        # Fallback to static summary
-        if lang == "de":
-            return (
-                f"Basierend auf Ihrem Gesundheitsprofil haben wir einen personalisierten 8-Wochen-Plan "
-                f"mit {plan.get('total_supplements', 0)} Supplements erstellt. "
-                f"Der Plan beruecksichtigt Ihre individuellen Beduerfnisse und ist in 4 Phasen aufgeteilt. "
-                f"Beginnen Sie mit halber Dosierung und steigern Sie langsam. "
-                f"Nach 8 Wochen empfehlen wir eine Blutkontrolle beim Arzt."
-            )
+        # Data-driven fallback (no LLM)
+        return _build_fallback_summary(profile, plan, drivers, lang)
+
+
+def _identify_health_drivers(profile: dict, lang: str) -> list:
+    """Identify and prioritize the top health drivers from user data."""
+    drivers = []
+    stress = profile.get("stress_level", 5)
+    sleep = profile.get("sleep_quality", 7)
+    complaints = profile.get("complaints") or []
+    complaint_names = [c.get("name", "") for c in complaints]
+
+    # Stress assessment
+    if stress >= 7:
+        drivers.append({
+            "key": "stress",
+            "score": stress,
+            "label": "Stress" if lang == "de" else "Stress",
+            "detail": f"{'Stresslevel' if lang == 'de' else 'Livello stress'} {stress}/10 – {'staerkster Belastungsfaktor. Fokus: Magnesium, Adaptogene, B-Vitamine.' if lang == 'de' else 'fattore di stress principale. Focus: magnesio, adattogeni, vitamine B.'}",
+        })
+    elif stress >= 5:
+        drivers.append({
+            "key": "stress",
+            "score": stress,
+            "label": "Stress" if lang == "de" else "Stress",
+            "detail": f"{'Stresslevel' if lang == 'de' else 'Livello stress'} {stress}/10 – {'moderater Belastungsfaktor.' if lang == 'de' else 'fattore di stress moderato.'}",
+        })
+
+    # Sleep assessment
+    if sleep <= 4:
+        drivers.append({
+            "key": "sleep",
+            "score": 10 - sleep,
+            "label": "Schlafqualitaet" if lang == "de" else "Qualita del sonno",
+            "detail": f"{'Schlafqualitaet' if lang == 'de' else 'Qualita del sonno'} {sleep}/10 – {'zentraler Optimierungsbereich. Fokus: Magnesium, Melatonin-Vorstufen.' if lang == 'de' else 'area di ottimizzazione centrale. Focus: magnesio, precursori melatonina.'}",
+        })
+    elif sleep <= 6:
+        drivers.append({
+            "key": "sleep",
+            "score": 10 - sleep,
+            "label": "Schlafqualitaet" if lang == "de" else "Qualita del sonno",
+            "detail": f"{'Schlafqualitaet' if lang == 'de' else 'Qualita del sonno'} {sleep}/10 – {'eingeschraenkt. Gezielte Unterstuetzung empfohlen.' if lang == 'de' else 'limitata. Supporto mirato consigliato.'}",
+        })
+
+    # Complaint-driven drivers
+    pain_keywords = ["schmerz", "pain", "dolore", "kopfschmerz", "migräne", "gelenk"]
+    energy_keywords = ["müde", "müdigkeit", "energie", "fatigue", "erschöpf", "stanchezza"]
+    digest_keywords = ["verdauung", "blähung", "magen", "darm", "digestione", "gonfiore"]
+    immune_keywords = ["immun", "erkält", "infekt", "grippe", "immunit"]
+
+    for cname in complaint_names:
+        cl = cname.lower()
+        if any(k in cl for k in pain_keywords):
+            drivers.append({
+                "key": "pain", "score": 6,
+                "label": "Schmerzsymptomatik" if lang == "de" else "Sintomi dolorosi",
+                "detail": f"{cname} – {'entzuendungshemmende Naehrstoffe priorisiert (Omega-3, Curcumin).' if lang == 'de' else 'nutrienti antinfiammatori prioritizzati (Omega-3, curcumina).'}",
+            })
+        elif any(k in cl for k in energy_keywords):
+            drivers.append({
+                "key": "energy", "score": 6,
+                "label": "Energielevel" if lang == "de" else "Livello di energia",
+                "detail": f"{cname} – {'Fokus auf Eisen, B-Vitamine und CoQ10.' if lang == 'de' else 'Focus su ferro, vitamine B e CoQ10.'}",
+            })
+        elif any(k in cl for k in digest_keywords):
+            drivers.append({
+                "key": "digestion", "score": 5,
+                "label": "Verdauung" if lang == "de" else "Digestione",
+                "detail": f"{cname} – {'Darmgesundheit wird durch Probiotika und Zink unterstuetzt.' if lang == 'de' else 'salute intestinale supportata da probiotici e zinco.'}",
+            })
+        elif any(k in cl for k in immune_keywords):
+            drivers.append({
+                "key": "immune", "score": 5,
+                "label": "Immunsystem" if lang == "de" else "Sistema immunitario",
+                "detail": f"{cname} – {'Immun-Unterstuetzung durch Vitamin D, Zink und Vitamin C.' if lang == 'de' else 'supporto immunitario con vitamina D, zinco e vitamina C.'}",
+            })
+
+    # Sort by severity score (highest first), deduplicate by key
+    seen_keys = set()
+    unique_drivers = []
+    for d in sorted(drivers, key=lambda x: x["score"], reverse=True):
+        if d["key"] not in seen_keys:
+            seen_keys.add(d["key"])
+            unique_drivers.append(d)
+
+    return unique_drivers
+
+
+def _build_fallback_summary(profile: dict, plan: dict, drivers: list, lang: str) -> str:
+    """Build a data-driven fallback summary without LLM."""
+    top2 = drivers[:2]
+    n_supplements = plan.get("total_supplements", 0)
+
+    if lang == "de":
+        parts = []
+        for d in top2:
+            parts.append(d["detail"])
+        driver_text = " ".join(parts) if parts else "Ihre Daten zeigen keinen akuten Belastungsfaktor."
         return (
-            f"In base al tuo profilo di salute, abbiamo creato un piano personalizzato di 8 settimane "
-            f"con {plan.get('total_supplements', 0)} supplementi. "
-            f"Il piano tiene conto delle tue esigenze individuali ed e diviso in 4 fasi. "
+            f"{driver_text} "
+            f"Ihr 8-Wochen-Plan umfasst {n_supplements} gezielt ausgewaehlte Supplements in 4 Phasen. "
+            f"Beginnen Sie mit halber Dosierung und steigern Sie schrittweise. "
+            f"Nach 8 Wochen empfehlen wir eine Blutkontrolle beim Arzt."
+        )
+    else:
+        parts = []
+        for d in top2:
+            parts.append(d["detail"])
+        driver_text = " ".join(parts) if parts else "I tuoi dati non mostrano fattori di stress acuti."
+        return (
+            f"{driver_text} "
+            f"Il piano di 8 settimane comprende {n_supplements} supplementi selezionati in 4 fasi. "
             f"Inizia con meta dosaggio e aumenta gradualmente. "
             f"Dopo 8 settimane consigliamo un controllo del sangue dal medico."
         )
