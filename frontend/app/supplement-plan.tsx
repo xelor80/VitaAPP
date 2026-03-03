@@ -9,6 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLang } from '../src/LangContext';
 import { planStyles as styles } from '../components/supplement/planStyles';
 import { InteractionAnalysis } from '../components/supplement/InteractionAnalysis';
+import { EmailExportModal } from '../components/supplement/EmailExportModal';
 import {
   scheduleSupplementReminders,
   sendTestNotification,
@@ -65,6 +66,7 @@ export default function SupplementPlanScreen() {
   const [reminders, setReminders] = useState({ enabled: false, morning_time: '08:00', noon_time: '12:00', evening_time: '20:00' });
   const [showReminders, setShowReminders] = useState(false);
   const [products, setProducts] = useState<any[]>([]);
+  const [showEmailModal, setShowEmailModal] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -254,6 +256,9 @@ export default function SupplementPlanScreen() {
           </View>
           <TouchableOpacity onPress={() => setShowReminders(!showReminders)} style={styles.reminderBtn}>
             <MaterialCommunityIcons name={reminders.enabled ? 'bell-ring' : 'bell-outline'} size={24} color={reminders.enabled ? '#4A8B71' : '#8FA39B'} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setShowEmailModal(true)} style={styles.reminderBtn} data-testid="email-export-btn">
+            <MaterialCommunityIcons name="email-fast-outline" size={24} color="#4A8B71" />
           </TouchableOpacity>
         </View>
 
@@ -553,6 +558,16 @@ export default function SupplementPlanScreen() {
             : 'Questo piano non sostituisce una consulenza medica. In caso di disturbi o dubbi consultare un medico o farmacista.'}
         </Text>
       </ScrollView>
+
+      {/* Email Export Modal */}
+      {currentProfileId && (
+        <EmailExportModal
+          visible={showEmailModal}
+          onClose={() => setShowEmailModal(false)}
+          profileId={currentProfileId}
+          lang={lang}
+        />
+      )}
     </SafeAreaView>
   );
 }

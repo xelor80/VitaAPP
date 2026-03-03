@@ -13,7 +13,6 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from core.config import db
-from core.supplement_engine import generate_supplement_plan
 
 logger = logging.getLogger("vitaguide")
 router = APIRouter(tags=["export"])
@@ -386,8 +385,13 @@ async def export_health_data_email(req: EmailExportRequest):
         detail = "Profil nicht gefunden" if lang == "de" else "Profilo non trovato"
         raise HTTPException(status_code=404, detail=detail)
 
-    # Generate supplement plan
-    plan = generate_supplement_plan(profile, lang)
+    # Load existing supplement plan from DB
+    pid = profile.get("id") or profile.get("profile_id") or req.profile_id
+    plan_doc = await db.supplement_plans.find_one(
+        {"profile_id": pid},
+        {"_id": 0}
+    )
+    plan = plan_doc.get("plan", {}) if plan_doc else {}
 
     # Try to get health score
     score_data = None
