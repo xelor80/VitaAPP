@@ -9,14 +9,19 @@ interface HomeHeaderProps {
   lang: string;
   setLang: (lang: string) => void;
   onLangChange?: () => void;
+  firstName?: string | null;
 }
 
-export function HomeHeader({ lang, setLang, onLangChange }: HomeHeaderProps) {
+export function HomeHeader({ lang, setLang, onLangChange, firstName }: HomeHeaderProps) {
   const { translations } = useSettings();
   const handleLangChange = (newLang: string) => {
     setLang(newLang);
     onLangChange?.();
   };
+
+  const greeting = firstName
+    ? (lang === 'de' ? `Hallo ${firstName}!` : `Ciao ${firstName}!`)
+    : null;
 
   return (
     <View style={styles.header}>
@@ -43,6 +48,9 @@ export function HomeHeader({ lang, setLang, onLangChange }: HomeHeaderProps) {
           </TouchableOpacity>
         </View>
       </View>
+      {greeting && (
+        <Text testID="personalized-greeting" style={styles.greetingText}>{greeting}</Text>
+      )}
       <Text style={styles.headerSubtitle}>{t(lang, 'home_subtitle', translations)}</Text>
     </View>
   );

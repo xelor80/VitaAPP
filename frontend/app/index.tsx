@@ -35,6 +35,7 @@ export default function HomeScreen() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasSaved, setHasSaved] = useState(() => getCurrentAnalysis() !== null);
+  const [firstName, setFirstName] = useState<string | null>(null);
   const scrollRef = React.useRef<ScrollView>(null);
   const inputYRef = React.useRef(0);
 
@@ -45,6 +46,19 @@ export default function HomeScreen() {
     // Check for saved analysis (fallback for cold start / page refresh)
     AsyncStorage.getItem('saved_analysis').then(val => {
       if (val) setHasSaved(true);
+    }).catch(() => {});
+    // Load first name from health profile
+    AsyncStorage.getItem('health_profile_id').then(async (profileId) => {
+      if (!profileId) return;
+      try {
+        const res = await fetch(`${API_URL}/api/health-profile/${profileId}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.profile?.first_name) {
+            setFirstName(data.profile.first_name);
+          }
+        }
+      } catch {}
     }).catch(() => {});
   }, []);
 
@@ -133,7 +147,7 @@ export default function HomeScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <HomeHeader lang={lang} setLang={setLang} onLangChange={clearTags} />
+          <HomeHeader lang={lang} setLang={setLang} onLangChange={clearTags} firstName={firstName} />
           <OnboardingButton
             lang={lang}
             onPress={() => router.push('/onboarding')}

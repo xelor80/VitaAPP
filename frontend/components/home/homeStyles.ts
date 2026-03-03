@@ -10,6 +10,7 @@ export const styles = StyleSheet.create({
   headerTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%' },
   logoRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   logoText: { fontSize: 28, fontWeight: '700', color: '#1A2D26' },
+  greetingText: { fontSize: 18, fontWeight: '700', color: '#1A2D26', marginTop: 6 },
   headerSubtitle: { fontSize: 15, color: '#5C7A6F', marginTop: 4 },
   langSwitcherSmall: { flexDirection: 'row', gap: 4, width: 80, justifyContent: 'flex-end' },
   langBtnSm: {

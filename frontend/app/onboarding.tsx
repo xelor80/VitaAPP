@@ -327,7 +327,7 @@ export default function OnboardingScreen() {
               onChangeText={v => setProfile({ ...profile, first_name: v })}
               placeholder={lang === 'de' ? 'Ihr Vorname' : 'Il tuo nome'}
               placeholderTextColor="#8FA39B"
-              data-testid="onboarding-first-name"
+              testID="onboarding-first-name"
             />
             <View style={[styles.inputRow, { marginTop: 16 }]}>
               <View style={styles.inputHalf}>
