@@ -5,6 +5,7 @@ from pydantic import BaseModel
 import hashlib
 import secrets
 import asyncio
+import os
 from pathlib import Path
 
 from core.config import client, logger
@@ -17,8 +18,8 @@ api_router = APIRouter(prefix="/api")
 ADMIN_WEBAPP_DIR = Path(__file__).parent / "admin_webapp"
 UPLOADS_DIR = Path(__file__).parent / "uploads"
 
-# Admin password (hashed)
-ADMIN_PASSWORD = "Wk220480xel!"
+# Admin password from environment
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
 active_tokens = set()
 
 class AuthRequest(BaseModel):
