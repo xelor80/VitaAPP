@@ -1,16 +1,47 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView
+  View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView,
+  Image, ActivityIndicator
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { getCurrentAnalysis } from '../src/store';
+import { useLang } from '../src/LangContext';
+
+const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
 export default function RecipeScreen() {
   const router = useRouter();
-  const { idx } = useLocalSearchParams<{ idx: string }>();
+  const { idx, id } = useLocalSearchParams<{ idx?: string; id?: string }>();
+  const { lang } = useLang();
   const analysis = getCurrentAnalysis();
-  const recipe = analysis?.recipes?.[Number(idx)];
+
+  const [recipe, setRecipe] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (idx !== undefined) {
+      // Load from analysis results
+      const r = analysis?.recipes?.[Number(idx)];
+      if (r) setRecipe(r);
+    } else if (id) {
+      // Load from API by recipe ID
+      setLoading(true);
+      fetch(`${API_URL}/api/recipes/${id}?lang=${lang}`)
+        .then(r => r.json())
+        .then(data => setRecipe(data))
+        .catch(() => {})
+        .finally(() => setLoading(false));
+    }
+  }, [idx, id, lang]);
+
+  if (loading) {
+    return (
+      <SafeAreaView style={[styles.safe, styles.centered]}>
+        <ActivityIndicator size="large" color="#4A8B71" />
+      </SafeAreaView>
+    );
+  }
 
   if (!recipe) {
     return (
@@ -36,6 +67,15 @@ export default function RecipeScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Hero Image */}
+        {recipe.image_url && (
+          <Image
+            source={{ uri: recipe.image_url }}
+            style={styles.heroImage}
+            resizeMode="cover"
+          />
+        )}
+
         {/* Title */}
         <Text style={styles.recipeTitle}>{recipe.title}</Text>
 
@@ -43,15 +83,15 @@ export default function RecipeScreen() {
         <View style={styles.metaRow}>
           <View style={styles.metaBadge}>
             <MaterialCommunityIcons name="clock-outline" size={16} color="#4A8B71" />
-            <Text style={styles.metaText}>{recipe.time_min} Min.</Text>
+            <Text style={styles.metaText}>{recipe.time_min} {lang === 'de' ? 'Min.' : 'Min.'}</Text>
           </View>
           <View style={styles.metaBadge}>
             <MaterialCommunityIcons name="format-list-bulleted" size={16} color="#4A8B71" />
-            <Text style={styles.metaText}>{recipe.ingredients?.length || 0} Zutaten</Text>
+            <Text style={styles.metaText}>{recipe.ingredients?.length || 0} {lang === 'de' ? 'Zutaten' : 'Ingredienti'}</Text>
           </View>
           <View style={styles.metaBadge}>
             <MaterialCommunityIcons name="shoe-print" size={16} color="#4A8B71" />
-            <Text style={styles.metaText}>{recipe.steps?.length || 0} Schritte</Text>
+            <Text style={styles.metaText}>{recipe.steps?.length || 0} {lang === 'de' ? 'Schritte' : 'Passi'}</Text>
           </View>
         </View>
 
@@ -70,7 +110,7 @@ export default function RecipeScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <MaterialCommunityIcons name="basket-outline" size={22} color="#4A8B71" />
-            <Text style={styles.sectionTitle}>Zutaten</Text>
+            <Text style={styles.sectionTitle}>{lang === 'de' ? 'Zutaten' : 'Ingredienti'}</Text>
           </View>
           <View style={styles.card}>
             {recipe.ingredients?.map((ing: string, i: number) => (
@@ -86,7 +126,7 @@ export default function RecipeScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <MaterialCommunityIcons name="format-list-numbered" size={22} color="#4A8B71" />
-            <Text style={styles.sectionTitle}>Zubereitung</Text>
+            <Text style={styles.sectionTitle}>{lang === 'de' ? 'Zubereitung' : 'Preparazione'}</Text>
           </View>
           {recipe.steps?.map((step: string, i: number) => (
             <View key={i} style={styles.stepCard}>
@@ -114,6 +154,14 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#F7F9F6' },
   centered: { justifyContent: 'center', alignItems: 'center' },
   content: { padding: 20, paddingBottom: 100 },
+
+  heroImage: {
+    width: '100%',
+    height: 220,
+    borderRadius: 16,
+    marginBottom: 16,
+    backgroundColor: '#E8E8E8',
+  },
 
   // Header
   headerBar: {

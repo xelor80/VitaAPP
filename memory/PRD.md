@@ -37,17 +37,18 @@ A health-focused, bilingual (German/Italian) mobile app. Core functionality: LLM
 25. Automatic Language Detection
 26. Android Bottom Padding Fix
 27. Practical Dosage Forms in Tagesplan
-28. **Real Product Names in Tagesplan** - Completed March 2026
+28. Real Product Names in Tagesplan
+29. **Recipe Catalog Redesign** - Completed March 2026
 
-## Real Product Names in Tagesplan (March 2026)
-- Tagesplan now shows actual product names from the Shopify shop instead of generic vitamin names
-- Product matching via existing NUTRIENT_TAG_MAP_SCORED scoring system
-- Dosage forms extracted from product `application_instructions` via regex parsing
-- Supported forms: Sprühstöße, Kapsel, Tablette, Softgel, Tropfen, ml, Messlöffel, Gummibärchen, Pipette
-- Products with parseable instructions preferred over those without (within score threshold)
-- Vitamin name shown as subtitle for reference
-- Measurable units (mg, IE, mcg) shown in brackets, non-measurable (Kapsel) omitted
-- Files: `backend/routes/supplement_plan.py` (_enrich_schedule_with_products, _parse_dosage_from_instructions)
+## Recipe Catalog Redesign (March 2026)
+- 2-column photo grid (like Pinterest/food app style)
+- Each card: food photo, difficulty badge, cooking time badge, title, ingredient count
+- Difficulty derived from time_min: ≤10 Einfach, ≤25 Medium, >25 Aufwändig
+- Dynamic card width using useWindowDimensions (mobile-friendly)
+- "Für dich empfohlen" section (personalized recommendations)
+- "Alle Rezepte" section with total count
+- Recipe detail page: hero image + API loading by recipe ID
+- Fully bilingual (DE/IT)
 
 ## Backlog
 - Recipe favorites/bookmarks
