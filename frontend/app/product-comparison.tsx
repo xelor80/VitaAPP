@@ -184,6 +184,42 @@ export default function ProductComparisonScreen() {
                 <Text style={s.appInstr} numberOfLines={2}>{p.application_instructions}</Text>
               )}
 
+              {/* Trust: Stars + Reviews + Lab Badge */}
+              {(() => {
+                const ratingStr = p.rating || '';
+                const ratingMatch = ratingStr.match(/(\d+[.,]\d+)\s*\/\s*5\s*\((\d+)\)/);
+                const stars = ratingMatch ? parseFloat(ratingMatch[1].replace(',', '.')) : null;
+                const reviewCount = ratingMatch ? parseInt(ratingMatch[2]) : null;
+                const hasLabel = !!p.label_analysis;
+
+                return (stars || hasLabel) ? (
+                  <View style={s.trustRow}>
+                    {stars && (
+                      <View style={s.trustStars}>
+                        {[1, 2, 3, 4, 5].map(n => (
+                          <MaterialCommunityIcons
+                            key={n}
+                            name={n <= Math.floor(stars) ? 'star' : (n - 0.5 <= stars ? 'star-half-full' : 'star-outline')}
+                            size={14}
+                            color="#D97706"
+                          />
+                        ))}
+                        <Text style={s.trustStarVal}>{stars.toFixed(1).replace('.', ',')}</Text>
+                        {reviewCount && (
+                          <Text style={s.trustReviewCount}>({reviewCount} {lang === 'de' ? 'Bewertungen' : 'recensioni'})</Text>
+                        )}
+                      </View>
+                    )}
+                    {hasLabel && (
+                      <View style={s.labBadge}>
+                        <MaterialCommunityIcons name="flask-outline" size={12} color="#059669" />
+                        <Text style={s.labBadgeText}>{lang === 'de' ? 'Laborgeprüft' : 'Testato in laboratorio'}</Text>
+                      </View>
+                    )}
+                  </View>
+                ) : null;
+              })()}
+
               {/* Affiliate CTA */}
               <TouchableOpacity
                 style={[s.affiliateBtn, { backgroundColor: '#4A8B71' }]}
@@ -253,6 +289,13 @@ const s = StyleSheet.create({
 
   pricePerDayRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8, paddingHorizontal: 4 },
   pricePerDayText: { fontSize: 12, color: '#5C7A6F' },
+
+  trustRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10, flexWrap: 'wrap', gap: 8 },
+  trustStars: { flexDirection: 'row', alignItems: 'center', gap: 2 },
+  trustStarVal: { fontSize: 13, fontWeight: '700', color: '#92400E', marginLeft: 4 },
+  trustReviewCount: { fontSize: 11, color: '#8FA39B', marginLeft: 2 },
+  labBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#ECFDF5', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 4 },
+  labBadgeText: { fontSize: 11, fontWeight: '600', color: '#059669' },
 
   emptyState: { alignItems: 'center', paddingVertical: 40 },
   emptyTitle: { fontSize: 17, fontWeight: '600', color: '#1A2D26', marginTop: 12 },
