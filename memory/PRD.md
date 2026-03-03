@@ -31,7 +31,26 @@ A health-focused, bilingual (German/Italian) mobile app. Core functionality: LLM
 19. Full Italian Translation (P0) - Completed March 2026
 20. IT Product Linking Fix - Completed March 2026
 21. Shopify Shop Import (AI-powered) - Completed March 2026
-22. **Auto-Sync Scheduler** - Completed March 2026
+22. Auto-Sync Scheduler - Completed March 2026
+23. Intelligent Product Ranking (Top 3) - Completed March 2026
+24. **Email Health Report Export** - Completed March 2026
+
+## Email Export Feature (March 2026)
+### Architecture
+- **Backend**: `POST /api/export/email` endpoint
+- **PDF Generation**: reportlab library
+- **SMTP**: Python smtplib via kasserver.com
+- **Frontend**: EmailExportModal component in supplement plan screen
+
+### Email Content
+- HTML email body with: Health Score, Health Profile, Complaints, Deficiencies, Supplement Plan (table + details), Phases, Warnings, Disclaimer
+- PDF attachment with same content, formatted for print
+- Bilingual (DE/IT) support
+
+### Configuration
+- SMTP_HOST: v091516.kasserver.com
+- SMTP_FROM: hello@kauzwerk.de
+- Sender: "VitaGuide <hello@kauzwerk.de>"
 
 ## Auto-Sync Feature (March 2026)
 ### Architecture
@@ -52,13 +71,7 @@ A health-focused, bilingual (German/Italian) mobile app. Core functionality: LLM
 - `POST /api/admin/shop-import` - Start manual import (full AI)
 - `GET /api/admin/shop-import/status/{job_id}` - Poll job progress
 - `POST /api/admin/shop-import/preview` - Preview without importing
-
-### Config per language
-- `shop_url`: Shopify store URL
-- `interval`: "weekly" or "monthly"
-- `enabled`: toggle on/off
-- `next_sync`: calculated from interval
-- `last_sync` / `last_sync_result`: tracking
+- `POST /api/export/email` - Send health report via email
 
 ### Shops
 - DE: https://joachim-kaeser.de (weekly sync)

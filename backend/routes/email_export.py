@@ -396,9 +396,9 @@ async def export_health_data_email(req: EmailExportRequest):
     # Try to get health score
     score_data = None
     try:
-        from routes.health_score import _base_score, _ai_assessment
+        from routes.health_score import _base_score, _compute_total, _ai_assessment
         base = _base_score(profile, [], [])
-        total = base.pop("total")
+        total = _compute_total(base)
         ai = await _ai_assessment(total, base, profile, lang)
         score_data = {"score": total, "label": ai.get("label", ""), "recommendation": ai.get("recommendation", "")}
     except Exception as e:
