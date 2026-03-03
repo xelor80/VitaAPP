@@ -30,44 +30,39 @@ A health-focused, bilingual (German/Italian) mobile app. Core functionality: LLM
 18. Symptom Severity Tracking (1-10 scale)
 19. Full Italian Translation (P0) - Completed March 2026
 20. IT Product Linking Fix - Completed March 2026
-21. **Shopify Shop Import (AI-powered)** - Completed March 2026
+21. Shopify Shop Import (AI-powered) - Completed March 2026
+22. **Auto-Sync Scheduler** - Completed March 2026
 
-## Shopify Shop Import Feature (March 2026)
+## Auto-Sync Feature (March 2026)
 ### Architecture
-- **Backend**: `routes/shop_import.py` - Background job with status polling
-- **Admin UI**: New "Shop Import" tab in admin panel
-- **AI Processing**: GPT-4o extracts ingredients, dosage, intake recommendations, health tags
+- **Config stored in**: MongoDB `sync_config` collection (per language)
+- **Scheduler**: Background asyncio loop, checks every hour
+- **Admin UI**: Two config cards (DE/IT) with toggle, interval, URL, manual trigger
 
-### Flow
-1. Admin enters Shopify shop URL + selects language (DE/IT)
-2. "Vorschau" shows all products from shop
-3. "Importieren" starts background AI processing
-4. Each product's body_html is analyzed by GPT-4o
-5. Non-supplements (workbooks, sets) are auto-skipped
-6. Products are upserted into products_de/products_it collections
-7. Real-time progress polling shows status
+### Sync Behavior
+- **New products**: AI-analyzed and added
+- **Existing products**: Price, image, availability updated (no re-AI)
+- **Deleted products**: Removed from DB if no longer in Shopify shop
+- **Non-supplements**: Auto-skipped (workbooks, sets, clothing)
 
 ### Endpoints
-- `POST /api/admin/shop-import` - Start background import job
+- `GET /api/admin/sync-config` - Get all sync configurations
+- `POST /api/admin/sync-config` - Save/update sync config per language
+- `POST /api/admin/sync-now/{lang}` - Manually trigger sync
+- `POST /api/admin/shop-import` - Start manual import (full AI)
 - `GET /api/admin/shop-import/status/{job_id}` - Poll job progress
 - `POST /api/admin/shop-import/preview` - Preview without importing
 
-### Shops
-- DE: https://joachim-kaeser.de
-- IT: https://joachimkaeser.it
+### Config per language
+- `shop_url`: Shopify store URL
+- `interval`: "weekly" or "monthly"
+- `enabled`: toggle on/off
+- `next_sync`: calculated from interval
+- `last_sync` / `last_sync_result`: tracking
 
-## Translation (i18n) Status - Complete
-### Backend files translated:
-- `core/supplement_engine.py`: med_interactions bilingual
-- `routes/health_score.py`: AI assessment bilingual
-- `routes/label_analysis.py`: Separate DE/IT system prompts
-- `routes/products.py`: NUTRIENT_QUALITY_INFO + NUTRIENT_TAG_MAP bilingual
-- `routes/supplement_interactions.py`: Stack description bilingual
-- `routes/supplement_plan.py`: LLM user message bilingual
-- `routes/correlation_analysis.py`: SUPPLEMENT_NAMES_DE/IT
-- `routes/analysis.py`: Fallback text bilingual
-- `core/config.py`: get_products_collection() with IT->DE fallback
-- `data/prompts.py`: Uses get_products_collection()
+### Shops
+- DE: https://joachim-kaeser.de (weekly sync)
+- IT: https://joachimkaeser.it (monthly sync)
 
 ## Backlog
 - Recipe favorites/bookmarks

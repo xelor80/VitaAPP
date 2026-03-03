@@ -1213,6 +1213,186 @@ async function loadHealthStats() {
 
 let shopPreviewData = [];
 
+// Load sync configs on tab switch
+async function loadSyncConfigs() {
+    try {
+        const resp = await fetch(`${API_BASE}/admin/sync-config`);
+        const data = await resp.json();
+
+        for (const lang of ['de', 'it']) {
+            const config = data[lang];
+            const enabledEl = document.getElementById(`sync-${lang}-enabled`);
+            const urlEl = document.getElementById(`sync-${lang}-url`);
+            const intervalEl = document.getElementById(`sync-${lang}-interval`);
+            const statusEl = document.getElementById(`sync-${lang}-status`);
+            const toggleEl = document.querySelector(`.sync-toggle[data-lang="${lang}"]`);
+
+            if (config) {
+                enabledEl.checked = config.enabled || false;
+                if (config.shop_url) urlEl.value = config.shop_url;
+                if (config.interval) intervalEl.value = config.interval;
+
+                // Update toggle visual
+                toggleEl.style.background = config.enabled ? '#4ADE80' : '#334155';
+
+                // Build status text
+                let statusParts = [];
+                if (config.last_sync) {
+                    const d = new Date(config.last_sync);
+                    statusParts.push(`Letzter Sync: ${d.toLocaleDateString('de-DE')} ${d.toLocaleTimeString('de-DE', {hour:'2-digit',minute:'2-digit'})}`);
+                }
+                if (config.last_sync_result) {
+                    const r = config.last_sync_result;
+                    statusParts.push(`(${r.imported} neu, ${r.updated} aktualisiert, ${r.removed} entfernt)`);
+                }
+                if (config.next_sync && config.enabled) {
+                    const nd = new Date(config.next_sync);
+                    statusParts.push(`Naechster Sync: ${nd.toLocaleDateString('de-DE')}`);
+                }
+                statusEl.textContent = statusParts.join(' | ') || (config.enabled ? 'Aktiv - wartet auf naechsten Sync' : 'Deaktiviert');
+            } else {
+                toggleEl.style.background = '#334155';
+                statusEl.textContent = 'Noch nicht konfiguriert';
+            }
+        }
+    } catch (err) {
+        console.error('Failed to load sync configs:', err);
+    }
+}
+
+async function saveSyncConfig(lang) {
+    const url = document.getElementById(`sync-${lang}-url`).value.trim();
+    const interval = document.getElementById(`sync-${lang}-interval`).value;
+    const enabled = document.getElementById(`sync-${lang}-enabled`).checked;
+    const toggleEl = document.querySelector(`.sync-toggle[data-lang="${lang}"]`);
+
+    toggleEl.style.background = enabled ? '#4ADE80' : '#334155';
+
+    if (!url) return;
+
+    try {
+        const resp = await fetch(`${API_BASE}/admin/sync-config`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({lang, shop_url: url, interval, enabled})
+        });
+        if (!resp.ok) throw new Error('Fehler beim Speichern');
+        loadSyncConfigs();
+    } catch (err) {
+        alert('Fehler: ' + err.message);
+    }
+}
+
+async function triggerSyncNow(lang) {
+    const btn = document.getElementById(`sync-${lang}-btn`);
+    const url = document.getElementById(`sync-${lang}-url`).value.trim();
+    if (!url) { alert('Bitte zuerst eine Shop-URL eingeben'); return; }
+
+    // Save config first
+    await saveSyncConfig(lang);
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sync laeuft...';
+
+    try {
+        const resp = await fetch(`${API_BASE}/admin/sync-now/${lang}`, {method: 'POST'});
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data.detail || 'Sync fehlgeschlagen');
+
+        const jobId = data.job_id;
+
+        // Show progress section
+        document.getElementById('shop-import-progress').style.display = 'block';
+        document.getElementById('import-progress-title').textContent = `Sync ${lang.toUpperCase()} laeuft...`;
+        document.getElementById('import-progress-bar').style.width = '5%';
+        document.getElementById('import-progress-bar').style.background = 'linear-gradient(90deg,#4A8B71,#5B9F82)';
+        document.getElementById('import-progress-bar').textContent = '';
+        document.getElementById('import-progress-stats').textContent = '';
+        document.getElementById('shop-import-results').style.display = 'none';
+
+        // Poll status
+        const poll = setInterval(async () => {
+            try {
+                const statusResp = await fetch(`${API_BASE}/admin/shop-import/status/${jobId}`);
+                const status = await statusResp.json();
+
+                const pct = status.total > 0 ? Math.round((status.processed / status.total) * 100) : 5;
+                document.getElementById('import-progress-bar').style.width = pct + '%';
+                document.getElementById('import-progress-bar').textContent = pct + '%';
+                document.getElementById('import-progress-title').textContent =
+                    status.status === 'complete' ? `Sync ${lang.toUpperCase()} abgeschlossen!` :
+                    status.status === 'error' ? 'Sync fehlgeschlagen' :
+                    `Sync: ${status.current_product || '...'}`;
+                document.getElementById('import-progress-stats').textContent =
+                    `${status.processed} / ${status.total} | ${status.imported} neu | ${status.updated || 0} aktualisiert | ${status.removed || 0} entfernt | ${status.skipped} uebersprungen`;
+
+                if (status.status === 'complete' || status.status === 'error') {
+                    clearInterval(poll);
+                    document.getElementById('import-progress-bar').style.width = '100%';
+                    document.getElementById('import-progress-bar').textContent = '100%';
+
+                    if (status.status === 'error') {
+                        document.getElementById('import-progress-bar').style.background = '#F87171';
+                    }
+
+                    // Show results card
+                    const resultsDiv = document.getElementById('shop-import-results');
+                    document.getElementById('import-results-stats').innerHTML = `
+                        <div style="background:#0F172A;padding:16px;border-radius:8px;text-align:center">
+                            <div style="font-size:28px;font-weight:700;color:#E2E8F0">${status.total}</div>
+                            <div style="font-size:12px;color:#94A3B8">Gesamt</div>
+                        </div>
+                        <div style="background:#0F172A;padding:16px;border-radius:8px;text-align:center">
+                            <div style="font-size:28px;font-weight:700;color:#4ADE80">${status.imported}</div>
+                            <div style="font-size:12px;color:#94A3B8">Neu</div>
+                        </div>
+                        <div style="background:#0F172A;padding:16px;border-radius:8px;text-align:center">
+                            <div style="font-size:28px;font-weight:700;color:#38BDF8">${status.updated || 0}</div>
+                            <div style="font-size:12px;color:#94A3B8">Aktualisiert</div>
+                        </div>
+                        <div style="background:#0F172A;padding:16px;border-radius:8px;text-align:center">
+                            <div style="font-size:28px;font-weight:700;color:#F87171">${status.removed || 0}</div>
+                            <div style="font-size:12px;color:#94A3B8">Entfernt</div>
+                        </div>
+                        <div style="background:#0F172A;padding:16px;border-radius:8px;text-align:center">
+                            <div style="font-size:28px;font-weight:700;color:#F59E0B">${status.skipped}</div>
+                            <div style="font-size:12px;color:#94A3B8">Uebersprungen</div>
+                        </div>
+                    `;
+
+                    if (status.errors.length > 0) {
+                        document.getElementById('import-results-errors').style.display = 'block';
+                        document.getElementById('import-errors-list').innerHTML = status.errors.map(e => `<li>${e}</li>`).join('');
+                    } else {
+                        document.getElementById('import-results-errors').style.display = 'none';
+                    }
+
+                    resultsDiv.style.display = 'block';
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-play"></i> Jetzt synchronisieren';
+
+                    loadSyncConfigs();
+                    if (typeof loadProducts === 'function') loadProducts(lang);
+                }
+            } catch (pollErr) {
+                console.error('Poll error:', pollErr);
+            }
+        }, 3000);
+
+    } catch (err) {
+        alert('Sync-Fehler: ' + err.message);
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-play"></i> Jetzt synchronisieren';
+    }
+}
+
+// Load sync configs when shop-import tab is shown
+const origSwitchTab = window.switchTab;
+window.switchTab = function(tab) {
+    origSwitchTab(tab);
+    if (tab === 'shop-import') loadSyncConfigs();
+};
+
 async function previewShop() {
     const url = document.getElementById('shop-import-url').value.trim();
     const lang = document.getElementById('shop-import-lang').value;

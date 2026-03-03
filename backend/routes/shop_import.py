@@ -1,6 +1,8 @@
 """
-Shopify Shop Import - Fetches products from a Shopify store and uses AI to extract
-structured supplement data (ingredients, dosage, intake recommendations).
+Shopify Shop Import & Auto-Sync
+- Manual import with AI-powered data extraction
+- Automatic scheduled sync (weekly/monthly) per language
+- Full sync: add new, update existing, remove deleted products
 """
 import os
 import re
@@ -9,7 +11,7 @@ import json
 import asyncio
 import logging
 import httpx
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
@@ -21,14 +23,22 @@ router = APIRouter(prefix="/admin", tags=["shop-import"])
 # In-memory job store
 _import_jobs: dict[str, dict] = {}
 
+SYNC_CONFIG_COLLECTION = "sync_config"
+
 
 class ShopImportRequest(BaseModel):
     shop_url: str
     lang: str = "de"
 
 
+class SyncConfigRequest(BaseModel):
+    lang: str
+    shop_url: str
+    interval: str  # "weekly" or "monthly"
+    enabled: bool
+
+
 def _clean_html(html: str) -> str:
-    """Strip HTML tags to get plain text."""
     if not html:
         return ""
     text = re.sub(r'<[^>]+>', ' ', html)
@@ -37,7 +47,6 @@ def _clean_html(html: str) -> str:
 
 
 def _normalize_shop_url(url: str) -> str:
-    """Ensure URL is a proper Shopify base URL."""
     url = url.strip().rstrip('/')
     if not url.startswith('http'):
         url = 'https://' + url
@@ -46,16 +55,13 @@ def _normalize_shop_url(url: str) -> str:
     return f"{parsed.scheme}://{parsed.netloc}"
 
 
-# Non-supplement product types to skip (no AI needed)
 SKIP_TYPES = {"workbook", "buch", "book", "kleidung", "clothing", "gutschein", "voucher", "gift card"}
 
 
 async def _fetch_shopify_products(shop_url: str) -> list[dict]:
-    """Fetch all products from Shopify's public products.json API."""
     base = _normalize_shop_url(shop_url)
     all_products = []
     page = 1
-
     async with httpx.AsyncClient(timeout=30.0) as client:
         while True:
             url = f"{base}/products.json?limit=250&page={page}"
@@ -70,12 +76,10 @@ async def _fetch_shopify_products(shop_url: str) -> list[dict]:
             if len(products) < 250:
                 break
             page += 1
-
     return all_products
 
 
 async def _ai_extract_supplement_data(title: str, body_text: str, tags: list[str], lang: str) -> dict:
-    """Use AI to extract structured supplement data from product description."""
     from emergentintegrations.llm.chat import LlmChat, UserMessage
 
     if lang == "de":
@@ -123,7 +127,6 @@ Importante:
             session_id=f"shop-import-{uuid.uuid4().hex[:8]}",
             system_message=system,
         ).with_model("openai", "gpt-4o")
-
         resp = await chat.send_message(UserMessage(text=prompt))
         match = re.search(r'\{[\s\S]*\}', resp)
         if match:
@@ -132,18 +135,14 @@ Importante:
         logger.error(f"AI extract failed for '{title}': {e}")
 
     return {
-        "description_short": "",
-        "ingredients": [],
-        "dosage": "",
-        "intake_recommendation": "",
-        "benefits": [],
+        "description_short": "", "ingredients": [], "dosage": "",
+        "intake_recommendation": "", "benefits": [],
         "health_tags": tags[:5] if isinstance(tags, list) else [],
         "is_supplement": True
     }
 
 
 def _shopify_to_product(shopify_product: dict, ai_data: dict, lang: str, shop_url: str) -> dict:
-    """Convert a Shopify product + AI data into our DB format."""
     handle = shopify_product.get("handle", "")
     variants = shopify_product.get("variants", [])
     images = shopify_product.get("images", [])
@@ -194,13 +193,17 @@ def _shopify_to_product(shopify_product: dict, ai_data: dict, lang: str, shop_ur
     }
 
 
-async def _run_import(job_id: str, shop_url: str, lang: str):
-    """Background task that processes all products."""
+async def _run_import(job_id: str, shop_url: str, lang: str, is_sync: bool = False):
+    """Background task that processes all products. If is_sync=True, also removes deleted products."""
     job = _import_jobs[job_id]
     try:
         shopify_products = await _fetch_shopify_products(shop_url)
         job["total"] = len(shopify_products)
         collection = db.products_de if lang == "de" else db.products_it
+
+        # Track which product_ids we see from Shopify (for deletion detection)
+        seen_handles = set()
+        imported_handles = set()
 
         for i, sp in enumerate(shopify_products):
             handle = sp.get("handle", f"unknown-{i}")
@@ -209,12 +212,11 @@ async def _run_import(job_id: str, shop_url: str, lang: str):
 
             job["current_product"] = title
             job["processed"] = i
+            seen_handles.add(handle)
 
             try:
-                # Quick skip for obvious non-supplements
                 if ptype in SKIP_TYPES:
                     job["skipped"] += 1
-                    logger.info(f"[{job_id}] Skipped (type={ptype}): {title}")
                     continue
 
                 body_text = _clean_html(sp.get("body_html", ""))
@@ -222,31 +224,94 @@ async def _run_import(job_id: str, shop_url: str, lang: str):
                 if isinstance(tags, str):
                     tags = [t.strip() for t in tags.split(",")]
 
-                # AI extraction
-                ai_data = await _ai_extract_supplement_data(title, body_text, tags, lang)
+                # For sync: check if product already exists and has AI data
+                existing = await collection.find_one({"product_id": handle}, {"_id": 0, "imported_at": 1})
 
-                if not ai_data.get("is_supplement", True):
-                    job["skipped"] += 1
-                    logger.info(f"[{job_id}] Skipped (AI): {title}")
-                    continue
+                if is_sync and existing:
+                    # Update price, image, tags from Shopify but keep AI data
+                    variants = sp.get("variants", [])
+                    images = sp.get("images", [])
+                    shopify_tags = tags
+                    base_url = _normalize_shop_url(shop_url)
 
-                product = _shopify_to_product(sp, ai_data, lang, shop_url)
-                await collection.update_one({"product_id": handle}, {"$set": product}, upsert=True)
-                job["imported"] += 1
-                job["products"].append({
-                    "product_id": handle,
-                    "name": title,
-                    "tags": product["tags"][:5],
-                })
-                logger.info(f"[{job_id}] Imported [{i+1}/{job['total']}]: {title}")
+                    update_fields = {
+                        "name": title,
+                        "price": f"{variants[0]['price']} EUR" if variants else "",
+                        "image_url": images[0]["src"] if images else "",
+                        "affiliate_url": f"{base_url}/products/{handle}",
+                        "product_type": sp.get("product_type", ""),
+                        "imported_at": datetime.now(timezone.utc).isoformat(),
+                    }
+                    # Merge new Shopify tags with existing tags
+                    existing_doc = await collection.find_one({"product_id": handle}, {"_id": 0, "tags": 1})
+                    old_tags = existing_doc.get("tags", []) if existing_doc else []
+                    merged_tags = list(set([t.lower() for t in shopify_tags + old_tags]))
+                    update_fields["tags"] = merged_tags
+
+                    await collection.update_one({"product_id": handle}, {"$set": update_fields})
+                    job["updated"] += 1
+                    imported_handles.add(handle)
+                    logger.info(f"[{job_id}] Updated [{i+1}/{job['total']}]: {title}")
+                else:
+                    # Full AI extraction for new products
+                    ai_data = await _ai_extract_supplement_data(title, body_text, tags, lang)
+
+                    if not ai_data.get("is_supplement", True):
+                        job["skipped"] += 1
+                        continue
+
+                    product = _shopify_to_product(sp, ai_data, lang, shop_url)
+                    await collection.update_one({"product_id": handle}, {"$set": product}, upsert=True)
+                    job["imported"] += 1
+                    imported_handles.add(handle)
+                    job["products"].append({
+                        "product_id": handle,
+                        "name": title,
+                        "tags": product["tags"][:5],
+                    })
+                    logger.info(f"[{job_id}] Imported [{i+1}/{job['total']}]: {title}")
 
             except Exception as e:
                 job["errors"].append(f"{handle}: {str(e)[:100]}")
                 logger.error(f"[{job_id}] Error importing {handle}: {e}")
 
+        # Remove products that no longer exist in Shopify
+        if is_sync:
+            all_db_products = await collection.find(
+                {"shopify_id": {"$exists": True}},
+                {"_id": 0, "product_id": 1}
+            ).to_list(1000)
+
+            for doc in all_db_products:
+                pid = doc["product_id"]
+                if pid not in seen_handles:
+                    await collection.delete_one({"product_id": pid})
+                    job["removed"] += 1
+                    logger.info(f"[{job_id}] Removed (not in shop): {pid}")
+
         job["processed"] = job["total"]
         job["status"] = "complete"
-        logger.info(f"[{job_id}] Import complete: {job['imported']} imported, {job['skipped']} skipped")
+        logger.info(
+            f"[{job_id}] {'Sync' if is_sync else 'Import'} complete: "
+            f"{job['imported']} new, {job.get('updated',0)} updated, "
+            f"{job.get('removed',0)} removed, {job['skipped']} skipped"
+        )
+
+        # Update last sync time in config
+        if is_sync:
+            await db[SYNC_CONFIG_COLLECTION].update_one(
+                {"lang": lang},
+                {"$set": {
+                    "last_sync": datetime.now(timezone.utc).isoformat(),
+                    "last_sync_result": {
+                        "imported": job["imported"],
+                        "updated": job.get("updated", 0),
+                        "removed": job.get("removed", 0),
+                        "skipped": job["skipped"],
+                        "errors": len(job["errors"]),
+                    }
+                }}
+            )
 
     except Exception as e:
         job["status"] = "error"
@@ -254,31 +319,107 @@ async def _run_import(job_id: str, shop_url: str, lang: str):
         logger.error(f"[{job_id}] Import failed: {e}")
 
 
-@router.post("/shop-import")
-async def start_import(req: ShopImportRequest):
-    """Start a background shop import job."""
-    lang = req.lang if req.lang in ("de", "it") else "de"
+def _create_job(is_sync: bool = False) -> tuple[str, dict]:
     job_id = uuid.uuid4().hex[:12]
-
-    _import_jobs[job_id] = {
+    job = {
         "status": "running",
         "total": 0,
         "processed": 0,
         "imported": 0,
+        "updated": 0,
+        "removed": 0,
         "skipped": 0,
         "errors": [],
         "products": [],
         "current_product": "",
         "started_at": datetime.now(timezone.utc).isoformat(),
+        "is_sync": is_sync,
+    }
+    _import_jobs[job_id] = job
+    return job_id, job
+
+
+# ==================== SYNC CONFIG ENDPOINTS ====================
+
+@router.get("/sync-config")
+async def get_sync_configs():
+    """Get sync configurations for all languages."""
+    configs = await db[SYNC_CONFIG_COLLECTION].find({}, {"_id": 0}).to_list(10)
+    # Return defaults if no config exists
+    result = {"de": None, "it": None}
+    for c in configs:
+        result[c["lang"]] = c
+    return result
+
+
+@router.post("/sync-config")
+async def save_sync_config(req: SyncConfigRequest):
+    """Save or update sync configuration for a language."""
+    if req.lang not in ("de", "it"):
+        raise HTTPException(status_code=400, detail="Sprache muss 'de' oder 'it' sein")
+    if req.interval not in ("weekly", "monthly"):
+        raise HTTPException(status_code=400, detail="Intervall muss 'weekly' oder 'monthly' sein")
+
+    now = datetime.now(timezone.utc).isoformat()
+
+    # Calculate next sync time
+    if req.interval == "weekly":
+        next_sync = (datetime.now(timezone.utc) + timedelta(weeks=1)).isoformat()
+    else:
+        next_sync = (datetime.now(timezone.utc) + timedelta(days=30)).isoformat()
+
+    config = {
+        "lang": req.lang,
+        "shop_url": req.shop_url,
+        "interval": req.interval,
+        "enabled": req.enabled,
+        "next_sync": next_sync,
+        "updated_at": now,
     }
 
-    asyncio.create_task(_run_import(job_id, req.shop_url, lang))
+    existing = await db[SYNC_CONFIG_COLLECTION].find_one({"lang": req.lang})
+    if existing:
+        # Preserve last_sync data
+        config["last_sync"] = existing.get("last_sync")
+        config["last_sync_result"] = existing.get("last_sync_result")
+        await db[SYNC_CONFIG_COLLECTION].update_one({"lang": req.lang}, {"$set": config})
+    else:
+        config["last_sync"] = None
+        config["last_sync_result"] = None
+        await db[SYNC_CONFIG_COLLECTION].insert_one(config)
+
+    return {"status": "saved", "config": {k: v for k, v in config.items() if k != "_id"}}
+
+
+@router.post("/sync-now/{lang}")
+async def trigger_sync_now(lang: str):
+    """Manually trigger a sync for a specific language."""
+    if lang not in ("de", "it"):
+        raise HTTPException(status_code=400, detail="Sprache muss 'de' oder 'it' sein")
+
+    config = await db[SYNC_CONFIG_COLLECTION].find_one({"lang": lang}, {"_id": 0})
+    if not config or not config.get("shop_url"):
+        raise HTTPException(status_code=400, detail="Keine Sync-Konfiguration fuer diese Sprache vorhanden")
+
+    job_id, _ = _create_job(is_sync=True)
+    asyncio.create_task(_run_import(job_id, config["shop_url"], lang, is_sync=True))
+    return {"job_id": job_id, "status": "started"}
+
+
+# ==================== IMPORT ENDPOINTS ====================
+
+@router.post("/shop-import")
+async def start_import(req: ShopImportRequest):
+    """Start a background shop import job."""
+    lang = req.lang if req.lang in ("de", "it") else "de"
+    job_id, _ = _create_job(is_sync=False)
+    asyncio.create_task(_run_import(job_id, req.shop_url, lang, is_sync=False))
     return {"job_id": job_id, "status": "started"}
 
 
 @router.get("/shop-import/status/{job_id}")
 async def get_import_status(job_id: str):
-    """Get the status of a running import job."""
+    """Get the status of a running import/sync job."""
     job = _import_jobs.get(job_id)
     if not job:
         raise HTTPException(status_code=404, detail="Job nicht gefunden")
@@ -287,10 +428,13 @@ async def get_import_status(job_id: str):
         "total": job["total"],
         "processed": job["processed"],
         "imported": job["imported"],
+        "updated": job.get("updated", 0),
+        "removed": job.get("removed", 0),
         "skipped": job["skipped"],
         "errors": job["errors"][:20],
         "current_product": job["current_product"],
         "products": job["products"][-10:],
+        "is_sync": job.get("is_sync", False),
     }
 
 
@@ -298,25 +442,63 @@ async def get_import_status(job_id: str):
 async def preview_shop(req: ShopImportRequest):
     """Preview products from a Shopify shop without importing."""
     shopify_products = await _fetch_shopify_products(req.shop_url)
-
     preview = []
     for sp in shopify_products:
-        handle = sp.get("handle", "")
-        title = sp.get("title", "")
-        variants = sp.get("variants", [])
-        images = sp.get("images", [])
         tags = sp.get("tags", [])
         if isinstance(tags, str):
             tags = [t.strip() for t in tags.split(",")]
-
         preview.append({
-            "handle": handle,
-            "title": title,
-            "price": variants[0]["price"] if variants else "",
-            "image": images[0]["src"] if images else "",
+            "handle": sp.get("handle", ""),
+            "title": sp.get("title", ""),
+            "price": sp["variants"][0]["price"] if sp.get("variants") else "",
+            "image": sp["images"][0]["src"] if sp.get("images") else "",
             "tags": tags[:5],
             "product_type": sp.get("product_type", ""),
             "has_description": bool(sp.get("body_html", "")),
         })
-
     return {"total": len(preview), "products": preview}
+
+
+# ==================== BACKGROUND SYNC SCHEDULER ====================
+
+async def _check_and_run_syncs():
+    """Check if any sync is due and run it."""
+    now = datetime.now(timezone.utc)
+    configs = await db[SYNC_CONFIG_COLLECTION].find({"enabled": True}, {"_id": 0}).to_list(10)
+
+    for config in configs:
+        next_sync_str = config.get("next_sync")
+        if not next_sync_str:
+            continue
+
+        next_sync = datetime.fromisoformat(next_sync_str.replace("Z", "+00:00"))
+        if now >= next_sync:
+            lang = config["lang"]
+            shop_url = config["shop_url"]
+            logger.info(f"Auto-sync due for {lang}: {shop_url}")
+
+            job_id, _ = _create_job(is_sync=True)
+            asyncio.create_task(_run_import(job_id, shop_url, lang, is_sync=True))
+
+            # Schedule next sync
+            if config["interval"] == "weekly":
+                new_next = (now + timedelta(weeks=1)).isoformat()
+            else:
+                new_next = (now + timedelta(days=30)).isoformat()
+
+            await db[SYNC_CONFIG_COLLECTION].update_one(
+                {"lang": lang},
+                {"$set": {"next_sync": new_next}}
+            )
+            logger.info(f"Next sync for {lang} scheduled at {new_next}")
+
+
+async def start_sync_scheduler():
+    """Background loop that checks for due syncs every hour."""
+    logger.info("Sync scheduler started")
+    while True:
+        try:
+            await _check_and_run_syncs()
+        except Exception as e:
+            logger.error(f"Sync scheduler error: {e}")
+        await asyncio.sleep(3600)  # Check every hour

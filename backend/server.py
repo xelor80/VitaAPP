@@ -4,6 +4,7 @@ from starlette.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import hashlib
 import secrets
+import asyncio
 from pathlib import Path
 
 from core.config import client, logger
@@ -97,6 +98,9 @@ app.add_middleware(
 @app.on_event("startup")
 async def seed_data():
     logger.info("VitaGuide API started (modular)")
+    # Start background sync scheduler
+    from routes.shop_import import start_sync_scheduler
+    asyncio.create_task(start_sync_scheduler())
 
 
 @app.on_event("shutdown")
