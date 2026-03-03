@@ -1,9 +1,21 @@
 from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
 from datetime import datetime, timezone, timedelta
+from typing import List
 
 from core.config import db
 
 router = APIRouter()
+
+
+class QuickSupplementInput(BaseModel):
+    profile_id: str
+    supplement_ids: List[str]
+    timing: str = ""
+
+class QuickSymptomInput(BaseModel):
+    profile_id: str
+    overall: int = 5
 
 
 def _get_current_timing() -> str:
@@ -91,6 +103,15 @@ async def get_daily_tasks(profile_id: str, lang: str = "de"):
                     "status": "urgent" if is_current else "pending",
                     "cta_label": lang == "de" and "Einnahme tracken" or "Traccia assunzione",
                     "cta_route": "/tracking",
+                    "items": [
+                        {
+                            "id": i.get("id"),
+                            "name": i.get("product_name") or i.get("name", ""),
+                            "dosage": i.get("dosage_instruction") or i.get("dosage", ""),
+                        }
+                        for i in pending
+                    ],
+                    "timing": timing,
                 })
                 break  # Only show the most urgent timing slot
 
@@ -230,3 +251,67 @@ async def get_daily_tasks(profile_id: str, lang: str = "de"):
     # Sort by priority and return max 3
     tasks.sort(key=lambda t: t["priority"])
     return {"tasks": tasks[:3], "total_available": len(tasks)}
+
+
+@router.post("/daily-tasks/complete-supplements")
+async def complete_supplements(req: QuickSupplementInput):
+    """Quick-complete supplements from the home screen."""
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+    # Get existing compliance for today
+    existing = await db.compliance_tracking.find_one(
+        {"profile_id": req.profile_id, "date": today}
+    )
+
+    if existing:
+        # Merge: mark the given IDs as taken
+        supplements = existing.get("supplements", [])
+        existing_ids = {s["id"] for s in supplements}
+        for s in supplements:
+            if s["id"] in req.supplement_ids:
+                s["taken"] = True
+        # Add any new IDs not already in the list
+        for sid in req.supplement_ids:
+            if sid not in existing_ids:
+                supplements.append({"id": sid, "name": sid, "taken": True})
+        await db.compliance_tracking.update_one(
+            {"profile_id": req.profile_id, "date": today},
+            {"$set": {"supplements": supplements, "updated_at": datetime.now(timezone.utc).isoformat()}}
+        )
+    else:
+        # Create new compliance entry
+        supplements = [{"id": sid, "name": sid, "taken": True} for sid in req.supplement_ids]
+        await db.compliance_tracking.insert_one({
+            "profile_id": req.profile_id,
+            "date": today,
+            "supplements": supplements,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        })
+
+    return {"success": True, "completed": len(req.supplement_ids)}
+
+
+@router.post("/daily-tasks/complete-symptom-check")
+async def complete_symptom_check(req: QuickSymptomInput):
+    """Quick symptom check from the home screen (overall rating only)."""
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+    existing = await db.symptom_tracking.find_one(
+        {"profile_id": req.profile_id, "date": today}
+    )
+    if existing:
+        await db.symptom_tracking.update_one(
+            {"profile_id": req.profile_id, "date": today},
+            {"$set": {"overall": req.overall, "updated_at": datetime.now(timezone.utc).isoformat()}}
+        )
+    else:
+        await db.symptom_tracking.insert_one({
+            "profile_id": req.profile_id,
+            "date": today,
+            "overall": req.overall,
+            "ratings": {},
+            "notes": "",
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        })
+
+    return {"success": True, "overall": req.overall}
