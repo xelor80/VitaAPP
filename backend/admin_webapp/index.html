@@ -101,6 +101,9 @@
             <button class="tab" data-tab="health-stats" onclick="switchTab('health-stats')">
                 <i class="fas fa-chart-bar"></i> Gesundheit
             </button>
+            <button class="tab" data-tab="shop-import" onclick="switchTab('shop-import')">
+                <i class="fas fa-store"></i> Shop Import
+            </button>
         </div>
 
         <!-- Tab Content -->
@@ -492,6 +495,87 @@
                         <div class="stat-card">
                             <h4 style="color:#94A3B8;margin-bottom:12px"><i class="fas fa-prescription-bottle-alt"></i> Medikamente</h4>
                             <div id="hs-medications"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shop Import Tab -->
+            <div id="shop-import-tab" class="tab-pane hidden">
+                <div class="card" style="padding:24px;margin-bottom:20px">
+                    <h3 style="color:#E2E8F0;margin-bottom:16px"><i class="fas fa-store"></i> Shopify Shop Import</h3>
+                    <p style="color:#94A3B8;margin-bottom:20px">Importiere Produkte automatisch aus deinem Shopify-Shop. Die KI extrahiert Inhaltsstoffe, Dosierung und Einnahmeempfehlungen.</p>
+                    
+                    <div style="display:grid;grid-template-columns:1fr auto auto auto;gap:12px;align-items:end">
+                        <div class="form-group" style="margin:0">
+                            <label>Shop-URL</label>
+                            <input type="text" id="shop-import-url" placeholder="z.B. https://joachim-kaeser.de" style="width:100%">
+                        </div>
+                        <div class="form-group" style="margin:0">
+                            <label>Sprache</label>
+                            <select id="shop-import-lang" style="padding:8px 12px;background:#1E293B;border:1px solid #334155;color:#E2E8F0;border-radius:6px">
+                                <option value="de">Deutsch (DE)</option>
+                                <option value="it">Italiano (IT)</option>
+                            </select>
+                        </div>
+                        <button type="button" class="btn-secondary" onclick="previewShop()" id="shop-preview-btn">
+                            <i class="fas fa-eye"></i> Vorschau
+                        </button>
+                        <button type="button" class="btn-primary" onclick="startShopImport()" id="shop-import-btn" disabled>
+                            <i class="fas fa-download"></i> Importieren
+                        </button>
+                    </div>
+
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+                        <button type="button" class="btn-secondary" onclick="document.getElementById('shop-import-url').value='https://joachim-kaeser.de';document.getElementById('shop-import-lang').value='de'" style="font-size:12px">
+                            <i class="fas fa-flag"></i> DE Shop laden
+                        </button>
+                        <button type="button" class="btn-secondary" onclick="document.getElementById('shop-import-url').value='https://joachimkaeser.it';document.getElementById('shop-import-lang').value='it'" style="font-size:12px">
+                            <i class="fas fa-flag"></i> IT Shop laden
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Progress Section -->
+                <div id="shop-import-progress" style="display:none" class="card" style="padding:24px;margin-bottom:20px">
+                    <div style="padding:24px">
+                        <h4 style="color:#E2E8F0;margin-bottom:12px"><i class="fas fa-cog fa-spin"></i> <span id="import-progress-title">Import laeuft...</span></h4>
+                        <div style="background:#1E293B;border-radius:8px;overflow:hidden;height:24px;margin-bottom:12px">
+                            <div id="import-progress-bar" style="height:100%;background:linear-gradient(90deg,#4A8B71,#5B9F82);width:0%;transition:width 0.5s;border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:600"></div>
+                        </div>
+                        <div id="import-progress-stats" style="color:#94A3B8;font-size:14px"></div>
+                    </div>
+                </div>
+
+                <!-- Preview Table -->
+                <div id="shop-preview-container" style="display:none" class="card">
+                    <div style="padding:16px 24px;border-bottom:1px solid #334155;display:flex;justify-content:space-between;align-items:center">
+                        <h4 style="color:#E2E8F0;margin:0"><i class="fas fa-list"></i> <span id="shop-preview-count">0</span> Produkte gefunden</h4>
+                    </div>
+                    <div style="max-height:500px;overflow-y:auto">
+                        <table style="width:100%;border-collapse:collapse">
+                            <thead>
+                                <tr style="background:#1E293B">
+                                    <th style="padding:10px 16px;text-align:left;color:#94A3B8;font-size:13px">Bild</th>
+                                    <th style="padding:10px 16px;text-align:left;color:#94A3B8;font-size:13px">Produkt</th>
+                                    <th style="padding:10px 16px;text-align:left;color:#94A3B8;font-size:13px">Typ</th>
+                                    <th style="padding:10px 16px;text-align:left;color:#94A3B8;font-size:13px">Preis</th>
+                                    <th style="padding:10px 16px;text-align:left;color:#94A3B8;font-size:13px">Tags</th>
+                                </tr>
+                            </thead>
+                            <tbody id="shop-preview-table"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Results Section -->
+                <div id="shop-import-results" style="display:none" class="card">
+                    <div style="padding:24px">
+                        <h4 style="color:#4ADE80;margin-bottom:16px"><i class="fas fa-check-circle"></i> Import abgeschlossen</h4>
+                        <div id="import-results-stats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px"></div>
+                        <div id="import-results-errors" style="display:none;margin-top:12px">
+                            <h5 style="color:#F87171;margin-bottom:8px">Fehler:</h5>
+                            <ul id="import-errors-list" style="color:#94A3B8;font-size:13px;padding-left:20px"></ul>
                         </div>
                     </div>
                 </div>

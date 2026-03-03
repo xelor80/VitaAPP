@@ -1207,3 +1207,167 @@ async function loadHealthStats() {
         emptyEl.style.display = 'block';
     }
 }
+
+
+// ==================== SHOP IMPORT ====================
+
+let shopPreviewData = [];
+
+async function previewShop() {
+    const url = document.getElementById('shop-import-url').value.trim();
+    const lang = document.getElementById('shop-import-lang').value;
+    if (!url) { alert('Bitte Shop-URL eingeben'); return; }
+
+    const btn = document.getElementById('shop-preview-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Lade...';
+
+    // Hide previous results
+    document.getElementById('shop-import-results').style.display = 'none';
+    document.getElementById('shop-import-progress').style.display = 'none';
+
+    try {
+        const resp = await fetch(`${API_BASE}/admin/shop-import/preview`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({shop_url: url, lang})
+        });
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data.detail || 'Fehler beim Laden');
+
+        shopPreviewData = data.products || [];
+        document.getElementById('shop-preview-count').textContent = data.total;
+
+        const tbody = document.getElementById('shop-preview-table');
+        tbody.innerHTML = shopPreviewData.map(p => `
+            <tr style="border-bottom:1px solid #1E293B">
+                <td style="padding:8px 16px">
+                    ${p.image ? `<img src="${p.image}" style="width:40px;height:40px;object-fit:cover;border-radius:4px">` : '<div style="width:40px;height:40px;background:#1E293B;border-radius:4px"></div>'}
+                </td>
+                <td style="padding:8px 16px;color:#E2E8F0;font-size:13px">${p.title}</td>
+                <td style="padding:8px 16px;color:#94A3B8;font-size:12px">${p.product_type || '-'}</td>
+                <td style="padding:8px 16px;color:#4ADE80;font-size:13px">${p.price ? p.price + ' EUR' : '-'}</td>
+                <td style="padding:8px 16px">
+                    ${(p.tags || []).slice(0,3).map(t => `<span style="background:#1E293B;color:#94A3B8;padding:2px 6px;border-radius:4px;font-size:11px;margin-right:4px">${t}</span>`).join('')}
+                </td>
+            </tr>
+        `).join('');
+
+        document.getElementById('shop-preview-container').style.display = 'block';
+        document.getElementById('shop-import-btn').disabled = false;
+
+    } catch (err) {
+        alert('Fehler: ' + err.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-eye"></i> Vorschau';
+    }
+}
+
+async function startShopImport() {
+    const url = document.getElementById('shop-import-url').value.trim();
+    const lang = document.getElementById('shop-import-lang').value;
+    if (!url) { alert('Bitte Shop-URL eingeben'); return; }
+
+    if (!confirm(`${shopPreviewData.length} Produkte importieren?\n\nDie KI analysiert jedes Produkt - dies kann einige Minuten dauern.`)) return;
+
+    const btn = document.getElementById('shop-import-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Import laeuft...';
+
+    // Show progress
+    const progressDiv = document.getElementById('shop-import-progress');
+    progressDiv.style.display = 'block';
+    document.getElementById('import-progress-title').textContent = 'Import wird gestartet...';
+    document.getElementById('import-progress-bar').style.width = '5%';
+    document.getElementById('import-progress-bar').style.background = 'linear-gradient(90deg,#4A8B71,#5B9F82)';
+    document.getElementById('import-progress-bar').textContent = '';
+    document.getElementById('import-progress-stats').textContent = '';
+    document.getElementById('shop-import-results').style.display = 'none';
+
+    try {
+        // Start background import
+        const resp = await fetch(`${API_BASE}/admin/shop-import`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({shop_url: url, lang})
+        });
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data.detail || 'Import fehlgeschlagen');
+
+        const jobId = data.job_id;
+
+        // Poll status
+        const poll = setInterval(async () => {
+            try {
+                const statusResp = await fetch(`${API_BASE}/admin/shop-import/status/${jobId}`);
+                const status = await statusResp.json();
+
+                const pct = status.total > 0 ? Math.round((status.processed / status.total) * 100) : 5;
+                document.getElementById('import-progress-bar').style.width = pct + '%';
+                document.getElementById('import-progress-bar').textContent = pct + '%';
+                document.getElementById('import-progress-title').textContent =
+                    status.status === 'complete' ? 'Import abgeschlossen!' :
+                    status.status === 'error' ? 'Import fehlgeschlagen' :
+                    `KI analysiert: ${status.current_product || '...'}`;
+                document.getElementById('import-progress-stats').textContent =
+                    `${status.processed} / ${status.total} verarbeitet | ${status.imported} importiert | ${status.skipped} uebersprungen`;
+
+                if (status.status === 'complete' || status.status === 'error') {
+                    clearInterval(poll);
+                    document.getElementById('import-progress-bar').style.width = '100%';
+                    document.getElementById('import-progress-bar').textContent = '100%';
+
+                    if (status.status === 'error') {
+                        document.getElementById('import-progress-bar').style.background = '#F87171';
+                    }
+
+                    // Show results
+                    const resultsDiv = document.getElementById('shop-import-results');
+                    document.getElementById('import-results-stats').innerHTML = `
+                        <div style="background:#1E293B;padding:16px;border-radius:8px;text-align:center">
+                            <div style="font-size:28px;font-weight:700;color:#E2E8F0">${status.total}</div>
+                            <div style="font-size:12px;color:#94A3B8">Gesamt</div>
+                        </div>
+                        <div style="background:#1E293B;padding:16px;border-radius:8px;text-align:center">
+                            <div style="font-size:28px;font-weight:700;color:#4ADE80">${status.imported}</div>
+                            <div style="font-size:12px;color:#94A3B8">Importiert</div>
+                        </div>
+                        <div style="background:#1E293B;padding:16px;border-radius:8px;text-align:center">
+                            <div style="font-size:28px;font-weight:700;color:#F59E0B">${status.skipped}</div>
+                            <div style="font-size:12px;color:#94A3B8">Uebersprungen</div>
+                        </div>
+                        <div style="background:#1E293B;padding:16px;border-radius:8px;text-align:center">
+                            <div style="font-size:28px;font-weight:700;color:#F87171">${status.errors.length}</div>
+                            <div style="font-size:12px;color:#94A3B8">Fehler</div>
+                        </div>
+                    `;
+
+                    if (status.errors.length > 0) {
+                        document.getElementById('import-results-errors').style.display = 'block';
+                        document.getElementById('import-errors-list').innerHTML = status.errors.map(e => `<li>${e}</li>`).join('');
+                    } else {
+                        document.getElementById('import-results-errors').style.display = 'none';
+                    }
+
+                    resultsDiv.style.display = 'block';
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-download"></i> Importieren';
+
+                    if (typeof loadProducts === 'function') loadProducts(lang);
+                }
+            } catch (pollErr) {
+                console.error('Poll error:', pollErr);
+            }
+        }, 3000);
+
+    } catch (err) {
+        document.getElementById('import-progress-title').textContent = 'Import fehlgeschlagen';
+        document.getElementById('import-progress-bar').style.width = '100%';
+        document.getElementById('import-progress-bar').style.background = '#F87171';
+        document.getElementById('import-progress-bar').textContent = 'Fehler';
+        alert('Import-Fehler: ' + err.message);
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-download"></i> Importieren';
+    }
+}

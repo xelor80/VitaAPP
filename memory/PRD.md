@@ -28,30 +28,46 @@ A health-focused, bilingual (German/Italian) mobile app. Core functionality: LLM
 16. Personalized Recommendation Reasons
 17. Monetization CTAs (affiliate products)
 18. Symptom Severity Tracking (1-10 scale)
-19. **Full Italian Translation (P0)** - Completed March 2026
-20. **IT Product Linking Fix** - Completed March 2026
+19. Full Italian Translation (P0) - Completed March 2026
+20. IT Product Linking Fix - Completed March 2026
+21. **Shopify Shop Import (AI-powered)** - Completed March 2026
 
-## Translation (i18n) Status
-### Frontend
-- Handled via `frontend/src/lib/i18n.ts` - complete
+## Shopify Shop Import Feature (March 2026)
+### Architecture
+- **Backend**: `routes/shop_import.py` - Background job with status polling
+- **Admin UI**: New "Shop Import" tab in admin panel
+- **AI Processing**: GPT-4o extracts ingredients, dosage, intake recommendations, health tags
 
-### Backend (Completed March 2026)
-Files translated:
-- `core/supplement_engine.py`: SUPPLEMENT_DB med_interactions now bilingual dicts
-- `routes/health_score.py`: AI assessment prompt bilingual, fallback labels bilingual
-- `routes/label_analysis.py`: Separate DE/IT system prompts, bilingual error messages
-- `routes/products.py`: NUTRIENT_QUALITY_INFO bilingual, NUTRIENT_TAG_MAP expanded for IT tags
-- `routes/supplement_interactions.py`: Stack description, profile context bilingual
+### Flow
+1. Admin enters Shopify shop URL + selects language (DE/IT)
+2. "Vorschau" shows all products from shop
+3. "Importieren" starts background AI processing
+4. Each product's body_html is analyzed by GPT-4o
+5. Non-supplements (workbooks, sets) are auto-skipped
+6. Products are upserted into products_de/products_it collections
+7. Real-time progress polling shows status
+
+### Endpoints
+- `POST /api/admin/shop-import` - Start background import job
+- `GET /api/admin/shop-import/status/{job_id}` - Poll job progress
+- `POST /api/admin/shop-import/preview` - Preview without importing
+
+### Shops
+- DE: https://joachim-kaeser.de
+- IT: https://joachimkaeser.it
+
+## Translation (i18n) Status - Complete
+### Backend files translated:
+- `core/supplement_engine.py`: med_interactions bilingual
+- `routes/health_score.py`: AI assessment bilingual
+- `routes/label_analysis.py`: Separate DE/IT system prompts
+- `routes/products.py`: NUTRIENT_QUALITY_INFO + NUTRIENT_TAG_MAP bilingual
+- `routes/supplement_interactions.py`: Stack description bilingual
 - `routes/supplement_plan.py`: LLM user message bilingual
-- `routes/correlation_analysis.py`: SUPPLEMENT_NAMES_DE/IT separate dicts
-- `routes/analysis.py`: Fallback text and rate limit error bilingual
+- `routes/correlation_analysis.py`: SUPPLEMENT_NAMES_DE/IT
+- `routes/analysis.py`: Fallback text bilingual
 - `core/config.py`: get_products_collection() with IT->DE fallback
-- `data/prompts.py`: Uses get_products_collection() for correct language products
-
-## Product Linking Fix (March 2026)
-- **Root cause**: NUTRIENT_TAG_MAP only had German tags (e.g., "eisen", "zink"), but IT products used Italian tags (e.g., "stanchezza", "muscoli", "cuore")
-- **Fix**: Extended NUTRIENT_TAG_MAP with both DE and IT tags for cross-language matching
-- **Fallback**: get_products_collection() in core/config.py falls back to DE products if IT collection is empty
+- `data/prompts.py`: Uses get_products_collection()
 
 ## Backlog
 - Recipe favorites/bookmarks
