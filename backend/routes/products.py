@@ -8,88 +8,132 @@ router = APIRouter()
 # Secondary tags = general health area (lower relevance)
 NUTRIENT_TAG_MAP_SCORED = {
     "iron": {
-        "primary": ["eisen", "ferro", "iron"],
-        "secondary": ["stanchezza", "müdigkeit", "blutarmut", "energie"],
+        "primary_de": ["eisen", "iron"],
+        "primary_it": ["ferro", "iron"],
+        "secondary_de": ["müdigkeit", "blutarmut", "energie"],
+        "secondary_it": ["stanchezza", "anemia", "energia"],
     },
     "zinc": {
-        "primary": ["zink", "zinco", "zinc"],
-        "secondary": ["sistema immunitario", "immunsystem", "haut", "pelle"],
+        "primary_de": ["zink", "zinc"],
+        "primary_it": ["zinco", "zinc"],
+        "secondary_de": ["immunsystem", "haut"],
+        "secondary_it": ["sistema immunitario", "pelle"],
     },
     "omega3": {
-        "primary": ["omega-3", "omega", "omega 3", "epa", "dha"],
-        "secondary": ["herz", "cuore", "gehirn", "cervello"],
+        "primary_de": ["omega-3", "omega", "omega 3", "epa", "dha"],
+        "primary_it": ["omega-3", "omega", "omega 3", "epa", "dha"],
+        "secondary_de": ["herz", "gehirn"],
+        "secondary_it": ["cuore", "cervello"],
     },
     "vitamin_d": {
-        "primary": ["vitamin-d", "vitamina d", "vitamin d", "vitamin d3"],
-        "secondary": ["knochen", "ossa", "immunsystem"],
+        "primary_de": ["vitamin-d", "vitamin d", "vitamin d3"],
+        "primary_it": ["vitamina d", "vitamina d3", "vitamin d3"],
+        "secondary_de": ["knochen", "immunsystem"],
+        "secondary_it": ["ossa", "sistema immunitario"],
     },
     "vitamin_b12": {
-        "primary": ["b12", "vitamin b12", "vitamina b12", "b-vitamine", "b-komplex", "b-complex"],
-        "secondary": ["energia", "nerven", "nervensystem"],
+        "primary_de": ["b12", "vitamin b12", "b-vitamine", "b-komplex"],
+        "primary_it": ["b12", "vitamina b12", "b-complex", "vitamine b"],
+        "secondary_de": ["nerven", "nervensystem"],
+        "secondary_it": ["nervi", "sistema nervoso"],
     },
     "vitamin_c": {
-        "primary": ["vitamin-c", "vitamina-c", "vitamin c", "vitamina c"],
-        "secondary": ["immunsystem", "sistema immunitario"],
+        "primary_de": ["vitamin-c", "vitamin c"],
+        "primary_it": ["vitamina-c", "vitamina c"],
+        "secondary_de": ["immunsystem"],
+        "secondary_it": ["sistema immunitario"],
     },
     "magnesium": {
-        "primary": ["magnesium", "magnesio"],
-        "secondary": ["muskeln", "muscoli", "schlaf", "sonno", "nerven"],
+        "primary_de": ["magnesium"],
+        "primary_it": ["magnesio"],
+        "secondary_de": ["muskeln", "schlaf", "nerven"],
+        "secondary_it": ["muscoli", "sonno", "nervi"],
     },
     "calcium": {
-        "primary": ["calcium", "calcio"],
-        "secondary": ["knochen", "ossa"],
+        "primary_de": ["calcium", "kalzium"],
+        "primary_it": ["calcio"],
+        "secondary_de": ["knochen"],
+        "secondary_it": ["ossa"],
     },
     "b_vitamins": {
-        "primary": ["b-vitamine", "b-komplex", "b-complex", "vitamine b"],
-        "secondary": ["energia", "nerven", "energie"],
+        "primary_de": ["b-vitamine", "b-komplex"],
+        "primary_it": ["vitamine b", "b-complex"],
+        "secondary_de": ["nerven", "energie"],
+        "secondary_it": ["nervi", "energia"],
     },
     "coq10": {
-        "primary": ["q10", "coq10", "coenzym", "coenzima", "ubiquinol"],
-        "secondary": ["herz", "cuore", "energia", "energie"],
+        "primary_de": ["q10", "coq10", "coenzym", "ubiquinol"],
+        "primary_it": ["q10", "coq10", "coenzima", "ubiquinol"],
+        "secondary_de": ["herz", "energie"],
+        "secondary_it": ["cuore", "energia"],
     },
     "probiotics": {
-        "primary": ["probiotika", "probiotici", "microbiom", "microbioma"],
-        "secondary": ["darm", "verdauung", "digestione", "intestino"],
+        "primary_de": ["probiotika", "microbiom"],
+        "primary_it": ["probiotici", "microbioma"],
+        "secondary_de": ["darm", "verdauung"],
+        "secondary_it": ["intestino", "digestione"],
     },
     "folate": {
-        "primary": ["folat", "folato", "folsaeure", "acido folico"],
-        "secondary": ["b-vitamine", "b-komplex"],
+        "primary_de": ["folat", "folsaeure"],
+        "primary_it": ["folato", "acido folico"],
+        "secondary_de": ["b-vitamine", "b-komplex"],
+        "secondary_it": ["vitamine b", "b-complex"],
     },
     "selenium": {
-        "primary": ["selen", "selenio", "selenium"],
-        "secondary": ["mineralstoffe", "minerali", "spurenelemente", "schilddruese"],
+        "primary_de": ["selen", "selenium"],
+        "primary_it": ["selenio", "selenium"],
+        "secondary_de": ["spurenelemente", "schilddruese"],
+        "secondary_it": ["minerali", "tiroide"],
     },
     "iodine": {
-        "primary": ["jod", "iodio", "iodine"],
-        "secondary": ["mineralstoffe", "minerali", "spurenelemente", "schilddruese"],
+        "primary_de": ["jod", "iodine"],
+        "primary_it": ["iodio", "iodine"],
+        "secondary_de": ["spurenelemente", "schilddruese"],
+        "secondary_it": ["minerali", "tiroide"],
     },
     "vitamin_k2": {
-        "primary": ["vitamin k", "vitamina k", "k2"],
-        "secondary": ["knochen", "calcium", "ossa"],
+        "primary_de": ["vitamin k", "k2"],
+        "primary_it": ["vitamina k", "k2"],
+        "secondary_de": ["knochen", "calcium"],
+        "secondary_it": ["ossa", "calcio"],
     },
     "vitamin_e": {
-        "primary": ["vitamin e", "vitamina e", "tocopherol"],
-        "secondary": ["antioxidantien", "zellschutz", "cellule", "zellen"],
+        "primary_de": ["vitamin e", "tocopherol"],
+        "primary_it": ["vitamina e", "tocopherol"],
+        "secondary_de": ["antioxidantien", "zellschutz"],
+        "secondary_it": ["antiossidanti", "cellule"],
     },
     "ashwagandha": {
-        "primary": ["ashwagandha", "ksm-66"],
-        "secondary": ["stress", "cortisol", "cortisolo", "entspannung"],
+        "primary_de": ["ashwagandha", "ksm-66"],
+        "primary_it": ["ashwagandha", "ksm-66"],
+        "secondary_de": ["stress", "cortisol", "entspannung"],
+        "secondary_it": ["stress", "cortisolo", "rilassamento"],
     },
 }
 
-# Flat tag map for DB queries
+# Flat tag maps per language for DB queries
+def _get_nutrient_tags(nutrient: str, lang: str) -> tuple[list[str], list[str]]:
+    """Return (primary_tags, secondary_tags) for a nutrient in a given language."""
+    scored = NUTRIENT_TAG_MAP_SCORED.get(nutrient)
+    if not scored:
+        return [], []
+    primary = scored.get(f"primary_{lang}", scored.get("primary_de", []))
+    secondary = scored.get(f"secondary_{lang}", scored.get("secondary_de", []))
+    return primary, secondary
+
+# Backwards-compatible flat map (primary tags only, language-specific)
 NUTRIENT_TAG_MAP = {
-    k: v["primary"] + v["secondary"]
+    k: v["primary_de"] + v["primary_it"]
     for k, v in NUTRIENT_TAG_MAP_SCORED.items()
 }
 
 MAX_PRODUCTS_PER_NUTRIENT = 3
 
 
-def _score_product(product: dict, nutrient: str) -> float:
+def _score_product(product: dict, nutrient: str, lang: str = "de") -> float:
     """Score a product by relevance to a specific nutrient. Higher = more relevant."""
-    scored = NUTRIENT_TAG_MAP_SCORED.get(nutrient)
-    if not scored:
+    primary, secondary = _get_nutrient_tags(nutrient, lang)
+    if not primary:
         return 0
 
     score = 0.0
@@ -98,24 +142,24 @@ def _score_product(product: dict, nutrient: str) -> float:
     desc_lower = product.get("description", "").lower()
 
     # +20 if primary nutrient keyword in product name
-    for pt in scored["primary"]:
+    for pt in primary:
         if pt in name_lower:
             score += 20
             break
 
     # +8 if primary nutrient keyword in description
-    for pt in scored["primary"]:
+    for pt in primary:
         if pt in desc_lower:
             score += 8
             break
 
     # +5 per matching primary tag
-    for pt in scored["primary"]:
+    for pt in primary:
         if pt in product_tags:
             score += 5
 
     # +1 per matching secondary tag
-    for st in scored["secondary"]:
+    for st in secondary:
         if st in product_tags:
             score += 1
 
@@ -201,20 +245,30 @@ def _localize_quality_info(info: dict, lang: str) -> dict:
 @router.get("/products/by-nutrient/{nutrient}")
 async def get_products_by_nutrient(nutrient: str, lang: str = "de"):
     """Get top 3 most relevant products for a specific nutrient deficiency."""
-    tags = NUTRIENT_TAG_MAP.get(nutrient, [])
-    if not tags:
+    primary, secondary = _get_nutrient_tags(nutrient, lang)
+    if not primary:
         return {"products": [], "quality_info": None}
 
     collection = await get_products_collection(lang)
-    regex_pattern = f"^({'|'.join(tags)})$"
+    # Search ONLY with language-specific primary tags
+    regex_pattern = f"^({'|'.join(primary)})$"
     cursor = collection.find(
         {"tags": {"$elemMatch": {"$regex": regex_pattern, "$options": "i"}}},
         {"_id": 0}
     )
     all_products = await cursor.to_list(length=500)
 
+    # Deduplicate by product name (case-insensitive)
+    seen_names = set()
+    unique_products = []
+    for p in all_products:
+        name_key = p.get("name", "").strip().lower()
+        if name_key not in seen_names:
+            seen_names.add(name_key)
+            unique_products.append(p)
+
     # Score and rank products by relevance
-    scored = [(p, _score_product(p, nutrient)) for p in all_products]
+    scored = [(p, _score_product(p, nutrient, lang)) for p in unique_products]
     scored.sort(key=lambda x: x[1], reverse=True)
     top_products = [p for p, _ in scored[:MAX_PRODUCTS_PER_NUTRIENT]]
 
