@@ -11,28 +11,31 @@ A health-focused, bilingual (German/Italian) mobile app where an LLM analyzes us
 - **TTS**: OpenAI TTS via Emergent LLM Key
 - **Integrations**: Shopify (product import), SMTP (email export), Unsplash (recipe images)
 
-## Implemented Features (Complete) - 38 Features
-1-34: [See previous versions - onboarding through first name personalization]
-35. Extended First Name Personalization (name in DailyTasks, supplement plan, achievements)
-36. Swipe-Back Gesture (gestureEnabled + PanResponder hook for web)
-37. Preis-Transparenz unter CTA ("Preis pro Tag: ca. X,XX EUR" below supplement CTA)
-38. **Servings Backfill System** - AI-powered extraction of daily servings per package from product descriptions. Admin panel button "Tagesdosen berechnen" triggers background job. 139/140 products successfully updated. Pricing now uses real servings data instead of 30-day default.
+## Implemented Features (Complete) - 39 Features
+1-36: [See previous versions - onboarding through swipe-back]
+37. Preis-Transparenz unter CTA ("Preis pro Tag" below supplement CTA)
+38. Servings Backfill System (AI-powered extraction, admin panel button, 139/140 products updated)
+39. **Preis-Alert System** - Personalized price drop notifications for products in user's supplement plan. Includes:
+    - Price history tracking during Shopify sync
+    - `GET /api/price-alerts/{profile_id}` endpoint
+    - PriceAlerts widget on home screen (between DailyTasks and Achievements)
+    - Shows: product name, old/new price, drop %, price per day, affiliate link
+    - Dismiss functionality, personalized with first name
+    - Transparent disclosure ("Affiliate-Link")
 
 ## Key API Endpoints
+- `GET /api/price-alerts/{profile_id}?lang=de` - NEW: Personalized price drop alerts
 - `GET /api/products/pricing-summary?nutrients=...&lang=de` - Price per day per nutrient
-- `POST /api/admin/backfill-servings?lang=de` - Start AI backfill job for servings
-- `GET /api/admin/backfill-servings/{job_id}` - Check backfill status
-- `POST /api/health-profile` - Creates profile (includes first_name)
-- `GET /api/health-profile/{profile_id}` - Returns profile with first_name
-- `GET /api/daily-tasks/{profile_id}` - Returns tasks + first_name
-- `GET /api/achievements/{profile_id}` - Returns streaks + first_name
+- `POST /api/admin/backfill-servings?lang=de` - Start AI backfill for servings
+- `GET /api/admin/backfill-servings/{job_id}` - Backfill job status
 
-## Key Files Modified (This Session)
-- `/app/backend/routes/shop_import.py` - AI prompt extracts `servings`, added backfill endpoint
-- `/app/backend/routes/products.py` - Added pricing-summary endpoint
-- `/app/frontend/app/supplement-plan.tsx` - Preis-pro-Tag display under CTA
-- `/app/backend/admin_webapp/index.html` - Backfill UI section
-- `/app/backend/admin_webapp/app.js` - Backfill JS function
+## Key Files (This Session)
+- `/app/backend/routes/price_alerts.py` - NEW: Price alerts endpoint
+- `/app/backend/routes/shop_import.py` - Price history tracking + backfill
+- `/app/backend/routes/products.py` - Pricing summary endpoint
+- `/app/frontend/components/home/PriceAlerts.tsx` - NEW: Price alerts widget
+- `/app/frontend/app/index.tsx` - PriceAlerts integrated
+- `/app/frontend/app/supplement-plan.tsx` - Price per day display + bug fix
 
 ## Backlog
 - TTS auf Symptom-Analyse-Seite erweitern
