@@ -248,10 +248,22 @@ async def _run_import(job_id: str, shop_url: str, lang: str, is_sync: bool = Fal
                         "imported_at": datetime.now(timezone.utc).isoformat(),
                     }
                     # Merge new Shopify tags with existing tags
-                    existing_doc = await collection.find_one({"product_id": handle}, {"_id": 0, "tags": 1})
+                    existing_doc = await collection.find_one({"product_id": handle}, {"_id": 0, "tags": 1, "price": 1})
                     old_tags = existing_doc.get("tags", []) if existing_doc else []
                     merged_tags = list(set([t.lower() for t in shopify_tags + old_tags]))
                     update_fields["tags"] = merged_tags
+
+                    # Track price changes for price alerts
+                    old_price_str = existing_doc.get("price", "") if existing_doc else ""
+                    new_price_str = update_fields.get("price", "")
+                    if old_price_str and new_price_str and old_price_str != new_price_str:
+                        await db.price_history.insert_one({
+                            "product_id": handle,
+                            "lang": lang,
+                            "old_price": old_price_str,
+                            "new_price": new_price_str,
+                            "changed_at": datetime.now(timezone.utc).isoformat(),
+                        })
 
                     await collection.update_one({"product_id": handle}, {"$set": update_fields})
                     job["updated"] += 1

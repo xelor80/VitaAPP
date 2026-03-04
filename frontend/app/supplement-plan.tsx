@@ -146,13 +146,13 @@ export default function SupplementPlanScreen() {
 
   // Fetch pricing when plan stack is available
   useEffect(() => {
-    if (!plan.stack?.length) return;
+    if (!plan || !plan.stack?.length) return;
     const nutrients = plan.stack.map((s: any) => s.id).join(',');
     fetch(`${API_URL}/api/products/pricing-summary?nutrients=${nutrients}&lang=${lang}`)
       .then(r => r.ok ? r.json() : null)
       .then(data => { if (data?.pricing) setPricingMap(data.pricing); })
       .catch(() => {});
-  }, [plan.stack, lang]);
+  }, [plan, lang]);
 
   useEffect(() => {
     const init = async () => {

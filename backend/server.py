@@ -9,7 +9,7 @@ import os
 from pathlib import Path
 
 from core.config import client, logger
-from routes import analysis, products, tracking, diary, admin, settings, health_profile, supplement_plan, progress, videos, label_analysis, health_score, admin_health_stats, supplement_interactions, correlation_analysis, shop_import, email_export, tts, daily_tasks, achievements, trust_stats
+from routes import analysis, products, tracking, diary, admin, settings, health_profile, supplement_plan, progress, videos, label_analysis, health_score, admin_health_stats, supplement_interactions, correlation_analysis, shop_import, email_export, tts, daily_tasks, achievements, trust_stats, price_alerts
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
@@ -81,6 +81,7 @@ api_router.include_router(tts.router)
 api_router.include_router(daily_tasks.router)
 api_router.include_router(achievements.router)
 api_router.include_router(trust_stats.router)
+api_router.include_router(price_alerts.router)
 
 # Serve uploaded files (labels)
 @api_router.get("/uploads/labels/{filename}")
