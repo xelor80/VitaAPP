@@ -93,10 +93,12 @@ Antworte NUR als JSON:
   "intake_recommendation": "Einnahmeempfehlung (wann, wie)",
   "benefits": ["Vorteil 1", "Vorteil 2"],
   "health_tags": ["tag1", "tag2"],
-  "is_supplement": true
+  "is_supplement": true,
+  "servings": 30
 }
 
 Wichtig:
+- "servings" = Anzahl Tagesdosen pro Packung. Berechne: Gesamtmenge (Kapseln/Tabletten/ml) geteilt durch taegliche Dosis. Beispiel: 90 Kapseln bei 3 pro Tag = 30 Tagesdosen. Wenn unklar, schaetze 30.
 - "is_supplement" = true wenn es ein Nahrungsergaenzungsmittel/Supplement ist, false bei Buechern, Kleidung, Sets, Workbooks etc.
 - "health_tags" sollen Gesundheitsthemen sein (z.B. "immunsystem", "energie", "schlaf", "verdauung", "haut", "knochen", "herz", "muskeln", "stress", "haare", "gelenke", "entgiftung", "eisen", "magnesium", "vitamin-d", "omega-3", "zink", "b-vitamine", "vitamin-c", "q10", "probiotika")
 - Wenn die Beschreibung nicht auf ein Supplement hindeutet, setze is_supplement=false"""
@@ -111,10 +113,12 @@ Rispondi SOLO come JSON:
   "intake_recommendation": "Raccomandazione di assunzione (quando, come)",
   "benefits": ["Vantaggio 1", "Vantaggio 2"],
   "health_tags": ["tag1", "tag2"],
-  "is_supplement": true
+  "is_supplement": true,
+  "servings": 30
 }
 
 Importante:
+- "servings" = numero di dosi giornaliere per confezione. Calcola: quantita totale (capsule/compresse/ml) diviso dose giornaliera. Esempio: 90 capsule con 3 al giorno = 30 dosi. Se non chiaro, stima 30.
 - "is_supplement" = true se e un integratore/supplemento, false per libri, abbigliamento, set, workbook etc.
 - "health_tags" devono essere temi di salute (es. "sistema immunitario", "energia", "sonno", "digestione", "pelle", "ossa", "cuore", "muscoli", "stress", "capelli", "articolazioni", "detox", "ferro", "magnesio", "vitamina d", "omega-3", "zinco", "vitamine b", "vitamina c", "q10", "probiotici")
 - Se la descrizione non indica un integratore, imposta is_supplement=false"""
@@ -190,6 +194,7 @@ def _shopify_to_product(shopify_product: dict, ai_data: dict, lang: str, shop_ur
         "product_type": shopify_product.get("product_type", ""),
         "imported_at": datetime.now(timezone.utc).isoformat(),
         "is_supplement": ai_data.get("is_supplement", True),
+        "servings": ai_data.get("servings") or None,
     }
 
 
@@ -502,3 +507,98 @@ async def start_sync_scheduler():
         except Exception as e:
             logger.error(f"Sync scheduler error: {e}")
         await asyncio.sleep(3600)  # Check every hour
+
+
+# ── Backfill servings for existing products ──────────────────────
+
+_backfill_jobs: dict[str, dict] = {}
+
+
+async def _ai_extract_servings(name: str, description: str, dosage: str, price: str, lang: str) -> int | None:
+    """Use AI to extract the number of daily servings from product info."""
+    from emergentintegrations.llm.chat import LlmChat, UserMessage
+
+    system = (
+        "Du bist ein Experte fuer Nahrungsergaenzungsmittel. "
+        "Bestimme die Anzahl der TAGESDOSEN pro Packung.\n\n"
+        "Berechne: Gesamtmenge (Kapseln/Tabletten/Tropfen/ml) geteilt durch taegliche Dosis.\n"
+        "Beispiel: 90 Kapseln bei 3 pro Tag = 30 Tagesdosen.\n"
+        "Beispiel: 60 ml bei 2 ml pro Tag = 30 Tagesdosen.\n\n"
+        "Antworte NUR mit einer Zahl (Integer). Wenn unklar, antworte 30."
+    ) if lang == "de" else (
+        "Sei un esperto di integratori alimentari. "
+        "Determina il numero di DOSI GIORNALIERE per confezione.\n\n"
+        "Calcola: quantita totale (capsule/compresse/gocce/ml) diviso dose giornaliera.\n"
+        "Esempio: 90 capsule con 3 al giorno = 30 dosi.\n\n"
+        "Rispondi SOLO con un numero (intero). Se non chiaro, rispondi 30."
+    )
+
+    prompt = f"Produkt: {name}\nPreis: {price}\nDosierung: {dosage}\nBeschreibung: {description[:1500]}"
+
+    try:
+        chat = LlmChat(
+            api_key=os.environ.get("EMERGENT_LLM_KEY"),
+            session_id=f"backfill-servings-{uuid.uuid4().hex[:8]}",
+            system_message=system,
+        ).with_model("openai", "gpt-4o")
+        resp = await chat.send_message(UserMessage(text=prompt))
+        match = re.search(r'(\d+)', resp.strip())
+        if match:
+            val = int(match.group(1))
+            return val if 1 <= val <= 365 else 30
+    except Exception as e:
+        logger.error(f"AI servings extraction failed for '{name}': {e}")
+    return None
+
+
+@router.post("/backfill-servings")
+async def backfill_servings(lang: str = "de"):
+    """Backfill servings field for all products missing it. Runs in background."""
+    from core.config import get_products_collection
+
+    job_id = uuid.uuid4().hex[:12]
+    _backfill_jobs[job_id] = {"status": "running", "processed": 0, "updated": 0, "errors": 0, "total": 0}
+
+    async def _run():
+        job = _backfill_jobs[job_id]
+        try:
+            collection = await get_products_collection(lang)
+            products = await collection.find(
+                {"$or": [{"servings": None}, {"servings": {"$exists": False}}]},
+                {"_id": 0, "product_id": 1, "name": 1, "description": 1, "application_instructions": 1, "price": 1}
+            ).limit(200).to_list(200)
+
+            job["total"] = len(products)
+            for p in products:
+                try:
+                    dosage_text = p.get("application_instructions", "")
+                    servings = await _ai_extract_servings(
+                        p.get("name", ""), p.get("description", ""), dosage_text, p.get("price", ""), lang
+                    )
+                    if servings:
+                        await collection.update_one(
+                            {"product_id": p["product_id"]},
+                            {"$set": {"servings": servings}}
+                        )
+                        job["updated"] += 1
+                except Exception as e:
+                    logger.error(f"Backfill error for {p.get('product_id')}: {e}")
+                    job["errors"] += 1
+                job["processed"] += 1
+            job["status"] = "done"
+        except Exception as e:
+            job["status"] = "error"
+            job["error"] = str(e)
+
+    asyncio.create_task(_run())
+    return {"job_id": job_id, "message": f"Backfill gestartet fuer {lang}"}
+
+
+@router.get("/backfill-servings/{job_id}")
+async def get_backfill_status(job_id: str):
+    """Check backfill job status."""
+    job = _backfill_jobs.get(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job nicht gefunden")
+    return job
+

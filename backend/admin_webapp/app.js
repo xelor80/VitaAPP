@@ -1551,3 +1551,60 @@ async function startShopImport() {
         btn.innerHTML = '<i class="fas fa-download"></i> Importieren';
     }
 }
+
+
+// ============ BACKFILL SERVINGS ============
+async function startBackfillServings() {
+    const lang = document.getElementById('backfill-lang').value;
+    const btn = document.getElementById('backfill-servings-btn');
+    const progressDiv = document.getElementById('backfill-progress');
+    const progressBar = document.getElementById('backfill-progress-bar');
+    const statusText = document.getElementById('backfill-status-text');
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Wird berechnet...';
+    progressDiv.style.display = 'block';
+    progressBar.style.width = '0%';
+    statusText.textContent = 'Starte Backfill...';
+
+    try {
+        const res = await apiCall(`/admin/backfill-servings?lang=${lang}`, { method: 'POST' });
+        if (!res.ok) throw new Error('Backfill konnte nicht gestartet werden');
+        const data = await res.json();
+        const jobId = data.job_id;
+
+        // Poll for status
+        const poll = setInterval(async () => {
+            try {
+                const statusRes = await apiCall(`/admin/backfill-servings/${jobId}`);
+                if (!statusRes.ok) { clearInterval(poll); return; }
+                const job = await statusRes.json();
+
+                const pct = job.total > 0 ? Math.round((job.processed / job.total) * 100) : 0;
+                progressBar.style.width = pct + '%';
+                progressBar.textContent = pct + '%';
+                statusText.textContent = `Verarbeitet: ${job.processed}/${job.total} | Aktualisiert: ${job.updated} | Fehler: ${job.errors}`;
+
+                if (job.status === 'done' || job.status === 'error') {
+                    clearInterval(poll);
+                    progressBar.style.width = '100%';
+                    if (job.status === 'done') {
+                        progressBar.style.background = 'linear-gradient(90deg,#4ADE80,#22C55E)';
+                        progressBar.textContent = 'Fertig!';
+                        statusText.textContent = `Abgeschlossen: ${job.updated} von ${job.total} Produkten aktualisiert.`;
+                    } else {
+                        progressBar.style.background = '#F87171';
+                        progressBar.textContent = 'Fehler';
+                        statusText.textContent = `Fehler: ${job.error || 'Unbekannt'}`;
+                    }
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-play"></i> Tagesdosen berechnen';
+                }
+            } catch { clearInterval(poll); }
+        }, 2000);
+    } catch (err) {
+        alert('Fehler: ' + err.message);
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-play"></i> Tagesdosen berechnen';
+    }
+}
