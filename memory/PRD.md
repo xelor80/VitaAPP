@@ -11,24 +11,27 @@ A health-focused, bilingual (German/Italian) mobile app where an LLM analyzes us
 - **TTS**: OpenAI TTS via Emergent LLM Key
 - **Integrations**: Shopify (product import), SMTP (email export), Unsplash (recipe images)
 
-## Implemented Features (Complete) - 43 Features
+## Implemented Features (Complete) - 44 Features
 1-39: [See CHANGELOG.md for full history]
 40. **Gesundheitsprofil Redesign** - 2x2 card grid (Profile, BMI gauge, Stress slider, Sleep slider)
 41. **Supplement-Plan Redesign** - Teal gradient header, Tagesplan with pill icons, Erinnerung card
 42. **Erinnerungseinstellungen** - Push notification settings in reminder card
-43. **Mein Fortschritt Ueberarbeitung**:
-    - "Einnahme" Tab entfernt (Compliance-Tracking jetzt nur auf Hauptbildschirm/Supplement-Plan)
-    - 8-Wochen-Plan-Fortschrittsanzeige (Woche X von 8, Tag Y) mit Fortschrittsbalken
-    - Taegliche Beschwerden-Eingabe mit Sperre nach Speicherung
-    - Gesperrter Zustand zeigt "Bereits fuer heute eingetragen" + Nur-Lese-Zusammenfassung
-    - Neuer Backend-Endpoint GET /api/tracking/symptoms/today/{profile_id}
+43. **Mein Fortschritt Ueberarbeitung** - Einnahme-Tab entfernt, 8-Wochen-Fortschritt, taegliche Sperre
+44. **Personalisierte Rezept-Sortierung**:
+    - Neuer Endpoint GET /api/recipes/personalized/{profile_id} mit KI-Scoring
+    - DEFICIENCY_RECIPE_MAP: 16 Naehrstoff-Defizite zu Rezept-Tags Mapping
+    - COMPLAINT_TAG_MAP: 14 Beschwerde-Kategorien zu Symptom-Tags
+    - Relevanz-Tags auf Rezeptkarten (z.B. "Eisenreich", "Gegen Muedigkeit")
+    - "Passend fuer dich" (Score>0) und "Weitere Rezepte" (Score=0) Sektionen
+    - "Gesundheitsprofil erforderlich" Hinweis ohne Profil
+    - Diaet-Bonus fuer passende Rezepte (vegan/vegetarisch)
 
 ## Key API Endpoints
-- `GET /api/tracking/symptoms/today/{profile_id}` - NEW: Check daily submission status + plan week/day
+- `GET /api/recipes/personalized/{profile_id}` - NEW: Personalized recipe scoring + tagging
+- `GET /api/tracking/symptoms/today/{profile_id}` - Daily submission status
 - `GET /api/health-profile/{profile_id}` - Profile + assessment
 - `GET /api/supplement-plan/{profile_id}` - Supplement plan data
 - `GET /api/price-alerts/{profile_id}` - Price drop alerts
-- `GET /api/products/by-nutrient/{nutrient}` - Product search
 
 ## Backlog
 - TTS auf Symptom-Analyse-Seite erweitern (P1)
