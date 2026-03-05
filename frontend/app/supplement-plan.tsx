@@ -131,6 +131,7 @@ export default function SupplementPlanScreen() {
   const [activeTab, setActiveTab] = useState<'stack' | 'schedule' | 'phases' | 'interactions'>('schedule');
   const [reminders, setReminders] = useState({ enabled: false, morning_time: '08:00', noon_time: '12:00', evening_time: '20:00' });
   const [showReminders, setShowReminders] = useState(true);
+  const [showReminderSettings, setShowReminderSettings] = useState(false);
   const [products, setProducts] = useState<any[]>([]);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [ttsLoading, setTtsLoading] = useState(false);
@@ -493,45 +494,120 @@ export default function SupplementPlanScreen() {
               <Text style={ns.reminderHeaderTitle}>
                 {lang === 'de' ? 'Erinnerung' : 'Promemoria'}
               </Text>
-              <MaterialCommunityIcons name="bell-ring-outline" size={20} color="#FFFFFF" />
-            </LinearGradient>
-            <View style={ns.reminderBody}>
-              <Text style={ns.reminderSubtitle}>
-                {lang === 'de'
-                  ? `Zeit fuer deine ${slotName}einnahme!`
-                  : `E' ora della tua assunzione ${slotName}!`}
-              </Text>
-              <View style={ns.reminderClockRow}>
-                <MaterialCommunityIcons name="clock-outline" size={52} color="#2C8C99" />
-                <Text style={ns.reminderTimeText}>{activeTimeStr} Uhr</Text>
+              <View style={{ flexDirection: 'row', gap: 8 }}>
+                <TouchableOpacity onPress={() => setShowReminderSettings(!showReminderSettings)} testID="reminder-settings-btn">
+                  <MaterialCommunityIcons name={showReminderSettings ? 'close' : 'cog'} size={20} color="#FFFFFF" />
+                </TouchableOpacity>
+                <MaterialCommunityIcons name="bell-ring-outline" size={20} color="#FFFFFF" />
               </View>
-              {activeItems.slice(0, 3).map((item: any) => (
-                <View key={item.id} style={ns.reminderItem}>
-                  <PillIcon id={item.id} size={36} />
-                  <View style={{ flex: 1 }}>
-                    <Text style={ns.reminderItemName}>{item.name}</Text>
-                    <Text style={ns.reminderItemDose}>
-                      {item.form_label || `${item.dosage} ${item.unit}`} – {lang === 'de' ? 'einnehmen' : 'assumere'}
-                    </Text>
-                  </View>
-                  <MaterialCommunityIcons name="check-circle" size={22} color="#10B981" />
-                </View>
-              ))}
-              <View style={ns.reminderActions}>
-                <TouchableOpacity style={ns.laterBtn} onPress={() => setShowReminders(false)} testID="later-remind-btn">
-                  <Text style={ns.laterBtnText}>
-                    {lang === 'de' ? 'Spaeter erinnern' : 'Ricorda dopo'}
+            </LinearGradient>
+
+            {/* Settings Panel */}
+            {showReminderSettings ? (
+              <View style={ns.settingsBody}>
+                <Text style={ns.settingsTitle}>
+                  {lang === 'de' ? 'Benachrichtigungen einstellen' : 'Imposta notifiche'}
+                </Text>
+                <TouchableOpacity
+                  style={ns.settingsToggleRow}
+                  onPress={() => setReminders({ ...reminders, enabled: !reminders.enabled })}
+                  testID="reminder-toggle-btn"
+                >
+                  <MaterialCommunityIcons
+                    name={reminders.enabled ? 'toggle-switch' : 'toggle-switch-off'}
+                    size={44} color={reminders.enabled ? '#2C8C99' : '#C4CEC8'}
+                  />
+                  <Text style={[ns.settingsToggleText, { color: reminders.enabled ? '#1A2D26' : '#8FA39B' }]}>
+                    {reminders.enabled
+                      ? (lang === 'de' ? 'Push-Benachrichtigungen aktiv' : 'Notifiche push attive')
+                      : (lang === 'de' ? 'Push-Benachrichtigungen aus' : 'Notifiche push disattivate')}
                   </Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={ns.takeNowBtn} onPress={saveReminders} testID="take-now-btn">
-                  <LinearGradient colors={['#2C8C99', '#4EAAB5']} style={ns.takeNowGradient}>
-                    <Text style={ns.takeNowBtnText}>
-                      {lang === 'de' ? 'Jetzt einnehmen' : 'Assumi ora'}
+                {reminders.enabled && (
+                  <View style={ns.settingsTimeRows}>
+                    {[
+                      { key: 'morning_time', icon: 'weather-sunny', label: lang === 'de' ? 'Morgens' : 'Mattina', color: '#FF9800' },
+                      { key: 'noon_time', icon: 'weather-partly-cloudy', label: lang === 'de' ? 'Mittags' : 'Mezzogiorno', color: '#4EAAB5' },
+                      { key: 'evening_time', icon: 'weather-night', label: lang === 'de' ? 'Abends' : 'Sera', color: '#5C6BC0' },
+                    ].map(({ key, icon, label, color }) => (
+                      <View key={key} style={ns.settingsTimeRow}>
+                        <View style={[ns.settingsTimeIcon, { backgroundColor: color + '18' }]}>
+                          <MaterialCommunityIcons name={icon as any} size={20} color={color} />
+                        </View>
+                        <Text style={ns.settingsTimeLabel}>{label}</Text>
+                        <TextInput
+                          style={ns.settingsTimeInput}
+                          value={(reminders as any)[key]}
+                          onChangeText={v => setReminders({ ...reminders, [key]: v })}
+                          placeholder="HH:MM"
+                          placeholderTextColor="#C4CEC8"
+                          testID={`reminder-time-${key}`}
+                        />
+                      </View>
+                    ))}
+                  </View>
+                )}
+                <View style={ns.settingsBtnRow}>
+                  <TouchableOpacity
+                    style={ns.settingsTestBtn}
+                    onPress={() => sendTestNotification(lang)}
+                    testID="test-notification-btn"
+                  >
+                    <MaterialCommunityIcons name="bell-ring" size={16} color="#2C8C99" />
+                    <Text style={ns.settingsTestBtnText}>
+                      {lang === 'de' ? 'Testen' : 'Prova'}
                     </Text>
-                  </LinearGradient>
-                </TouchableOpacity>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={ns.settingsSaveBtn} onPress={() => { saveReminders(); setShowReminderSettings(false); }} testID="save-reminders-btn">
+                    <LinearGradient colors={['#2C8C99', '#4EAAB5']} style={ns.settingsSaveGradient}>
+                      <MaterialCommunityIcons name="content-save" size={16} color="#FFFFFF" />
+                      <Text style={ns.settingsSaveBtnText}>
+                        {lang === 'de' ? 'Speichern' : 'Salva'}
+                      </Text>
+                    </LinearGradient>
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
+            ) : (
+              /* Notification Card Body */
+              <View style={ns.reminderBody}>
+                <Text style={ns.reminderSubtitle}>
+                  {lang === 'de'
+                    ? `Zeit fuer deine ${slotName}einnahme!`
+                    : `E' ora della tua assunzione ${slotName}!`}
+                </Text>
+                <View style={ns.reminderClockRow}>
+                  <MaterialCommunityIcons name="clock-outline" size={52} color="#2C8C99" />
+                  <Text style={ns.reminderTimeText}>{activeTimeStr} Uhr</Text>
+                </View>
+                {activeItems.slice(0, 3).map((item: any) => (
+                  <View key={item.id} style={ns.reminderItem}>
+                    <PillIcon id={item.id} size={36} />
+                    <View style={{ flex: 1 }}>
+                      <Text style={ns.reminderItemName}>{item.name}</Text>
+                      <Text style={ns.reminderItemDose}>
+                        {item.form_label || `${item.dosage} ${item.unit}`} – {lang === 'de' ? 'einnehmen' : 'assumere'}
+                      </Text>
+                    </View>
+                    <MaterialCommunityIcons name="check-circle" size={22} color="#10B981" />
+                  </View>
+                ))}
+                <View style={ns.reminderActions}>
+                  <TouchableOpacity style={ns.laterBtn} onPress={() => setShowReminders(false)} testID="later-remind-btn">
+                    <Text style={ns.laterBtnText}>
+                      {lang === 'de' ? 'Spaeter erinnern' : 'Ricorda dopo'}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={ns.takeNowBtn} onPress={saveReminders} testID="take-now-btn">
+                    <LinearGradient colors={['#2C8C99', '#4EAAB5']} style={ns.takeNowGradient}>
+                      <Text style={ns.takeNowBtnText}>
+                        {lang === 'de' ? 'Jetzt einnehmen' : 'Assumi ora'}
+                      </Text>
+                    </LinearGradient>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
           </View>
           );
         })()}
@@ -959,6 +1035,40 @@ const ns = StyleSheet.create({
   takeNowBtn: { flex: 1, borderRadius: 14, overflow: 'hidden' },
   takeNowGradient: { paddingVertical: 14, alignItems: 'center', borderRadius: 14 },
   takeNowBtnText: { fontSize: 14, fontWeight: '700', color: '#FFFFFF' },
+
+  /* ── Settings Panel (within Reminder Card) ── */
+  settingsBody: { padding: 18, gap: 16 },
+  settingsTitle: { fontSize: 16, fontWeight: '700', color: '#1A2D26', textAlign: 'center' },
+  settingsToggleRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  settingsToggleText: { fontSize: 14, fontWeight: '600' },
+  settingsTimeRows: { gap: 10 },
+  settingsTimeRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    backgroundColor: '#F8FAF9', borderRadius: 14, padding: 12,
+  },
+  settingsTimeIcon: {
+    width: 36, height: 36, borderRadius: 12,
+    justifyContent: 'center', alignItems: 'center',
+  },
+  settingsTimeLabel: { flex: 1, fontSize: 14, fontWeight: '600', color: '#1A2D26' },
+  settingsTimeInput: {
+    width: 70, fontSize: 16, fontWeight: '700', color: '#2C8C99',
+    textAlign: 'center', borderBottomWidth: 2, borderBottomColor: '#2C8C99',
+    paddingVertical: 4,
+  },
+  settingsBtnRow: { flexDirection: 'row', gap: 10 },
+  settingsTestBtn: {
+    flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+    backgroundColor: '#F0F4F2', borderRadius: 14, paddingVertical: 12,
+    borderWidth: 1.5, borderColor: '#2C8C99',
+  },
+  settingsTestBtnText: { fontSize: 13, fontWeight: '600', color: '#2C8C99' },
+  settingsSaveBtn: { flex: 1, borderRadius: 14, overflow: 'hidden' },
+  settingsSaveGradient: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+    paddingVertical: 12, borderRadius: 14,
+  },
+  settingsSaveBtnText: { fontSize: 13, fontWeight: '700', color: '#FFFFFF' },
 
   /* ── Time Cards (Tagesplan) ── */
   timeCard: {

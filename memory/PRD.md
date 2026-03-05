@@ -11,31 +11,22 @@ A health-focused, bilingual (German/Italian) mobile app where an LLM analyzes us
 - **TTS**: OpenAI TTS via Emergent LLM Key
 - **Integrations**: Shopify (product import), SMTP (email export), Unsplash (recipe images)
 
-## Implemented Features (Complete) - 41 Features
+## Implemented Features (Complete) - 42 Features
 1-39: [See CHANGELOG.md for full history]
 40. **Gesundheitsprofil Redesign** - 2x2 card grid (Profile, BMI gauge, Stress slider, Sleep slider)
-41. **Supplement-Plan Redesign** - Complete visual overhaul:
-    - Teal gradient header with "Hallo [Name]" + sun icon
-    - Erinnerung card (default visible) with smart time-slot detection
-    - Tagesplan as default tab with Morgens/Abends time cards
-    - Colorful pill/capsule icons per supplement type (18 icon mappings)
-    - "Einnahme abgehakt" completion button with gradient
-    - "Supplement Uebersicht" overview card with pill grid + ALLE ANZEIGEN
+41. **Supplement-Plan Redesign** - Teal gradient header, Tagesplan with pill icons, Erinnerung card
+42. **Erinnerungseinstellungen** - Push notification settings integrated in reminder card:
+    - Toggle for push notifications (on/off)
+    - Editable time inputs per day slot (Morgens/Mittags/Abends)
+    - Test notification button
+    - Save button with gradient design
+    - Settings accessible via gear icon, closeable via X icon
 
 ## Key Files Modified (Latest Session)
-- `frontend/app/health-profile.tsx` - 2x2 card grid redesign with SVG BMI gauge
+- `frontend/app/health-profile.tsx` - 2x2 card grid redesign
 - `frontend/components/profile/profileStyles.ts` - Health profile styles
-- `frontend/app/supplement-plan.tsx` - Complete supplement plan redesign
+- `frontend/app/supplement-plan.tsx` - Complete supplement plan redesign + reminder settings
 - `expo-linear-gradient@15.0.8` added as dependency
-
-## Key API Endpoints
-- `GET /api/health-profile/{profile_id}` - Profile + assessment data
-- `POST /api/health-profile` - Create health profile
-- `GET /api/supplement-plan/{profile_id}` - Supplement plan data
-- `POST /api/supplement-plan/{profile_id}` - Generate plan
-- `GET /api/price-alerts/{profile_id}` - Price drop alerts
-- `GET /api/products/by-nutrient/{nutrient}` - Product search
-- `GET /api/products/pricing-summary` - Price per day
 
 ## Backlog
 - TTS auf Symptom-Analyse-Seite erweitern (P1)
