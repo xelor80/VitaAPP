@@ -797,11 +797,20 @@ export default function SupplementPlanScreen() {
                       const displayName = abbreviateName(item.name || '', item.id);
                       const formLabel = item.form_label || `${item.dosage} ${item.unit}`;
                       return (
-                        <View key={item.id} style={ns.pillItem}>
+                        <TouchableOpacity
+                          key={item.id}
+                          style={ns.pillItem}
+                          activeOpacity={0.7}
+                          data-testid={`pill-shop-${item.id}`}
+                          onPress={() => router.push({
+                            pathname: '/product-comparison',
+                            params: { nutrient: item.id, risk: item.risk_level || 'medium' }
+                          })}
+                        >
                           <PillIcon id={item.id} />
                           <Text style={ns.pillName} numberOfLines={1}>{displayName}</Text>
                           <Text style={ns.pillDose} numberOfLines={1}>{formLabel}</Text>
-                        </View>
+                        </TouchableOpacity>
                       );
                     })}
                   </View>
@@ -839,11 +848,20 @@ export default function SupplementPlanScreen() {
               </LinearGradient>
               <View style={ns.overviewGrid}>
                 {plan.stack?.slice(0, 4).map((s: any) => (
-                  <View key={s.id} style={ns.overviewItem}>
+                  <TouchableOpacity
+                    key={s.id}
+                    style={ns.overviewItem}
+                    activeOpacity={0.7}
+                    data-testid={`overview-shop-${s.id}`}
+                    onPress={() => router.push({
+                      pathname: '/product-comparison',
+                      params: { nutrient: s.id, risk: s.risk_level || 'medium' }
+                    })}
+                  >
                     <PillIcon id={s.id} size={36} />
                     <Text style={ns.overviewItemName} numberOfLines={1}>{s.name?.split(' ')[0] || s.id}</Text>
                     <Text style={ns.overviewItemDose}>{s.dosage} {s.unit}</Text>
-                  </View>
+                  </TouchableOpacity>
                 ))}
               </View>
               {(plan.stack?.length || 0) > 4 && (
