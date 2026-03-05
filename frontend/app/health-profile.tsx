@@ -6,6 +6,8 @@ import {
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Svg, { Path, Circle as SvgCircle } from 'react-native-svg';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useLang } from '../src/LangContext';
 import { profileStyles as styles } from '../components/profile/profileStyles';
 
@@ -49,6 +51,126 @@ const PRIORITY_NAMES: Record<string, Record<string, string>> = {
   hydration: { de: 'Fluessigkeit', it: 'Idratazione' },
 };
 
+/* ── SVG helpers ── */
+function polarToXY(cx: number, cy: number, r: number, deg: number) {
+  const rad = (deg * Math.PI) / 180;
+  return { x: cx + r * Math.cos(rad), y: cy - r * Math.sin(rad) };
+}
+
+function arcPath(cx: number, cy: number, r: number, startDeg: number, endDeg: number) {
+  const s = polarToXY(cx, cy, r, startDeg);
+  const e = polarToXY(cx, cy, r, endDeg);
+  const large = Math.abs(endDeg - startDeg) > 180 ? 1 : 0;
+  // sweep=0 since going from higher angle to lower angle through top
+  return `M ${s.x} ${s.y} A ${r} ${r} 0 ${large} 0 ${e.x} ${e.y}`;
+}
+
+/* ── BMI Gauge Component ── */
+function BMIGauge({ bmi }: { bmi: number }) {
+  const size = 130;
+  const cx = size / 2;
+  const cy = size / 2 + 8;
+  const r = 48;
+  const sw = 10;
+
+  // BMI 15-35 mapped to 180°-0° (left to right, through top)
+  const bmiToAngle = (v: number) => 180 - ((Math.max(15, Math.min(35, v)) - 15) / 20) * 180;
+
+  // Segment boundaries
+  const segments = [
+    { from: 15, to: 18.5, color: '#F59E0B' },   // underweight - amber
+    { from: 18.5, to: 25, color: '#10B981' },    // normal - green
+    { from: 25, to: 30, color: '#F59E0B' },      // overweight - amber
+    { from: 30, to: 35, color: '#EF4444' },      // obese - red
+  ];
+
+  const needleAngle = bmiToAngle(bmi);
+  const needleTip = polarToXY(cx, cy, r - 6, needleAngle);
+  const needleBase = polarToXY(cx, cy, 8, needleAngle);
+
+  return (
+    <Svg width={size} height={size / 2 + 20} viewBox={`0 0 ${size} ${size / 2 + 20}`}>
+      {/* Background arc */}
+      <Path
+        d={arcPath(cx, cy, r, 180, 0)}
+        stroke="#E8EDEA"
+        strokeWidth={sw + 2}
+        fill="none"
+        strokeLinecap="round"
+      />
+      {/* Colored segments */}
+      {segments.map((seg, i) => (
+        <Path
+          key={i}
+          d={arcPath(cx, cy, r, bmiToAngle(seg.from), bmiToAngle(seg.to))}
+          stroke={seg.color}
+          strokeWidth={sw}
+          fill="none"
+          strokeLinecap="round"
+        />
+      ))}
+      {/* Needle */}
+      <Path
+        d={`M ${needleBase.x} ${needleBase.y} L ${needleTip.x} ${needleTip.y}`}
+        stroke="#1A2D26"
+        strokeWidth={2.5}
+        strokeLinecap="round"
+      />
+      {/* Center dot */}
+      <SvgCircle cx={cx} cy={cy} r={4} fill="#1A2D26" />
+    </Svg>
+  );
+}
+
+/* ── Gradient Slider Component ── */
+function GradientSlider({
+  value,
+  max,
+  colors,
+  leftLabel,
+  rightLabel,
+}: {
+  value: number;
+  max: number;
+  colors: string[];
+  leftLabel: string;
+  rightLabel: string;
+}) {
+  const pct = Math.max(0, Math.min(100, (value / max) * 100));
+
+  return (
+    <View style={styles.sliderWrap}>
+      <View style={styles.sliderTrack}>
+        <LinearGradient
+          colors={colors as any}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={{ height: 8, borderRadius: 4 }}
+        />
+        <View style={[styles.sliderHandle, { left: `${Math.max(2, Math.min(92, pct))}%` as any }]} />
+      </View>
+      <View style={styles.sliderLabels}>
+        <Text style={styles.sliderLabel}>{leftLabel}</Text>
+        <Text style={styles.sliderLabel}>{rightLabel}</Text>
+      </View>
+    </View>
+  );
+}
+
+/* ── Status helpers ── */
+function getStressStatus(level: number, lang: string) {
+  if (level <= 3) return { label: lang === 'de' ? 'Niedrig' : 'Basso', color: '#10B981', bg: '#F0FDF4', icon: 'emoticon-happy-outline' as const };
+  if (level <= 6) return { label: lang === 'de' ? 'Mittel' : 'Medio', color: '#F59E0B', bg: '#FFFBEB', icon: 'emoticon-neutral-outline' as const };
+  return { label: lang === 'de' ? 'Hoch' : 'Alto', color: '#EF4444', bg: '#FEF2F2', icon: 'emoticon-sad-outline' as const };
+}
+
+function getSleepStatus(quality: number, lang: string) {
+  if (quality <= 3) return { label: lang === 'de' ? 'Schlecht' : 'Scarso', color: '#EF4444', bg: '#FEF2F2', icon: 'weather-night' as const };
+  if (quality <= 6) return { label: lang === 'de' ? 'Mittel' : 'Medio', color: '#F59E0B', bg: '#FFFBEB', icon: 'moon-waning-crescent' as const };
+  return { label: lang === 'de' ? 'Gut' : 'Buono', color: '#10B981', bg: '#F0FDF4', icon: 'moon-waning-crescent' as const };
+}
+
+/* ── Main Screen ── */
 export default function HealthProfileScreen() {
   const router = useRouter();
   const { lang } = useLang();
@@ -65,12 +187,10 @@ export default function HealthProfileScreen() {
       const id = await AsyncStorage.getItem('health_profile_id');
       if (!id) { setLoading(false); return; }
       setProfileId(id);
-
       const [profRes, planRes] = await Promise.all([
         fetch(`${API_URL}/api/health-profile/${id}`),
         fetch(`${API_URL}/api/supplement-plan/${id}`),
       ]);
-
       if (profRes.ok) {
         const data = await profRes.json();
         setProfile(data.profile);
@@ -103,7 +223,7 @@ export default function HealthProfileScreen() {
           <Text style={styles.emptySubtitle}>
             {lang === 'de' ? 'Starten Sie den Gesundheits-Check, um Ihr persoenliches Profil zu erstellen.' : 'Avvia il check salute per creare il tuo profilo personale.'}
           </Text>
-          <TouchableOpacity style={styles.ctaBtn} onPress={() => router.push('/onboarding')}>
+          <TouchableOpacity style={styles.ctaBtn} onPress={() => router.push('/onboarding')} data-testid="start-onboarding-btn">
             <Text style={styles.ctaBtnText}>{lang === 'de' ? 'Gesundheits-Check starten' : 'Avvia check salute'}</Text>
           </TouchableOpacity>
         </View>
@@ -139,12 +259,19 @@ export default function HealthProfileScreen() {
   const medRisk = deficiencies.filter((d: any) => d.risk_level === 'medium');
   const lowRisk = deficiencies.filter((d: any) => d.risk_level === 'low');
 
+  const stressStatus = getStressStatus(profile.stress_level || 5, lang);
+  const sleepStatus = getSleepStatus(profile.sleep_quality || 5, lang);
+  const initials = (profile.first_name || 'U').charAt(0).toUpperCase();
+
+  // Nutrition quality segments (visual representation)
+  const nutritionColors = ['#EF4444', '#F59E0B', '#FBBF24', '#84CC16', '#10B981'];
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} data-testid="back-btn">
             <MaterialCommunityIcons name="arrow-left" size={24} color="#1A2D26" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>
@@ -153,43 +280,123 @@ export default function HealthProfileScreen() {
           <View style={{ width: 40 }} />
         </View>
 
-        {/* Bio Card */}
-        <View style={styles.bioCard}>
-          <View style={styles.bioRow}>
-            <View style={styles.bioItem}>
-              <MaterialCommunityIcons name="account" size={20} color="#4A8B71" />
-              <Text style={styles.bioValue}>{profile.age}</Text>
-              <Text style={styles.bioLabel}>{lang === 'de' ? 'Jahre' : 'Anni'}</Text>
+        {/* ═══ 2x2 Card Grid ═══ */}
+
+        {/* Row 1: Profile + BMI */}
+        <View style={styles.gridRow}>
+          {/* Card 1: Gesundheitsprofil */}
+          <View style={styles.gridCard} data-testid="profile-card">
+            <Text style={styles.gridCardTitle}>
+              {lang === 'de' ? 'Gesundheitsprofil' : 'Profilo salute'}
+            </Text>
+            <View style={styles.avatarContainer}>
+              <View style={styles.avatarCircle}>
+                <Text style={styles.avatarText}>{initials}</Text>
+              </View>
             </View>
-            <View style={styles.bioItem}>
-              <MaterialCommunityIcons name="human" size={20} color="#4A8B71" />
-              <Text style={styles.bioValue}>{genderLabels[profile.gender]?.[lang] || profile.gender}</Text>
-              <Text style={styles.bioLabel}>{lang === 'de' ? 'Geschlecht' : 'Genere'}</Text>
+            <View style={styles.profileInfoRow}>
+              <View style={styles.profileInfoIcon}>
+                <MaterialCommunityIcons name="account" size={14} color="#4A8B71" />
+              </View>
+              <Text style={styles.profileInfoText}>
+                {lang === 'de' ? 'Alter' : 'Eta'}: {profile.age} {lang === 'de' ? 'Jahre' : 'Anni'}
+              </Text>
             </View>
-            <View style={styles.bioItem}>
-              <MaterialCommunityIcons name="food-apple" size={20} color="#4A8B71" />
-              <Text style={styles.bioValue}>{dietLabels[profile.diet]?.[lang] || profile.diet}</Text>
-              <Text style={styles.bioLabel}>{lang === 'de' ? 'Ernaehrung' : 'Dieta'}</Text>
+            <View style={styles.profileInfoRow}>
+              <View style={styles.profileInfoIcon}>
+                <MaterialCommunityIcons name="human" size={14} color="#4A8B71" />
+              </View>
+              <Text style={styles.profileInfoText}>
+                {genderLabels[profile.gender]?.[lang] || profile.gender}
+              </Text>
+            </View>
+            <View style={styles.profileInfoRow}>
+              <View style={styles.profileInfoIcon}>
+                <MaterialCommunityIcons name="food-apple" size={14} color="#10B981" />
+              </View>
+              <Text style={styles.profileInfoText}>
+                {dietLabels[profile.diet]?.[lang] || profile.diet}
+              </Text>
+            </View>
+            <View style={styles.nutritionBarWrap}>
+              <Text style={styles.nutritionLabel}>
+                {lang === 'de' ? 'Ernaehrung' : 'Alimentazione'}
+              </Text>
+              <View style={styles.nutritionBar}>
+                {nutritionColors.map((c, i) => (
+                  <View key={i} style={[styles.nutritionSeg, { backgroundColor: c, opacity: i < 3 ? 1 : 0.4 }]} />
+                ))}
+              </View>
             </View>
           </View>
-          <View style={[styles.bioRow, { marginTop: 12 }]}>
-            <View style={styles.bioItem}>
-              <MaterialCommunityIcons name="scale-bathroom" size={20} color={bmiColor} />
-              <Text style={[styles.bioValue, { color: bmiColor }]}>{bmi}</Text>
-              <Text style={styles.bioLabel}>BMI - {bmiCategory}</Text>
+
+          {/* Card 2: BMI Wert */}
+          <View style={styles.gridCard} data-testid="bmi-card">
+            <Text style={styles.gridCardTitle}>BMI Wert</Text>
+            <View style={styles.bmiGaugeWrap}>
+              <BMIGauge bmi={bmi} />
             </View>
-            <View style={styles.bioItem}>
-              <MaterialCommunityIcons name="lightning-bolt" size={20} color="#F59E0B" />
-              <Text style={styles.bioValue}>{profile.stress_level}/10</Text>
-              <Text style={styles.bioLabel}>{lang === 'de' ? 'Stress' : 'Stress'}</Text>
+            <Text style={styles.bmiValue}>{bmi}</Text>
+            <View style={styles.bmiCategoryRow}>
+              <Text style={[styles.bmiCatLabel, bmi < 18.5 && styles.bmiCatLabelActive]}>
+                {lang === 'de' ? 'Zu niedrig' : 'Troppo basso'}
+              </Text>
+              <Text style={[styles.bmiCatLabel, bmi >= 18.5 && bmi < 25 && styles.bmiCatLabelActive, { color: bmi >= 18.5 && bmi < 25 ? '#10B981' : '#8FA39B' }]}>
+                Normal
+              </Text>
+              <Text style={[styles.bmiCatLabel, bmi >= 25 && styles.bmiCatLabelActive]}>
+                {lang === 'de' ? 'Zu hoch' : 'Troppo alto'}
+              </Text>
             </View>
-            <View style={styles.bioItem}>
-              <MaterialCommunityIcons name="power-sleep" size={20} color="#6366F1" />
-              <Text style={styles.bioValue}>{profile.sleep_quality}/10</Text>
-              <Text style={styles.bioLabel}>{lang === 'de' ? 'Schlaf' : 'Sonno'}</Text>
+            <View style={[styles.bmiBadge, { backgroundColor: bmiColor + '15' }]}>
+              <MaterialCommunityIcons name="shield-check" size={14} color={bmiColor} />
+              <Text style={[styles.bmiBadgeText, { color: bmiColor }]}>{bmiCategory}</Text>
             </View>
           </View>
         </View>
+
+        {/* Row 2: Stress + Sleep */}
+        <View style={styles.gridRow}>
+          {/* Card 3: Stresslevel */}
+          <View style={styles.gridCard} data-testid="stress-card">
+            <Text style={styles.gridCardTitle}>Stresslevel</Text>
+            <View style={styles.statusIconWrap}>
+              <MaterialCommunityIcons name={stressStatus.icon} size={44} color={stressStatus.color} />
+            </View>
+            <View style={[styles.statusBadge, { backgroundColor: stressStatus.color }]}>
+              <Text style={styles.statusBadgeText}>{stressStatus.label}</Text>
+            </View>
+            <GradientSlider
+              value={profile.stress_level || 5}
+              max={10}
+              colors={['#10B981', '#84CC16', '#FBBF24', '#F59E0B', '#EF4444']}
+              leftLabel={lang === 'de' ? 'Niedrig' : 'Basso'}
+              rightLabel={lang === 'de' ? 'Hoch' : 'Alto'}
+            />
+          </View>
+
+          {/* Card 4: Schlafqualitaet */}
+          <View style={styles.gridCard} data-testid="sleep-card">
+            <Text style={styles.gridCardTitle}>
+              {lang === 'de' ? 'Schlafqualitaet' : 'Qualita del sonno'}
+            </Text>
+            <View style={styles.statusIconWrap}>
+              <MaterialCommunityIcons name={sleepStatus.icon} size={44} color={sleepStatus.color} />
+            </View>
+            <View style={[styles.statusBadge, { backgroundColor: sleepStatus.color }]}>
+              <Text style={styles.statusBadgeText}>{sleepStatus.label}</Text>
+            </View>
+            <GradientSlider
+              value={profile.sleep_quality || 5}
+              max={10}
+              colors={['#EF4444', '#F59E0B', '#FBBF24', '#84CC16', '#10B981']}
+              leftLabel={lang === 'de' ? 'Schlecht' : 'Scarso'}
+              rightLabel={lang === 'de' ? 'Gut' : 'Buono'}
+            />
+          </View>
+        </View>
+
+        {/* ═══ Existing Sections ═══ */}
 
         {/* Warnings */}
         {assessment.warnings?.length > 0 && (
@@ -241,15 +448,11 @@ export default function HealthProfileScreen() {
             {d.reasons?.length > 0 && (
               <Text style={styles.defReason}>{d.reasons.join(', ')}</Text>
             )}
-
-            {/* CTAs for HIGH and MEDIUM risk */}
             {(d.risk_level === 'high' || d.risk_level === 'medium') && (
               <View style={ctaStyles.ctaWrap}>
                 <TouchableOpacity
                   data-testid={`cta-plan-${d.nutrient}`}
-                  style={[ctaStyles.primaryBtn, {
-                    backgroundColor: d.risk_level === 'high' ? '#EF4444' : '#F59E0B'
-                  }]}
+                  style={[ctaStyles.primaryBtn, { backgroundColor: d.risk_level === 'high' ? '#EF4444' : '#F59E0B' }]}
                   onPress={() => router.push({ pathname: '/supplement-plan', params: { profileId: profileId || '' } })}
                 >
                   <MaterialCommunityIcons name="clipboard-check-outline" size={15} color="#FFF" />
@@ -257,25 +460,13 @@ export default function HealthProfileScreen() {
                     {lang === 'de' ? 'Optimierungsplan anzeigen' : 'Mostra piano ottimizzazione'}
                   </Text>
                 </TouchableOpacity>
-
                 <TouchableOpacity
                   data-testid={`cta-products-${d.nutrient}`}
-                  style={[ctaStyles.secondaryBtn, {
-                    borderColor: d.risk_level === 'high' ? '#EF4444' : '#F59E0B'
-                  }]}
-                  onPress={() => router.push({
-                    pathname: '/product-comparison',
-                    params: { nutrient: d.nutrient, risk: d.risk_level }
-                  })}
+                  style={[ctaStyles.secondaryBtn, { borderColor: d.risk_level === 'high' ? '#EF4444' : '#F59E0B' }]}
+                  onPress={() => router.push({ pathname: '/product-comparison', params: { nutrient: d.nutrient, risk: d.risk_level } })}
                 >
-                  <MaterialCommunityIcons
-                    name="shopping-outline"
-                    size={15}
-                    color={d.risk_level === 'high' ? '#EF4444' : '#F59E0B'}
-                  />
-                  <Text style={[ctaStyles.secondaryBtnText, {
-                    color: d.risk_level === 'high' ? '#EF4444' : '#F59E0B'
-                  }]}>
+                  <MaterialCommunityIcons name="shopping-outline" size={15} color={d.risk_level === 'high' ? '#EF4444' : '#F59E0B'} />
+                  <Text style={[ctaStyles.secondaryBtnText, { color: d.risk_level === 'high' ? '#EF4444' : '#F59E0B' }]}>
                     {d.risk_level === 'high'
                       ? (lang === 'de' ? `Optimale ${NUTRIENT_NAMES[d.nutrient]?.[lang] || d.nutrient}-Quelle finden` : `Trova fonte ottimale di ${NUTRIENT_NAMES[d.nutrient]?.[lang] || d.nutrient}`)
                       : (lang === 'de' ? 'Qualitaetsgepruefte Optionen vergleichen' : 'Confronta opzioni certificate')}
@@ -331,7 +522,6 @@ export default function HealthProfileScreen() {
               </Text>
             </TouchableOpacity>
           )}
-
           <TouchableOpacity
             data-testid="redo-onboarding-btn"
             style={styles.secondaryBtn}
