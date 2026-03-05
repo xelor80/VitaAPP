@@ -423,6 +423,128 @@ COMPLAINT_TAG_MAP = {
     "cold_hands_feet": ["energie", "müdigkeit"],
 }
 
+# Nutrient deficiency → recipe tag mapping
+DEFICIENCY_RECIPE_MAP = {
+    "iron": {"tags": ["eisenreich", "proteinreich"], "de": "Eisenreich", "it": "Ricco di ferro"},
+    "omega3": {"tags": ["omega-3"], "de": "Reich an Omega-3", "it": "Ricco di Omega-3"},
+    "magnesium": {"tags": ["magnesiumreich"], "de": "Magnesiumreich", "it": "Ricco di magnesio"},
+    "vitamin_c": {"tags": ["vitamin-c", "antioxidantien", "antioxidantienreich", "immunstärkend"], "de": "Vitamin C", "it": "Vitamina C"},
+    "vitamin_b12": {"tags": ["B-Vitamine", "proteinreich"], "de": "B-Vitamine", "it": "Vitamine B"},
+    "vitamin_d": {"tags": ["vitaminreich"], "de": "Vitaminreich", "it": "Ricco di vitamine"},
+    "zinc": {"tags": ["immunstärkend", "proteinreich"], "de": "Immunstaerkend", "it": "Immunostimolante"},
+    "calcium": {"tags": ["proteinreich"], "de": "Calciumreich", "it": "Ricco di calcio"},
+    "folate": {"tags": ["vitaminreich", "ballaststoffreich"], "de": "Folsaeurereich", "it": "Ricco di folato"},
+    "probiotics": {"tags": ["probiotisch", "darmfreundlich", "fermentiert"], "de": "Darmfreundlich", "it": "Per l'intestino"},
+    "vitamin_e": {"tags": ["vitamin-e", "antioxidantienreich"], "de": "Vitamin E", "it": "Vitamina E"},
+    "selenium": {"tags": ["proteinreich", "antioxidantienreich"], "de": "Selenreich", "it": "Ricco di selenio"},
+    "b_vitamins": {"tags": ["B-Vitamine", "vitaminreich"], "de": "B-Vitamine", "it": "Vitamine B"},
+    "vitamin_k2": {"tags": ["vitaminreich"], "de": "Vitamin K2", "it": "Vitamina K2"},
+    "coq10": {"tags": ["antioxidantienreich"], "de": "Antioxidantien", "it": "Antiossidanti"},
+    "iodine": {"tags": ["proteinreich"], "de": "Jodreich", "it": "Ricco di iodio"},
+}
+
+
+@router.get("/recipes/personalized/{profile_id}")
+async def get_personalized_recipes(profile_id: str, lang: str = "de"):
+    """Sort and tag all recipes based on user health profile (deficiencies + complaints)."""
+    from core.health_engine import generate_health_assessment
+
+    profile = await db.health_profiles.find_one({"id": profile_id}, {"_id": 0})
+    if not profile:
+        return {"error": "profile_not_found", "recipes": []}
+
+    # Generate assessment dynamically (same as health-profile GET endpoint)
+    assessment = generate_health_assessment(profile, lang)
+    deficiencies = assessment.get("deficiencies", [])
+    complaints = profile.get("complaints", [])
+
+    # Load all active recipes
+    cursor = db.recipes.find({"active": {"$ne": False}}, {"_id": 0})
+    recipes_raw = await cursor.to_list(length=None)
+
+    all_recipes = []
+    for r in recipes_raw:
+        loc = r.get(lang, r.get("de", {}))
+        all_recipes.append({
+            "id": r["id"],
+            "title": loc.get("title", ""),
+            "ingredients": loc.get("ingredients", []),
+            "steps": loc.get("steps", []),
+            "time_min": r.get("time_min", 20),
+            "tags": loc.get("tags", []),
+            "symptom_tags": r.get("symptom_tags", []),
+            "image_url": r.get("image_url", ""),
+        })
+
+    # Score and tag each recipe
+    RISK_SCORE = {"high": 3, "medium": 2, "low": 1}
+
+    for recipe in all_recipes:
+        score = 0
+        relevance_tags = []
+        recipe_tags_lower = [t.lower() for t in recipe["tags"]]
+        recipe_stags_lower = [t.lower() for t in recipe["symptom_tags"]]
+
+        # 1. Match deficiencies to recipe tags
+        for deficiency in deficiencies:
+            nutrient = deficiency.get("nutrient", "")
+            risk = deficiency.get("risk_level", "low")
+            mapping = DEFICIENCY_RECIPE_MAP.get(nutrient)
+            if not mapping:
+                continue
+            matched = any(mt.lower() in recipe_tags_lower for mt in mapping["tags"])
+            if matched:
+                points = RISK_SCORE.get(risk, 1)
+                score += points
+                tag_label = mapping.get(lang, mapping.get("de", nutrient))
+                if tag_label not in relevance_tags:
+                    relevance_tags.append(tag_label)
+
+        # 2. Match complaints to recipe symptom_tags
+        for complaint in complaints:
+            c_name = complaint.get("name", "")
+            intensity = int(complaint.get("intensity", 0))
+            c_tags = COMPLAINT_TAG_MAP.get(c_name, [])
+            matched = any(ct.lower() in recipe_stags_lower for ct in c_tags)
+            if matched:
+                score += min(intensity // 3, 3)
+                reason_labels = {
+                    "de": {
+                        "fatigue": "Gegen Muedigkeit", "headache": "Gegen Kopfschmerzen",
+                        "digestive": "Fuer die Verdauung", "joint_pain": "Fuer die Gelenke",
+                        "muscle_pain": "Gegen Muskelschmerzen", "skin_problems": "Fuer Haut & Haare",
+                        "concentration": "Fuer Konzentration", "mood_swings": "Fuer die Stimmung",
+                        "anxiety_symptoms": "Gegen Stress", "sleep_problems": "Fuer besseren Schlaf",
+                        "immune_weakness": "Fuer das Immunsystem", "cold_hands_feet": "Fuer die Durchblutung",
+                    },
+                    "it": {
+                        "fatigue": "Contro la stanchezza", "headache": "Contro il mal di testa",
+                        "digestive": "Per la digestione", "joint_pain": "Per le articolazioni",
+                        "muscle_pain": "Contro i dolori", "skin_problems": "Per pelle e capelli",
+                        "concentration": "Per la concentrazione", "mood_swings": "Per l'umore",
+                        "anxiety_symptoms": "Contro lo stress", "sleep_problems": "Per dormire meglio",
+                        "immune_weakness": "Per il sistema immunitario", "cold_hands_feet": "Per la circolazione",
+                    },
+                }
+                label = reason_labels.get(lang, reason_labels["de"]).get(c_name, "")
+                if label and label not in relevance_tags:
+                    relevance_tags.append(label)
+
+        # 3. Bonus for diet-appropriate recipes
+        diet = profile.get("diet", "")
+        if diet == "vegan" and "vegan" in recipe_tags_lower:
+            score += 1
+        elif diet == "vegetarian" and ("vegetarisch" in recipe_tags_lower or "vegan" in recipe_tags_lower):
+            score += 1
+
+        recipe["relevance_score"] = score
+        recipe["relevance_tags"] = relevance_tags[:3]  # max 3 tags
+
+    # Sort by relevance score (highest first), then by title
+    all_recipes.sort(key=lambda r: (-r["relevance_score"], r["title"]))
+
+    return {"recipes": all_recipes, "profile_diet": profile.get("diet", "")}
+
 
 @router.get("/recipes/recommendations")
 async def get_recipe_recommendations(profile_id: str = "", lang: str = "de", limit: int = 3):

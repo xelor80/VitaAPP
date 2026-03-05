@@ -29,13 +29,19 @@ const TEXTS = {
     resetFilters: 'Filter zurücksetzen',
     quick: 'Schnell',
     medium: 'Mittel',
-    long: 'Aufwändig',
+    long: 'Aufwaendig',
     recipes: 'Rezepte',
     easy: 'Einfach',
     medium_diff: 'Medium',
-    hard: 'Aufwändig',
-    recommended: 'Für dich empfohlen',
+    hard: 'Aufwaendig',
+    recommended: 'Top-Empfehlungen',
     allRecipes: 'Alle Rezepte',
+    personalizedRecipes: 'Fuer dein Profil',
+    profileRequired: 'Gesundheitsprofil erforderlich',
+    profileRequiredSub: 'Erstelle dein Gesundheitsprofil, damit wir die besten Rezepte fuer dich finden.',
+    startProfile: 'Profil erstellen',
+    relevantFor: 'Passend fuer dich',
+    otherRecipes: 'Weitere Rezepte',
   },
   it: {
     title: 'Le tue Ricette',
@@ -59,8 +65,14 @@ const TEXTS = {
     easy: 'Facile',
     medium_diff: 'Medio',
     hard: 'Elaborato',
-    recommended: 'Consigliato per te',
+    recommended: 'I piu consigliati',
     allRecipes: 'Tutte le ricette',
+    personalizedRecipes: 'Per il tuo profilo',
+    profileRequired: 'Profilo salute richiesto',
+    profileRequiredSub: 'Crea il tuo profilo salute per trovare le ricette migliori per te.',
+    startProfile: 'Crea profilo',
+    relevantFor: 'Adatto a te',
+    otherRecipes: 'Altre ricette',
   },
 };
 
@@ -92,6 +104,7 @@ function getDifficulty(time: number, tx: typeof TEXTS['de']) {
 function RecipeCard({ recipe, tx, onPress, cardWidth }: { recipe: any; tx: typeof TEXTS['de']; onPress: () => void; cardWidth: number }) {
   const difficulty = getDifficulty(recipe.time_min || 15, tx);
   const ingCount = recipe.ingredients?.length || 0;
+  const tags = recipe.relevance_tags || [];
 
   return (
     <TouchableOpacity
@@ -105,6 +118,15 @@ function RecipeCard({ recipe, tx, onPress, cardWidth }: { recipe: any; tx: typeo
         style={[s.cardImage, { height: cardWidth * 0.7 }]}
         resizeMode="cover"
       />
+      {tags.length > 0 && (
+        <View style={s.relevanceTagRow}>
+          {tags.slice(0, 2).map((tag: string, i: number) => (
+            <View key={i} style={s.relevanceTag}>
+              <Text style={s.relevanceTagText} numberOfLines={1}>{tag}</Text>
+            </View>
+          ))}
+        </View>
+      )}
       <View style={s.cardBody}>
         <View style={s.badgeRow}>
           <View style={s.badge}>
@@ -135,27 +157,31 @@ export default function RecipesCatalogScreen() {
   const cardWidth = (contentWidth - 32 - CARD_GAP) / 2;
 
   const [recipes, setRecipes] = useState<any[]>([]);
-  const [allRecipes, setAllRecipes] = useState<any[]>([]);
+  const [personalizedRecipes, setPersonalizedRecipes] = useState<any[]>([]);
   const [filters, setFilters] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [searchText, setSearchText] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [timeFilter, setTimeFilter] = useState<TimeFilter>(null);
-  const [recommendations, setRecommendations] = useState<any[]>([]);
-  const [recsLoading, setRecsLoading] = useState(true);
+  const [hasProfile, setHasProfile] = useState<boolean | null>(null);
+  const [profileId, setProfileId] = useState<string | null>(null);
 
+  // Load personalized recipes (replaces allRecipes + recommendations)
   useEffect(() => {
     (async () => {
-      setRecsLoading(true);
-      try {
-        const profileId = await AsyncStorage.getItem('health_profile_id');
-        const params = new URLSearchParams({ lang, limit: '4' });
-        if (profileId) params.set('profile_id', profileId);
-        const res = await fetch(`${API_URL}/api/recipes/recommendations?${params}`);
-        if (res.ok) setRecommendations(await res.json());
-      } catch {}
-      setRecsLoading(false);
+      const pid = await AsyncStorage.getItem('health_profile_id');
+      setProfileId(pid);
+      setHasProfile(!!pid);
+      if (pid) {
+        try {
+          const res = await fetch(`${API_URL}/api/recipes/personalized/${pid}?lang=${lang}`);
+          if (res.ok) {
+            const data = await res.json();
+            setPersonalizedRecipes(data.recipes || []);
+          }
+        } catch {}
+      }
     })();
   }, [lang]);
 
@@ -164,11 +190,12 @@ export default function RecipesCatalogScreen() {
       .then(r => r.json()).then(setFilters).catch(() => {});
   }, [lang]);
 
-  // Load ALL recipes once for "Alle Rezepte" section
+  // Load ALL recipes for filtered search (fallback when no profile)
   useEffect(() => {
-    fetch(`${API_URL}/api/recipes?lang=${lang}`)
-      .then(r => r.json()).then(setAllRecipes).catch(() => setAllRecipes([]));
-  }, [lang]);
+    if (!hasProfile) {
+      // Only load all recipes as fallback for search
+    }
+  }, [hasProfile]);
 
   useEffect(() => {
     setIsLoading(true);
@@ -320,31 +347,55 @@ export default function RecipesCatalogScreen() {
 
         {!isLoading && hasActiveFilters && recipes.length > 0 && renderGrid(recipes)}
 
-        {/* When no filters: show recommendations + all recipes */}
+        {/* When no filters: show personalized recipes or profile required */}
         {!isLoading && !hasActiveFilters && (
           <>
-            {/* Personalized Recommendations */}
-            {!recsLoading && recommendations.length > 0 && (
-              <View style={{ marginBottom: 20 }}>
-                <View style={s.sectionHeader}>
-                  <MaterialCommunityIcons name="star-outline" size={18} color="#D4930D" />
-                  <Text style={s.sectionTitle}>{tx.recommended}</Text>
-                </View>
-                {renderGrid(recommendations)}
+            {/* Profile Required Message */}
+            {hasProfile === false && (
+              <View style={s.profileRequired} data-testid="profile-required-card">
+                <MaterialCommunityIcons name="account-heart-outline" size={48} color="#2C8C99" />
+                <Text style={s.profileRequiredTitle}>{tx.profileRequired}</Text>
+                <Text style={s.profileRequiredSub}>{tx.profileRequiredSub}</Text>
+                <TouchableOpacity
+                  style={s.profileRequiredBtn}
+                  onPress={() => router.push('/onboarding')}
+                  data-testid="start-profile-btn"
+                >
+                  <MaterialCommunityIcons name="account-plus" size={16} color="#FFF" />
+                  <Text style={s.profileRequiredBtnText}>{tx.startProfile}</Text>
+                </TouchableOpacity>
               </View>
             )}
 
-            {/* All Recipes */}
-            {allRecipes.length > 0 && (
-              <View>
-                <View style={s.sectionHeader}>
-                  <MaterialCommunityIcons name="silverware-fork-knife" size={18} color="#4A8B71" />
-                  <Text style={s.sectionTitle}>{tx.allRecipes}</Text>
-                  <Text style={s.sectionCount}>{allRecipes.length}</Text>
-                </View>
-                {renderGrid(allRecipes)}
-              </View>
-            )}
+            {/* Personalized Recipes */}
+            {hasProfile && personalizedRecipes.length > 0 && (() => {
+              const relevant = personalizedRecipes.filter(r => r.relevance_score > 0);
+              const others = personalizedRecipes.filter(r => r.relevance_score === 0);
+              return (
+                <>
+                  {relevant.length > 0 && (
+                    <View style={{ marginBottom: 20 }}>
+                      <View style={s.sectionHeader}>
+                        <MaterialCommunityIcons name="star-outline" size={18} color="#2C8C99" />
+                        <Text style={[s.sectionTitle, { color: '#2C8C99' }]}>{tx.relevantFor}</Text>
+                        <Text style={s.sectionCount}>{relevant.length}</Text>
+                      </View>
+                      {renderGrid(relevant)}
+                    </View>
+                  )}
+                  {others.length > 0 && (
+                    <View>
+                      <View style={s.sectionHeader}>
+                        <MaterialCommunityIcons name="silverware-fork-knife" size={18} color="#4A8B71" />
+                        <Text style={s.sectionTitle}>{tx.otherRecipes}</Text>
+                        <Text style={s.sectionCount}>{others.length}</Text>
+                      </View>
+                      {renderGrid(others)}
+                    </View>
+                  )}
+                </>
+              );
+            })()}
           </>
         )}
       </ScrollView>
@@ -465,5 +516,71 @@ const s = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 8,
     paddingVertical: 2,
+  },
+
+  // Relevance tags on recipe cards
+  relevanceTagRow: {
+    position: 'absolute' as any,
+    top: 8,
+    left: 6,
+    right: 6,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 4,
+    zIndex: 1,
+  },
+  relevanceTag: {
+    backgroundColor: 'rgba(44, 140, 153, 0.9)',
+    borderRadius: 8,
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+  },
+  relevanceTagText: {
+    fontSize: 9,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+
+  // Profile Required
+  profileRequired: {
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 30,
+    marginTop: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  profileRequiredTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1A2D26',
+    marginTop: 16,
+    textAlign: 'center',
+  },
+  profileRequiredSub: {
+    fontSize: 14,
+    color: '#5C7A6F',
+    marginTop: 8,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  profileRequiredBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#2C8C99',
+    borderRadius: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    marginTop: 20,
+  },
+  profileRequiredBtnText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
 });
