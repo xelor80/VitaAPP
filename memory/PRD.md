@@ -17,17 +17,19 @@ A health-focused, bilingual (German/Italian) mobile app where an LLM analyzes us
 41. **Supplement-Plan Redesign** - Teal gradient header, Tagesplan with pill icons, Erinnerung card
 42. **Erinnerungseinstellungen** - Push notification settings in reminder card
 43. **Mein Fortschritt Ueberarbeitung** - Einnahme-Tab entfernt, 8-Wochen-Fortschritt, taegliche Sperre
-44. **Personalisierte Rezept-Sortierung**:
+44. **Personalisierte Rezept-Sortierung** (BUG FIXED 2026-03-05):
     - Neuer Endpoint GET /api/recipes/personalized/{profile_id} mit KI-Scoring
     - DEFICIENCY_RECIPE_MAP: 16 Naehrstoff-Defizite zu Rezept-Tags Mapping
     - COMPLAINT_TAG_MAP: 14 Beschwerde-Kategorien zu Symptom-Tags
     - Relevanz-Tags auf Rezeptkarten (z.B. "Eisenreich", "Gegen Muedigkeit")
     - "Passend fuer dich" (Score>0) und "Weitere Rezepte" (Score=0) Sektionen
-    - "Gesundheitsprofil erforderlich" Hinweis ohne Profil
-    - Diaet-Bonus fuer passende Rezepte (vegan/vegetarisch)
+    - Client-side Filtering: Suche, Kategorie-Tags, Zeitfilter
+    - Fallback: Alle Rezepte anzeigen wenn kein Gesundheitsprofil vorhanden
 
 ## Key API Endpoints
-- `GET /api/recipes/personalized/{profile_id}` - NEW: Personalized recipe scoring + tagging
+- `GET /api/recipes/personalized/{profile_id}` - Personalized recipe scoring + tagging
+- `GET /api/recipes?lang=de` - All recipes (fallback)
+- `GET /api/recipes/filters?lang=de` - Filter categories/tags
 - `GET /api/tracking/symptoms/today/{profile_id}` - Daily submission status
 - `GET /api/health-profile/{profile_id}` - Profile + assessment
 - `GET /api/supplement-plan/{profile_id}` - Supplement plan data
