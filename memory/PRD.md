@@ -11,31 +11,33 @@ A health-focused, bilingual (German/Italian) mobile app where an LLM analyzes us
 - **TTS**: OpenAI TTS via Emergent LLM Key
 - **Integrations**: Shopify (product import), SMTP (email export), Unsplash (recipe images)
 
-## Implemented Features (Complete) - 48 Features
+## Implemented Features (Complete) - 49 Features
 1-44: [See previous PRD versions for full history]
-45. **TTS fuer Symptom-Analyse** (2026-03-05) - TTSButton in OverviewTab Sektion 1
+45. **TTS fuer Symptom-Analyse** (2026-03-05) - TTSButton in OverviewTab
 46. **Klickbare Supplement-Icons** (2026-03-05) - Tagesplan + Uebersicht → Affiliate-Shop
 47. **Arbeitstyp im Onboarding** (2026-03-05):
-    - 6 Arbeitstypen mit Icons: Buero, Homeoffice, Koerperliche Arbeit, Aussendienst, Schichtarbeit, Nachtarbeit
-    - Bedingte Schichtdetails: Schichtmodell (2-Schicht, 3-Schicht, Vollkonti) + Aktuelle Schicht (Frueh/Spaet/Nacht)
-    - Info-Banner fuer Schichtarbeiter erklaert Auswirkungen auf Supplement-Plan
-    - KI-Risikobewertung: Neue Gewichtungen fuer Schicht-/Nacht-/koerperliche Arbeit
-    - Priority Areas: "Schichtarbeit-Ausgleich" (Schicht/Nacht), "Koerperliche Belastung ausgleichen" (Physisch)
-    - Risikofaktoren: Vitamin D, Magnesium, B-Vitamine, Melatonin-Vorlaeufer, Cortisol-Regulation
-48. **Schichtplan-Konfigurator** (2026-03-05):
-    - 3 Schicht-Vorlagen in Erinnerungs-Einstellungen (Frueh/Spaet/Nacht)
-    - Automatische Zeitanpassung: Morgens/Mittags/Abends je nach Schicht
-    - Fruehschicht: 05:00 / 11:30 / 20:00
-    - Spaetschicht: 09:30 / 15:30 / 23:00
-    - Nachtschicht: 14:30 / 20:00 / 03:00
+    - 6 Arbeitstypen, bedingte Schichtdetails, KI-Risikobewertung
+    - Priority Areas: Schichtarbeit-Ausgleich, Koerperliche Belastung
+48. **Schicht-Vorlagen** (2026-03-05):
+    - 3 Presets (Frueh/Spaet/Nacht) in Erinnerungen, nur fuer Schichtarbeiter
+49. **Schichtzyklus-Rotator** (2026-03-05):
+    - Vorlagen: VK 4x4, 3-Schicht, FFSSNN--, 2-Schicht
+    - Visueller Zyklus-Editor: Farbige Quadrate (F=orange, S=blau, N=lila, -=grau)
+    - Tag antippen zum Aendern (F→S→N→-→F)
+    - Startdatum waehlbar
+    - "Heute: Nachtschicht (Tag 5)" Anzeige
+    - Gruener Rand markiert aktuellen Tag
+    - Automatische Zeitanpassung basierend auf aktuellem Schichttag
+    - Backend: GET /api/supplement-plan/{id}/today-shift berechnet aktuelle Schicht
     - Nur sichtbar fuer Schicht-/Nachtarbeiter
 
 ## Key API Endpoints
-- `POST /api/tts/generate` - TTS audio generation (OpenAI)
-- `GET /api/onboarding/options?lang=de` - Onboarding options (incl. work_types, shift_models, shift_types)
-- `POST /api/health-profile` - Create profile (incl. work_type, shift_model, current_shift)
-- `GET /api/recipes/personalized/{profile_id}` - Personalized recipe scoring
-- `GET /api/supplement-plan/{profile_id}` - Supplement plan data
+- `POST /api/tts/generate` - TTS audio generation
+- `GET /api/onboarding/options?lang=de` - Options incl. work_types, shift_models, shift_types
+- `POST /api/health-profile` - Create profile incl. work_type, shift_model, current_shift
+- `PUT /api/supplement-plan/{id}/reminders` - Update reminders with shift_cycle
+- `GET /api/supplement-plan/{id}/today-shift` - Calculate today's shift from cycle
+- `GET /api/recipes/personalized/{id}` - Personalized recipe scoring
 
 ## Backlog
 - `expo-av` zu `expo-audio` Migration (P2)
