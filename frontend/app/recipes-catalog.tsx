@@ -156,7 +156,6 @@ export default function RecipesCatalogScreen() {
   const contentWidth = Math.min(windowWidth, 480);
   const cardWidth = (contentWidth - 32 - CARD_GAP) / 2;
 
-  const [recipes, setRecipes] = useState<any[]>([]);
   const [personalizedRecipes, setPersonalizedRecipes] = useState<any[]>([]);
   const [filters, setFilters] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -167,9 +166,10 @@ export default function RecipesCatalogScreen() {
   const [hasProfile, setHasProfile] = useState<boolean | null>(null);
   const [profileId, setProfileId] = useState<string | null>(null);
 
-  // Load personalized recipes (replaces allRecipes + recommendations)
+  // Load personalized recipes once (contains ALL recipes, scored)
   useEffect(() => {
     (async () => {
+      setIsLoading(true);
       const pid = await AsyncStorage.getItem('health_profile_id');
       setProfileId(pid);
       setHasProfile(!!pid);
@@ -182,6 +182,7 @@ export default function RecipesCatalogScreen() {
           }
         } catch {}
       }
+      setIsLoading(false);
     })();
   }, [lang]);
 
@@ -192,33 +193,39 @@ export default function RecipesCatalogScreen() {
 
   // Load ALL recipes for filtered search (fallback when no profile)
   useEffect(() => {
-    if (!hasProfile) {
-      // Only load all recipes as fallback for search
+    if (hasProfile === false) {
+      setIsLoading(true);
+      fetch(`${API_URL}/api/recipes?lang=${lang}`)
+        .then(r => r.json())
+        .then(data => setPersonalizedRecipes(data.map((r: any) => ({ ...r, relevance_score: 0, relevance_tags: [] }))))
+        .catch(() => {})
+        .finally(() => setIsLoading(false));
     }
-  }, [hasProfile]);
+  }, [hasProfile, lang]);
 
-  useEffect(() => {
-    setIsLoading(true);
-    const params = new URLSearchParams({ lang });
-    if (searchText.trim()) params.set('search', searchText.trim());
-    if (selectedCategory) params.set('category', selectedCategory);
-    if (timeFilter === 'quick') params.set('max_time', '10');
-    else if (timeFilter === 'medium') params.set('max_time', '20');
-    else if (timeFilter === 'long') params.set('max_time', '60');
-    fetch(`${API_URL}/api/recipes?${params.toString()}`)
-      .then(r => r.json())
-      .then(data => {
-        let filtered = data;
-        if (selectedTags.length > 0) {
-          filtered = data.filter((r: any) =>
-            selectedTags.some(t => r.tags?.map((x: string) => x.toLowerCase()).includes(t.toLowerCase()))
-          );
-        }
-        setRecipes(filtered);
-      })
-      .catch(() => setRecipes([]))
-      .finally(() => setIsLoading(false));
-  }, [lang, searchText, selectedCategory, timeFilter, selectedTags]);
+  // Local filtering from personalizedRecipes (no extra API calls)
+  const filteredRecipes = React.useMemo(() => {
+    let list = personalizedRecipes;
+    if (searchText.trim()) {
+      const q = searchText.trim().toLowerCase();
+      list = list.filter(r => r.title?.toLowerCase().includes(q));
+    }
+    if (selectedCategory) {
+      list = list.filter(r =>
+        r.symptom_tags?.some((t: string) => t.toLowerCase().includes(selectedCategory.toLowerCase())) ||
+        r.tags?.some((t: string) => t.toLowerCase().includes(selectedCategory.toLowerCase()))
+      );
+    }
+    if (selectedTags.length > 0) {
+      list = list.filter(r =>
+        selectedTags.some(t => r.tags?.map((x: string) => x.toLowerCase()).includes(t.toLowerCase()))
+      );
+    }
+    if (timeFilter === 'quick') list = list.filter(r => (r.time_min || 99) <= 10);
+    else if (timeFilter === 'medium') list = list.filter(r => (r.time_min || 99) <= 20);
+    else if (timeFilter === 'long') list = list.filter(r => (r.time_min || 99) <= 60);
+    return list;
+  }, [personalizedRecipes, searchText, selectedCategory, selectedTags, timeFilter]);
 
   const toggleTag = useCallback((tag: string) => {
     setSelectedTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]);

@@ -29,7 +29,7 @@
   },
   "test_credentials": {
     "profile_id": "b35d2eb1-c651-497c-b270-321a74f1a328",
-    "api_url": "https://vitality-hub-95.preview.emergentagent.com"
+    "api_url": "https://personalize-meals.preview.emergentagent.com"
   },
   "seed_data_creation": "None - used existing profile data",
   "retest_needed": false,
