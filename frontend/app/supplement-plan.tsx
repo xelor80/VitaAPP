@@ -7,6 +7,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Audio } from 'expo-av';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useLang } from '../src/LangContext';
 import { planStyles as styles } from '../components/supplement/planStyles';
 import { InteractionAnalysis } from '../components/supplement/InteractionAnalysis';
@@ -55,6 +56,70 @@ const SUPPLEMENT_PRODUCT_TAGS: Record<string, string[]> = {
   vitamin_e: ['antioxidantien'],
 };
 
+/* ── Pill icon styles per supplement ── */
+const PILL_STYLES: Record<string, { bg: string; icon: string; accent: string }> = {
+  vitamin_d: { bg: '#FFF3E0', icon: 'water-outline', accent: '#FF9800' },
+  omega3: { bg: '#FFF8E1', icon: 'pill', accent: '#F9A825' },
+  magnesium: { bg: '#E3F2FD', icon: 'pill', accent: '#2196F3' },
+  probiotics: { bg: '#E8F5E9', icon: 'pill', accent: '#66BB6A' },
+  zinc: { bg: '#EDE7F6', icon: 'pill', accent: '#7E57C2' },
+  iron: { bg: '#FBE9E7', icon: 'pill', accent: '#E53935' },
+  vitamin_b12: { bg: '#FCE4EC', icon: 'pill', accent: '#EC407A' },
+  vitamin_c: { bg: '#FFFDE7', icon: 'fruit-citrus', accent: '#FBC02D' },
+  calcium: { bg: '#EFEBE9', icon: 'bone', accent: '#8D6E63' },
+  folate: { bg: '#E8F5E9', icon: 'leaf', accent: '#43A047' },
+  b_vitamins: { bg: '#FFF3E0', icon: 'lightning-bolt', accent: '#FF9800' },
+  coq10: { bg: '#FBE9E7', icon: 'heart-pulse', accent: '#EF5350' },
+  selenium: { bg: '#F3E5F5', icon: 'atom', accent: '#AB47BC' },
+  iodine: { bg: '#E0F2F1', icon: 'flask', accent: '#26A69A' },
+  ashwagandha: { bg: '#F1F8E9', icon: 'flower', accent: '#7CB342' },
+  vitamin_k2: { bg: '#E8F5E9', icon: 'heart-pulse', accent: '#388E3C' },
+  vitamin_e: { bg: '#FFFDE7', icon: 'shield-star', accent: '#F9A825' },
+  melatonin: { bg: '#E8EAF6', icon: 'moon-waning-crescent', accent: '#5C6BC0' },
+  _default: { bg: '#F0F4F2', icon: 'pill', accent: '#4A8B71' },
+};
+
+function PillIcon({ id, size = 48 }: { id: string; size?: number }) {
+  const s = PILL_STYLES[id] || PILL_STYLES._default;
+  return (
+    <View style={{ width: size, height: size, borderRadius: size * 0.3, backgroundColor: s.bg, justifyContent: 'center', alignItems: 'center' }}>
+      <MaterialCommunityIcons name={s.icon as any} size={size * 0.5} color={s.accent} />
+    </View>
+  );
+}
+
+function getCurrentTimeSlot(): 'morning' | 'noon' | 'evening' {
+  const h = new Date().getHours();
+  if (h < 11) return 'morning';
+  if (h < 16) return 'noon';
+  return 'evening';
+}
+
+function getActiveTimeSlot(schedule: any): 'morning' | 'noon' | 'evening' {
+  const preferred = getCurrentTimeSlot();
+  const order: ('morning' | 'noon' | 'evening')[] = [preferred, 'morning', 'noon', 'evening'];
+  for (const slot of order) {
+    if (schedule?.[slot]?.items?.length > 0) return slot;
+  }
+  return preferred;
+}
+
+function abbreviateName(name: string, id: string): string {
+  if (!name) return id;
+  // For vitamins, keep the full name (e.g. "Vitamin D3", "Vitamin B12")
+  if (name.toLowerCase().startsWith('vitamin')) return name.length > 12 ? name.slice(0, 12) : name;
+  if (name.toLowerCase().startsWith('omega')) return name.length > 10 ? name.slice(0, 10) : name;
+  // For others, first word is usually enough
+  const first = name.split(' ')[0];
+  return first.length > 12 ? first.slice(0, 11) + '.' : first;
+}
+
+const TIME_LABELS: Record<string, Record<string, string>> = {
+  morning: { de: 'Morgens', it: 'Mattina' },
+  noon: { de: 'Mittags', it: 'Mezzogiorno' },
+  evening: { de: 'Abends', it: 'Sera' },
+};
+
 export default function SupplementPlanScreen() {
   const router = useRouter();
   const { lang } = useLang();
@@ -63,9 +128,9 @@ export default function SupplementPlanScreen() {
   const [plan, setPlan] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
-  const [activeTab, setActiveTab] = useState<'stack' | 'schedule' | 'phases' | 'interactions'>('stack');
+  const [activeTab, setActiveTab] = useState<'stack' | 'schedule' | 'phases' | 'interactions'>('schedule');
   const [reminders, setReminders] = useState({ enabled: false, morning_time: '08:00', noon_time: '12:00', evening_time: '20:00' });
-  const [showReminders, setShowReminders] = useState(false);
+  const [showReminders, setShowReminders] = useState(true);
   const [products, setProducts] = useState<any[]>([]);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [ttsLoading, setTtsLoading] = useState(false);
@@ -336,28 +401,36 @@ export default function SupplementPlanScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-            <MaterialCommunityIcons name="arrow-left" size={24} color="#1A2D26" />
+        {/* Gradient Header */}
+        <LinearGradient
+          colors={['#2C8C99', '#4EAAB5', '#6EC4CE']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={ns.gradientHeader}
+        >
+          <TouchableOpacity onPress={() => router.back()} style={ns.headerBackBtn} testID="plan-back-btn">
+            <MaterialCommunityIcons name="arrow-left" size={22} color="#FFFFFF" />
           </TouchableOpacity>
           <View style={{ flex: 1 }}>
-            <Text style={styles.title}>
+            <Text style={ns.headerGreeting}>
               {firstName
-                ? (lang === 'de' ? `${firstName}, dein Mikronaehrstoff-Plan` : `${firstName}, il tuo piano micronutrienti`)
-                : (lang === 'de' ? 'Ihr Mikronaehrstoff-Plan' : 'Il tuo piano micronutrienti')}
+                ? (lang === 'de' ? `Hallo ${firstName}` : `Ciao ${firstName}`)
+                : (lang === 'de' ? 'Hallo' : 'Ciao')}
             </Text>
-            <Text style={styles.subtitle}>
-              {lang === 'de' ? `${plan.total_supplements} Supplements - 8 Wochen` : `${plan.total_supplements} supplementi - 8 settimane`}
+            <Text style={ns.headerSubtitle}>
+              {lang === 'de' ? 'Dein Supplement-Plan fuer heute' : 'Il tuo piano supplementi per oggi'}
             </Text>
           </View>
-          <TouchableOpacity onPress={() => setShowReminders(!showReminders)} style={styles.reminderBtn}>
-            <MaterialCommunityIcons name={reminders.enabled ? 'bell-ring' : 'bell-outline'} size={24} color={reminders.enabled ? '#4A8B71' : '#8FA39B'} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => setShowEmailModal(true)} style={styles.reminderBtn} data-testid="email-export-btn">
-            <MaterialCommunityIcons name="email-fast-outline" size={24} color="#4A8B71" />
-          </TouchableOpacity>
-        </View>
+          <MaterialCommunityIcons name="white-balance-sunny" size={36} color="#FFD54F" />
+          <View style={{ flexDirection: 'row', gap: 4, marginLeft: 8 }}>
+            <TouchableOpacity onPress={() => setShowReminders(!showReminders)} style={ns.headerIconBtn}>
+              <MaterialCommunityIcons name={reminders.enabled ? 'bell-ring' : 'bell-outline'} size={20} color="#FFFFFF" />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setShowEmailModal(true)} style={ns.headerIconBtn} testID="email-export-btn">
+              <MaterialCommunityIcons name="email-fast-outline" size={20} color="#FFFFFF" />
+            </TouchableOpacity>
+          </View>
+        </LinearGradient>
 
         {/* Personal Summary */}
         {plan.personal_summary && (
@@ -404,62 +477,64 @@ export default function SupplementPlanScreen() {
         )}
 
         {/* Reminder Settings */}
-        {showReminders && (
-          <View style={styles.reminderCard}>
-            <Text style={styles.reminderTitle}>
-              <MaterialCommunityIcons name="bell-cog" size={18} color="#4A8B71" />
-              {' '}{lang === 'de' ? 'Erinnerungen' : 'Promemoria'}
-            </Text>
-            <TouchableOpacity
-              style={styles.reminderToggle}
-              onPress={() => setReminders({ ...reminders, enabled: !reminders.enabled })}
+        {showReminders && plan.weekly_schedule && (() => {
+          const activeSlot = getActiveTimeSlot(plan.weekly_schedule);
+          const activeItems = plan.weekly_schedule?.[activeSlot]?.items || [];
+          const activeTimeStr = activeSlot === 'morning' ? reminders.morning_time
+            : activeSlot === 'noon' ? reminders.noon_time : reminders.evening_time;
+          const slotName = TIME_LABELS[activeSlot]?.[lang] || '';
+          if (activeItems.length === 0) return null;
+          return (
+          <View style={ns.reminderCard} testID="reminder-card">
+            <LinearGradient
+              colors={['#2C8C99', '#4EAAB5']}
+              style={ns.reminderHeader}
             >
-              <MaterialCommunityIcons
-                name={reminders.enabled ? 'toggle-switch' : 'toggle-switch-off'}
-                size={40} color={reminders.enabled ? '#4A8B71' : '#8FA39B'}
-              />
-              <Text style={styles.reminderToggleText}>
-                {reminders.enabled
-                  ? (lang === 'de' ? 'Aktiviert' : 'Attivato')
-                  : (lang === 'de' ? 'Deaktiviert' : 'Disattivato')}
+              <Text style={ns.reminderHeaderTitle}>
+                {lang === 'de' ? 'Erinnerung' : 'Promemoria'}
               </Text>
-            </TouchableOpacity>
-            {reminders.enabled && (
-              <View style={styles.reminderTimes}>
-                {[
-                  { key: 'morning_time', icon: 'weather-sunny', label: lang === 'de' ? 'Morgens' : 'Mattina' },
-                  { key: 'noon_time', icon: 'weather-partly-cloudy', label: lang === 'de' ? 'Mittags' : 'Mezzogiorno' },
-                  { key: 'evening_time', icon: 'weather-night', label: lang === 'de' ? 'Abends' : 'Sera' },
-                ].map(({ key, icon, label }) => (
-                  <View key={key} style={styles.reminderTimeRow}>
-                    <MaterialCommunityIcons name={icon as any} size={20} color="#4A8B71" />
-                    <Text style={styles.reminderTimeLabel}>{label}</Text>
-                    <TextInput
-                      style={styles.reminderTimeInput}
-                      value={(reminders as any)[key]}
-                      onChangeText={v => setReminders({ ...reminders, [key]: v })}
-                      placeholder="HH:MM"
-                      placeholderTextColor="#8FA39B"
-                    />
+              <MaterialCommunityIcons name="bell-ring-outline" size={20} color="#FFFFFF" />
+            </LinearGradient>
+            <View style={ns.reminderBody}>
+              <Text style={ns.reminderSubtitle}>
+                {lang === 'de'
+                  ? `Zeit fuer deine ${slotName}einnahme!`
+                  : `E' ora della tua assunzione ${slotName}!`}
+              </Text>
+              <View style={ns.reminderClockRow}>
+                <MaterialCommunityIcons name="clock-outline" size={52} color="#2C8C99" />
+                <Text style={ns.reminderTimeText}>{activeTimeStr} Uhr</Text>
+              </View>
+              {activeItems.slice(0, 3).map((item: any) => (
+                <View key={item.id} style={ns.reminderItem}>
+                  <PillIcon id={item.id} size={36} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={ns.reminderItemName}>{item.name}</Text>
+                    <Text style={ns.reminderItemDose}>
+                      {item.form_label || `${item.dosage} ${item.unit}`} – {lang === 'de' ? 'einnehmen' : 'assumere'}
+                    </Text>
                   </View>
-                ))}
-                <TouchableOpacity 
-                  style={[styles.reminderSaveBtn, { backgroundColor: '#6B7280', marginTop: 12, marginBottom: 8 }]} 
-                  onPress={() => sendTestNotification(lang)}
-                  testID="test-notification-btn"
-                >
-                  <MaterialCommunityIcons name="bell-ring" size={18} color="#FFFFFF" />
-                  <Text style={[styles.reminderSaveBtnText, { marginLeft: 8 }]}>
-                    {lang === 'de' ? 'Test-Benachrichtigung' : 'Notifica di prova'}
+                  <MaterialCommunityIcons name="check-circle" size={22} color="#10B981" />
+                </View>
+              ))}
+              <View style={ns.reminderActions}>
+                <TouchableOpacity style={ns.laterBtn} onPress={() => setShowReminders(false)} testID="later-remind-btn">
+                  <Text style={ns.laterBtnText}>
+                    {lang === 'de' ? 'Spaeter erinnern' : 'Ricorda dopo'}
                   </Text>
                 </TouchableOpacity>
+                <TouchableOpacity style={ns.takeNowBtn} onPress={saveReminders} testID="take-now-btn">
+                  <LinearGradient colors={['#2C8C99', '#4EAAB5']} style={ns.takeNowGradient}>
+                    <Text style={ns.takeNowBtnText}>
+                      {lang === 'de' ? 'Jetzt einnehmen' : 'Assumi ora'}
+                    </Text>
+                  </LinearGradient>
+                </TouchableOpacity>
               </View>
-            )}
-            <TouchableOpacity style={styles.reminderSaveBtn} onPress={saveReminders}>
-              <Text style={styles.reminderSaveBtnText}>{lang === 'de' ? 'Speichern' : 'Salva'}</Text>
-            </TouchableOpacity>
+            </View>
           </View>
-        )}
+          );
+        })()}
 
         {/* Tabs */}
         <View style={styles.tabs}>
@@ -618,56 +693,91 @@ export default function SupplementPlanScreen() {
           );
         })}
 
-        {/* Schedule Tab */}
+        {/* Schedule Tab - New Tagesplan Design */}
         {activeTab === 'schedule' && (
           <View>
             {['morning', 'noon', 'evening'].map(timing => {
               const section = plan.weekly_schedule?.[timing];
               const items = section?.items || [];
               if (items.length === 0) return null;
+              const timeStr = timing === 'morning' ? reminders.morning_time
+                : timing === 'noon' ? reminders.noon_time
+                : reminders.evening_time;
+              const timeName = TIME_LABELS[timing]?.[lang] || timing;
+              const timingIcon = timing === 'morning' ? 'weather-sunny' : timing === 'noon' ? 'weather-partly-cloudy' : 'weather-night';
+              const timingColor = timing === 'morning' ? '#FF9800' : timing === 'noon' ? '#4EAAB5' : '#5C6BC0';
+
               return (
-                <View key={timing} style={styles.scheduleSection}>
-                  <View style={styles.scheduleHeader}>
-                    <MaterialCommunityIcons name={TIMING_ICONS[timing] as any} size={28} color="#4A8B71" />
-                    <Text style={styles.scheduleTitle}>{section.label}</Text>
-                    <Text style={styles.scheduleCount}>{items.length}</Text>
+                <View key={timing} style={ns.timeCard}>
+                  <View style={ns.timeCardHeader}>
+                    <MaterialCommunityIcons name={timingIcon as any} size={22} color={timingColor} />
+                    <Text style={ns.timeLabel}>{timeName}</Text>
+                    <Text style={ns.timeValue}>{timeStr}</Text>
+                    <View style={{ flex: 1 }} />
+                    <Text style={ns.timeCount}>{items.length} {lang === 'de' ? 'Supplements' : 'supplementi'}</Text>
                   </View>
-                  {items.map((item: any) => {
-                    const measurableUnits = ['mg', 'mcg', 'IE', 'UI', 'ml', 'g', 'Mrd. KBE', 'mld. UFC'];
-                    const showBracket = item.form_label && measurableUnits.includes(item.unit);
-                    const displayName = item.product_name || item.name;
-                    return (
-                    <View key={item.id} style={styles.scheduleItem}>
-                      <MaterialCommunityIcons name="pill" size={18} color="#5C7A6F" />
-                      <View style={{ flex: 1 }}>
-                        <Text style={styles.scheduleItemName}>{displayName}</Text>
-                        {item.product_name && (
-                          <Text style={{ fontSize: 11, color: '#8FA39B', marginTop: 1 }}>
-                            {item.name}
-                          </Text>
-                        )}
-                      </View>
-                      <View style={{ alignItems: 'flex-end' }}>
-                        <Text style={styles.scheduleItemDose}>
-                          {item.form_label || `${item.dosage} ${item.unit}`}
-                        </Text>
-                        {showBracket && (
-                          <Text style={{ fontSize: 11, color: '#8FA39B' }}>
-                            ({item.dosage} {item.unit})
-                          </Text>
-                        )}
-                      </View>
-                    </View>
-                    );
-                  })}
-                  <Text style={styles.scheduleNote}>
-                    {items[0]?.with_food
+                  <View style={ns.pillGrid}>
+                    {items.map((item: any) => {
+                      const displayName = abbreviateName(item.name || '', item.id);
+                      const formLabel = item.form_label || `${item.dosage} ${item.unit}`;
+                      return (
+                        <View key={item.id} style={ns.pillItem}>
+                          <PillIcon id={item.id} />
+                          <Text style={ns.pillName} numberOfLines={1}>{displayName}</Text>
+                          <Text style={ns.pillDose} numberOfLines={1}>{formLabel}</Text>
+                        </View>
+                      );
+                    })}
+                  </View>
+                  <Text style={ns.mealNote}>
+                    <MaterialCommunityIcons name="information-outline" size={12} color="#8FA39B" />
+                    {' '}{items[0]?.with_food
                       ? (lang === 'de' ? 'Mit Mahlzeit einnehmen' : 'Assumere con pasto')
                       : (lang === 'de' ? 'Nuechtern einnehmen' : 'Assumere a digiuno')}
                   </Text>
                 </View>
               );
             })}
+
+            {/* Einnahme abgehakt Button */}
+            <TouchableOpacity style={ns.completionBtn} testID="intake-complete-btn">
+              <LinearGradient colors={['#2C8C99', '#4EAAB5']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={ns.completionGradient}>
+                <MaterialCommunityIcons name="check-circle" size={18} color="#FFFFFF" />
+                <Text style={ns.completionBtnText}>
+                  {lang === 'de' ? 'Einnahme abgehakt' : 'Assunzione confermata'}
+                </Text>
+              </LinearGradient>
+            </TouchableOpacity>
+
+            {/* Supplement Uebersicht Card */}
+            <View style={ns.overviewCard}>
+              <LinearGradient colors={['#2C8C99', '#4EAAB5', '#6BB5A0']} start={{ x: 0, y: 0 }} end={{ x: 0.5, y: 1 }} style={ns.overviewHeader}>
+                <View>
+                  <Text style={ns.overviewTitle}>
+                    {lang === 'de' ? 'Supplement Uebersicht' : 'Panoramica supplementi'}
+                  </Text>
+                  <Text style={ns.overviewSubtitle}>
+                    {plan.total_supplements} {lang === 'de' ? 'Supplements' : 'supplementi'} - 8 {lang === 'de' ? 'Wochen' : 'settimane'}
+                  </Text>
+                </View>
+              </LinearGradient>
+              <View style={ns.overviewGrid}>
+                {plan.stack?.slice(0, 4).map((s: any) => (
+                  <View key={s.id} style={ns.overviewItem}>
+                    <PillIcon id={s.id} size={36} />
+                    <Text style={ns.overviewItemName} numberOfLines={1}>{s.name?.split(' ')[0] || s.id}</Text>
+                    <Text style={ns.overviewItemDose}>{s.dosage} {s.unit}</Text>
+                  </View>
+                ))}
+              </View>
+              {(plan.stack?.length || 0) > 4 && (
+                <TouchableOpacity style={ns.showAllBtn} onPress={() => setActiveTab('stack')} testID="show-all-supplements-btn">
+                  <Text style={ns.showAllBtnText}>
+                    {lang === 'de' ? 'ALLE ANZEIGEN' : 'MOSTRA TUTTI'}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
           </View>
         )}
 
@@ -796,4 +906,108 @@ const ttsStyles = StyleSheet.create({
     fontWeight: '600',
     color: '#2D5A3F',
   },
+});
+
+
+const ns = StyleSheet.create({
+  /* ── Gradient Header ── */
+  gradientHeader: {
+    flexDirection: 'row', alignItems: 'center', borderRadius: 20,
+    padding: 20, paddingTop: 16, paddingBottom: 16, marginBottom: 16, gap: 12,
+  },
+  headerBackBtn: {
+    width: 36, height: 36, borderRadius: 12,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    justifyContent: 'center', alignItems: 'center',
+  },
+  headerGreeting: { fontSize: 22, fontWeight: '800', color: '#FFFFFF' },
+  headerSubtitle: { fontSize: 13, color: 'rgba(255,255,255,0.85)', marginTop: 2 },
+  headerIconBtn: {
+    width: 34, height: 34, borderRadius: 10,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    justifyContent: 'center', alignItems: 'center',
+  },
+
+  /* ── Reminder Card ── */
+  reminderCard: {
+    backgroundColor: '#FFFFFF', borderRadius: 20, marginBottom: 16,
+    overflow: 'hidden',
+    shadowColor: '#1A2D26', shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08, shadowRadius: 12, elevation: 4,
+  },
+  reminderHeader: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingHorizontal: 18, paddingVertical: 14,
+  },
+  reminderHeaderTitle: { fontSize: 18, fontWeight: '700', color: '#FFFFFF' },
+  reminderBody: { padding: 18, gap: 14 },
+  reminderSubtitle: { fontSize: 15, fontWeight: '600', color: '#1A2D26', textAlign: 'center' },
+  reminderClockRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12 },
+  reminderTimeText: { fontSize: 28, fontWeight: '800', color: '#2C8C99' },
+  reminderItem: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    backgroundColor: '#F8FAF9', borderRadius: 14, padding: 12,
+  },
+  reminderItemName: { fontSize: 14, fontWeight: '700', color: '#1A2D26' },
+  reminderItemDose: { fontSize: 12, color: '#5C7A6F', marginTop: 2 },
+  reminderActions: { flexDirection: 'row', gap: 10, marginTop: 4 },
+  laterBtn: {
+    flex: 1, backgroundColor: '#F0F4F2', borderRadius: 14,
+    paddingVertical: 14, alignItems: 'center',
+  },
+  laterBtnText: { fontSize: 14, fontWeight: '600', color: '#5C7A6F' },
+  takeNowBtn: { flex: 1, borderRadius: 14, overflow: 'hidden' },
+  takeNowGradient: { paddingVertical: 14, alignItems: 'center', borderRadius: 14 },
+  takeNowBtnText: { fontSize: 14, fontWeight: '700', color: '#FFFFFF' },
+
+  /* ── Time Cards (Tagesplan) ── */
+  timeCard: {
+    backgroundColor: '#FFFFFF', borderRadius: 18, padding: 16, marginBottom: 12,
+    shadowColor: '#1A2D26', shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05, shadowRadius: 8, elevation: 2,
+  },
+  timeCardHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 14 },
+  timeLabel: { fontSize: 17, fontWeight: '700', color: '#1A2D26' },
+  timeValue: { fontSize: 15, fontWeight: '600', color: '#2C8C99' },
+  timeCount: { fontSize: 12, color: '#8FA39B', fontWeight: '500' },
+  pillGrid: {
+    flexDirection: 'row', flexWrap: 'wrap', gap: 12,
+  },
+  pillItem: { alignItems: 'center', width: 72, gap: 6 },
+  pillName: { fontSize: 12, fontWeight: '600', color: '#1A2D26', textAlign: 'center' },
+  pillDose: { fontSize: 10, color: '#8FA39B', textAlign: 'center' },
+  mealNote: { fontSize: 11, color: '#8FA39B', marginTop: 12, fontStyle: 'italic' },
+
+  /* ── Completion Button ── */
+  completionBtn: { marginBottom: 16, borderRadius: 14, overflow: 'hidden' },
+  completionGradient: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    gap: 8, paddingVertical: 14, borderRadius: 14,
+  },
+  completionBtnText: { fontSize: 15, fontWeight: '700', color: '#FFFFFF' },
+
+  /* ── Overview Card ── */
+  overviewCard: {
+    backgroundColor: '#FFFFFF', borderRadius: 20, overflow: 'hidden', marginBottom: 16,
+    shadowColor: '#1A2D26', shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08, shadowRadius: 12, elevation: 4,
+  },
+  overviewHeader: { padding: 18 },
+  overviewTitle: { fontSize: 18, fontWeight: '700', color: '#FFFFFF' },
+  overviewSubtitle: { fontSize: 13, color: 'rgba(255,255,255,0.8)', marginTop: 2 },
+  overviewGrid: {
+    flexDirection: 'row', flexWrap: 'wrap', padding: 14, gap: 10,
+  },
+  overviewItem: {
+    width: '46%' as any, backgroundColor: '#F8FAF9', borderRadius: 14,
+    padding: 12, alignItems: 'center', gap: 6,
+  },
+  overviewItemName: { fontSize: 13, fontWeight: '600', color: '#1A2D26', textAlign: 'center' },
+  overviewItemDose: { fontSize: 11, color: '#8FA39B' },
+  showAllBtn: {
+    backgroundColor: '#2C8C99', borderRadius: 10,
+    paddingVertical: 10, alignItems: 'center',
+    marginHorizontal: 14, marginBottom: 14,
+  },
+  showAllBtnText: { fontSize: 12, fontWeight: '700', color: '#FFFFFF', letterSpacing: 1 },
 });
