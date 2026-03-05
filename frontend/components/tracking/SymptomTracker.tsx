@@ -14,6 +14,8 @@ interface SymptomTrackerProps {
   overallChart: Array<{ date: string; value: number }>;
   symptomChart?: Record<string, Array<{ date: string; value: number }>>;
   symptomTrend?: { direction: string; change_pct: number; label_de: string; label_it: string };
+  todaySubmitted?: boolean;
+  todayEntry?: any;
   onSave: () => void;
 }
 
@@ -90,7 +92,8 @@ function MiniSparkline({ data, width }: { data: number[]; width: number }) {
 }
 
 export function SymptomTracker({
-  profileId, lang, overallChart, symptomChart, symptomTrend, onSave
+  profileId, lang, overallChart, symptomChart, symptomTrend,
+  todaySubmitted, todayEntry, onSave
 }: SymptomTrackerProps) {
   const [ratings, setRatings] = useState<Record<string, number>>({});
   const [overall, setOverall] = useState<number>(5);
@@ -184,6 +187,57 @@ export function SymptomTracker({
           </Text>
           <Text style={st.ratingDate}>{today}</Text>
         </View>
+
+        {/* Locked State: Already submitted today */}
+        {todaySubmitted ? (
+          <View>
+            <View style={st.lockedBanner}>
+              <MaterialCommunityIcons name="check-circle" size={24} color="#10B981" />
+              <View style={{ flex: 1 }}>
+                <Text style={st.lockedTitle}>
+                  {lang === 'de' ? 'Bereits fuer heute eingetragen' : 'Gia inserito per oggi'}
+                </Text>
+                <Text style={st.lockedSubtitle}>
+                  {lang === 'de' ? 'Naechste Eingabe morgen moeglich' : 'Prossimo inserimento possibile domani'}
+                </Text>
+              </View>
+            </View>
+
+            {/* Show submitted ratings as read-only */}
+            {todayEntry?.overall && (
+              <View style={st.lockedOverall}>
+                <Text style={st.sectionLabel}>{lang === 'de' ? 'ALLGEMEINBEFINDEN' : 'STATO GENERALE'}</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <Text style={[st.severityValue, { color: getSeverityColor(todayEntry.overall) }]}>
+                    {todayEntry.overall}/10
+                  </Text>
+                  <Text style={[st.severityLabel, { color: getSeverityColor(todayEntry.overall) }]}>
+                    {getSeverityLabel(todayEntry.overall, lang)}
+                  </Text>
+                </View>
+              </View>
+            )}
+            {todayEntry?.ratings && Object.keys(todayEntry.ratings).length > 0 && (
+              <View style={st.lockedRatings}>
+                {SYMPTOM_CATEGORIES.map(cat => {
+                  const val = todayEntry.ratings[cat.id];
+                  if (!val || val === 0) return null;
+                  return (
+                    <View key={cat.id} style={st.lockedRatingRow}>
+                      <MaterialCommunityIcons name={cat.icon as any} size={14} color="#5C7A6F" />
+                      <Text style={st.lockedRatingName}>{lang === 'de' ? cat.label_de : cat.label_it}</Text>
+                      <View style={[st.lockedRatingBadge, { backgroundColor: getSeverityColor(val) + '20' }]}>
+                        <Text style={[st.lockedRatingValue, { color: getSeverityColor(val) }]}>{val}/10</Text>
+                      </View>
+                    </View>
+                  );
+                })}
+              </View>
+            )}
+          </View>
+        ) : (
+        /* Editable Form */
+        <View>
 
         {/* Overall Severity */}
         <View style={st.overallSection}>
@@ -290,6 +344,8 @@ export function SymptomTracker({
               : (lang === 'de' ? 'Bewertung speichern' : 'Salva valutazione')}
           </Text>
         </TouchableOpacity>
+        </View>
+        )}
       </View>
     </View>
   );
@@ -344,4 +400,18 @@ const st = StyleSheet.create({
     paddingVertical: 14, marginTop: 8,
   },
   saveBtnText: { color: '#FFF', fontSize: 15, fontWeight: '600' },
+
+  lockedBanner: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    backgroundColor: '#F0FDF4', borderRadius: 12, padding: 14, marginBottom: 16,
+    borderWidth: 1, borderColor: '#D1FAE5',
+  },
+  lockedTitle: { fontSize: 15, fontWeight: '700', color: '#10B981' },
+  lockedSubtitle: { fontSize: 12, color: '#5C7A6F', marginTop: 2 },
+  lockedOverall: { marginBottom: 12, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: '#F0F4F2' },
+  lockedRatings: { gap: 8 },
+  lockedRatingRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 4 },
+  lockedRatingName: { flex: 1, fontSize: 13, fontWeight: '500', color: '#5C7A6F' },
+  lockedRatingBadge: { borderRadius: 8, paddingHorizontal: 10, paddingVertical: 3 },
+  lockedRatingValue: { fontSize: 12, fontWeight: '700' },
 });

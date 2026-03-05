@@ -6,10 +6,10 @@ import {
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useLang } from '../src/LangContext';
 import { trackingStyles as styles } from '../components/tracking/trackingStyles';
 import { SymptomTracker } from '../components/tracking/SymptomTracker';
-import { ComplianceTracker } from '../components/tracking/ComplianceTracker';
 import { MilestonesCard } from '../components/tracking/MilestonesCard';
 import { InsightsCard } from '../components/tracking/InsightsCard';
 import { ProgressHeader } from '../components/tracking/ProgressHeader';
@@ -37,15 +37,15 @@ export default function TrackingScreen() {
   const [profileId, setProfileId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
-  const [activeTab, setActiveTab] = useState<'symptoms' | 'compliance' | 'correlations'>('symptoms');
-  const [supplements, setSupplements] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<'symptoms' | 'correlations'>('symptoms');
+  const [todayStatus, setTodayStatus] = useState<any>(null);
 
   useEffect(() => {
     const init = async () => {
       const pid = await AsyncStorage.getItem('health_profile_id');
       if (pid) {
         setProfileId(pid);
-        await Promise.all([loadDashboard(pid), loadSupplements(pid)]);
+        await Promise.all([loadDashboard(pid), loadTodayStatus(pid)]);
       }
       setLoading(false);
     };
@@ -64,23 +64,21 @@ export default function TrackingScreen() {
     }
   };
 
-  const loadSupplements = async (pid: string) => {
+  const loadTodayStatus = async (pid: string) => {
     try {
-      const res = await fetch(`${API_URL}/api/supplement-plan/${pid}`);
+      const res = await fetch(`${API_URL}/api/tracking/symptoms/today/${pid}`);
       if (res.ok) {
         const data = await res.json();
-        if (data.plan?.stack) {
-          setSupplements(data.plan.stack);
-        }
+        setTodayStatus(data);
       }
     } catch (e) {
-      console.error('Supplements error:', e);
+      console.error('Today status error:', e);
     }
   };
 
   const refreshDashboard = useCallback(async () => {
     if (profileId) {
-      await loadDashboard(profileId);
+      await Promise.all([loadDashboard(profileId), loadTodayStatus(profileId)]);
     }
   }, [profileId, lang]);
 
@@ -154,6 +152,26 @@ export default function TrackingScreen() {
           <InsightsCard insights={dashboard.insights} lang={lang} />
         )}
 
+        {/* 8-Wochen-Plan Progress */}
+        {todayStatus && todayStatus.plan_week > 0 && (
+          <View style={styles.planProgressCard}>
+            <View style={styles.planProgressHeader}>
+              <MaterialCommunityIcons name="calendar-clock" size={20} color="#2C8C99" />
+              <Text style={styles.planProgressTitle}>
+                {lang === 'de'
+                  ? `Woche ${todayStatus.plan_week} von 8`
+                  : `Settimana ${todayStatus.plan_week} di 8`}
+              </Text>
+              <Text style={styles.planProgressDay}>
+                {lang === 'de' ? `Tag ${todayStatus.plan_day}` : `Giorno ${todayStatus.plan_day}`}
+              </Text>
+            </View>
+            <View style={styles.planProgressBar}>
+              <View style={[styles.planProgressFill, { width: `${(todayStatus.plan_day / todayStatus.total_plan_days) * 100}%` as any }]} />
+            </View>
+          </View>
+        )}
+
         {/* Tabs */}
         <View style={styles.tabs}>
           <TouchableOpacity
@@ -162,16 +180,7 @@ export default function TrackingScreen() {
             onPress={() => setActiveTab('symptoms')}
           >
             <Text style={[styles.tabText, activeTab === 'symptoms' && styles.tabTextActive]}>
-              {lang === 'de' ? 'Symptome' : 'Sintomi'}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            testID="tab-compliance"
-            style={[styles.tab, activeTab === 'compliance' && styles.tabActive]}
-            onPress={() => setActiveTab('compliance')}
-          >
-            <Text style={[styles.tabText, activeTab === 'compliance' && styles.tabTextActive]}>
-              {lang === 'de' ? 'Einnahme' : 'Assunzione'}
+              {lang === 'de' ? 'Beschwerden' : 'Disturbi'}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -193,19 +202,8 @@ export default function TrackingScreen() {
             overallChart={dashboard?.overall_chart || []}
             symptomChart={dashboard?.symptom_chart}
             symptomTrend={dashboard?.symptom_trend}
-            onSave={refreshDashboard}
-          />
-        )}
-
-        {/* Compliance Tracker Tab */}
-        {activeTab === 'compliance' && (
-          <ComplianceTracker
-            profileId={profileId}
-            lang={lang}
-            supplements={supplements}
-            complianceDaily={dashboard?.compliance_daily || []}
-            complianceRate={dashboard?.compliance_rate || 0}
-            complianceTrend={dashboard?.compliance_trend}
+            todaySubmitted={todayStatus?.submitted || false}
+            todayEntry={todayStatus?.entry || null}
             onSave={refreshDashboard}
           />
         )}

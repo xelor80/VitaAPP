@@ -28,7 +28,7 @@ class ComplianceEntry(BaseModel):
 
 @router.post("/tracking/symptoms")
 async def save_symptom_rating(data: SymptomRating):
-    """Save daily symptom rating."""
+    """Save daily symptom rating. Only one entry per day allowed."""
     doc = {
         "profile_id": data.profile_id,
         "date": data.date,
@@ -42,6 +42,41 @@ async def save_symptom_rating(data: SymptomRating):
         {"$set": doc}, upsert=True
     )
     return {"status": "saved", "date": data.date}
+
+
+@router.get("/tracking/symptoms/today/{profile_id}")
+async def get_today_symptom_status(profile_id: str):
+    """Check if today's symptom entry already exists."""
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    entry = await db.symptom_tracking.find_one(
+        {"profile_id": profile_id, "date": today}, {"_id": 0}
+    )
+    # Get plan start date for week calculation
+    plan = await db.supplement_plans.find_one(
+        {"profile_id": profile_id}, {"_id": 0, "created_at": 1}
+    )
+    plan_week = 0
+    plan_day = 0
+    total_plan_days = 56  # 8 weeks
+    if plan and plan.get("created_at"):
+        try:
+            start = datetime.fromisoformat(plan["created_at"].replace("Z", "+00:00")) if isinstance(plan["created_at"], str) else plan["created_at"]
+            if hasattr(start, 'tzinfo') and start.tzinfo is None:
+                from datetime import timezone as tz
+                start = start.replace(tzinfo=tz.utc)
+            delta = datetime.now(timezone.utc) - start
+            plan_day = min(delta.days + 1, total_plan_days)
+            plan_week = min((delta.days // 7) + 1, 8)
+        except Exception:
+            pass
+    return {
+        "submitted": entry is not None,
+        "entry": entry,
+        "date": today,
+        "plan_week": plan_week,
+        "plan_day": plan_day,
+        "total_plan_days": total_plan_days,
+    }
 
 
 @router.get("/tracking/symptoms/{profile_id}")

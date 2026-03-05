@@ -76,4 +76,16 @@ export const trackingStyles = StyleSheet.create({
   emptyCard: { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 30, alignItems: 'center', marginBottom: 16 },
   emptyTitle: { fontSize: 18, fontWeight: '700', color: '#1A2D26', marginTop: 12 },
   emptyText: { fontSize: 13, color: '#5C7A6F', textAlign: 'center', marginTop: 6, lineHeight: 20 },
+
+  // Plan Progress Card
+  planProgressCard: {
+    backgroundColor: '#FFFFFF', borderRadius: 16, padding: 16, marginBottom: 16,
+    shadowColor: '#1A2D26', shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05, shadowRadius: 8, elevation: 2,
+  },
+  planProgressHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 },
+  planProgressTitle: { fontSize: 16, fontWeight: '700', color: '#2C8C99', flex: 1 },
+  planProgressDay: { fontSize: 13, fontWeight: '600', color: '#8FA39B' },
+  planProgressBar: { height: 8, backgroundColor: '#E8EDEA', borderRadius: 4, overflow: 'hidden' },
+  planProgressFill: { height: 8, backgroundColor: '#2C8C99', borderRadius: 4 },
 });
