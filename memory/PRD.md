@@ -11,22 +11,24 @@ A health-focused, bilingual (German/Italian) mobile app where an LLM analyzes us
 - **TTS**: OpenAI TTS via Emergent LLM Key
 - **Integrations**: Shopify (product import), SMTP (email export), Unsplash (recipe images)
 
-## Implemented Features (Complete) - 42 Features
+## Implemented Features (Complete) - 43 Features
 1-39: [See CHANGELOG.md for full history]
 40. **Gesundheitsprofil Redesign** - 2x2 card grid (Profile, BMI gauge, Stress slider, Sleep slider)
 41. **Supplement-Plan Redesign** - Teal gradient header, Tagesplan with pill icons, Erinnerung card
-42. **Erinnerungseinstellungen** - Push notification settings integrated in reminder card:
-    - Toggle for push notifications (on/off)
-    - Editable time inputs per day slot (Morgens/Mittags/Abends)
-    - Test notification button
-    - Save button with gradient design
-    - Settings accessible via gear icon, closeable via X icon
+42. **Erinnerungseinstellungen** - Push notification settings in reminder card
+43. **Mein Fortschritt Ueberarbeitung**:
+    - "Einnahme" Tab entfernt (Compliance-Tracking jetzt nur auf Hauptbildschirm/Supplement-Plan)
+    - 8-Wochen-Plan-Fortschrittsanzeige (Woche X von 8, Tag Y) mit Fortschrittsbalken
+    - Taegliche Beschwerden-Eingabe mit Sperre nach Speicherung
+    - Gesperrter Zustand zeigt "Bereits fuer heute eingetragen" + Nur-Lese-Zusammenfassung
+    - Neuer Backend-Endpoint GET /api/tracking/symptoms/today/{profile_id}
 
-## Key Files Modified (Latest Session)
-- `frontend/app/health-profile.tsx` - 2x2 card grid redesign
-- `frontend/components/profile/profileStyles.ts` - Health profile styles
-- `frontend/app/supplement-plan.tsx` - Complete supplement plan redesign + reminder settings
-- `expo-linear-gradient@15.0.8` added as dependency
+## Key API Endpoints
+- `GET /api/tracking/symptoms/today/{profile_id}` - NEW: Check daily submission status + plan week/day
+- `GET /api/health-profile/{profile_id}` - Profile + assessment
+- `GET /api/supplement-plan/{profile_id}` - Supplement plan data
+- `GET /api/price-alerts/{profile_id}` - Price drop alerts
+- `GET /api/products/by-nutrient/{nutrient}` - Product search
 
 ## Backlog
 - TTS auf Symptom-Analyse-Seite erweitern (P1)
