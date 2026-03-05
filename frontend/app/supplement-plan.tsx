@@ -137,6 +137,8 @@ export default function SupplementPlanScreen() {
   const [ttsLoading, setTtsLoading] = useState(false);
   const [ttsPlaying, setTtsPlaying] = useState(false);
   const [firstName, setFirstName] = useState<string | null>(null);
+  const [workType, setWorkType] = useState<string | null>(null);
+  const [activeShift, setActiveShift] = useState<string | null>(null);
   const [pricingMap, setPricingMap] = useState<Record<string, { avg_per_day: number; min_per_day: number; max_per_day: number; product_count: number }>>({});
   const soundRef = useRef<Audio.Sound | null>(null);
 
@@ -236,6 +238,8 @@ export default function SupplementPlanScreen() {
           if (profileRes.ok) {
             const profileData = await profileRes.json();
             if (profileData.profile?.first_name) setFirstName(profileData.profile.first_name);
+            if (profileData.profile?.work_type) setWorkType(profileData.profile.work_type);
+            if (profileData.profile?.current_shift) setActiveShift(profileData.profile.current_shift);
           }
         } catch {}
         // Load pricing after plan is loaded (needs nutrient IDs from plan)
@@ -525,6 +529,47 @@ export default function SupplementPlanScreen() {
                 </TouchableOpacity>
                 {reminders.enabled && (
                   <View style={ns.settingsTimeRows}>
+                    {/* Shift selector for shift/night workers */}
+                    {(workType === 'shift_work' || workType === 'night_work') && (
+                      <View style={{ marginBottom: 14, padding: 12, backgroundColor: '#EDF6FF', borderRadius: 12 }}>
+                        <Text style={{ fontSize: 13, fontWeight: '700', color: '#1A2D26', marginBottom: 8 }}>
+                          <MaterialCommunityIcons name="clock-fast" size={15} color="#2C8C99" />
+                          {' '}{lang === 'de' ? 'Schicht-Vorlage' : 'Modello turno'}
+                        </Text>
+                        <View style={{ flexDirection: 'row', gap: 6 }}>
+                          {([
+                            { key: 'early', icon: 'weather-sunset-up', label: lang === 'de' ? 'Frueh' : 'Mattina', times: { morning_time: '05:00', noon_time: '11:30', evening_time: '20:00' } },
+                            { key: 'late', icon: 'weather-sunset-down', label: lang === 'de' ? 'Spaet' : 'Pomeriggio', times: { morning_time: '09:30', noon_time: '15:30', evening_time: '23:00' } },
+                            { key: 'night', icon: 'weather-night', label: lang === 'de' ? 'Nacht' : 'Notte', times: { morning_time: '14:30', noon_time: '20:00', evening_time: '03:00' } },
+                          ] as const).map(shift => (
+                            <TouchableOpacity
+                              key={shift.key}
+                              data-testid={`shift-preset-${shift.key}`}
+                              style={{
+                                flex: 1, flexDirection: 'column', alignItems: 'center', gap: 4,
+                                padding: 10, borderRadius: 10, borderWidth: 2,
+                                borderColor: activeShift === shift.key ? '#2C8C99' : '#D1E5EB',
+                                backgroundColor: activeShift === shift.key ? '#D7F0F5' : '#FFFFFF',
+                              }}
+                              onPress={() => {
+                                setActiveShift(shift.key);
+                                setReminders({ ...reminders, ...shift.times });
+                              }}
+                            >
+                              <MaterialCommunityIcons name={shift.icon} size={22} color={activeShift === shift.key ? '#2C8C99' : '#8FA39B'} />
+                              <Text style={{ fontSize: 12, fontWeight: '700', color: activeShift === shift.key ? '#2C8C99' : '#5C7A6F' }}>
+                                {shift.label}
+                              </Text>
+                            </TouchableOpacity>
+                          ))}
+                        </View>
+                        <Text style={{ fontSize: 11, color: '#5C7A6F', marginTop: 6 }}>
+                          {lang === 'de'
+                            ? 'Waehle deine aktuelle Schicht - die Zeiten passen sich automatisch an.'
+                            : 'Seleziona il turno attuale - gli orari si adatteranno automaticamente.'}
+                        </Text>
+                      </View>
+                    )}
                     {[
                       { key: 'morning_time', icon: 'weather-sunny', label: lang === 'de' ? 'Morgens' : 'Mattina', color: '#FF9800' },
                       { key: 'noon_time', icon: 'weather-partly-cloudy', label: lang === 'de' ? 'Mittags' : 'Mezzogiorno', color: '#4EAAB5' },

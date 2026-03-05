@@ -449,8 +449,8 @@ async def _generate_llm_summary(profile: dict, plan: dict, lang: str) -> str:
 def _identify_health_drivers(profile: dict, lang: str) -> list:
     """Identify and prioritize the top health drivers from user data."""
     drivers = []
-    stress = profile.get("stress_level", 5)
-    sleep = profile.get("sleep_quality", 7)
+    stress = profile.get("stress_level") or 5
+    sleep = profile.get("sleep_quality") or 7
     complaints = profile.get("complaints") or []
     complaint_names = [c.get("name", "") for c in complaints]
 

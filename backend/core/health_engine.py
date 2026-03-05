@@ -66,6 +66,23 @@ RISK_WEIGHTS = {
     },
     "female_fertile": {  # female, age 15-50
         "iron": 0.6, "folate": 0.5
+    },
+    
+    # Work type impacts
+    "work_shift": {  # Schichtarbeit
+        "vitamin_d": 0.5, "magnesium": 0.5, "b_vitamins": 0.5,
+        "melatonin_precursors": 0.6, "cortisol_regulation": 0.5,
+        "omega3": 0.3, "vitamin_c": 0.3
+    },
+    "work_night": {  # Nachtarbeit
+        "vitamin_d": 0.7, "magnesium": 0.6, "b_vitamins": 0.6,
+        "melatonin_precursors": 0.8, "cortisol_regulation": 0.7,
+        "omega3": 0.4, "vitamin_c": 0.4, "iron": 0.3
+    },
+    "work_physical": {  # Körperliche Arbeit
+        "magnesium": 0.6, "iron": 0.5, "zinc": 0.4,
+        "b_vitamins": 0.4, "coq10": 0.4, "calcium": 0.3,
+        "omega3": 0.3
     }
 }
 
@@ -273,6 +290,22 @@ def calculate_risk_scores(profile: dict) -> dict:
             for nutrient, weight in RISK_WEIGHTS["female_fertile"].items():
                 scores[nutrient] = scores.get(nutrient, 0) + weight
     
+    # Work type impacts
+    work_type = profile.get("work_type", "")
+    if work_type == "night_work":
+        for nutrient, weight in RISK_WEIGHTS["work_night"].items():
+            scores[nutrient] = scores.get(nutrient, 0) + weight
+    elif work_type == "shift_work":
+        for nutrient, weight in RISK_WEIGHTS["work_shift"].items():
+            scores[nutrient] = scores.get(nutrient, 0) + weight
+        # Night shift within shift work gets additional boost
+        if profile.get("current_shift") == "night":
+            for nutrient, weight in RISK_WEIGHTS["work_night"].items():
+                scores[nutrient] = scores.get(nutrient, 0) + weight * 0.4
+    elif work_type == "physical":
+        for nutrient, weight in RISK_WEIGHTS["work_physical"].items():
+            scores[nutrient] = scores.get(nutrient, 0) + weight
+    
     # Pre-existing conditions
     conditions = profile.get("conditions", [])
     for condition in conditions:
@@ -383,6 +416,19 @@ def generate_health_assessment(profile: dict, lang: str = "de") -> dict:
         priority_areas.append({
             "area": "activity" if lang == "de" else "attività",
             "title": "Bewegung steigern" if lang == "de" else "Aumentare movimento",
+            "priority": "medium"
+        })
+    work_type = profile.get("work_type", "")
+    if work_type in ("shift_work", "night_work"):
+        priority_areas.append({
+            "area": "shift_work" if lang == "de" else "lavoro_turni",
+            "title": "Schichtarbeit-Ausgleich" if lang == "de" else "Compensazione lavoro a turni",
+            "priority": "high"
+        })
+    elif work_type == "physical":
+        priority_areas.append({
+            "area": "physical_work" if lang == "de" else "lavoro_fisico",
+            "title": "Körperliche Belastung ausgleichen" if lang == "de" else "Compensare sforzo fisico",
             "priority": "medium"
         })
     

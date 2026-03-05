@@ -45,6 +45,12 @@ class HealthProfileCreate(BaseModel):
     known_deficiencies: Optional[list[str]] = []
     lab_values: Optional[dict] = {}
     
+    # Work type
+    work_type: Optional[str] = None  # office, shift_work, night_work, physical, homeoffice, field_work
+    shift_model: Optional[str] = None  # 2_shift, 3_shift, vollkonti
+    current_shift: Optional[str] = None  # early, late, night
+    shift_schedule: Optional[dict] = {}  # {mon: "early", tue: "late", ...}
+    
     # Language
     lang: str = "de"
 
@@ -81,6 +87,10 @@ async def create_health_profile(data: HealthProfileCreate):
         "complaints": data.complaints or [],
         "known_deficiencies": data.known_deficiencies or [],
         "lab_values": data.lab_values or {},
+        "work_type": data.work_type,
+        "shift_model": data.shift_model,
+        "current_shift": data.current_shift,
+        "shift_schedule": data.shift_schedule or {},
         "lang": data.lang,
         "created_at": now.isoformat(),
         "updated_at": now.isoformat()
@@ -158,8 +168,11 @@ async def update_health_profile(profile_id: str, data: HealthProfileUpdate):
         "complaints": data.complaints or [],
         "known_deficiencies": data.known_deficiencies or [],
         "lab_values": data.lab_values or {},
+        "work_type": data.work_type,
+        "shift_model": data.shift_model,
+        "current_shift": data.current_shift,
+        "shift_schedule": data.shift_schedule or {},
         "lang": data.lang,
-        "updated_at": now.isoformat()
     }
     
     await db.health_profiles.update_one({"id": profile_id}, {"$set": update_data})
@@ -292,6 +305,27 @@ async def get_onboarding_options(lang: str = "de"):
             {"value": "folate", "label_de": "Folsäure", "label_it": "Acido folico"},
             {"value": "omega3", "label_de": "Omega-3", "label_it": "Omega-3"},
             {"value": "calcium", "label_de": "Calcium", "label_it": "Calcio"}
+        ],
+        "work_types": [
+            {"value": "office", "label_de": "Büro / Normal", "label_it": "Ufficio / Normale", "icon": "desktop-classic"},
+            {"value": "homeoffice", "label_de": "Homeoffice", "label_it": "Lavoro da casa", "icon": "home-account"},
+            {"value": "physical", "label_de": "Körperliche Arbeit", "label_it": "Lavoro fisico", "icon": "hammer-wrench"},
+            {"value": "field_work", "label_de": "Außendienst", "label_it": "Lavoro esterno", "icon": "car"},
+            {"value": "shift_work", "label_de": "Schichtarbeit", "label_it": "Lavoro a turni", "icon": "clock-fast"},
+            {"value": "night_work", "label_de": "Nachtarbeit", "label_it": "Lavoro notturno", "icon": "weather-night"}
+        ],
+        "shift_models": [
+            {"value": "2_shift", "label_de": "2-Schicht (Früh/Spät)", "label_it": "2 turni (Mattina/Pomeriggio)"},
+            {"value": "3_shift", "label_de": "3-Schicht (Früh/Spät/Nacht)", "label_it": "3 turni (Mattina/Pomeriggio/Notte)"},
+            {"value": "vollkonti", "label_de": "Vollkonti (VK)", "label_it": "Turni continui"}
+        ],
+        "shift_types": [
+            {"value": "early", "label_de": "Frühschicht", "label_it": "Turno mattutino", "icon": "weather-sunset-up",
+             "default_times": {"wake": "04:30", "morning": "05:00", "noon": "11:30", "evening": "20:00"}},
+            {"value": "late", "label_de": "Spätschicht", "label_it": "Turno pomeridiano", "icon": "weather-sunset-down",
+             "default_times": {"wake": "09:00", "morning": "09:30", "noon": "15:30", "evening": "23:00"}},
+            {"value": "night", "label_de": "Nachtschicht", "label_it": "Turno notturno", "icon": "weather-night",
+             "default_times": {"wake": "14:00", "morning": "14:30", "noon": "20:00", "evening": "03:00"}}
         ]
     }
     

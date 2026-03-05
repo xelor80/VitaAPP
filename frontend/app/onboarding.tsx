@@ -25,6 +25,9 @@ interface ProfileData {
   weight: string;
   diet: string;
   activity_level: string;
+  work_type: string;
+  shift_model: string;
+  current_shift: string;
   sleep_quality: number;
   sleep_duration: string;
   sleep_issues: string[];
@@ -50,7 +53,7 @@ export default function OnboardingScreen() {
   
   const [profile, setProfile] = useState<ProfileData>({
     first_name: '', age: '', gender: '', height: '', weight: '',
-    diet: '', activity_level: '',
+    diet: '', activity_level: '', work_type: '', shift_model: '', current_shift: '',
     sleep_quality: 7, sleep_duration: '7', sleep_issues: [],
     stress_level: 5, stress_type: [], energy_level: 5,
     conditions: [], medications: [], allergies: [],
@@ -120,6 +123,9 @@ export default function OnboardingScreen() {
         allergies: profile.allergies,
         complaints: profile.complaints,
         known_deficiencies: profile.known_deficiencies,
+        work_type: profile.work_type || null,
+        shift_model: profile.shift_model || null,
+        current_shift: profile.current_shift || null,
         lang
       };
 
@@ -417,6 +423,76 @@ export default function OnboardingScreen() {
                   </Text>
                 </TouchableOpacity>
               ))}
+            </View>
+            {/* Work Type */}
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>{lang === 'de' ? 'Beruf / Arbeitsform' : 'Tipo di lavoro'}</Text>
+              <View style={styles.chipContainer}>
+                {options?.work_types?.map((w: any) => (
+                  <TouchableOpacity
+                    key={w.value}
+                    data-testid={`work-type-${w.value}`}
+                    style={[styles.chip, profile.work_type === w.value && styles.chipSelected]}
+                    onPress={() => setProfile({ ...profile, work_type: w.value, shift_model: '', current_shift: '' })}
+                  >
+                    <MaterialCommunityIcons name={w.icon || 'briefcase'} size={16} color={profile.work_type === w.value ? '#fff' : '#4A8B71'} />
+                    <Text style={[styles.chipText, { marginLeft: 4 }, profile.work_type === w.value && styles.chipTextSelected]}>
+                      {getLabel(w)}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              {/* Shift details - only for shift/night work */}
+              {(profile.work_type === 'shift_work' || profile.work_type === 'night_work') && (
+                <View style={{ marginTop: 16, borderTopWidth: 1, borderTopColor: '#E5F0EA', paddingTop: 16 }}>
+                  {profile.work_type === 'shift_work' && (
+                    <>
+                      <Text style={[styles.label, { marginBottom: 8 }]}>{lang === 'de' ? 'Schichtmodell' : 'Modello turni'}</Text>
+                      <View style={styles.chipContainer}>
+                        {options?.shift_models?.map((m: any) => (
+                          <TouchableOpacity
+                            key={m.value}
+                            data-testid={`shift-model-${m.value}`}
+                            style={[styles.chip, profile.shift_model === m.value && styles.chipSelected]}
+                            onPress={() => setProfile({ ...profile, shift_model: m.value })}
+                          >
+                            <Text style={[styles.chipText, profile.shift_model === m.value && styles.chipTextSelected]}>
+                              {getLabel(m)}
+                            </Text>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    </>
+                  )}
+                  <Text style={[styles.label, { marginTop: 12, marginBottom: 8 }]}>
+                    {lang === 'de' ? 'Aktuelle Schicht' : 'Turno attuale'}
+                  </Text>
+                  <View style={styles.chipContainer}>
+                    {options?.shift_types?.map((s: any) => (
+                      <TouchableOpacity
+                        key={s.value}
+                        data-testid={`shift-type-${s.value}`}
+                        style={[styles.chip, profile.current_shift === s.value && styles.chipSelected]}
+                        onPress={() => setProfile({ ...profile, current_shift: s.value })}
+                      >
+                        <MaterialCommunityIcons name={s.icon || 'clock'} size={16} color={profile.current_shift === s.value ? '#fff' : '#4A8B71'} />
+                        <Text style={[styles.chipText, { marginLeft: 4 }, profile.current_shift === s.value && styles.chipTextSelected]}>
+                          {getLabel(s)}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                  <View style={{ marginTop: 10, padding: 10, backgroundColor: '#FFF9E6', borderRadius: 10 }}>
+                    <Text style={{ fontSize: 12, color: '#92700C' }}>
+                      <MaterialCommunityIcons name="information" size={13} color="#92700C" />
+                      {' '}{lang === 'de'
+                        ? 'Schichtarbeit beeinflusst Schlaf, Stress und Naehrstoffbedarf. Ihr Supplement-Plan wird entsprechend angepasst.'
+                        : 'Il lavoro a turni influisce su sonno, stress e fabbisogno di nutrienti. Il piano di supplementi sara adattato di conseguenza.'}
+                    </Text>
+                  </View>
+                </View>
+              )}
             </View>
             <View style={styles.card}>
               <Text style={styles.cardTitle}>{lang === 'de' ? 'Schlafqualität' : 'Qualità del sonno'}</Text>
