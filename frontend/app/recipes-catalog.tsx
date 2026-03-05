@@ -166,22 +166,28 @@ export default function RecipesCatalogScreen() {
   const [hasProfile, setHasProfile] = useState<boolean | null>(null);
   const [profileId, setProfileId] = useState<string | null>(null);
 
-  // Load personalized recipes once (contains ALL recipes, scored)
+  // Load all recipes once: personalized if profile exists, all recipes otherwise
   useEffect(() => {
     (async () => {
       setIsLoading(true);
-      const pid = await AsyncStorage.getItem('health_profile_id');
-      setProfileId(pid);
-      setHasProfile(!!pid);
-      if (pid) {
-        try {
+      try {
+        const pid = await AsyncStorage.getItem('health_profile_id');
+        setProfileId(pid);
+        setHasProfile(!!pid);
+        if (pid) {
           const res = await fetch(`${API_URL}/api/recipes/personalized/${pid}?lang=${lang}`);
           if (res.ok) {
             const data = await res.json();
             setPersonalizedRecipes(data.recipes || []);
           }
-        } catch {}
-      }
+        } else {
+          const res = await fetch(`${API_URL}/api/recipes?lang=${lang}`);
+          if (res.ok) {
+            const data = await res.json();
+            setPersonalizedRecipes(data.map((r: any) => ({ ...r, relevance_score: 0, relevance_tags: [] })));
+          }
+        }
+      } catch {}
       setIsLoading(false);
     })();
   }, [lang]);
@@ -190,18 +196,6 @@ export default function RecipesCatalogScreen() {
     fetch(`${API_URL}/api/recipes/filters?lang=${lang}`)
       .then(r => r.json()).then(setFilters).catch(() => {});
   }, [lang]);
-
-  // Load ALL recipes for filtered search (fallback when no profile)
-  useEffect(() => {
-    if (hasProfile === false) {
-      setIsLoading(true);
-      fetch(`${API_URL}/api/recipes?lang=${lang}`)
-        .then(r => r.json())
-        .then(data => setPersonalizedRecipes(data.map((r: any) => ({ ...r, relevance_score: 0, relevance_tags: [] }))))
-        .catch(() => {})
-        .finally(() => setIsLoading(false));
-    }
-  }, [hasProfile, lang]);
 
   // Local filtering from personalizedRecipes (no extra API calls)
   const filteredRecipes = React.useMemo(() => {
@@ -268,7 +262,7 @@ export default function RecipesCatalogScreen() {
         <View style={{ flex: 1 }}>
           <Text style={s.headerTitle}>{tx.title}</Text>
           <Text style={s.headerSub}>
-            {hasActiveFilters ? `${recipes.length} ${tx.recipes}` : tx.subtitle}
+            {hasActiveFilters ? `${filteredRecipes.length} ${tx.recipes}` : tx.subtitle}
           </Text>
         </View>
         {hasActiveFilters && (
@@ -340,7 +334,7 @@ export default function RecipesCatalogScreen() {
         )}
 
         {/* When filters active: show filtered results */}
-        {!isLoading && hasActiveFilters && recipes.length === 0 && (
+        {!isLoading && hasActiveFilters && filteredRecipes.length === 0 && (
           <View style={s.emptyState}>
             <MaterialCommunityIcons name="chef-hat" size={48} color="#8FA39B" />
             <Text style={s.emptyTitle}>{tx.noResults}</Text>
@@ -352,7 +346,7 @@ export default function RecipesCatalogScreen() {
           </View>
         )}
 
-        {!isLoading && hasActiveFilters && recipes.length > 0 && renderGrid(recipes)}
+        {!isLoading && hasActiveFilters && filteredRecipes.length > 0 && renderGrid(filteredRecipes)}
 
         {/* When no filters: show personalized recipes or profile required */}
         {!isLoading && !hasActiveFilters && (
@@ -374,35 +368,29 @@ export default function RecipesCatalogScreen() {
               </View>
             )}
 
-            {/* Personalized Recipes */}
-            {hasProfile && personalizedRecipes.length > 0 && (() => {
-              const relevant = personalizedRecipes.filter(r => r.relevance_score > 0);
-              const others = personalizedRecipes.filter(r => r.relevance_score === 0);
-              return (
-                <>
-                  {relevant.length > 0 && (
-                    <View style={{ marginBottom: 20 }}>
-                      <View style={s.sectionHeader}>
-                        <MaterialCommunityIcons name="star-outline" size={18} color="#2C8C99" />
-                        <Text style={[s.sectionTitle, { color: '#2C8C99' }]}>{tx.relevantFor}</Text>
-                        <Text style={s.sectionCount}>{relevant.length}</Text>
-                      </View>
-                      {renderGrid(relevant)}
-                    </View>
-                  )}
-                  {others.length > 0 && (
-                    <View>
-                      <View style={s.sectionHeader}>
-                        <MaterialCommunityIcons name="silverware-fork-knife" size={18} color="#4A8B71" />
-                        <Text style={s.sectionTitle}>{tx.otherRecipes}</Text>
-                        <Text style={s.sectionCount}>{others.length}</Text>
-                      </View>
-                      {renderGrid(others)}
-                    </View>
-                  )}
-                </>
-              );
-            })()}
+            {/* Relevant recipes */}
+            {personalizedRecipes.filter(r => r.relevance_score > 0).length > 0 && (
+              <View style={{ marginBottom: 20, marginTop: 16 }}>
+                <View style={s.sectionHeader}>
+                  <MaterialCommunityIcons name="star-outline" size={18} color="#2C8C99" />
+                  <Text style={[s.sectionTitle, { color: '#2C8C99' }]}>{tx.relevantFor}</Text>
+                  <Text style={s.sectionCount}>{personalizedRecipes.filter(r => r.relevance_score > 0).length}</Text>
+                </View>
+                {renderGrid(personalizedRecipes.filter(r => r.relevance_score > 0))}
+              </View>
+            )}
+
+            {/* Other / All recipes */}
+            {personalizedRecipes.filter(r => r.relevance_score === 0).length > 0 && (
+              <View style={{ marginTop: 8 }}>
+                <View style={s.sectionHeader}>
+                  <MaterialCommunityIcons name="silverware-fork-knife" size={18} color="#4A8B71" />
+                  <Text style={s.sectionTitle}>{hasProfile ? tx.otherRecipes : tx.allRecipes}</Text>
+                  <Text style={s.sectionCount}>{personalizedRecipes.filter(r => r.relevance_score === 0).length}</Text>
+                </View>
+                {renderGrid(personalizedRecipes.filter(r => r.relevance_score === 0))}
+              </View>
+            )}
           </>
         )}
       </ScrollView>
