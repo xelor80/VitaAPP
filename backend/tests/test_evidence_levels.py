@@ -7,7 +7,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://wellness-profile-hub.preview.emergentagent.com').rstrip('/')
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://vitality-hub-95.preview.emergentagent.com').rstrip('/')
 PROFILE_ID = "b35d2eb1-c651-497c-b270-321a74f1a328"
 
 

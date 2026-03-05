@@ -58,9 +58,9 @@
     "frontend": "100% (All UI tests passed)"
   },
   "test_credentials": {
-    "app_url": "https://wellness-profile-hub.preview.emergentagent.com",
-    "supplement_plan_url": "https://wellness-profile-hub.preview.emergentagent.com/supplement-plan",
-    "product_comparison_url": "https://wellness-profile-hub.preview.emergentagent.com/product-comparison?nutrient=zinc&risk=high",
+    "app_url": "https://vitality-hub-95.preview.emergentagent.com",
+    "supplement_plan_url": "https://vitality-hub-95.preview.emergentagent.com/supplement-plan",
+    "product_comparison_url": "https://vitality-hub-95.preview.emergentagent.com/product-comparison?nutrient=zinc&risk=high",
     "test_profile_id": "2c0ba8c7-729e-49b2-a144-1068e03c8301"
   },
   "seed_data_creation": "Used existing test profile 2c0ba8c7-729e-49b2-a144-1068e03c8301 with 10-supplement plan already generated",

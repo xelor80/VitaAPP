@@ -12,7 +12,7 @@ import os
 import io
 from PIL import Image
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://wellness-profile-hub.preview.emergentagent.com").rstrip("/")
+BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://vitality-hub-95.preview.emergentagent.com").rstrip("/")
 
 
 def create_test_label_image():
