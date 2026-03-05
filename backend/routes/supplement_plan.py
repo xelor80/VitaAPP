@@ -18,6 +18,7 @@ class ReminderConfig(BaseModel):
     morning_time: str = "08:00"
     noon_time: str = "12:00"
     evening_time: str = "20:00"
+    shift_cycle: Optional[dict] = None  # {pattern: ["early","late",...], start_date: "2026-03-01"}
 
 
 class SupplementOverride(BaseModel):
@@ -284,7 +285,8 @@ async def update_reminders(profile_id: str, config: ReminderConfig):
         "enabled": config.enabled,
         "morning_time": config.morning_time,
         "noon_time": config.noon_time,
-        "evening_time": config.evening_time
+        "evening_time": config.evening_time,
+        "shift_cycle": config.shift_cycle
     }
 
     await db.supplement_plans.update_one(
@@ -302,6 +304,52 @@ async def get_reminders(profile_id: str):
     if not doc:
         raise HTTPException(status_code=404, detail="No plan found")
     return doc.get("reminders", {})
+
+
+SHIFT_TIMES = {
+    "early":  {"morning_time": "05:00", "noon_time": "11:30", "evening_time": "20:00"},
+    "late":   {"morning_time": "09:30", "noon_time": "15:30", "evening_time": "23:00"},
+    "night":  {"morning_time": "14:30", "noon_time": "20:00", "evening_time": "03:00"},
+    "off":    {"morning_time": "09:00", "noon_time": "12:30", "evening_time": "20:00"},
+}
+
+SHIFT_LABELS = {
+    "de": {"early": "Fruehschicht", "late": "Spaetschicht", "night": "Nachtschicht", "off": "Frei"},
+    "it": {"early": "Turno mattutino", "late": "Turno pomeridiano", "night": "Turno notturno", "off": "Libero"},
+}
+
+
+@router.get("/supplement-plan/{profile_id}/today-shift")
+async def get_today_shift(profile_id: str, lang: str = "de"):
+    """Calculate today's shift from the saved shift cycle."""
+    doc = await db.supplement_plans.find_one({"profile_id": profile_id}, {"_id": 0})
+    if not doc:
+        raise HTTPException(status_code=404, detail="No plan found")
+
+    reminders = doc.get("reminders", {})
+    cycle = reminders.get("shift_cycle")
+    if not cycle or not cycle.get("pattern") or not cycle.get("start_date"):
+        return {"shift": None, "message": "No shift cycle configured"}
+
+    pattern = cycle["pattern"]
+    start = datetime.fromisoformat(cycle["start_date"]).date()
+    today = datetime.now(timezone.utc).date()
+    days_since = (today - start).days
+    if days_since < 0:
+        days_since = 0
+    idx = days_since % len(pattern)
+    current_shift = pattern[idx]
+
+    labels = SHIFT_LABELS.get(lang, SHIFT_LABELS["de"])
+    times = SHIFT_TIMES.get(current_shift, SHIFT_TIMES["off"])
+
+    return {
+        "shift": current_shift,
+        "label": labels.get(current_shift, current_shift),
+        "day_index": idx,
+        "cycle_day": days_since + 1,
+        "times": times
+    }
 
 
 # Admin endpoints for supplement database

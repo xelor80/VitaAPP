@@ -139,6 +139,9 @@ export default function SupplementPlanScreen() {
   const [firstName, setFirstName] = useState<string | null>(null);
   const [workType, setWorkType] = useState<string | null>(null);
   const [activeShift, setActiveShift] = useState<string | null>(null);
+  const [shiftCycle, setShiftCycle] = useState<string[]>([]);
+  const [cycleStartDate, setCycleStartDate] = useState('');
+  const [todayShift, setTodayShift] = useState<any>(null);
   const [pricingMap, setPricingMap] = useState<Record<string, { avg_per_day: number; min_per_day: number; max_per_day: number; product_count: number }>>({});
   const soundRef = useRef<Audio.Sound | null>(null);
 
@@ -242,6 +245,23 @@ export default function SupplementPlanScreen() {
             if (profileData.profile?.current_shift) setActiveShift(profileData.profile.current_shift);
           }
         } catch {}
+
+        // Load shift cycle from reminders & fetch today's shift
+        try {
+          const remDoc = await fetch(`${API_URL}/api/supplement-plan/${pid}/reminders`);
+          if (remDoc.ok) {
+            const remData = await remDoc.json();
+            if (remData.shift_cycle?.pattern) {
+              setShiftCycle(remData.shift_cycle.pattern);
+              setCycleStartDate(remData.shift_cycle.start_date || '');
+            }
+          }
+          const shiftRes = await fetch(`${API_URL}/api/supplement-plan/${pid}/today-shift?lang=${lang}`);
+          if (shiftRes.ok) {
+            const shiftData = await shiftRes.json();
+            if (shiftData.shift) setTodayShift(shiftData);
+          }
+        } catch {}
         // Load pricing after plan is loaded (needs nutrient IDs from plan)
       } else {
         setLoading(false);
@@ -309,11 +329,15 @@ export default function SupplementPlanScreen() {
 
   const saveReminders = async () => {
     try {
+      const payload: any = { ...reminders };
+      if (shiftCycle.length > 0 && cycleStartDate) {
+        payload.shift_cycle = { pattern: shiftCycle, start_date: cycleStartDate };
+      }
       // Save to backend
       await fetch(`${API_URL}/api/supplement-plan/${currentProfileId}/reminders`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(reminders)
+        body: JSON.stringify(payload)
       });
 
       if (reminders.enabled && plan?.weekly_schedule) {
@@ -568,6 +592,134 @@ export default function SupplementPlanScreen() {
                             ? 'Waehle deine aktuelle Schicht - die Zeiten passen sich automatisch an.'
                             : 'Seleziona il turno attuale - gli orari si adatteranno automaticamente.'}
                         </Text>
+                      </View>
+                    )}
+
+                    {/* Shift Cycle Rotator - only for shift/night workers */}
+                    {(workType === 'shift_work' || workType === 'night_work') && (
+                      <View style={{ marginBottom: 14, padding: 12, backgroundColor: '#F0F7FF', borderRadius: 12 }}>
+                        <Text style={{ fontSize: 13, fontWeight: '700', color: '#1A2D26', marginBottom: 10 }}>
+                          <MaterialCommunityIcons name="calendar-sync" size={15} color="#5C6BC0" />
+                          {' '}{lang === 'de' ? 'Schichtzyklus-Rotator' : 'Rotatore turni'}
+                        </Text>
+
+                        {/* Today's shift indicator */}
+                        {todayShift?.shift && (
+                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10, padding: 8, backgroundColor: '#E8F5E9', borderRadius: 8 }}>
+                            <MaterialCommunityIcons
+                              name={todayShift.shift === 'early' ? 'weather-sunset-up' : todayShift.shift === 'late' ? 'weather-sunset-down' : todayShift.shift === 'night' ? 'weather-night' : 'sofa'}
+                              size={20} color="#2E7D32"
+                            />
+                            <Text style={{ fontSize: 13, fontWeight: '700', color: '#2E7D32' }}>
+                              {lang === 'de' ? `Heute: ${todayShift.label}` : `Oggi: ${todayShift.label}`}
+                              {' '}({lang === 'de' ? `Tag ${todayShift.cycle_day}` : `Giorno ${todayShift.cycle_day}`})
+                            </Text>
+                          </View>
+                        )}
+
+                        {/* Preset templates */}
+                        <Text style={{ fontSize: 12, color: '#5C7A6F', marginBottom: 6 }}>
+                          {lang === 'de' ? 'Vorlage waehlen:' : 'Scegli modello:'}
+                        </Text>
+                        <View style={{ flexDirection: 'row', gap: 6, marginBottom: 10, flexWrap: 'wrap' }}>
+                          {([
+                            { label: 'VK 4x4', pattern: ['early','early','early','early','late','late','late','late','night','night','night','night','off','off','off','off'] },
+                            { label: lang === 'de' ? '3-Schicht' : '3 turni', pattern: ['early','early','late','late','night','night','off'] },
+                            { label: 'FFSSNN--', pattern: ['early','early','late','late','night','night','off','off'] },
+                            { label: lang === 'de' ? '2-Schicht' : '2 turni', pattern: ['early','early','early','late','late','late','off'] },
+                          ]).map(tpl => (
+                            <TouchableOpacity
+                              key={tpl.label}
+                              testID={`cycle-tpl-${tpl.label}`}
+                              style={{
+                                paddingHorizontal: 10, paddingVertical: 6, borderRadius: 14,
+                                borderWidth: 1.5,
+                                borderColor: JSON.stringify(shiftCycle) === JSON.stringify(tpl.pattern) ? '#5C6BC0' : '#D1D5DB',
+                                backgroundColor: JSON.stringify(shiftCycle) === JSON.stringify(tpl.pattern) ? '#EDE7F6' : '#FFF',
+                              }}
+                              onPress={() => {
+                                setShiftCycle(tpl.pattern);
+                                if (!cycleStartDate) setCycleStartDate(new Date().toISOString().split('T')[0]);
+                              }}
+                            >
+                              <Text style={{ fontSize: 12, fontWeight: '600', color: JSON.stringify(shiftCycle) === JSON.stringify(tpl.pattern) ? '#5C6BC0' : '#5C7A6F' }}>
+                                {tpl.label}
+                              </Text>
+                            </TouchableOpacity>
+                          ))}
+                        </View>
+
+                        {/* Visual cycle editor */}
+                        {shiftCycle.length > 0 && (
+                          <>
+                            <Text style={{ fontSize: 12, color: '#5C7A6F', marginBottom: 6 }}>
+                              {lang === 'de' ? 'Zyklus bearbeiten (tippen zum aendern):' : 'Modifica ciclo (tocca per cambiare):'}
+                            </Text>
+                            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginBottom: 10 }}>
+                              {shiftCycle.map((shift, i) => {
+                                const cfg: Record<string, { bg: string; fg: string; lbl: string }> = {
+                                  early: { bg: '#FFF3E0', fg: '#E65100', lbl: 'F' },
+                                  late: { bg: '#E3F2FD', fg: '#1565C0', lbl: 'S' },
+                                  night: { bg: '#EDE7F6', fg: '#4527A0', lbl: 'N' },
+                                  off: { bg: '#F5F5F5', fg: '#9E9E9E', lbl: '-' },
+                                };
+                                const c = cfg[shift] || cfg.off;
+                                const isToday = todayShift?.day_index === i;
+                                return (
+                                  <TouchableOpacity
+                                    key={i}
+                                    testID={`cycle-day-${i}`}
+                                    style={{
+                                      width: 32, height: 32, borderRadius: 8,
+                                      backgroundColor: c.bg, alignItems: 'center', justifyContent: 'center',
+                                      borderWidth: isToday ? 2.5 : 0, borderColor: '#2E7D32',
+                                    }}
+                                    onPress={() => {
+                                      const order = ['early', 'late', 'night', 'off'];
+                                      const next = order[(order.indexOf(shift) + 1) % order.length];
+                                      const updated = [...shiftCycle];
+                                      updated[i] = next;
+                                      setShiftCycle(updated);
+                                    }}
+                                  >
+                                    <Text style={{ fontSize: 13, fontWeight: '800', color: c.fg }}>{c.lbl}</Text>
+                                  </TouchableOpacity>
+                                );
+                              })}
+                            </View>
+                            <View style={{ flexDirection: 'row', gap: 10, flexWrap: 'wrap', marginBottom: 6 }}>
+                              {[
+                                { lbl: 'F', desc: lang === 'de' ? 'Frueh' : 'Matt.', bg: '#FFF3E0', fg: '#E65100' },
+                                { lbl: 'S', desc: lang === 'de' ? 'Spaet' : 'Pom.', bg: '#E3F2FD', fg: '#1565C0' },
+                                { lbl: 'N', desc: lang === 'de' ? 'Nacht' : 'Notte', bg: '#EDE7F6', fg: '#4527A0' },
+                                { lbl: '-', desc: lang === 'de' ? 'Frei' : 'Libero', bg: '#F5F5F5', fg: '#9E9E9E' },
+                              ].map(l => (
+                                <View key={l.lbl} style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
+                                  <View style={{ width: 16, height: 16, borderRadius: 4, backgroundColor: l.bg, alignItems: 'center', justifyContent: 'center' }}>
+                                    <Text style={{ fontSize: 9, fontWeight: '800', color: l.fg }}>{l.lbl}</Text>
+                                  </View>
+                                  <Text style={{ fontSize: 10, color: '#5C7A6F' }}>{l.desc}</Text>
+                                </View>
+                              ))}
+                            </View>
+
+                            {/* Start date */}
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 }}>
+                              <MaterialCommunityIcons name="calendar-start" size={16} color="#5C6BC0" />
+                              <Text style={{ fontSize: 12, color: '#5C7A6F' }}>
+                                {lang === 'de' ? 'Startdatum:' : 'Data inizio:'}
+                              </Text>
+                              <TextInput
+                                testID="cycle-start-date"
+                                style={{ flex: 1, fontSize: 13, fontWeight: '600', color: '#1A2D26', borderBottomWidth: 1, borderBottomColor: '#D1D5DB', paddingVertical: 2 }}
+                                value={cycleStartDate}
+                                onChangeText={setCycleStartDate}
+                                placeholder="JJJJ-MM-TT"
+                                placeholderTextColor="#C4CEC8"
+                              />
+                            </View>
+                          </>
+                        )}
                       </View>
                     )}
                     {[
