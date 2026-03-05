@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, Image, TouchableOpacity, Linking, StyleSheet } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { styles as rs } from '../styles/resultsStyles';
+import { TTSButton } from '../TTSButton';
 
 const PRIORITY_CONFIG: Record<string, { label: string; color: string; bg: string; icon: string }> = {
   hoch:    { label: 'Hohe Priorität',    color: '#D9534F', bg: '#FDF2F2', icon: 'alert-circle' },
@@ -66,6 +67,25 @@ export function OverviewTab({ analysis, onShopPress, lang }: { analysis: any; on
   const depth = analysis.analysis_depth || {};
   const timeline = analysis.improvement_timeline || {};
 
+  // Build TTS text from summary + symptoms + causes
+  const ttsText = React.useMemo(() => {
+    const parts: string[] = [];
+    if (analysis.summary) parts.push(analysis.summary);
+    if (depth.identified_symptoms?.length) {
+      parts.push(
+        lang === 'de' ? 'Identifizierte Symptome:' : 'Sintomi identificati:',
+        depth.identified_symptoms.join(', ')
+      );
+    }
+    if (depth.possible_causes?.length) {
+      parts.push(
+        lang === 'de' ? 'Wahrscheinliche Ursachen:' : 'Cause probabili:',
+        depth.possible_causes.join('. ')
+      );
+    }
+    return parts.join(' ');
+  }, [analysis, depth, lang]);
+
   return (
     <View testID="medical-report">
       {/* ── SECTION 1: ZUSAMMENFASSUNG ─────────────────── */}
@@ -75,6 +95,10 @@ export function OverviewTab({ analysis, onShopPress, lang }: { analysis: any; on
             <Text style={s.sectionNumText}>1</Text>
           </View>
           <Text style={s.sectionTitle}>{tx.sec1}</Text>
+          <View style={{ flex: 1 }} />
+          {ttsText.length > 0 && (
+            <TTSButton text={ttsText} lang={lang} testID="analysis-tts-btn" />
+          )}
         </View>
 
         {/* Priority Badge */}
