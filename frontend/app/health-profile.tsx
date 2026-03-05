@@ -223,7 +223,7 @@ export default function HealthProfileScreen() {
           <Text style={styles.emptySubtitle}>
             {lang === 'de' ? 'Starten Sie den Gesundheits-Check, um Ihr persoenliches Profil zu erstellen.' : 'Avvia il check salute per creare il tuo profilo personale.'}
           </Text>
-          <TouchableOpacity style={styles.ctaBtn} onPress={() => router.push('/onboarding')} data-testid="start-onboarding-btn">
+          <TouchableOpacity style={styles.ctaBtn} onPress={() => router.push('/onboarding')} testID="start-onboarding-btn">
             <Text style={styles.ctaBtnText}>{lang === 'de' ? 'Gesundheits-Check starten' : 'Avvia check salute'}</Text>
           </TouchableOpacity>
         </View>
@@ -271,7 +271,7 @@ export default function HealthProfileScreen() {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} data-testid="back-btn">
+          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} testID="back-btn">
             <MaterialCommunityIcons name="arrow-left" size={24} color="#1A2D26" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>
@@ -285,7 +285,7 @@ export default function HealthProfileScreen() {
         {/* Row 1: Profile + BMI */}
         <View style={styles.gridRow}>
           {/* Card 1: Gesundheitsprofil */}
-          <View style={styles.gridCard} data-testid="profile-card">
+          <View style={styles.gridCard} testID="profile-card">
             <Text style={styles.gridCardTitle}>
               {lang === 'de' ? 'Gesundheitsprofil' : 'Profilo salute'}
             </Text>
@@ -331,7 +331,7 @@ export default function HealthProfileScreen() {
           </View>
 
           {/* Card 2: BMI Wert */}
-          <View style={styles.gridCard} data-testid="bmi-card">
+          <View style={styles.gridCard} testID="bmi-card">
             <Text style={styles.gridCardTitle}>BMI Wert</Text>
             <View style={styles.bmiGaugeWrap}>
               <BMIGauge bmi={bmi} />
@@ -358,7 +358,7 @@ export default function HealthProfileScreen() {
         {/* Row 2: Stress + Sleep */}
         <View style={styles.gridRow}>
           {/* Card 3: Stresslevel */}
-          <View style={styles.gridCard} data-testid="stress-card">
+          <View style={styles.gridCard} testID="stress-card">
             <Text style={styles.gridCardTitle}>Stresslevel</Text>
             <View style={styles.statusIconWrap}>
               <MaterialCommunityIcons name={stressStatus.icon} size={44} color={stressStatus.color} />
@@ -376,7 +376,7 @@ export default function HealthProfileScreen() {
           </View>
 
           {/* Card 4: Schlafqualitaet */}
-          <View style={styles.gridCard} data-testid="sleep-card">
+          <View style={styles.gridCard} testID="sleep-card">
             <Text style={styles.gridCardTitle}>
               {lang === 'de' ? 'Schlafqualitaet' : 'Qualita del sonno'}
             </Text>
