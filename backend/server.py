@@ -1,6 +1,7 @@
 from fastapi import FastAPI, APIRouter, Request, HTTPException
 from fastapi.responses import HTMLResponse, FileResponse
 from starlette.middleware.cors import CORSMiddleware
+from starlette.middleware.gzip import GZipMiddleware
 from pydantic import BaseModel
 import hashlib
 import secrets
@@ -8,7 +9,11 @@ import asyncio
 import os
 from pathlib import Path
 
-from core.config import client, logger
+from core.config import client, db, logger
+from core.middleware import (
+    RateLimitMiddleware, create_admin_token, verify_admin_token,
+    cleanup_expired_tokens
+)
 from routes import analysis, products, tracking, diary, admin, settings, health_profile, supplement_plan, progress, videos, label_analysis, health_score, admin_health_stats, supplement_interactions, correlation_analysis, shop_import, email_export, tts, daily_tasks, achievements, trust_stats, price_alerts
 
 app = FastAPI()
@@ -20,7 +25,6 @@ UPLOADS_DIR = Path(__file__).parent / "uploads"
 
 # Admin password from environment
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
-active_tokens = set()
 
 class AuthRequest(BaseModel):
     password: str
@@ -30,7 +34,7 @@ class AuthRequest(BaseModel):
 async def admin_auth(auth: AuthRequest):
     if auth.password == ADMIN_PASSWORD:
         token = secrets.token_urlsafe(32)
-        active_tokens.add(token)
+        create_admin_token(token)
         return {"success": True, "token": token}
     raise HTTPException(status_code=401, detail="Invalid password")
 
@@ -93,13 +97,32 @@ async def serve_uploaded_label(filename: str):
 
 app.include_router(api_router)
 
+# ── Middlewares (order matters: last added = first executed) ──
+
+# 1. CORS - restrict to own domains
+ALLOWED_ORIGINS = [
+    os.environ.get("EXPO_PUBLIC_BACKEND_URL", ""),
+    "https://personalize-meals.preview.emergentagent.com",
+    "http://localhost:3000",
+    "http://localhost:8001",
+    "exp://localhost:8081",
+]
+# Filter out empty strings
+ALLOWED_ORIGINS = [o for o in ALLOWED_ORIGINS if o]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# 2. GZip compression for responses > 500 bytes
+app.add_middleware(GZipMiddleware, minimum_size=500)
+
+# 3. Rate limiting per IP
+app.add_middleware(RateLimitMiddleware)
 
 
 @app.on_event("startup")
@@ -108,6 +131,23 @@ async def seed_data():
     # Start background sync scheduler
     from routes.shop_import import start_sync_scheduler
     asyncio.create_task(start_sync_scheduler())
+    
+    # Create MongoDB indexes for performance
+    try:
+        await db.health_profiles.create_index("profile_id", unique=True, sparse=True)
+        await db.supplement_plans.create_index("profile_id", unique=True, sparse=True)
+        await db.symptom_tracking.create_index([("profile_id", 1), ("date", -1)])
+        await db.symptom_tracking.create_index("profile_id")
+        await db.compliance_tracking.create_index("profile_id")
+        await db.recipes.create_index("active")
+        await db.products_de.create_index("nutrients")
+        await db.products_it.create_index("nutrients")
+        await db.diary_entries.create_index([("profile_id", 1), ("created_at", -1)])
+        await db.achievements.create_index("profile_id")
+        await db.price_alerts.create_index("profile_id")
+        logger.info("MongoDB indexes ensured")
+    except Exception as e:
+        logger.warning(f"Index creation note: {e}")
 
 
 @app.on_event("shutdown")

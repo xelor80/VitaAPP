@@ -4,6 +4,7 @@ from typing import Optional
 from pydantic import BaseModel
 
 from core.config import db
+from core.middleware import cached
 
 router = APIRouter(prefix="/settings", tags=["settings"])
 
