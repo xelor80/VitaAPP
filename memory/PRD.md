@@ -11,33 +11,26 @@ A health-focused, bilingual (German/Italian) mobile app where an LLM analyzes us
 - **TTS**: OpenAI TTS via Emergent LLM Key
 - **Integrations**: Shopify (product import), SMTP (email export), Unsplash (recipe images)
 
-## Implemented Features (Complete) - 49 Features
-1-44: [See previous PRD versions for full history]
-45. **TTS fuer Symptom-Analyse** (2026-03-05) - TTSButton in OverviewTab
-46. **Klickbare Supplement-Icons** (2026-03-05) - Tagesplan + Uebersicht → Affiliate-Shop
-47. **Arbeitstyp im Onboarding** (2026-03-05):
-    - 6 Arbeitstypen, bedingte Schichtdetails, KI-Risikobewertung
-    - Priority Areas: Schichtarbeit-Ausgleich, Koerperliche Belastung
-48. **Schicht-Vorlagen** (2026-03-05):
-    - 3 Presets (Frueh/Spaet/Nacht) in Erinnerungen, nur fuer Schichtarbeiter
-49. **Schichtzyklus-Rotator** (2026-03-05):
-    - Vorlagen: VK 4x4, 3-Schicht, FFSSNN--, 2-Schicht
-    - Visueller Zyklus-Editor: Farbige Quadrate (F=orange, S=blau, N=lila, -=grau)
-    - Tag antippen zum Aendern (F→S→N→-→F)
-    - Startdatum waehlbar
-    - "Heute: Nachtschicht (Tag 5)" Anzeige
-    - Gruener Rand markiert aktuellen Tag
-    - Automatische Zeitanpassung basierend auf aktuellem Schichttag
-    - Backend: GET /api/supplement-plan/{id}/today-shift berechnet aktuelle Schicht
-    - Nur sichtbar fuer Schicht-/Nachtarbeiter
+## Implemented Features (Complete) - 50 Features
+1-46: [See previous PRD versions for full history]
+47. **Arbeitstyp im Onboarding** (2026-03-05): 6 Arbeitstypen, KI-Risikobewertung
+48. **Schichtplan-Konfigurator + Zyklus-Rotator** (2026-03-05): VK 4x4, 3-Schicht, FFSSNN-- Vorlagen
+49. **Sicherheitshaertung** (2026-03-06):
+    - Rate-Limiting Middleware (IP-basiert, 3 Tiers: 5/min KI, 20/min Schreib, 60/min Lese)
+    - CORS auf eigene Domains beschraenkt (nicht mehr allow_origins=*)
+    - Admin-Token-Ablauf nach 24h (statt ewig gueltig)
+    - API-Keys korrekt in .env, nicht im Code
+50. **Performance-Optimierung** (2026-03-06):
+    - GZip-Komprimierung fuer Responses > 500 Bytes
+    - MongoDB-Indizes: profile_id (unique/sparse), symptom_tracking compound, recipes, products
+    - In-Memory-Cache-Decorator fuer statische Endpunkte (5-min TTL)
 
-## Key API Endpoints
-- `POST /api/tts/generate` - TTS audio generation
-- `GET /api/onboarding/options?lang=de` - Options incl. work_types, shift_models, shift_types
-- `POST /api/health-profile` - Create profile incl. work_type, shift_model, current_shift
-- `PUT /api/supplement-plan/{id}/reminders` - Update reminders with shift_cycle
-- `GET /api/supplement-plan/{id}/today-shift` - Calculate today's shift from cycle
-- `GET /api/recipes/personalized/{id}` - Personalized recipe scoring
+## Security Summary
+- Rate limits: Expensive AI (5/min), Write (20/min), Read (60/min)
+- CORS: Only own domains + localhost
+- Admin tokens: 24h TTL, auto-cleanup
+- Credentials: All in .env, never in code
+- MongoDB: Indexes with sparse unique constraints
 
 ## Backlog
 - `expo-av` zu `expo-audio` Migration (P2)
