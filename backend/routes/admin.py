@@ -47,6 +47,7 @@ async def get_stats():
     analyses = await db.analyses.count_documents({})
     clicks = await db.clicks.count_documents({})
     diary_entries = await db.diary_entries.count_documents({})
+    profiles = await db.health_profiles.count_documents({})
     
     return {
         "products_de": products_de,
@@ -55,7 +56,107 @@ async def get_stats():
         "analyses": analyses,
         "affiliate_clicks": clicks,
         "diary_entries": diary_entries,
+        "profiles": profiles,
         "timestamp": datetime.now(timezone.utc).isoformat()
+    }
+
+
+@router.get("/user-stats")
+async def get_user_stats():
+    """Get detailed user statistics for admin dashboard."""
+    from datetime import timedelta
+
+    now = datetime.now(timezone.utc)
+    today_str = now.strftime("%Y-%m-%d")
+    week_ago = (now - timedelta(days=7)).isoformat()
+    month_ago = (now - timedelta(days=30)).isoformat()
+
+    # Total profiles
+    total_profiles = await db.health_profiles.count_documents({})
+
+    # Profiles created in last 7 and 30 days
+    new_7d = await db.health_profiles.count_documents({"created_at": {"$gte": week_ago}})
+    new_30d = await db.health_profiles.count_documents({"created_at": {"$gte": month_ago}})
+
+    # Active users: profiles that tracked symptoms or compliance in last 7 days
+    active_trackers_7d = len(await db.symptom_tracking.distinct(
+        "profile_id", {"date": {"$gte": (now - timedelta(days=7)).strftime("%Y-%m-%d")}}
+    ))
+    active_compliance_7d = len(await db.compliance_tracking.distinct(
+        "profile_id", {"date": {"$gte": (now - timedelta(days=7)).strftime("%Y-%m-%d")}}
+    ))
+    active_users_7d = max(active_trackers_7d, active_compliance_7d)
+
+    # Active in last 30 days
+    active_trackers_30d = len(await db.symptom_tracking.distinct(
+        "profile_id", {"date": {"$gte": (now - timedelta(days=30)).strftime("%Y-%m-%d")}}
+    ))
+    active_compliance_30d = len(await db.compliance_tracking.distinct(
+        "profile_id", {"date": {"$gte": (now - timedelta(days=30)).strftime("%Y-%m-%d")}}
+    ))
+    active_users_30d = max(active_trackers_30d, active_compliance_30d)
+
+    # Total diary entries and recent diary activity
+    total_diary = await db.diary_entries.count_documents({})
+    diary_7d = await db.diary_entries.count_documents({"created_at": {"$gte": week_ago}})
+
+    # Supplement compliance rate (last 7 days)
+    compliance_docs = await db.compliance_tracking.find(
+        {"date": {"$gte": (now - timedelta(days=7)).strftime("%Y-%m-%d")}},
+        {"_id": 0, "supplements_taken": 1, "supplements_total": 1}
+    ).to_list(500)
+    total_taken = sum(d.get("supplements_taken", 0) for d in compliance_docs)
+    total_possible = sum(d.get("supplements_total", 0) for d in compliance_docs)
+    compliance_rate = round((total_taken / total_possible * 100), 1) if total_possible > 0 else 0
+
+    # Total analyses and recent
+    total_analyses = await db.analyses.count_documents({})
+    analyses_7d = await db.analyses.count_documents({"timestamp": {"$gte": week_ago}})
+
+    # Profile registration timeline (last 12 months)
+    registration_timeline = await db.health_profiles.aggregate([
+        {"$match": {"created_at": {"$ne": None}}},
+        {"$addFields": {"month": {"$substr": ["$created_at", 0, 7]}}},
+        {"$group": {"_id": "$month", "count": {"$sum": 1}}},
+        {"$sort": {"_id": 1}},
+        {"$limit": 12}
+    ]).to_list(12)
+
+    # Work type distribution
+    work_type_data = await db.health_profiles.aggregate([
+        {"$group": {"_id": {"$ifNull": ["$work_type", "nicht angegeben"]}, "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}}
+    ]).to_list(10)
+
+    # Language preferences (from analyses)
+    lang_data = await db.analyses.aggregate([
+        {"$group": {"_id": "$lang", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}}
+    ]).to_list(5)
+
+    # Top symptom tags tracked
+    top_symptoms = await db.symptom_tracking.aggregate([
+        {"$unwind": "$symptoms"},
+        {"$group": {"_id": "$symptoms.name", "count": {"$sum": 1}, "avg_intensity": {"$avg": {"$toDouble": "$symptoms.intensity"}}}},
+        {"$sort": {"count": -1}},
+        {"$limit": 10}
+    ]).to_list(10)
+
+    return {
+        "total_profiles": total_profiles,
+        "new_profiles_7d": new_7d,
+        "new_profiles_30d": new_30d,
+        "active_users_7d": active_users_7d,
+        "active_users_30d": active_users_30d,
+        "total_diary_entries": total_diary,
+        "diary_entries_7d": diary_7d,
+        "compliance_rate_7d": compliance_rate,
+        "total_analyses": total_analyses,
+        "analyses_7d": analyses_7d,
+        "registration_timeline": [{"month": t["_id"], "count": t["count"]} for t in registration_timeline],
+        "work_types": [{"label": w["_id"] or "nicht angegeben", "count": w["count"]} for w in work_type_data],
+        "languages": [{"label": l["_id"] or "unbekannt", "count": l["count"]} for l in lang_data],
+        "top_symptoms": [{"label": s["_id"], "count": s["count"], "avg_intensity": round(s.get("avg_intensity", 0), 1)} for s in top_symptoms],
     }
 
 

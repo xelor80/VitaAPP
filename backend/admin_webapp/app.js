@@ -86,6 +86,8 @@ function switchTab(tab) {
         case 'supplements': loadSupplements(); break;
         case 'videos': loadVideos(); break;
         case 'health-stats': loadHealthStats(); break;
+        case 'shop-import': loadSyncConfigs(); loadSyncHistory(); break;
+        case 'user-stats': loadUserStats(); break;
     }
 }
 
@@ -97,6 +99,7 @@ async function loadStats() {
         
         document.getElementById('stat-products-de').textContent = data.products_de;
         document.getElementById('stat-products-it').textContent = data.products_it;
+        document.getElementById('stat-profiles').textContent = data.profiles || 0;
         document.getElementById('stat-recipes').textContent = data.recipes;
         document.getElementById('stat-analyses').textContent = data.analyses;
         document.getElementById('stat-clicks').textContent = data.affiliate_clicks;
@@ -1606,5 +1609,175 @@ async function startBackfillServings() {
         alert('Fehler: ' + err.message);
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-play"></i> Tagesdosen berechnen';
+    }
+}
+
+
+// ============ USER STATISTICS ============
+async function loadUserStats() {
+    const loadingEl = document.getElementById('user-stats-loading');
+    const contentEl = document.getElementById('user-stats-content');
+
+    loadingEl.style.display = 'block';
+    contentEl.style.display = 'none';
+
+    try {
+        const res = await apiCall('/admin/user-stats');
+        const d = await res.json();
+
+        loadingEl.style.display = 'none';
+        contentEl.style.display = 'block';
+
+        // KPI Cards
+        document.getElementById('user-stats-kpis').innerHTML = `
+            <div class="stat-card">
+                <div class="stat-value">${d.total_profiles}</div>
+                <div class="stat-label">Profile gesamt</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color:#4ADE80">+${d.new_profiles_7d}</div>
+                <div class="stat-label">Neue Profile (7 Tage)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color:#3B82F6">+${d.new_profiles_30d}</div>
+                <div class="stat-label">Neue Profile (30 Tage)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color:#F59E0B">${d.active_users_7d}</div>
+                <div class="stat-label">Aktive Nutzer (7 Tage)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">${d.active_users_30d}</div>
+                <div class="stat-label">Aktive Nutzer (30 Tage)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color:#10B981">${d.compliance_rate_7d}%</div>
+                <div class="stat-label">Compliance-Rate (7 Tage)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">${d.total_analyses}</div>
+                <div class="stat-label">Analysen gesamt</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color:#8B5CF6">${d.total_diary_entries}</div>
+                <div class="stat-label">Tagebuch-Eintraege</div>
+            </div>
+        `;
+
+        // Registration Timeline
+        const timelineEl = document.getElementById('us-timeline');
+        if (d.registration_timeline && d.registration_timeline.length > 0) {
+            const maxCount = Math.max(...d.registration_timeline.map(t => t.count), 1);
+            timelineEl.innerHTML = `
+                <div style="display:flex;align-items:flex-end;gap:8px;height:120px;padding-top:10px">
+                    ${d.registration_timeline.map(t => {
+                        const heightPct = Math.max((t.count / maxCount) * 100, 5);
+                        return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+                            <span style="font-size:11px;color:#E2E8F0;font-weight:600">${t.count}</span>
+                            <div style="width:100%;background:linear-gradient(180deg,#4A8B71,#2D5A47);border-radius:4px 4px 0 0;height:${heightPct}%;min-height:4px;transition:height 0.5s"></div>
+                            <span style="font-size:10px;color:#64748B;white-space:nowrap">${t.month.slice(5)}</span>
+                        </div>`;
+                    }).join('')}
+                </div>
+            `;
+        } else {
+            timelineEl.innerHTML = '<p style="color:#475569;font-size:13px">Keine Daten</p>';
+        }
+
+        // Work Types
+        const workTypesEl = document.getElementById('us-work-types');
+        const workTypeLabels = {
+            'office': 'Buero', 'physical': 'Koerperlich', 'shift_work': 'Schichtarbeit',
+            'night_work': 'Nachtarbeit', 'remote': 'Homeoffice', 'mixed': 'Gemischt',
+            'nicht angegeben': 'Nicht angegeben'
+        };
+        if (d.work_types && d.work_types.length > 0) {
+            workTypesEl.innerHTML = d.work_types.map(w =>
+                renderBar(workTypeLabels[w.label] || w.label, w.count, d.total_profiles, '#6366F1')
+            ).join('');
+        } else {
+            workTypesEl.innerHTML = '<p style="color:#475569;font-size:13px">Keine Daten</p>';
+        }
+
+        // Languages
+        const langsEl = document.getElementById('us-languages');
+        const langLabels = { 'de': 'Deutsch', 'it': 'Italienisch', 'unbekannt': 'Unbekannt' };
+        const langTotal = d.languages.reduce((s, l) => s + l.count, 0);
+        if (d.languages && d.languages.length > 0) {
+            langsEl.innerHTML = d.languages.map(l =>
+                renderBar(langLabels[l.label] || l.label, l.count, langTotal, '#F59E0B')
+            ).join('');
+        } else {
+            langsEl.innerHTML = '<p style="color:#475569;font-size:13px">Keine Daten</p>';
+        }
+
+        // Top Symptoms
+        const symptomsEl = document.getElementById('us-top-symptoms');
+        if (d.top_symptoms && d.top_symptoms.length > 0) {
+            const maxSym = d.top_symptoms[0]?.count || 1;
+            symptomsEl.innerHTML = d.top_symptoms.map(s => {
+                const intensityColor = s.avg_intensity > 7 ? '#EF4444' : s.avg_intensity > 4 ? '#D97706' : '#4A8B71';
+                return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+                    <div style="width:140px;font-size:13px;color:#CBD5E1;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${getLabel(s.label) || s.label}</div>
+                    <div style="flex:1;background:#1E293B;border-radius:6px;height:22px;position:relative;overflow:hidden">
+                        <div style="width:${Math.round(s.count/maxSym*100)}%;background:${intensityColor};height:100%;border-radius:6px"></div>
+                    </div>
+                    <div style="width:80px;font-size:11px;color:#94A3B8;text-align:right">${s.count}x (${s.avg_intensity})</div>
+                </div>`;
+            }).join('');
+        } else {
+            symptomsEl.innerHTML = '<p style="color:#475569;font-size:13px">Noch keine Symptome getrackt</p>';
+        }
+
+    } catch (err) {
+        console.error('Error loading user stats:', err);
+        document.getElementById('user-stats-loading').style.display = 'none';
+        document.getElementById('user-stats-content').innerHTML = '<p style="color:#EF4444;padding:20px">Fehler beim Laden der Nutzerstatistiken</p>';
+        document.getElementById('user-stats-content').style.display = 'block';
+    }
+}
+
+
+// ============ SYNC HISTORY ============
+async function loadSyncHistory() {
+    const lang = document.getElementById('sync-history-lang')?.value || '';
+    try {
+        const url = lang ? `/admin/sync-history?lang=${lang}` : '/admin/sync-history';
+        const res = await apiCall(url);
+        const data = await res.json();
+
+        const emptyEl = document.getElementById('sync-history-empty');
+        const tableContainer = document.getElementById('sync-history-table-container');
+        const tbody = document.getElementById('sync-history-table');
+
+        if (!data.history || data.history.length === 0) {
+            emptyEl.style.display = 'block';
+            tableContainer.style.display = 'none';
+            return;
+        }
+
+        emptyEl.style.display = 'none';
+        tableContainer.style.display = 'block';
+
+        const intervalLabels = { daily: 'Taeglich', weekly: 'Woechentlich', monthly: 'Monatlich' };
+
+        tbody.innerHTML = data.history.map(h => {
+            const date = new Date(h.timestamp);
+            const dateStr = date.toLocaleDateString('de-DE') + ' ' + date.toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
+            const isError = h.status === 'error';
+            const statusIcon = isError ? '<i class="fas fa-times-circle" style="color:#EF4444"></i>' : '<i class="fas fa-check-circle" style="color:#4ADE80"></i>';
+            return `<tr>
+                <td style="white-space:nowrap">${dateStr}</td>
+                <td><span class="lang-badge" style="background:${h.lang === 'de' ? '#F59E0B' : '#4ADE80'};color:#000;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600">${h.lang.toUpperCase()}</span></td>
+                <td>${statusIcon} ${isError ? 'Fehler' : 'Erfolgreich'}</td>
+                <td>${h.total || 0}</td>
+                <td style="color:#4ADE80">${h.imported || 0}</td>
+                <td style="color:#3B82F6">${h.updated || 0}</td>
+                <td style="color:#F59E0B">${h.removed || 0}</td>
+                <td style="color:${h.errors > 0 ? '#EF4444' : '#64748B'}">${h.errors || 0}</td>
+            </tr>`;
+        }).join('');
+    } catch (err) {
+        console.error('Error loading sync history:', err);
     }
 }

@@ -331,26 +331,50 @@ async def _run_import(job_id: str, shop_url: str, lang: str, is_sync: bool = Fal
             f"{job.get('removed',0)} removed, {job['skipped']} skipped"
         )
 
-        # Update last sync time in config
+        # Update last sync time in config and log history
         if is_sync:
+            sync_result = {
+                "imported": job["imported"],
+                "updated": job.get("updated", 0),
+                "removed": job.get("removed", 0),
+                "skipped": job["skipped"],
+                "errors": len(job["errors"]),
+            }
             await db[SYNC_CONFIG_COLLECTION].update_one(
                 {"lang": lang},
                 {"$set": {
                     "last_sync": datetime.now(timezone.utc).isoformat(),
-                    "last_sync_result": {
-                        "imported": job["imported"],
-                        "updated": job.get("updated", 0),
-                        "removed": job.get("removed", 0),
-                        "skipped": job["skipped"],
-                        "errors": len(job["errors"]),
-                    }
+                    "last_sync_result": sync_result,
                 }}
             )
+            # Save to sync history
+            await db.sync_history.insert_one({
+                "lang": lang,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "status": "complete",
+                "total": job["total"],
+                **sync_result,
+                "duration_started": job.get("started_at", ""),
+            })
 
     except Exception as e:
         job["status"] = "error"
         job["errors"].append(f"Fatal: {str(e)[:200]}")
         logger.error(f"[{job_id}] Import failed: {e}")
+        # Log failed sync to history
+        if is_sync:
+            await db.sync_history.insert_one({
+                "lang": lang,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "status": "error",
+                "total": job.get("total", 0),
+                "imported": job.get("imported", 0),
+                "updated": job.get("updated", 0),
+                "removed": job.get("removed", 0),
+                "skipped": job.get("skipped", 0),
+                "errors": len(job.get("errors", [])),
+                "error_message": str(e)[:200],
+            })
 
 
 def _create_job(is_sync: bool = False) -> tuple[str, dict]:
@@ -391,13 +415,15 @@ async def save_sync_config(req: SyncConfigRequest):
     """Save or update sync configuration for a language."""
     if req.lang not in ("de", "it"):
         raise HTTPException(status_code=400, detail="Sprache muss 'de' oder 'it' sein")
-    if req.interval not in ("weekly", "monthly"):
-        raise HTTPException(status_code=400, detail="Intervall muss 'weekly' oder 'monthly' sein")
+    if req.interval not in ("daily", "weekly", "monthly"):
+        raise HTTPException(status_code=400, detail="Intervall muss 'daily', 'weekly' oder 'monthly' sein")
 
     now = datetime.now(timezone.utc).isoformat()
 
     # Calculate next sync time
-    if req.interval == "weekly":
+    if req.interval == "daily":
+        next_sync = (datetime.now(timezone.utc) + timedelta(days=1)).isoformat()
+    elif req.interval == "weekly":
         next_sync = (datetime.now(timezone.utc) + timedelta(weeks=1)).isoformat()
     else:
         next_sync = (datetime.now(timezone.utc) + timedelta(days=30)).isoformat()
@@ -515,7 +541,9 @@ async def _check_and_run_syncs():
             asyncio.create_task(_run_import(job_id, shop_url, lang, is_sync=True))
 
             # Schedule next sync
-            if config["interval"] == "weekly":
+            if config["interval"] == "daily":
+                new_next = (now + timedelta(days=1)).isoformat()
+            elif config["interval"] == "weekly":
                 new_next = (now + timedelta(weeks=1)).isoformat()
             else:
                 new_next = (now + timedelta(days=30)).isoformat()
@@ -631,3 +659,18 @@ async def get_backfill_status(job_id: str):
         raise HTTPException(status_code=404, detail="Job nicht gefunden")
     return job
 
+
+
+
+# ==================== SYNC HISTORY ENDPOINT ====================
+
+@router.get("/sync-history")
+async def get_sync_history(lang: str = "", limit: int = 20):
+    """Get sync history log entries."""
+    query = {}
+    if lang and lang in ("de", "it"):
+        query["lang"] = lang
+    history = await db.sync_history.find(
+        query, {"_id": 0}
+    ).sort("timestamp", -1).limit(min(limit, 50)).to_list(min(limit, 50))
+    return {"history": history, "total": await db.sync_history.count_documents(query)}
