@@ -7,7 +7,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://personalize-meals.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://health-coach-102.preview.emergentagent.com')
 
 # Test profile with first_name='Max'
 TEST_PROFILE_ID = "c65a12da-2bc5-473c-861f-0c34b89ad553"

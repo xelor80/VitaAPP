@@ -96,7 +96,7 @@
     "frontend": "100% (all TTS and tab navigation tests passed)"
   },
   "test_credentials": {
-    "preview_url": "https://personalize-meals.preview.emergentagent.com",
+    "preview_url": "https://health-coach-102.preview.emergentagent.com",
     "results_page": "/results",
     "supplement_plan_page": "/supplement-plan"
   },

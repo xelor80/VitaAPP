@@ -25,7 +25,7 @@
       "tests_passed": 3,
       "tests_failed": 0,
       "details": [
-        "Allowed origin (https://personalize-meals.preview.emergentagent.com) receives correct CORS headers",
+        "Allowed origin (https://health-coach-102.preview.emergentagent.com) receives correct CORS headers",
         "CORS preflight OPTIONS request returns 200/204 for allowed origins",
         "localhost:3000 accepted as allowed origin"
       ]
@@ -98,7 +98,7 @@
   },
   "test_credentials": {
     "admin_password": "Wk220480xel!",
-    "preview_url": "https://personalize-meals.preview.emergentagent.com"
+    "preview_url": "https://health-coach-102.preview.emergentagent.com"
   },
   "seed_data_creation": "",
   "retest_needed": false,

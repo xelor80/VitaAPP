@@ -63,9 +63,9 @@
     "frontend": "100% (All UI tests passed)"
   },
   "test_credentials": {
-    "app_url": "https://personalize-meals.preview.emergentagent.com",
-    "health_profile_url": "https://personalize-meals.preview.emergentagent.com/health-profile",
-    "product_comparison_url": "https://personalize-meals.preview.emergentagent.com/product-comparison?nutrient=magnesium&risk=high",
+    "app_url": "https://health-coach-102.preview.emergentagent.com",
+    "health_profile_url": "https://health-coach-102.preview.emergentagent.com/health-profile",
+    "product_comparison_url": "https://health-coach-102.preview.emergentagent.com/product-comparison?nutrient=magnesium&risk=high",
     "test_profile_id": "2c0ba8c7-729e-49b2-a144-1068e03c8301"
   },
   "seed_data_creation": "Used existing test profile with ID 2c0ba8c7-729e-49b2-a144-1068e03c8301 (diet=vegan, stress=8/10, sleep=4/10 generating 7 HIGH + 1 MEDIUM risk deficiencies)",
