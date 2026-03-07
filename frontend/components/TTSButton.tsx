@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { TouchableOpacity, Text, ActivityIndicator, Alert, Platform, StyleSheet } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Audio } from 'expo-av';
+import { createAudioPlayer } from 'expo-audio';
+import * as FileSystem from 'expo-file-system';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -14,27 +15,30 @@ interface TTSButtonProps {
 export function TTSButton({ text, lang, testID = 'tts-btn' }: TTSButtonProps) {
   const [loading, setLoading] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const soundRef = useRef<Audio.Sound | null>(null);
+  const webAudioRef = useRef<any>(null);
+  const playerRef = useRef<any>(null);
 
-  const stopAudio = async () => {
-    if (soundRef.current) {
-      try {
-        await soundRef.current.stopAsync();
-        await soundRef.current.unloadAsync();
-      } catch {}
-      soundRef.current = null;
+  const stopAudio = () => {
+    if (Platform.OS === 'web') {
+      if (webAudioRef.current) {
+        webAudioRef.current.pause();
+        webAudioRef.current.currentTime = 0;
+        webAudioRef.current = null;
+      }
+    } else {
+      if (playerRef.current) {
+        playerRef.current.pause();
+        playerRef.current = null;
+      }
     }
     setPlaying(false);
   };
 
   const playTTS = async () => {
-    if (playing) { await stopAudio(); return; }
+    if (playing) { stopAudio(); return; }
     if (!text?.trim()) return;
     setLoading(true);
     try {
-      if (Platform.OS !== 'web') {
-        await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
-      }
       const res = await fetch(`${API_URL}/api/tts/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -44,29 +48,27 @@ export function TTSButton({ text, lang, testID = 'tts-btn' }: TTSButtonProps) {
       const data = await res.json();
 
       if (Platform.OS === 'web') {
-        const audioSrc = `data:audio/mp3;base64,${data.audio_base64}`;
-        const audio = new window.Audio(audioSrc);
+        const audio = new window.Audio(`data:audio/mp3;base64,${data.audio_base64}`);
         audio.onended = () => setPlaying(false);
         audio.play();
+        webAudioRef.current = audio;
         setPlaying(true);
-        (soundRef as any).current = {
-          stopAsync: () => { audio.pause(); audio.currentTime = 0; return Promise.resolve(); },
-          unloadAsync: () => Promise.resolve(),
-        };
       } else {
-        const { sound } = await Audio.Sound.createAsync(
-          { uri: `data:audio/mp3;base64,${data.audio_base64}` },
-          { shouldPlay: true }
-        );
-        soundRef.current = sound;
-        setPlaying(true);
-        sound.setOnPlaybackStatusUpdate((status: any) => {
-          if (status.didJustFinish) {
+        // Write base64 to temp file, then play with expo-audio
+        const fileUri = `${FileSystem.cacheDirectory}tts_${Date.now()}.mp3`;
+        await FileSystem.writeAsStringAsync(fileUri, data.audio_base64, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+        const player = createAudioPlayer(fileUri);
+        player.addListener('playbackStatusUpdate', (status: any) => {
+          if (status.playing === false && status.currentTime > 0) {
             setPlaying(false);
-            sound.unloadAsync();
-            soundRef.current = null;
+            playerRef.current = null;
           }
         });
+        playerRef.current = player;
+        player.play();
+        setPlaying(true);
       }
     } catch {
       Alert.alert(

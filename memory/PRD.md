@@ -9,29 +9,19 @@ A health-focused, bilingual (German/Italian) mobile app where an LLM analyzes us
 - **Database**: MongoDB (Atlas in production)
 - **AI**: OpenAI GPT-4o via Emergent LLM Key
 - **TTS**: OpenAI TTS via Emergent LLM Key
+- **Audio**: expo-audio 1.1.1 + expo-file-system (migrated from expo-av)
 - **Integrations**: Shopify (product import), SMTP (email export), Unsplash (recipe images)
 
-## Implemented Features (Complete) - 50 Features
-1-46: [See previous PRD versions for full history]
-47. **Arbeitstyp im Onboarding** (2026-03-05): 6 Arbeitstypen, KI-Risikobewertung
-48. **Schichtplan-Konfigurator + Zyklus-Rotator** (2026-03-05): VK 4x4, 3-Schicht, FFSSNN-- Vorlagen
-49. **Sicherheitshaertung** (2026-03-06):
-    - Rate-Limiting Middleware (IP-basiert, 3 Tiers: 5/min KI, 20/min Schreib, 60/min Lese)
-    - CORS auf eigene Domains beschraenkt (nicht mehr allow_origins=*)
-    - Admin-Token-Ablauf nach 24h (statt ewig gueltig)
-    - API-Keys korrekt in .env, nicht im Code
-50. **Performance-Optimierung** (2026-03-06):
-    - GZip-Komprimierung fuer Responses > 500 Bytes
-    - MongoDB-Indizes: profile_id (unique/sparse), symptom_tracking compound, recipes, products
-    - In-Memory-Cache-Decorator fuer statische Endpunkte (5-min TTL)
-
-## Security Summary
-- Rate limits: Expensive AI (5/min), Write (20/min), Read (60/min)
-- CORS: Only own domains + localhost
-- Admin tokens: 24h TTL, auto-cleanup
-- Credentials: All in .env, never in code
-- MongoDB: Indexes with sparse unique constraints
+## Implemented Features (Complete) - 51 Features
+1-48: [See previous PRD versions for full history]
+49. **Sicherheitshaertung** (2026-03-06): Rate-Limiting, CORS, Token-Ablauf
+50. **Performance-Optimierung** (2026-03-06): GZip, MongoDB-Indizes, Cache-Decorator
+51. **expo-av zu expo-audio Migration** (2026-03-07):
+    - TTSButton.tsx: createAudioPlayer + FileSystem.writeAsStringAsync (Native), HTML5 Audio (Web)
+    - supplement-plan.tsx: Gleiche Migration
+    - expo-av komplett entfernt aus package.json
+    - Deprecation-Warnung eliminiert
+    - Zukunftssicher fuer SDK 54+
 
 ## Backlog
-- `expo-av` zu `expo-audio` Migration (P2)
 - Weitere UI/UX Verbesserungen nach Feedback
