@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from fastapi.responses import JSONResponse
 from core.config import db, get_products_collection
 
 router = APIRouter()
@@ -273,7 +274,10 @@ async def get_products_by_nutrient(nutrient: str, lang: str = "de"):
     top_products = [p for p, _ in scored[:MAX_PRODUCTS_PER_NUTRIENT]]
 
     quality_info = _localize_quality_info(NUTRIENT_QUALITY_INFO.get(nutrient), lang)
-    return {"products": top_products, "quality_info": quality_info}
+    return JSONResponse(
+        content={"products": top_products, "quality_info": quality_info},
+        headers={"Cache-Control": "no-store, no-cache, must-revalidate, max-age=0"}
+    )
 
 
 import re as _re

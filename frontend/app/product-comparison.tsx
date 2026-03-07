@@ -43,7 +43,9 @@ export default function ProductComparisonScreen() {
 
   useEffect(() => {
     if (!nutrient) return;
-    fetch(`${API_URL}/api/products/by-nutrient/${nutrient}?lang=${lang}`)
+    fetch(`${API_URL}/api/products/by-nutrient/${nutrient}?lang=${lang}&_t=${Date.now()}`, {
+      headers: { 'Cache-Control': 'no-cache' }
+    })
       .then(r => r.json())
       .then(data => {
         setProducts(data.products || []);
