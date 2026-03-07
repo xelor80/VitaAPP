@@ -229,8 +229,18 @@ async def _run_import(job_id: str, shop_url: str, lang: str, is_sync: bool = Fal
                 if isinstance(tags, str):
                     tags = [t.strip() for t in tags.split(",")]
 
-                # For sync: check if product already exists and has AI data
+                # For sync: check if product already exists (by handle OR name)
                 existing = await collection.find_one({"product_id": handle}, {"_id": 0, "imported_at": 1})
+                # Also check for old manually-created duplicate by name
+                if not existing:
+                    name_match = await collection.find_one(
+                        {"name": title, "product_id": {"$ne": handle}},
+                        {"_id": 0, "product_id": 1}
+                    )
+                    if name_match:
+                        # Remove old duplicate and let Shopify version take over
+                        await collection.delete_one({"product_id": name_match["product_id"]})
+                        logger.info(f"[{job_id}] Removed old duplicate: {name_match['product_id']} -> {handle}")
 
                 if is_sync and existing:
                     # Update price, image, tags from Shopify but keep AI data
@@ -268,6 +278,13 @@ async def _run_import(job_id: str, shop_url: str, lang: str, is_sync: bool = Fal
                     await collection.update_one({"product_id": handle}, {"$set": update_fields})
                     job["updated"] += 1
                     imported_handles.add(handle)
+                    # Remove old duplicates with same name but different product_id
+                    old_dupes = await collection.delete_many({
+                        "name": title,
+                        "product_id": {"$ne": handle}
+                    })
+                    if old_dupes.deleted_count > 0:
+                        logger.info(f"[{job_id}] Cleaned {old_dupes.deleted_count} old duplicate(s) for: {title}")
                     logger.info(f"[{job_id}] Updated [{i+1}/{job['total']}]: {title}")
                 else:
                     # Full AI extraction for new products
