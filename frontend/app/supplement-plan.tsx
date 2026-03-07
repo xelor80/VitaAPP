@@ -143,6 +143,7 @@ export default function SupplementPlanScreen() {
   const [shiftCycle, setShiftCycle] = useState<string[]>([]);
   const [cycleStartDate, setCycleStartDate] = useState('');
   const [todayShift, setTodayShift] = useState<any>(null);
+  const [todayCompliance, setTodayCompliance] = useState<Record<string, boolean>>({});
   const [pricingMap, setPricingMap] = useState<Record<string, { avg_per_day: number; min_per_day: number; max_per_day: number; product_count: number }>>({});
   const playerRef = useRef<any>(null);
   const webAudioRef = useRef<any>(null);
@@ -263,6 +264,18 @@ export default function SupplementPlanScreen() {
             if (shiftData.shift) setTodayShift(shiftData);
           }
         } catch {}
+
+        // Load today's compliance status
+        try {
+          const compRes = await fetch(`${API_URL}/api/tracking/compliance/today/${pid}`);
+          if (compRes.ok) {
+            const compData = await compRes.json();
+            const taken: Record<string, boolean> = {};
+            for (const id of (compData.taken_ids || [])) { taken[id] = true; }
+            setTodayCompliance(taken);
+          }
+        } catch {}
+
         // Load pricing after plan is loaded (needs nutrient IDs from plan)
       } else {
         setLoading(false);
@@ -340,6 +353,19 @@ export default function SupplementPlanScreen() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
+
+      // Also mark supplements as taken (compliance tracking)
+      if (plan?.stack) {
+        const ids = plan.stack.map((s: any) => s.id);
+        await fetch(`${API_URL}/api/daily-tasks/complete-supplements`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ profile_id: currentProfileId, supplement_ids: ids })
+        });
+        const updated: Record<string, boolean> = { ...todayCompliance };
+        for (const id of ids) updated[id] = true;
+        setTodayCompliance(updated);
+      }
 
       if (reminders.enabled && plan?.weekly_schedule) {
         // Schedule notifications using the new service
@@ -994,10 +1020,11 @@ export default function SupplementPlanScreen() {
                     {items.map((item: any) => {
                       const displayName = abbreviateName(item.name || '', item.id);
                       const formLabel = item.form_label || `${item.dosage} ${item.unit}`;
+                      const isTaken = todayCompliance[item.id] === true;
                       return (
                         <TouchableOpacity
                           key={item.id}
-                          style={ns.pillItem}
+                          style={[ns.pillItem, isTaken && { opacity: 0.5 }]}
                           activeOpacity={0.7}
                           data-testid={`pill-shop-${item.id}`}
                           onPress={() => router.push({
@@ -1005,8 +1032,15 @@ export default function SupplementPlanScreen() {
                             params: { nutrient: item.id, risk: item.risk_level || 'medium' }
                           })}
                         >
-                          <PillIcon id={item.id} />
-                          <Text style={ns.pillName} numberOfLines={1}>{displayName}</Text>
+                          <View>
+                            <PillIcon id={item.id} />
+                            {isTaken && (
+                              <View style={{ position: 'absolute', right: -4, top: -4, backgroundColor: '#22C55E', borderRadius: 10, width: 20, height: 20, alignItems: 'center', justifyContent: 'center' }}>
+                                <MaterialCommunityIcons name="check" size={14} color="#FFF" />
+                              </View>
+                            )}
+                          </View>
+                          <Text style={[ns.pillName, isTaken && { textDecorationLine: 'line-through', color: '#8FA39B' }]} numberOfLines={1}>{displayName}</Text>
                           <Text style={ns.pillDose} numberOfLines={1}>{formLabel}</Text>
                         </TouchableOpacity>
                       );

@@ -105,6 +105,19 @@ async def save_compliance(data: ComplianceEntry):
     return {"status": "saved", "date": data.date}
 
 
+@router.get("/tracking/compliance/today/{profile_id}")
+async def get_today_compliance(profile_id: str):
+    """Get today's supplement compliance status."""
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    doc = await db.compliance_tracking.find_one(
+        {"profile_id": profile_id, "date": today}, {"_id": 0}
+    )
+    if not doc:
+        return {"date": today, "supplements": [], "taken_ids": []}
+    taken_ids = [s["id"] for s in doc.get("supplements", []) if s.get("taken")]
+    return {"date": today, "supplements": doc.get("supplements", []), "taken_ids": taken_ids}
+
+
 @router.get("/tracking/compliance/{profile_id}")
 async def get_compliance_history(profile_id: str, days: int = 30):
     """Get compliance history."""
