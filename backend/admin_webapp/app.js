@@ -1759,17 +1759,20 @@ async function loadSyncHistory() {
         emptyEl.style.display = 'none';
         tableContainer.style.display = 'block';
 
-        const intervalLabels = { daily: 'Taeglich', weekly: 'Woechentlich', monthly: 'Monatlich' };
+        const typeLabels = { sync: 'Sync', force_reimport: 'Re-Import' };
+        const typeColors = { sync: '#3B82F6', force_reimport: '#F59E0B' };
 
         tbody.innerHTML = data.history.map(h => {
             const date = new Date(h.timestamp);
             const dateStr = date.toLocaleDateString('de-DE') + ' ' + date.toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
             const isError = h.status === 'error';
             const statusIcon = isError ? '<i class="fas fa-times-circle" style="color:#EF4444"></i>' : '<i class="fas fa-check-circle" style="color:#4ADE80"></i>';
+            const syncType = h.type || 'sync';
             return `<tr>
                 <td style="white-space:nowrap">${dateStr}</td>
                 <td><span class="lang-badge" style="background:${h.lang === 'de' ? '#F59E0B' : '#4ADE80'};color:#000;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600">${h.lang.toUpperCase()}</span></td>
-                <td>${statusIcon} ${isError ? 'Fehler' : 'Erfolgreich'}</td>
+                <td><span style="background:${typeColors[syncType] || '#3B82F6'}22;color:${typeColors[syncType] || '#3B82F6'};padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600">${typeLabels[syncType] || syncType}</span></td>
+                <td>${statusIcon} ${isError ? 'Fehler' : 'OK'}</td>
                 <td>${h.total || 0}</td>
                 <td style="color:#4ADE80">${h.imported || 0}</td>
                 <td style="color:#3B82F6">${h.updated || 0}</td>
@@ -1779,5 +1782,63 @@ async function loadSyncHistory() {
         }).join('');
     } catch (err) {
         console.error('Error loading sync history:', err);
+    }
+}
+
+
+// ============ FULL RE-IMPORT ============
+async function startFullReimport(lang) {
+    const btn = document.getElementById(`reimport-${lang}-btn`);
+    const progressDiv = document.getElementById('reimport-progress');
+    const progressBar = document.getElementById('reimport-progress-bar');
+    const statusText = document.getElementById('reimport-status-text');
+
+    if (!confirm(`Vollstaendigen Re-Import fuer ${lang.toUpperCase()} starten?\n\nAlle Produkte werden neu analysiert (Einnahme, Dosierung, Inhaltsstoffe).\nDies kann einige Minuten dauern.`)) {
+        return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Laeuft...';
+    progressDiv.style.display = 'block';
+    progressBar.style.width = '0%';
+    statusText.textContent = 'Starte Re-Import...';
+
+    try {
+        const res = await apiCall(`/admin/full-reimport/${lang}`, { method: 'POST' });
+        const data = await res.json();
+        const jobId = data.job_id;
+
+        // Poll for progress
+        const poll = setInterval(async () => {
+            try {
+                const statusRes = await apiCall(`/admin/shop-import/status/${jobId}`);
+                const status = await statusRes.json();
+                const pct = status.total > 0 ? Math.round((status.processed / status.total) * 100) : 0;
+                progressBar.style.width = `${pct}%`;
+                progressBar.textContent = `${pct}%`;
+                statusText.textContent = `${status.processed}/${status.total} Produkte | Neu: ${status.imported} | Aktualisiert: ${status.updated} | Entfernt: ${status.removed} | Aktuell: ${status.current_product}`;
+
+                if (status.status === 'complete' || status.status === 'error') {
+                    clearInterval(poll);
+                    btn.disabled = false;
+                    btn.innerHTML = `<i class="fas fa-sync-alt"></i> Re-Import ${lang.toUpperCase()}`;
+                    if (status.status === 'complete') {
+                        progressBar.style.width = '100%';
+                        progressBar.textContent = '100%';
+                        statusText.innerHTML = `<span style="color:#4ADE80">Fertig!</span> ${status.imported} neu, ${status.updated} aktualisiert, ${status.removed} entfernt, ${status.skipped} uebersprungen`;
+                    } else {
+                        statusText.innerHTML = `<span style="color:#EF4444">Fehler:</span> ${status.errors.slice(0, 3).join(', ')}`;
+                    }
+                    loadSyncHistory();
+                }
+            } catch (e) {
+                console.error('Poll error:', e);
+            }
+        }, 3000);
+    } catch (err) {
+        console.error('Re-Import error:', err);
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fas fa-sync-alt"></i> Re-Import ${lang.toUpperCase()}`;
+        statusText.textContent = 'Fehler beim Starten des Re-Imports';
     }
 }

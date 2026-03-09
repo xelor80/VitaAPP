@@ -1,13 +1,16 @@
 """
 Shopify Shop Import & Auto-Sync
 - Manual import with AI-powered data extraction
-- Automatic scheduled sync (weekly/monthly) per language
+- Automatic scheduled sync (daily/weekly/monthly) per language
 - Full sync: add new, update existing, remove deleted products
+- Availability tracking & AI re-extraction on description changes
+- Full re-import with forced AI analysis
 """
 import os
 import re
 import uuid
 import json
+import hashlib
 import asyncio
 import logging
 import httpx
@@ -56,6 +59,23 @@ def _normalize_shop_url(url: str) -> str:
 
 
 SKIP_TYPES = {"workbook", "buch", "book", "kleidung", "clothing", "gutschein", "voucher", "gift card"}
+
+
+def _hash_body(html: str) -> str:
+    """Create a stable hash of the body_html to detect content changes."""
+    cleaned = _clean_html(html)
+    return hashlib.md5(cleaned.encode()).hexdigest() if cleaned else ""
+
+
+def _is_product_available(shopify_product: dict) -> bool:
+    """Check if at least one variant is available/in stock."""
+    variants = shopify_product.get("variants", [])
+    if not variants:
+        return False
+    for v in variants:
+        if v.get("available", True):
+            return True
+    return False
 
 
 async def _fetch_shopify_products(shop_url: str) -> list[dict]:
@@ -153,6 +173,7 @@ def _shopify_to_product(shopify_product: dict, ai_data: dict, lang: str, shop_ur
     base_url = _normalize_shop_url(shop_url)
 
     price = variants[0]["price"] if variants else ""
+    compare_price = variants[0].get("compare_at_price") if variants else None
     image_url = images[0]["src"] if images else ""
 
     shopify_tags = shopify_product.get("tags", [])
@@ -179,6 +200,8 @@ def _shopify_to_product(shopify_product: dict, ai_data: dict, lang: str, shop_ur
         label = "Einnahme" if lang == "de" else "Assunzione"
         app_parts.append(f"{label}: {ai_data['intake_recommendation']}")
 
+    body_html = shopify_product.get("body_html", "")
+
     return {
         "product_id": handle,
         "name": shopify_product.get("title", ""),
@@ -187,19 +210,27 @@ def _shopify_to_product(shopify_product: dict, ai_data: dict, lang: str, shop_ur
         "affiliate_url": f"{base_url}/products/{handle}",
         "image_url": image_url,
         "price": f"{price} EUR" if price else "",
+        "compare_at_price": f"{compare_price} EUR" if compare_price else None,
         "rating": "",
         "application_instructions": "\n".join(app_parts),
         "video_url": "",
         "shopify_id": str(shopify_product.get("id", "")),
         "product_type": shopify_product.get("product_type", ""),
         "imported_at": datetime.now(timezone.utc).isoformat(),
+        "last_synced_at": datetime.now(timezone.utc).isoformat(),
         "is_supplement": ai_data.get("is_supplement", True),
         "servings": ai_data.get("servings") or None,
+        "available": _is_product_available(shopify_product),
+        "body_html_hash": _hash_body(body_html),
+        "source": "shopify",
     }
 
 
-async def _run_import(job_id: str, shop_url: str, lang: str, is_sync: bool = False):
-    """Background task that processes all products. If is_sync=True, also removes deleted products."""
+async def _run_import(job_id: str, shop_url: str, lang: str, is_sync: bool = False, force_ai: bool = False):
+    """Background task that processes all products.
+    - is_sync=True: update existing, remove deleted, track availability
+    - force_ai=True: re-run AI extraction for ALL products (full re-import)
+    """
     job = _import_jobs[job_id]
     try:
         shopify_products = await _fetch_shopify_products(shop_url)
@@ -208,7 +239,8 @@ async def _run_import(job_id: str, shop_url: str, lang: str, is_sync: bool = Fal
 
         # Track which product_ids we see from Shopify (for deletion detection)
         seen_handles = set()
-        imported_handles = set()
+        # Map of Shopify product names for orphan detection
+        shopify_names = set()
 
         for i, sp in enumerate(shopify_products):
             handle = sp.get("handle", f"unknown-{i}")
@@ -218,19 +250,30 @@ async def _run_import(job_id: str, shop_url: str, lang: str, is_sync: bool = Fal
             job["current_product"] = title
             job["processed"] = i
             seen_handles.add(handle)
+            shopify_names.add(title.lower().strip())
 
             try:
                 if ptype in SKIP_TYPES:
                     job["skipped"] += 1
                     continue
 
-                body_text = _clean_html(sp.get("body_html", ""))
+                body_html = sp.get("body_html", "")
+                body_text = _clean_html(body_html)
+                new_body_hash = _hash_body(body_html)
                 tags = sp.get("tags", [])
                 if isinstance(tags, str):
                     tags = [t.strip() for t in tags.split(",")]
 
-                # For sync: check if product already exists (by handle OR name)
-                existing = await collection.find_one({"product_id": handle}, {"_id": 0, "imported_at": 1})
+                available = _is_product_available(sp)
+                variants = sp.get("variants", [])
+                images = sp.get("images", [])
+                base_url = _normalize_shop_url(shop_url)
+
+                # Check for existing product (by handle OR name)
+                existing = await collection.find_one(
+                    {"product_id": handle},
+                    {"_id": 0, "imported_at": 1, "body_html_hash": 1, "price": 1, "tags": 1, "available": 1}
+                )
                 # Also check for old manually-created duplicate by name
                 if not existing:
                     name_match = await collection.find_one(
@@ -238,33 +281,70 @@ async def _run_import(job_id: str, shop_url: str, lang: str, is_sync: bool = Fal
                         {"_id": 0, "product_id": 1}
                     )
                     if name_match:
-                        # Remove old duplicate and let Shopify version take over
                         await collection.delete_one({"product_id": name_match["product_id"]})
                         logger.info(f"[{job_id}] Removed old duplicate: {name_match['product_id']} -> {handle}")
 
-                if is_sync and existing:
-                    # Update price, image, tags from Shopify but keep AI data
-                    variants = sp.get("variants", [])
-                    images = sp.get("images", [])
+                if existing and (is_sync or force_ai):
+                    # ── UPDATE EXISTING PRODUCT ──
+                    old_body_hash = existing.get("body_html_hash", "")
+                    description_changed = old_body_hash != new_body_hash and new_body_hash != ""
+
+                    # Base update: always sync price, image, availability, tags
                     shopify_tags = tags
-                    base_url = _normalize_shop_url(shop_url)
+                    old_tags = existing.get("tags", [])
+                    merged_tags = list(set([t.lower() for t in shopify_tags + old_tags]))
 
                     update_fields = {
                         "name": title,
                         "price": f"{variants[0]['price']} EUR" if variants else "",
+                        "compare_at_price": f"{variants[0].get('compare_at_price')} EUR" if variants and variants[0].get("compare_at_price") else None,
                         "image_url": images[0]["src"] if images else "",
                         "affiliate_url": f"{base_url}/products/{handle}",
                         "product_type": sp.get("product_type", ""),
-                        "imported_at": datetime.now(timezone.utc).isoformat(),
+                        "tags": merged_tags,
+                        "available": available,
+                        "shopify_id": str(sp.get("id", "")),
+                        "last_synced_at": datetime.now(timezone.utc).isoformat(),
+                        "body_html_hash": new_body_hash,
+                        "source": "shopify",
                     }
-                    # Merge new Shopify tags with existing tags
-                    existing_doc = await collection.find_one({"product_id": handle}, {"_id": 0, "tags": 1, "price": 1})
-                    old_tags = existing_doc.get("tags", []) if existing_doc else []
-                    merged_tags = list(set([t.lower() for t in shopify_tags + old_tags]))
-                    update_fields["tags"] = merged_tags
+
+                    # Re-run AI if description changed or force_ai
+                    if description_changed or force_ai:
+                        logger.info(f"[{job_id}] {'Force' if force_ai else 'Content changed'} - re-extracting AI data for: {title}")
+                        ai_data = await _ai_extract_supplement_data(title, body_text, tags, lang)
+                        if not ai_data.get("is_supplement", True):
+                            job["skipped"] += 1
+                            continue
+
+                        # Update AI-extracted fields
+                        desc_parts = []
+                        if ai_data.get("description_short"):
+                            desc_parts.append(ai_data["description_short"])
+                        if ai_data.get("ingredients"):
+                            label = "Inhaltsstoffe" if lang == "de" else "Ingredienti"
+                            desc_parts.append(f"{label}: {', '.join(ai_data['ingredients'])}")
+                        if ai_data.get("benefits"):
+                            label = "Vorteile" if lang == "de" else "Vantaggi"
+                            desc_parts.append(f"{label}: {', '.join(ai_data['benefits'])}")
+
+                        app_parts = []
+                        if ai_data.get("dosage"):
+                            label = "Dosierung" if lang == "de" else "Dosaggio"
+                            app_parts.append(f"{label}: {ai_data['dosage']}")
+                        if ai_data.get("intake_recommendation"):
+                            label = "Einnahme" if lang == "de" else "Assunzione"
+                            app_parts.append(f"{label}: {ai_data['intake_recommendation']}")
+
+                        update_fields["description"] = "\n".join(desc_parts)
+                        update_fields["application_instructions"] = "\n".join(app_parts)
+                        update_fields["is_supplement"] = ai_data.get("is_supplement", True)
+                        update_fields["servings"] = ai_data.get("servings") or None
+                        ai_tags = ai_data.get("health_tags", [])
+                        update_fields["tags"] = list(set([t.lower() for t in shopify_tags + old_tags + ai_tags]))
 
                     # Track price changes for price alerts
-                    old_price_str = existing_doc.get("price", "") if existing_doc else ""
+                    old_price_str = existing.get("price", "")
                     new_price_str = update_fields.get("price", "")
                     if old_price_str and new_price_str and old_price_str != new_price_str:
                         await db.price_history.insert_one({
@@ -275,9 +355,14 @@ async def _run_import(job_id: str, shop_url: str, lang: str, is_sync: bool = Fal
                             "changed_at": datetime.now(timezone.utc).isoformat(),
                         })
 
+                    # Track availability changes
+                    old_available = existing.get("available", True)
+                    if old_available != available:
+                        logger.info(f"[{job_id}] Availability changed for {title}: {old_available} -> {available}")
+
                     await collection.update_one({"product_id": handle}, {"$set": update_fields})
                     job["updated"] += 1
-                    imported_handles.add(handle)
+
                     # Remove old duplicates with same name but different product_id
                     old_dupes = await collection.delete_many({
                         "name": title,
@@ -285,9 +370,9 @@ async def _run_import(job_id: str, shop_url: str, lang: str, is_sync: bool = Fal
                     })
                     if old_dupes.deleted_count > 0:
                         logger.info(f"[{job_id}] Cleaned {old_dupes.deleted_count} old duplicate(s) for: {title}")
-                    logger.info(f"[{job_id}] Updated [{i+1}/{job['total']}]: {title}")
+                    logger.info(f"[{job_id}] Updated [{i+1}/{job['total']}]: {title} (avail={available})")
                 else:
-                    # Full AI extraction for new products
+                    # ── NEW PRODUCT - full AI extraction ──
                     ai_data = await _ai_extract_supplement_data(title, body_text, tags, lang)
 
                     if not ai_data.get("is_supplement", True):
@@ -297,7 +382,6 @@ async def _run_import(job_id: str, shop_url: str, lang: str, is_sync: bool = Fal
                     product = _shopify_to_product(sp, ai_data, lang, shop_url)
                     await collection.update_one({"product_id": handle}, {"$set": product}, upsert=True)
                     job["imported"] += 1
-                    imported_handles.add(handle)
                     job["products"].append({
                         "product_id": handle,
                         "name": title,
@@ -309,30 +393,59 @@ async def _run_import(job_id: str, shop_url: str, lang: str, is_sync: bool = Fal
                 job["errors"].append(f"{handle}: {str(e)[:100]}")
                 logger.error(f"[{job_id}] Error importing {handle}: {e}")
 
-        # Remove products that no longer exist in Shopify
-        if is_sync:
-            all_db_products = await collection.find(
-                {"shopify_id": {"$exists": True}},
-                {"_id": 0, "product_id": 1}
-            ).to_list(1000)
+        # ── REMOVE/MARK products no longer in Shopify ──
+        if is_sync or force_ai:
+            # 1) Products with shopify_id that are no longer in the shop
+            all_shopify_products = await collection.find(
+                {"$or": [
+                    {"shopify_id": {"$exists": True, "$ne": "", "$ne": None}},
+                    {"source": "shopify"},
+                ]},
+                {"_id": 0, "product_id": 1, "name": 1}
+            ).to_list(2000)
 
-            for doc in all_db_products:
+            for doc in all_shopify_products:
                 pid = doc["product_id"]
                 if pid not in seen_handles:
-                    await collection.delete_one({"product_id": pid})
+                    await collection.update_one(
+                        {"product_id": pid},
+                        {"$set": {
+                            "available": False,
+                            "removed_from_shop": True,
+                            "removed_at": datetime.now(timezone.utc).isoformat(),
+                            "last_synced_at": datetime.now(timezone.utc).isoformat(),
+                        }}
+                    )
                     job["removed"] += 1
-                    logger.info(f"[{job_id}] Removed (not in shop): {pid}")
+                    logger.info(f"[{job_id}] Marked unavailable (not in shop): {pid} ({doc.get('name', '')})")
+
+            # 2) Old manual products (no shopify_id, no source) matched by name
+            manual_products = await collection.find(
+                {"$and": [
+                    {"$or": [{"shopify_id": {"$exists": False}}, {"shopify_id": None}, {"shopify_id": ""}]},
+                    {"$or": [{"source": {"$exists": False}}, {"source": None}]},
+                ]},
+                {"_id": 0, "product_id": 1, "name": 1}
+            ).to_list(2000)
+
+            for doc in manual_products:
+                name_lower = (doc.get("name", "") or "").lower().strip()
+                # If a Shopify product with similar name exists, remove the manual one
+                if name_lower in shopify_names:
+                    await collection.delete_one({"product_id": doc["product_id"]})
+                    job["removed"] += 1
+                    logger.info(f"[{job_id}] Removed manual duplicate: {doc['product_id']} (matched Shopify: {doc.get('name','')})")
 
         job["processed"] = job["total"]
         job["status"] = "complete"
         logger.info(
-            f"[{job_id}] {'Sync' if is_sync else 'Import'} complete: "
+            f"[{job_id}] {'Force-reimport' if force_ai else 'Sync' if is_sync else 'Import'} complete: "
             f"{job['imported']} new, {job.get('updated',0)} updated, "
             f"{job.get('removed',0)} removed, {job['skipped']} skipped"
         )
 
         # Update last sync time in config and log history
-        if is_sync:
+        if is_sync or force_ai:
             sync_result = {
                 "imported": job["imported"],
                 "updated": job.get("updated", 0),
@@ -352,6 +465,7 @@ async def _run_import(job_id: str, shop_url: str, lang: str, is_sync: bool = Fal
                 "lang": lang,
                 "timestamp": datetime.now(timezone.utc).isoformat(),
                 "status": "complete",
+                "type": "force_reimport" if force_ai else "sync",
                 "total": job["total"],
                 **sync_result,
                 "duration_started": job.get("started_at", ""),
@@ -362,11 +476,12 @@ async def _run_import(job_id: str, shop_url: str, lang: str, is_sync: bool = Fal
         job["errors"].append(f"Fatal: {str(e)[:200]}")
         logger.error(f"[{job_id}] Import failed: {e}")
         # Log failed sync to history
-        if is_sync:
+        if is_sync or force_ai:
             await db.sync_history.insert_one({
                 "lang": lang,
                 "timestamp": datetime.now(timezone.utc).isoformat(),
                 "status": "error",
+                "type": "force_reimport" if force_ai else "sync",
                 "total": job.get("total", 0),
                 "imported": job.get("imported", 0),
                 "updated": job.get("updated", 0),
@@ -464,6 +579,21 @@ async def trigger_sync_now(lang: str):
     job_id, _ = _create_job(is_sync=True)
     asyncio.create_task(_run_import(job_id, config["shop_url"], lang, is_sync=True))
     return {"job_id": job_id, "status": "started"}
+
+
+@router.post("/full-reimport/{lang}")
+async def trigger_full_reimport(lang: str):
+    """Full re-import: re-runs AI extraction for ALL products. Use when product data is incomplete."""
+    if lang not in ("de", "it"):
+        raise HTTPException(status_code=400, detail="Sprache muss 'de' oder 'it' sein")
+
+    config = await db[SYNC_CONFIG_COLLECTION].find_one({"lang": lang}, {"_id": 0})
+    if not config or not config.get("shop_url"):
+        raise HTTPException(status_code=400, detail="Keine Sync-Konfiguration fuer diese Sprache vorhanden")
+
+    job_id, _ = _create_job(is_sync=True)
+    asyncio.create_task(_run_import(job_id, config["shop_url"], lang, is_sync=True, force_ai=True))
+    return {"job_id": job_id, "status": "started", "info": "Vollstaendiger Re-Import mit KI-Analyse gestartet"}
 
 
 # ==================== IMPORT ENDPOINTS ====================
