@@ -1793,7 +1793,19 @@ async function startFullReimport(lang) {
     const progressBar = document.getElementById('reimport-progress-bar');
     const statusText = document.getElementById('reimport-status-text');
 
-    if (!confirm(`Vollstaendigen Re-Import fuer ${lang.toUpperCase()} starten?\n\nAlle Produkte werden neu analysiert (Einnahme, Dosierung, Inhaltsstoffe).\nDies kann einige Minuten dauern.`)) {
+    // Check if sync config has a valid URL
+    const syncUrl = document.getElementById(`sync-${lang}-url`)?.value?.trim();
+    if (!syncUrl || syncUrl.includes('example.com') || syncUrl.includes('test-shop')) {
+        alert(`Bitte zuerst eine gueltige Shop-URL fuer ${lang.toUpperCase()} in den Auto-Sync Einstellungen eintragen und speichern.`);
+        // Scroll to sync config
+        document.getElementById(`sync-${lang}-url`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+    }
+
+    // Save config first to make sure the URL is persisted
+    await saveSyncConfig(lang);
+
+    if (!confirm(`Vollstaendigen Re-Import fuer ${lang.toUpperCase()} starten?\n\nShop: ${syncUrl}\n\nAlle Produkte werden neu analysiert (Einnahme, Dosierung, Inhaltsstoffe).\nDies kann einige Minuten dauern.`)) {
         return;
     }
 
