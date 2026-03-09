@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LangProvider } from '../src/LangContext';
 import { SettingsProvider } from '../src/SettingsContext';
-import { GuideProvider } from '../src/GuideContext';
+import { GuideProvider, useGuide } from '../src/GuideContext';
 import { useSwipeBack } from '../src/useSwipeBack';
 import { GuideMascot } from '../components/GuideMascot';
 
@@ -19,8 +19,10 @@ function SwipeWrapper({ children }: { children: React.ReactNode }) {
 function GuideOverlay() {
   const pathname = usePathname();
   const [firstName, setFirstName] = useState<string | null>(null);
+  const guide = useGuide();
 
   useEffect(() => {
+    if (!guide.disclaimerAccepted) return;
     AsyncStorage.getItem('health_profile_id').then(async (profileId) => {
       if (!profileId) return;
       try {
@@ -31,7 +33,9 @@ function GuideOverlay() {
         }
       } catch {}
     }).catch(() => {});
-  }, []);
+  }, [guide.disclaimerAccepted]);
+
+  if (!guide.disclaimerAccepted) return null;
 
   return <GuideMascot currentRoute={pathname || '/'} firstName={firstName} />;
 }

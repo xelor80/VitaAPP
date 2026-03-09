@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { setCurrentAnalysis, getCurrentAnalysis } from '../src/store';
 import { useLang } from '../src/LangContext';
+import { useGuide } from '../src/GuideContext';
 import { DisclaimerScreen } from '../components/home/DisclaimerScreen';
 import { HomeHeader } from '../components/home/HomeHeader';
 import { SymptomInput } from '../components/home/SymptomInput';
@@ -31,6 +32,7 @@ const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 export default function HomeScreen() {
   const router = useRouter();
   const { lang, setLang } = useLang();
+  const guide = useGuide();
   const [disclaimerAccepted, setDisclaimerAccepted] = useState<boolean | null>(null);
   const [symptomText, setSymptomText] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -66,7 +68,8 @@ export default function HomeScreen() {
   const acceptDisclaimer = useCallback(async () => {
     await AsyncStorage.setItem('disclaimer_accepted', 'true');
     setDisclaimerAccepted(true);
-  }, []);
+    guide.setDisclaimerAccepted(true);
+  }, [guide]);
 
   const toggleTag = useCallback((tag: string) => {
     setSelectedTags(prev =>

@@ -10,6 +10,8 @@ interface GuideState {
 }
 
 interface GuideContextType extends GuideState {
+  disclaimerAccepted: boolean;
+  setDisclaimerAccepted: (val: boolean) => void;
   completeOnboarding: () => void;
   markTipSeen: (tipId: string) => void;
   showGuide: () => void;
@@ -31,6 +33,8 @@ const defaultState: GuideState = {
 
 const GuideContext = createContext<GuideContextType>({
   ...defaultState,
+  disclaimerAccepted: false,
+  setDisclaimerAccepted: () => {},
   completeOnboarding: () => {},
   markTipSeen: () => {},
   showGuide: () => {},
@@ -42,6 +46,7 @@ const GuideContext = createContext<GuideContextType>({
 
 export function GuideProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<GuideState>(defaultState);
+  const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
 
   useEffect(() => {
     AsyncStorage.getItem(STORAGE_KEY).then(raw => {
@@ -51,6 +56,10 @@ export function GuideProvider({ children }: { children: React.ReactNode }) {
           setState(prev => ({ ...prev, ...saved, guideVisible: true }));
         } catch {}
       }
+    }).catch(() => {});
+    // Also check disclaimer on mount
+    AsyncStorage.getItem('disclaimer_accepted').then(val => {
+      if (val === 'true') setDisclaimerAccepted(true);
     }).catch(() => {});
   }, []);
 
@@ -106,6 +115,8 @@ export function GuideProvider({ children }: { children: React.ReactNode }) {
   return (
     <GuideContext.Provider value={{
       ...state,
+      disclaimerAccepted,
+      setDisclaimerAccepted,
       completeOnboarding,
       markTipSeen,
       showGuide,
