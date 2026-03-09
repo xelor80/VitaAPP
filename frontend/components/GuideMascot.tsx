@@ -1,32 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, TouchableOpacity, Animated, StyleSheet,
-  Dimensions, Modal, ScrollView, Platform,
+  Dimensions, Modal, ScrollView, Platform, Image,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useGuide } from '../src/GuideContext';
 import { useLang } from '../src/LangContext';
 import { GUIDE_SCREENS, ONBOARDING_TOUR, t } from '../src/guideData';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-// ─── Mascot States ───
+// VIO mascot image
+const VIO_MASCOT = require('../assets/images/vio-mascot.png');
+
+// Mascot States
 type MascotState = 'idle' | 'highlight' | 'explaining' | 'success';
-
-const STATE_COLORS: Record<MascotState, string> = {
-  idle: '#4A8B71',
-  highlight: '#2D5A8B',
-  explaining: '#4A8B71',
-  success: '#10B981',
-};
-
-const STATE_ICONS: Record<MascotState, string> = {
-  idle: 'leaf',
-  highlight: 'lightbulb-on-outline',
-  explaining: 'message-text-outline',
-  success: 'check-circle-outline',
-};
 
 interface Props {
   currentRoute: string;
@@ -53,7 +41,7 @@ export function GuideMascot({ currentRoute, firstName }: Props) {
     }
   }, [guide.onboardingComplete, currentRoute]);
 
-  // Subtle pulse animation for highlight state
+  // Subtle pulse for highlight
   useEffect(() => {
     if (mascotState === 'highlight') {
       Animated.loop(
@@ -72,7 +60,7 @@ export function GuideMascot({ currentRoute, firstName }: Props) {
     Animated.timing(fadeAnim, { toValue: 1, duration: 500, delay: 800, useNativeDriver: true }).start();
   }, [fadeAnim]);
 
-  // Change state based on route changes
+  // Reset on route change
   useEffect(() => {
     setMascotState('highlight');
     setActiveResponse(null);
@@ -97,21 +85,19 @@ export function GuideMascot({ currentRoute, firstName }: Props) {
     setMascotState('idle');
   };
 
+  const bubbleBorderColor = mascotState === 'highlight' ? '#F59E0B' : '#4A8B71';
+
   return (
     <>
-      {/* Floating Mascot Bubble */}
+      {/* Floating VIO Mascot Bubble */}
       <Animated.View style={[s.bubbleContainer, { opacity: fadeAnim, transform: [{ scale: pulseAnim }] }]}>
         <TouchableOpacity
-          style={[s.bubble, { backgroundColor: STATE_COLORS[mascotState] }]}
+          style={[s.bubble, { borderColor: bubbleBorderColor }]}
           onPress={() => setPanelOpen(true)}
-          activeOpacity={0.8}
+          activeOpacity={0.85}
           data-testid="guide-mascot-bubble"
         >
-          <MaterialCommunityIcons
-            name={STATE_ICONS[mascotState] as any}
-            size={24}
-            color="#FFFFFF"
-          />
+          <Image source={VIO_MASCOT} style={s.bubbleImage} resizeMode="cover" />
         </TouchableOpacity>
         {mascotState === 'highlight' && (
           <View style={s.badge}>
@@ -121,22 +107,20 @@ export function GuideMascot({ currentRoute, firstName }: Props) {
       </Animated.View>
 
       {/* Guide Panel Modal */}
-      <Modal
-        visible={panelOpen}
-        transparent
-        animationType="slide"
-        onRequestClose={handleClose}
-      >
+      <Modal visible={panelOpen} transparent animationType="slide" onRequestClose={handleClose}>
         <TouchableOpacity style={s.overlay} activeOpacity={1} onPress={handleClose}>
           <TouchableOpacity activeOpacity={1} onPress={() => {}}>
             <View style={s.panel}>
-              {/* Panel Header */}
+              {/* Panel Header with VIO */}
               <View style={s.panelHeader}>
                 <View style={s.panelHeaderLeft}>
-                  <View style={s.panelIcon}>
-                    <MaterialCommunityIcons name="leaf" size={18} color="#4A8B71" />
+                  <Image source={VIO_MASCOT} style={s.panelAvatar} resizeMode="cover" />
+                  <View>
+                    <Text style={s.panelTitle}>VIO</Text>
+                    <Text style={s.panelSubtitle}>
+                      {lang === 'de' ? 'Dein Gesundheitsbegleiter' : 'Il tuo accompagnatore'}
+                    </Text>
                   </View>
-                  <Text style={s.panelTitle}>VitaGuide</Text>
                 </View>
                 <View style={s.panelHeaderActions}>
                   <TouchableOpacity
@@ -157,7 +141,7 @@ export function GuideMascot({ currentRoute, firstName }: Props) {
               <ScrollView style={s.panelBody} showsVerticalScrollIndicator={false}>
                 {/* Greeting */}
                 <View style={s.messageBox}>
-                  <MaterialCommunityIcons name="leaf" size={16} color="#4A8B71" style={{ marginTop: 2 }} />
+                  <Image source={VIO_MASCOT} style={s.messageAvatar} resizeMode="cover" />
                   <Text style={s.messageText}>{greeting}</Text>
                 </View>
 
@@ -200,7 +184,7 @@ export function GuideMascot({ currentRoute, firstName }: Props) {
                   </View>
                 </View>
 
-                {/* Hide Guide Option */}
+                {/* Hide Guide */}
                 <TouchableOpacity
                   style={s.hideBtn}
                   onPress={() => { guide.hideGuide(); handleClose(); }}
@@ -208,7 +192,7 @@ export function GuideMascot({ currentRoute, firstName }: Props) {
                 >
                   <MaterialCommunityIcons name="eye-off-outline" size={14} color="#94A3B8" />
                   <Text style={s.hideText}>
-                    {lang === 'de' ? 'Guide ausblenden' : 'Nascondi guida'}
+                    {lang === 'de' ? 'VIO ausblenden' : 'Nascondi VIO'}
                   </Text>
                 </TouchableOpacity>
               </ScrollView>
@@ -222,14 +206,8 @@ export function GuideMascot({ currentRoute, firstName }: Props) {
         <OnboardingTourModal
           lang={lang}
           firstName={firstName}
-          onComplete={() => {
-            guide.completeOnboarding();
-            setShowOnboarding(false);
-          }}
-          onSkip={() => {
-            guide.completeOnboarding();
-            setShowOnboarding(false);
-          }}
+          onComplete={() => { guide.completeOnboarding(); setShowOnboarding(false); }}
+          onSkip={() => { guide.completeOnboarding(); setShowOnboarding(false); }}
         />
       )}
     </>
@@ -261,6 +239,11 @@ function OnboardingTourModal({
     <Modal visible transparent animationType="fade">
       <View style={s.overlay}>
         <View style={s.onboardingCard}>
+          {/* VIO Avatar */}
+          <View style={s.onboardingAvatarWrap}>
+            <Image source={VIO_MASCOT} style={s.onboardingAvatar} resizeMode="contain" />
+          </View>
+
           {/* Progress Dots */}
           <View style={s.dots}>
             {ONBOARDING_TOUR.map((_, i) => (
@@ -268,22 +251,18 @@ function OnboardingTourModal({
             ))}
           </View>
 
-          <Animated.View style={{ opacity: fadeAnim, alignItems: 'center' }}>
-            {/* Icon */}
-            <View style={s.onboardingIconWrap}>
-              <MaterialCommunityIcons
-                name={current.icon as any}
-                size={28}
-                color="#4A8B71"
-              />
+          <Animated.View style={{ opacity: fadeAnim, alignItems: 'center', width: '100%' }}>
+            {/* Icon + Title */}
+            <View style={s.onboardingTitleRow}>
+              <View style={s.onboardingIconWrap}>
+                <MaterialCommunityIcons name={current.icon as any} size={20} color="#4A8B71" />
+              </View>
+              <Text style={s.onboardingTitle}>
+                {step === 0 && firstName
+                  ? `Hallo ${firstName}!`
+                  : t(current.title, lang)}
+              </Text>
             </View>
-
-            {/* Title */}
-            <Text style={s.onboardingTitle}>
-              {step === 0 && firstName
-                ? `${firstName}, ${t(current.title, lang).toLowerCase()}`
-                : t(current.title, lang)}
-            </Text>
 
             {/* Text */}
             <Text style={s.onboardingText}>{t(current.text, lang)}</Text>
@@ -314,7 +293,6 @@ function OnboardingTourModal({
             </TouchableOpacity>
           </View>
 
-          {/* Step counter */}
           <Text style={s.stepCounter}>{step + 1} / {ONBOARDING_TOUR.length}</Text>
         </View>
       </View>
@@ -332,32 +310,45 @@ const s = StyleSheet.create({
     zIndex: 999,
   },
   bubble: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  badge: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    width: 14,
-    height: 14,
-    borderRadius: 7,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 2.5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.18,
+    shadowRadius: 10,
+    elevation: 8,
+    overflow: 'hidden',
+  },
+  bubbleImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
+  badge: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   badgeDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
     backgroundColor: '#F59E0B',
   },
 
@@ -371,8 +362,8 @@ const s = StyleSheet.create({
   // Guide Panel
   panel: {
     backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
     maxHeight: Dimensions.get('window').height * 0.6,
     paddingTop: 16,
     paddingBottom: Platform.OS === 'ios' ? 34 : 20,
@@ -382,27 +373,32 @@ const s = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingBottom: 12,
+    paddingBottom: 14,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: '#E2E8F0',
   },
   panelHeaderLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
   },
-  panelIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 10,
-    backgroundColor: '#E8F5E9',
-    justifyContent: 'center',
-    alignItems: 'center',
+  panelAvatar: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: '#E8F5E9',
   },
   panelTitle: {
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: 17,
+    fontWeight: '800',
     color: '#1A2D26',
+    letterSpacing: 0.5,
+  },
+  panelSubtitle: {
+    fontSize: 11,
+    color: '#5C7A6F',
+    marginTop: 1,
   },
   panelHeaderActions: {
     flexDirection: 'row',
@@ -430,9 +426,15 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     gap: 10,
     backgroundColor: '#F0FAF4',
-    borderRadius: 12,
+    borderRadius: 14,
     padding: 14,
     marginBottom: 12,
+    alignItems: 'flex-start',
+  },
+  messageAvatar: {
+    width: 28,
+    height: 28,
+    borderRadius: 8,
   },
   messageText: {
     flex: 1,
@@ -459,11 +461,11 @@ const s = StyleSheet.create({
     marginBottom: 12,
   },
   sectionLabel: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 11,
+    fontWeight: '700',
     color: '#94A3B8',
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    letterSpacing: 0.8,
     marginBottom: 8,
   },
   quickActionBtn: {
@@ -527,8 +529,9 @@ const s = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     marginHorizontal: 24,
     marginBottom: 60,
-    borderRadius: 20,
-    padding: 28,
+    borderRadius: 24,
+    padding: 24,
+    paddingTop: 0,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
@@ -536,10 +539,32 @@ const s = StyleSheet.create({
     shadowRadius: 16,
     elevation: 8,
   },
+  onboardingAvatarWrap: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    backgroundColor: '#F0FAF4',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: -45,
+    marginBottom: 12,
+    borderWidth: 3,
+    borderColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 4,
+    overflow: 'hidden',
+  },
+  onboardingAvatar: {
+    width: 80,
+    height: 80,
+  },
   dots: {
     flexDirection: 'row',
     gap: 6,
-    marginBottom: 20,
+    marginBottom: 16,
   },
   dot: {
     width: 8,
@@ -551,21 +576,24 @@ const s = StyleSheet.create({
     backgroundColor: '#4A8B71',
     width: 20,
   },
+  onboardingTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 10,
+  },
   onboardingIconWrap: {
-    width: 56,
-    height: 56,
-    borderRadius: 16,
+    width: 32,
+    height: 32,
+    borderRadius: 10,
     backgroundColor: '#E8F5E9',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
   },
   onboardingTitle: {
     fontSize: 18,
     fontWeight: '700',
     color: '#1A2D26',
-    textAlign: 'center',
-    marginBottom: 10,
   },
   onboardingText: {
     fontSize: 14,
@@ -606,7 +634,7 @@ const s = StyleSheet.create({
     color: '#FFFFFF',
   },
   stepCounter: {
-    marginTop: 16,
+    marginTop: 14,
     fontSize: 12,
     color: '#94A3B8',
   },

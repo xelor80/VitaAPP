@@ -17,36 +17,27 @@ A health-focused, bilingual (German/Italian) mobile app where an LLM analyzes us
 54. **Admin: Nutzerstatistiken-Dashboard** (2026-03-07)
 55. **Admin: Shopify-Sync-Status & Historie** (2026-03-07)
 56. **Admin: Taegliches Sync-Intervall** (2026-03-07)
-57. **Guide-Maskottchen-System** (2026-03-09):
-    - 5-Schritt-Onboarding-Tour fuer neue Nutzer (Welcome, Health Score, Supplement-Plan, Tracking, Erinnerungen)
-    - Schwebendes Mascot-Bubble (unten rechts) auf allen Screens
-    - Kontextsensitives Guide-Panel als Bottom Sheet mit:
-      - Screen-spezifische Begruessung
-      - Quick Actions (Haeufige Fragen)
-      - Naechster-Schritt-Empfehlung
-      - Guide ausblenden/spaeter Optionen
-    - 4 Maskottchen-Zustaende: idle, highlight, explaining, success
+57. **VIO Guide-Maskottchen-System** (2026-03-09):
+    - 5-Schritt-Onboarding-Tour mit VIO-Avatar
+    - Schwebendes VIO-Bubble (unten rechts) auf allen Screens
+    - Kontextsensitives Guide-Panel als Bottom Sheet
+    - VIO-Baerchen-Bild integriert (assets/images/vio-mascot.png)
+    - Panel-Header: VIO-Avatar + "Dein Gesundheitsbegleiter"
+    - Quick Actions, Naechster-Schritt, Ausblenden-Option
+    - 4 Zustaende: idle, highlight, explaining, success
     - Vollstaendig zweisprachig (DE/IT)
-    - State-Management via GuideContext + AsyncStorage
-    - Modulare Textpflege ueber guideData.ts
-    - Keine bestehende Funktion veraendert oder ersetzt
+    - State via GuideContext + AsyncStorage
 
 ## Key Files (Guide System)
-- `frontend/components/GuideMascot.tsx` - Hauptkomponente (Bubble, Panel, Tour)
-- `frontend/src/GuideContext.tsx` - State Management (Onboarding-Status, Sichtbarkeit, gesehene Tipps)
-- `frontend/src/guideData.ts` - Zentrale zweisprachige Texte fuer alle Screens
-- `frontend/app/_layout.tsx` - Integration mit GuideProvider und GuideOverlay
-
-## Key API Endpoints
-- `GET /api/admin/user-stats` - Detaillierte Nutzerstatistiken
-- `GET /api/admin/sync-history` - Sync-Verlauf
-- `POST /api/admin/sync-config` - Akzeptiert 'daily', 'weekly', 'monthly'
-- `GET /api/tracking/compliance/today/{profile_id}` - Heutiger Einnahme-Status
-- `POST /api/daily-tasks/complete-supplements` - Einnahme speichern
+- `frontend/components/GuideMascot.tsx` - Hauptkomponente mit VIO-Bild
+- `frontend/src/GuideContext.tsx` - State Management
+- `frontend/src/guideData.ts` - Zweisprachige Texte
+- `frontend/assets/images/vio-mascot.png` - VIO-Maskottchen-Bild
+- `frontend/app/_layout.tsx` - Integration mit GuideProvider
 
 ## Backlog
-- Personalisierte Guide-Tipps basierend auf echten Nutzerdaten (hohes Risiko, offene Einnahmen)
-- Guide-Texte ueber Admin-Panel verwaltbar machen
-- Weitere UI/UX Verbesserungen nach Feedback
+- Verschiedene VIO-Posen fuer unterschiedliche Zustaende
+- Personalisierte VIO-Tipps basierend auf Nutzerdaten
+- Guide-Texte ueber Admin-Panel verwaltbar
 - Erweiterte Gamification (Achievements, Wochenziele)
-- Rezept-Erweiterungen (Einkaufsliste, Essensplan-Generator)
+- Rezept-Erweiterungen (Einkaufsliste, Essensplan)
