@@ -7,6 +7,22 @@ let editingRecipe = null;
 let editingChip = null;
 let aiConfig = null;
 
+// ============ AUTO-LOGIN FROM TOKEN PARAM ============
+(function() {
+    const params = new URLSearchParams(window.location.search);
+    const urlToken = params.get('token');
+    if (urlToken) {
+        sessionStorage.setItem('admin_token', urlToken);
+        // Clean URL
+        window.history.replaceState({}, '', window.location.pathname);
+    }
+    // Check if already logged in
+    const existingToken = sessionStorage.getItem('admin_token');
+    if (existingToken) {
+        setTimeout(() => showDashboard(), 100);
+    }
+})();
+
 // ============ AUTH ============
 document.getElementById('login-form').addEventListener('submit', async (e) => {
     e.preventDefault();

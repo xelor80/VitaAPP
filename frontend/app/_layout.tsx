@@ -63,6 +63,7 @@ export default function RootLayout() {
                 <Stack.Screen name="health-profile" />
                 <Stack.Screen name="progress" />
                 <Stack.Screen name="recipes-catalog" />
+                <Stack.Screen name="admin" />
               </Stack>
               <GuideOverlay />
             </View>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View, ScrollView, SafeAreaView, KeyboardAvoidingView,
-  Platform, ActivityIndicator, Alert
+  Platform, ActivityIndicator, Alert, Text
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
@@ -198,6 +198,11 @@ export default function HomeScreen() {
           )}
           {!hasSaved && <AnalyzeButton lang={lang} isLoading={isLoading} onPress={analyzeSymptoms} />}
           <FooterDisclaimer lang={lang} />
+          <Text
+            onPress={() => router.push('/admin' as any)}
+            style={{ textAlign: 'center', color: '#2A3A32', fontSize: 10, paddingVertical: 12, opacity: 0.3 }}
+            data-testid="admin-link"
+          >v1.0</Text>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
