@@ -1,45 +1,59 @@
-# VitaGuide - Product Requirements Document
+# VitaGuide+ - Product Requirements Document
 
 ## Original Problem Statement
-A health-focused, bilingual (German/Italian) mobile app where an LLM analyzes user-inputted symptoms to provide nutrition tips, supplement information, and affiliate links.
+Bilingual (German/Italian) health app using an LLM to provide nutrition tips based on user symptoms. Evolved into a comprehensive personal health coach application.
 
-## Architecture
-- **Frontend**: React Native (Expo SDK 54) - Mobile App
-- **Backend**: FastAPI (Python)
-- **Database**: MongoDB (Atlas in production)
-- **AI**: OpenAI GPT-4o via Emergent LLM Key
-- **TTS**: OpenAI TTS via Emergent LLM Key (expo-audio)
-- **Integrations**: Shopify (product import), SMTP (email export), Unsplash (recipe images)
-- **Admin Panel**: Static HTML/JS/CSS served at /api/admin-app
+## Tech Stack
+- **Frontend**: React Native (Expo)
+- **Backend**: FastAPI + MongoDB
+- **3rd Party**: OpenAI GPT-4o (Emergent LLM Key), OpenAI TTS, Shopify API, SMTP (kasserver.com), Unsplash, react-native-webview
 
-## Implemented Features (Complete)
-1-53: All features through supplement compliance sync
-54. Admin: Nutzerstatistiken-Dashboard (2026-03-07)
-55. Admin: Shopify-Sync-Status & Historie (2026-03-07)
-56. Admin: Taegliches Sync-Intervall (2026-03-07)
-57. VIO Guide-Maskottchen-System (2026-03-09)
-58. VIO: Disclaimer-Timing Fix (2026-03-09)
-59. **Shopify Sync v2 - 5 Verbesserungen** (2026-03-09):
-    - **Verfuegbarkeitspruefung**: `_is_product_available()` prueft `variants[].available`. Produkte die nicht mehr im Shop sind werden als `available: false` + `removed_from_shop: true` markiert
-    - **KI-Re-Extraktion bei Aenderungen**: `body_html_hash` (MD5) erkennt Beschreibungsaenderungen. Bei Aenderung wird automatisch KI-Analyse fuer Einnahme, Dosierung, Inhaltsstoffe erneut ausgefuehrt
-    - **Manuelle Produkte bereinigen**: Alte Produkte ohne `shopify_id` werden per Namensabgleich erkannt und geloescht wenn Shopify-Pendant existiert
-    - **Vollstaendiger Re-Import**: Neuer Endpoint `POST /api/admin/full-reimport/{lang}` + Admin-Panel Buttons. Re-importiert ALLE Produkte inkl. KI-Analyse
-    - **Per-Produkt Sync-Status**: Neue Felder `last_synced_at`, `body_html_hash`, `available`, `source`, `compare_at_price`
-    - Sync-Historie zeigt jetzt "Typ" (Sync vs Re-Import)
+## Core Features (Implemented)
+1. **Symptom Analysis** - AI-powered symptom analysis with bilingual support (DE/IT)
+2. **Product Recommendations** - Shopify-synced supplements with affiliate links
+3. **Recipe System** - AI-generated healthy recipes
+4. **Health Profiles** - User health data tracking
+5. **Admin Panel** - Full-featured web admin with:
+   - Product/Recipe/Translation/Chip management
+   - Shopify auto-sync with soft deletion, change detection, full re-import
+   - User statistics dashboard
+   - Sync history log
+   - AI settings configuration
+   - Click tracking & analytics
+   - Health statistics
+   - Video management
+   - Label analysis
+6. **Digital Mascot "VIO"** - Onboarding tour + contextual help
+7. **In-App Admin Access** - WebView with token-based auto-login
+8. **Mobile-Responsive Admin** - Full mobile-first CSS redesign
+9. **Text-to-Speech** - OpenAI TTS for analysis results
+10. **Supplement Plans** - Daily dose calculations
 
-## Key New API Endpoints
-- `POST /api/admin/full-reimport/{lang}` - Vollstaendiger Re-Import mit KI
-- `GET /api/admin/sync-history` - Erweitert mit type-Feld
-- Alle Produkt-Dokumente haben jetzt: last_synced_at, body_html_hash, available, source
+## Completed Work
+- [2026-03] Mobile-responsive admin panel verified
+- [2026-03] In-app admin access via WebView
+- [2026-03] Shopify sync overhaul (soft deletion, hashing, expanded data extraction)
+- [2026-03] Digital mascot "VIO" with onboarding
+- [2026-03] Admin panel feature expansion (user stats, sync history, daily sync)
 
-## Key DB Changes
-- `products_de/it`: Neue Felder: `available`, `removed_from_shop`, `removed_at`, `last_synced_at`, `body_html_hash`, `source`, `compare_at_price`
-- `sync_history`: Neues Feld `type` (sync | force_reimport)
-- `price_history`: Unveraendert
+## Key Architecture
+```
+/app
+├── backend/
+│   ├── admin_webapp/ (index.html, styles.css, app.js)
+│   ├── models/
+│   ├── routes/admin.py
+│   └── utils/shopify_sync.py
+└── frontend/
+    ├── src/app/(tabs)/ & admin.tsx
+    └── src/components/guide/ (VIO mascot)
+```
 
-## Backlog
-- Verschiedene VIO-Posen fuer unterschiedliche Zustaende
-- Personalisierte VIO-Tipps basierend auf Nutzerdaten
-- Guide-Texte ueber Admin-Panel verwaltbar
-- Erweiterte Gamification (Achievements, Wochenziele)
-- Rezept-Erweiterungen (Einkaufsliste, Essensplan)
+## Credentials
+- Admin Password: Wk220480xel!
+- DE Shop: https://joachim-kaeser.de
+- IT Shop: https://joachimkaeser.it
+
+## Backlog (P2)
+- No open issues or pending tasks
+- Awaiting user direction for next features

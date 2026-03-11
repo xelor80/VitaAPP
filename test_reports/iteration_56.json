@@ -98,7 +98,7 @@
   "test_credentials": {
     "test_shift_worker_profile_id": "6bf7a26c-0620-4e8f-b2ec-091ea4da789a",
     "test_office_worker_profile_id": "6a45cc7a-37f9-4412-a089-1fd06c32171b",
-    "preview_url": "https://health-coach-102.preview.emergentagent.com"
+    "preview_url": "https://vitaguide-admin.preview.emergentagent.com"
   },
   "seed_data_creation": "Created test office worker profile to verify rotator NOT visible for non-shift workers",
   "retest_needed": false,
