@@ -24,7 +24,7 @@ export default function RecipesTab() {
         const res = await fetch(`${API_URL}/api/recipes?lang=${lang}&limit=20`);
         if (res.ok) {
           const d = await res.json();
-          setRecipes(d.recipes || []);
+          setRecipes(Array.isArray(d) ? d : (d.recipes || []));
         }
       } catch {} finally {
         setLoading(false);
