@@ -6,18 +6,19 @@ import { styles } from './homeStyles';
 
 interface OnboardingButtonProps {
   lang: string;
+  refreshKey?: number;
   onPress: () => void;
   onProfilePress?: () => void;
 }
 
-export function OnboardingButton({ lang, onPress, onProfilePress }: OnboardingButtonProps) {
+export function OnboardingButton({ lang, refreshKey, onPress, onProfilePress }: OnboardingButtonProps) {
   const [hasProfile, setHasProfile] = useState(false);
 
   useEffect(() => {
     AsyncStorage.getItem('health_profile_id').then(val => {
       setHasProfile(!!val);
     }).catch(() => {});
-  }, []);
+  }, [refreshKey]);
 
   return (
     <TouchableOpacity

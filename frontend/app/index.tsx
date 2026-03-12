@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import { setCurrentAnalysis, getCurrentAnalysis } from '../src/store';
 import { useLang } from '../src/LangContext';
 import { useGuide } from '../src/GuideContext';
@@ -39,6 +40,7 @@ export default function HomeScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [hasSaved, setHasSaved] = useState(() => getCurrentAnalysis() !== null);
   const [firstName, setFirstName] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
   const scrollRef = React.useRef<ScrollView>(null);
   const inputYRef = React.useRef(0);
 
@@ -46,24 +48,35 @@ export default function HomeScreen() {
     AsyncStorage.getItem('disclaimer_accepted').then(val => {
       setDisclaimerAccepted(val === 'true');
     }).catch(() => setDisclaimerAccepted(false));
-    // Check for saved analysis (fallback for cold start / page refresh)
-    AsyncStorage.getItem('saved_analysis').then(val => {
-      if (val) setHasSaved(true);
-    }).catch(() => {});
-    // Load first name from health profile
-    AsyncStorage.getItem('health_profile_id').then(async (profileId) => {
-      if (!profileId) return;
-      try {
-        const res = await fetch(`${API_URL}/api/health-profile/${profileId}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data.profile?.first_name) {
-            setFirstName(data.profile.first_name);
-          }
-        }
-      } catch {}
-    }).catch(() => {});
   }, []);
+
+  // Re-load profile data every time this screen gains focus
+  useFocusEffect(
+    useCallback(() => {
+      // Check for saved analysis
+      AsyncStorage.getItem('saved_analysis').then(val => {
+        if (val) setHasSaved(true);
+      }).catch(() => {});
+      // Load first name from health profile
+      AsyncStorage.getItem('health_profile_id').then(async (profileId) => {
+        if (!profileId) {
+          setFirstName(null);
+          return;
+        }
+        try {
+          const res = await fetch(`${API_URL}/api/health-profile/${profileId}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data.profile?.first_name) {
+              setFirstName(data.profile.first_name);
+            }
+          }
+        } catch {}
+      }).catch(() => {});
+      // Bump key so child components re-check their state
+      setRefreshKey(k => k + 1);
+    }, [])
+  );
 
   const acceptDisclaimer = useCallback(async () => {
     await AsyncStorage.setItem('disclaimer_accepted', 'true');
@@ -154,11 +167,13 @@ export default function HomeScreen() {
           <HomeHeader lang={lang} setLang={setLang} onLangChange={clearTags} firstName={firstName} />
           <OnboardingButton
             lang={lang}
+            refreshKey={refreshKey}
             onPress={() => router.push('/onboarding')}
             onProfilePress={() => router.push('/health-profile')}
           />
           <SupplementPlanButton
             lang={lang}
+            refreshKey={refreshKey}
             onPress={() => router.push('/supplement-plan')}
             onNoProfile={() => router.push('/onboarding')}
           />
@@ -170,12 +185,12 @@ export default function HomeScreen() {
             lang={lang}
             onPress={() => router.push('/recipes-catalog')}
           />
-          <DailyTasks lang={lang} onNavigate={(route) => router.push(route as any)} />
-          <PriceAlerts lang={lang} />
-          <Achievements lang={lang} />
+          <DailyTasks key={`dt-${refreshKey}`} lang={lang} onNavigate={(route) => router.push(route as any)} />
+          <PriceAlerts key={`pa-${refreshKey}`} lang={lang} />
+          <Achievements key={`ach-${refreshKey}`} lang={lang} />
           <TrustBanner lang={lang} />
-          <HealthScoreCard lang={lang} />
-          <ScoreHistoryChart lang={lang} />
+          <HealthScoreCard key={`hsc-${refreshKey}`} lang={lang} />
+          <ScoreHistoryChart key={`shc-${refreshKey}`} lang={lang} />
           <SymptomInput lang={lang} value={symptomText} onChangeText={setSymptomText} onLayout={(e: any) => { inputYRef.current = e.nativeEvent.layout.y; }} />
           <SymptomChips lang={lang} selectedTags={selectedTags} onToggleTag={toggleTag} />
           {hasSaved && (

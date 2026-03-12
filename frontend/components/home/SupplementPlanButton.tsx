@@ -6,11 +6,12 @@ import { styles } from './homeStyles';
 
 interface SupplementPlanButtonProps {
   lang: string;
+  refreshKey?: number;
   onPress: () => void;
   onNoProfile: () => void;
 }
 
-export function SupplementPlanButton({ lang, onPress, onNoProfile }: SupplementPlanButtonProps) {
+export function SupplementPlanButton({ lang, refreshKey, onPress, onNoProfile }: SupplementPlanButtonProps) {
   const [hasProfile, setHasProfile] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
 
@@ -18,7 +19,7 @@ export function SupplementPlanButton({ lang, onPress, onNoProfile }: SupplementP
     AsyncStorage.getItem('health_profile_id').then(val => {
       setHasProfile(!!val);
     }).catch(() => {});
-  }, []);
+  }, [refreshKey]);
 
   const handlePress = () => {
     if (hasProfile) {
