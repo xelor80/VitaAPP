@@ -169,17 +169,17 @@ export default function DashboardHome() {
         contentContainerStyle={s.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Greeting with VERO */}
-        <View style={s.greetingRow}>
-          <View style={{ flex: 1 }}>
+        {/* Greeting + VERO + Cards */}
+        <View style={s.heroSection}>
+          {/* VERO behind cards */}
+          <Image source={VERO_DASHBOARD} style={s.heroMascot} resizeMode="contain" />
+          {/* Greeting text */}
+          <View style={s.greetingRow}>
             <Text style={s.greetingName}>{greeting}</Text>
             <Text style={s.greetingSub}>{subtitle}</Text>
           </View>
-          <Image source={VERO_DASHBOARD} style={s.greetingMascot} resizeMode="contain" />
-        </View>
-
-        {/* Two Feature Cards */}
-        <View style={s.cardsRow}>
+          {/* Two Feature Cards */}
+          <View style={s.cardsRow}>
           {/* Supplement Plan Card */}
           <TouchableOpacity
             style={[s.featureCard]}
@@ -221,6 +221,7 @@ export default function DashboardHome() {
               </View>
             </LinearGradient>
           </TouchableOpacity>
+        </View>
         </View>
 
         {/* Recipes Section */}
@@ -371,20 +372,31 @@ const s = StyleSheet.create({
   settingsBtn: { padding: 6 },
   scroll: { flex: 1 },
   scrollContent: { paddingTop: 20 },
+  heroSection: {
+    position: 'relative',
+    paddingTop: 8,
+    marginBottom: 24,
+  },
+  heroMascot: {
+    position: 'absolute',
+    right: SIDE_PAD,
+    top: 20,
+    width: 120,
+    height: 120,
+    zIndex: 0,
+  },
   greetingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
     paddingHorizontal: SIDE_PAD,
-    marginBottom: 20,
+    marginBottom: 16,
+    zIndex: 1,
   },
   greetingName: { fontSize: 28, fontWeight: '800', color: '#1A2E35', letterSpacing: -0.5 },
   greetingSub: { fontSize: 16, color: '#6B7280', marginTop: 2 },
-  greetingMascot: { width: 120, height: 120, marginLeft: 8, marginTop: -10 },
   cardsRow: {
     flexDirection: 'row',
     paddingHorizontal: SIDE_PAD,
     gap: CARD_GAP,
-    marginBottom: 24,
+    zIndex: 2,
   },
   featureCard: {
     flex: 1,
