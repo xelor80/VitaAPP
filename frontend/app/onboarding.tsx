@@ -142,6 +142,9 @@ export default function OnboardingScreen() {
       setProfileId(data.profile_id);
       setAssessment(data.assessment);
       setStep(STEPS.length); // Show assessment
+      // Notify home screen about profile update
+      const { eventBus } = require('../src/eventBus');
+      eventBus.emit('profileUpdated');
     } catch (e) {
       Alert.alert(
         lang === 'de' ? 'Fehler' : 'Errore',

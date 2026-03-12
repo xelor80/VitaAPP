@@ -30,8 +30,8 @@ Bilingual (German/Italian) health app using an LLM to provide nutrition tips bas
 10. **Supplement Plans** - Daily dose calculations
 
 ## Completed Work
-- [2026-03-12] Bugfix: Profildaten werden nach Navigation zur Startseite nicht aktualisiert - useFocusEffect + refreshKey Pattern implementiert
-- [2026-03-12] VIO Maskottchen-Posen: 3 neue Bilder (Hallo/Super/Achtung) kontextabhängig in Onboarding + Screens integriert; VIO überall vergrößert (Bubble 72px, Onboarding 120px, Panel 48px, Message 36px)
+- [2026-03-12] VIO→VERO Umbenennung: Alle Referenzen geändert, 4 neue VERO-Bilder (Hallo/Super/Achtung/Herz) integriert, Bounce-In + Spring-Slide-Up + Slide-Fade Animationen, Event-Bus für Screen-Refresh
+- [2026-03-12] Bugfix: Profildaten werden nach Navigation zur Startseite nicht aktualisiert - eventBus Pattern implementiert
 - [2026-03] Mobile-responsive admin panel verified
 - [2026-03] In-app admin access via WebView
 - [2026-03] Shopify sync overhaul (soft deletion, hashing, expanded data extraction)

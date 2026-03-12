@@ -5,8 +5,8 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
-import { useFocusEffect } from '@react-navigation/native';
 import { setCurrentAnalysis, getCurrentAnalysis } from '../src/store';
+import { eventBus } from '../src/eventBus';
 import { useLang } from '../src/LangContext';
 import { useGuide } from '../src/GuideContext';
 import { DisclaimerScreen } from '../components/home/DisclaimerScreen';
@@ -50,33 +50,36 @@ export default function HomeScreen() {
     }).catch(() => setDisclaimerAccepted(false));
   }, []);
 
-  // Re-load profile data every time this screen gains focus
-  useFocusEffect(
-    useCallback(() => {
-      // Check for saved analysis
-      AsyncStorage.getItem('saved_analysis').then(val => {
-        if (val) setHasSaved(true);
-      }).catch(() => {});
-      // Load first name from health profile
-      AsyncStorage.getItem('health_profile_id').then(async (profileId) => {
-        if (!profileId) {
-          setFirstName(null);
-          return;
-        }
-        try {
-          const res = await fetch(`${API_URL}/api/health-profile/${profileId}`);
-          if (res.ok) {
-            const data = await res.json();
-            if (data.profile?.first_name) {
-              setFirstName(data.profile.first_name);
-            }
+  // Listen for profile/plan updates from other screens
+  useEffect(() => {
+    const refresh = () => setRefreshKey(k => k + 1);
+    eventBus.on('profileUpdated', refresh);
+    return () => eventBus.off('profileUpdated', refresh);
+  }, []);
+
+  // Load profile data on mount and when refreshKey changes
+  useEffect(() => {
+    // Check for saved analysis
+    AsyncStorage.getItem('saved_analysis').then(val => {
+      if (val) setHasSaved(true);
+    }).catch(() => {});
+    // Load first name from health profile
+    AsyncStorage.getItem('health_profile_id').then(async (profileId) => {
+      if (!profileId) {
+        setFirstName(null);
+        return;
+      }
+      try {
+        const res = await fetch(`${API_URL}/api/health-profile/${profileId}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.profile?.first_name) {
+            setFirstName(data.profile.first_name);
           }
-        } catch {}
-      }).catch(() => {});
-      // Bump key so child components re-check their state
-      setRefreshKey(k => k + 1);
-    }, [])
-  );
+        }
+      } catch {}
+    }).catch(() => {});
+  }, [refreshKey]);
 
   const acceptDisclaimer = useCallback(async () => {
     await AsyncStorage.setItem('disclaimer_accepted', 'true');

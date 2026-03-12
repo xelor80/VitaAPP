@@ -9,14 +9,14 @@ export interface GuideQuickAction {
   response: { de: string; it: string };
 }
 
-// Mascot pose types matching the available VIO images
-export type MascotPose = 'default' | 'hallo' | 'super' | 'achtung';
+// Mascot pose types matching the available VERO images
+export type MascotPose = 'default' | 'hallo' | 'super' | 'achtung' | 'herz';
 
 export interface GuideScreenData {
   greeting: { de: string; it: string };
   explanation: { de: string; it: string };
   nextStep: { de: string; it: string };
-  pose: MascotPose;         // which VIO pose to show for this screen
+  pose: MascotPose;         // which VERO pose to show for this screen
   quickActions: GuideQuickAction[];
 }
 
@@ -251,7 +251,7 @@ export const GUIDE_SCREENS: Record<string, GuideScreenData> = {
       de: 'Vergleichen Sie Ihre Werte ueber verschiedene Zeitraeume, um Trends zu erkennen.',
       it: 'Confrontate i vostri valori su diversi periodi per riconoscere le tendenze.',
     },
-    pose: 'super',
+    pose: 'herz',
     quickActions: [],
   },
 
@@ -268,7 +268,7 @@ export const GUIDE_SCREENS: Record<string, GuideScreenData> = {
       de: 'Filtern Sie nach Kategorien oder suchen Sie nach bestimmten Zutaten.',
       it: 'Filtrate per categorie o cercate ingredienti specifici.',
     },
-    pose: 'hallo',
+    pose: 'herz',
     quickActions: [
       {
         id: 'explain_recipes',

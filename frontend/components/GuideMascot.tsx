@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, TouchableOpacity, Animated, StyleSheet,
-  Dimensions, Modal, ScrollView, Platform, Image,
+  Dimensions, Modal, ScrollView, Platform, Image, Easing,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useGuide } from '../src/GuideContext';
@@ -10,17 +10,18 @@ import { GUIDE_SCREENS, ONBOARDING_TOUR, t, MascotPose } from '../src/guideData'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-// VIO mascot images - different poses
-const VIO_IMAGES: Record<MascotPose, any> = {
-  default: require('../assets/images/vio-mascot.png'),
-  hallo: require('../assets/images/vio-hallo.png'),
-  super: require('../assets/images/vio-super.png'),
-  achtung: require('../assets/images/vio-achtung.png'),
+// VERO mascot images - different poses
+const VERO_IMAGES: Record<MascotPose, any> = {
+  default: require('../assets/images/vero-hallo.png'),
+  hallo: require('../assets/images/vero-hallo.png'),
+  super: require('../assets/images/vero-super.png'),
+  achtung: require('../assets/images/vero-achtung.png'),
+  herz: require('../assets/images/vero-herz.png'),
 };
 
 // Helper to get the right image for a pose
-function getVioImage(pose: MascotPose) {
-  return VIO_IMAGES[pose] || VIO_IMAGES.default;
+function getVeroImage(pose: MascotPose) {
+  return VERO_IMAGES[pose] || VERO_IMAGES.default;
 }
 
 // Mascot States
@@ -40,10 +41,13 @@ export function GuideMascot({ currentRoute, firstName }: Props) {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const bounceAnim = useRef(new Animated.Value(0)).current;
+  const panelSlideAnim = useRef(new Animated.Value(300)).current;
+  const panelOpacityAnim = useRef(new Animated.Value(0)).current;
 
   const screenData = GUIDE_SCREENS[currentRoute] || GUIDE_SCREENS['/'];
   const currentPose = screenData.pose || 'default';
-  const currentImage = getVioImage(currentPose);
+  const currentImage = getVeroImage(currentPose);
 
   // Start onboarding tour for new users
   useEffect(() => {
@@ -67,10 +71,19 @@ export function GuideMascot({ currentRoute, firstName }: Props) {
     }
   }, [mascotState, pulseAnim]);
 
-  // Fade in on mount
+  // Bounce-in on mount (elastic spring effect)
   useEffect(() => {
-    Animated.timing(fadeAnim, { toValue: 1, duration: 500, delay: 800, useNativeDriver: true }).start();
-  }, [fadeAnim]);
+    Animated.parallel([
+      Animated.timing(fadeAnim, { toValue: 1, duration: 400, delay: 600, useNativeDriver: true }),
+      Animated.spring(bounceAnim, {
+        toValue: 1,
+        delay: 600,
+        friction: 4,
+        tension: 100,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [fadeAnim, bounceAnim]);
 
   // Reset on route change
   useEffect(() => {
@@ -91,21 +104,36 @@ export function GuideMascot({ currentRoute, firstName }: Props) {
     setMascotState('explaining');
   };
 
+  const handleOpen = () => {
+    setPanelOpen(true);
+    panelSlideAnim.setValue(300);
+    panelOpacityAnim.setValue(0);
+    Animated.parallel([
+      Animated.spring(panelSlideAnim, { toValue: 0, friction: 8, tension: 65, useNativeDriver: true }),
+      Animated.timing(panelOpacityAnim, { toValue: 1, duration: 250, useNativeDriver: true }),
+    ]).start();
+  };
+
   const handleClose = () => {
-    setPanelOpen(false);
-    setActiveResponse(null);
-    setMascotState('idle');
+    Animated.parallel([
+      Animated.timing(panelSlideAnim, { toValue: 300, duration: 200, easing: Easing.in(Easing.ease), useNativeDriver: true }),
+      Animated.timing(panelOpacityAnim, { toValue: 0, duration: 200, useNativeDriver: true }),
+    ]).start(() => {
+      setPanelOpen(false);
+      setActiveResponse(null);
+      setMascotState('idle');
+    });
   };
 
   const bubbleBorderColor = mascotState === 'highlight' ? '#F59E0B' : '#4A8B71';
 
   return (
     <>
-      {/* Floating VIO Mascot Bubble */}
-      <Animated.View style={[s.bubbleContainer, { opacity: fadeAnim, transform: [{ scale: pulseAnim }] }]}>
+      {/* Floating VERO Mascot Bubble */}
+      <Animated.View style={[s.bubbleContainer, { opacity: fadeAnim, transform: [{ scale: Animated.multiply(pulseAnim, bounceAnim) }] }]}>
         <TouchableOpacity
           style={[s.bubble, { borderColor: bubbleBorderColor }]}
-          onPress={() => setPanelOpen(true)}
+          onPress={handleOpen}
           activeOpacity={0.85}
           data-testid="guide-mascot-bubble"
         >
@@ -118,17 +146,19 @@ export function GuideMascot({ currentRoute, firstName }: Props) {
         )}
       </Animated.View>
 
-      {/* Guide Panel Modal */}
-      <Modal visible={panelOpen} transparent animationType="slide" onRequestClose={handleClose}>
-        <TouchableOpacity style={s.overlay} activeOpacity={1} onPress={handleClose}>
-          <TouchableOpacity activeOpacity={1} onPress={() => {}}>
-            <View style={s.panel}>
-              {/* Panel Header with VIO */}
+      {/* Guide Panel - Custom Animated (replaces Modal) */}
+      {panelOpen && (
+        <View style={s.overlayAbsolute}>
+          <Animated.View style={[s.overlayBg, { opacity: panelOpacityAnim }]}>
+            <TouchableOpacity style={{ flex: 1 }} activeOpacity={1} onPress={handleClose} />
+          </Animated.View>
+          <Animated.View style={[s.panel, { transform: [{ translateY: panelSlideAnim }] }]}>
+              {/* Panel Header with VERO */}
               <View style={s.panelHeader}>
                 <View style={s.panelHeaderLeft}>
                   <Image source={currentImage} style={s.panelAvatar} resizeMode="cover" />
                   <View>
-                    <Text style={s.panelTitle}>VIO</Text>
+                    <Text style={s.panelTitle}>VERO</Text>
                     <Text style={s.panelSubtitle}>
                       {lang === 'de' ? 'Dein Gesundheitsbegleiter' : 'Il tuo accompagnatore'}
                     </Text>
@@ -204,14 +234,13 @@ export function GuideMascot({ currentRoute, firstName }: Props) {
                 >
                   <MaterialCommunityIcons name="eye-off-outline" size={14} color="#94A3B8" />
                   <Text style={s.hideText}>
-                    {lang === 'de' ? 'VIO ausblenden' : 'Nascondi VIO'}
+                    {lang === 'de' ? 'VERO ausblenden' : 'Nascondi VERO'}
                   </Text>
                 </TouchableOpacity>
               </ScrollView>
-            </View>
-          </TouchableOpacity>
-        </TouchableOpacity>
-      </Modal>
+            </Animated.View>
+        </View>
+      )}
 
       {/* Onboarding Tour */}
       {showOnboarding && !guide.onboardingComplete && (
@@ -237,14 +266,26 @@ function OnboardingTourModal({
 }) {
   const [step, setStep] = useState(0);
   const fadeAnim = useRef(new Animated.Value(1)).current;
+  const slideAnim = useRef(new Animated.Value(0)).current;
+  const avatarScaleAnim = useRef(new Animated.Value(1)).current;
   const current = ONBOARDING_TOUR[step];
   const isLast = step === ONBOARDING_TOUR.length - 1;
-  const stepImage = getVioImage(current.pose);
+  const stepImage = getVeroImage(current.pose);
 
   const animateTransition = (nextStep: number) => {
-    Animated.timing(fadeAnim, { toValue: 0, duration: 150, useNativeDriver: true }).start(() => {
+    const direction = nextStep > step ? -30 : 30;
+    Animated.parallel([
+      Animated.timing(fadeAnim, { toValue: 0, duration: 150, useNativeDriver: true }),
+      Animated.timing(slideAnim, { toValue: direction, duration: 150, useNativeDriver: true }),
+      Animated.timing(avatarScaleAnim, { toValue: 0.85, duration: 150, useNativeDriver: true }),
+    ]).start(() => {
       setStep(nextStep);
-      Animated.timing(fadeAnim, { toValue: 1, duration: 200, useNativeDriver: true }).start();
+      slideAnim.setValue(-direction);
+      Animated.parallel([
+        Animated.timing(fadeAnim, { toValue: 1, duration: 250, useNativeDriver: true }),
+        Animated.spring(slideAnim, { toValue: 0, friction: 8, tension: 80, useNativeDriver: true }),
+        Animated.spring(avatarScaleAnim, { toValue: 1, friction: 5, tension: 100, useNativeDriver: true }),
+      ]).start();
     });
   };
 
@@ -252,10 +293,10 @@ function OnboardingTourModal({
     <Modal visible transparent animationType="fade">
       <View style={s.overlay}>
         <View style={s.onboardingCard}>
-          {/* VIO Avatar */}
-          <View style={s.onboardingAvatarWrap}>
+          {/* VERO Avatar */}
+          <Animated.View style={[s.onboardingAvatarWrap, { transform: [{ scale: avatarScaleAnim }] }]}>
             <Image source={stepImage} style={s.onboardingAvatar} resizeMode="contain" />
-          </View>
+          </Animated.View>
 
           {/* Progress Dots */}
           <View style={s.dots}>
@@ -264,7 +305,7 @@ function OnboardingTourModal({
             ))}
           </View>
 
-          <Animated.View style={{ opacity: fadeAnim, alignItems: 'center', width: '100%' }}>
+          <Animated.View style={{ opacity: fadeAnim, transform: [{ translateX: slideAnim }], alignItems: 'center', width: '100%' }}>
             {/* Icon + Title */}
             <View style={s.onboardingTitleRow}>
               <View style={s.onboardingIconWrap}>
@@ -365,11 +406,30 @@ const s = StyleSheet.create({
     backgroundColor: '#F59E0B',
   },
 
-  // Overlay
+  // Overlay (for Onboarding)
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.4)',
     justifyContent: 'flex-end',
+  },
+
+  // Overlay Absolute (for Panel - not a Modal)
+  overlayAbsolute: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1000,
+    justifyContent: 'flex-end',
+  },
+  overlayBg: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.4)',
   },
 
   // Guide Panel
