@@ -355,8 +355,8 @@ const s = StyleSheet.create({
   bgGradient: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F7FA' },
   header: {
-    paddingTop: Platform.OS === 'ios' ? 64 : 48,
-    paddingBottom: 28,
+    paddingTop: Platform.OS === 'ios' ? 52 : 36,
+    paddingBottom: 14,
     paddingHorizontal: SIDE_PAD,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
