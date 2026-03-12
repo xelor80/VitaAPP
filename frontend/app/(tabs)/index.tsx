@@ -147,10 +147,12 @@ export default function DashboardHome() {
 
   return (
     <View style={s.container}>
+      {/* Background gradient */}
+      <LinearGradient colors={['#E8F5E9', '#F1F8F3', '#F5F7FA']} style={s.bgGradient} />
       {/* Header with gradient */}
       <LinearGradient colors={['#1B6B45', '#2E9E6B', '#43C68A']} style={s.header}>
         <View style={s.headerRow}>
-          <Text style={s.logoText}>VitaGuide<Text style={s.logoPlus}>+</Text></Text>
+          <Text style={s.logoText}><Text style={s.logoVita}>Vita</Text>Guide<Text style={s.logoPlus}>+</Text></Text>
         </View>
       </LinearGradient>
 
@@ -350,6 +352,7 @@ export default function DashboardHome() {
 
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F5F7FA' },
+  bgGradient: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F7FA' },
   header: {
     paddingTop: Platform.OS === 'ios' ? 56 : 40,
@@ -360,8 +363,9 @@ const s = StyleSheet.create({
   },
   headerRow: { alignItems: 'center', justifyContent: 'center' },
   logoRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  logoText: { fontSize: 24, fontWeight: '800', color: '#FFFFFF', letterSpacing: -0.5 },
-  logoPlus: { color: '#F5C842', fontWeight: '800' },
+  logoText: { fontSize: 24, fontWeight: '800', color: '#8BC9A0', letterSpacing: -0.5 },
+  logoVita: { color: '#FFFFFF', fontWeight: '800' },
+  logoPlus: { color: '#8BC9A0', fontWeight: '800' },
   settingsBtn: { padding: 6 },
   scroll: { flex: 1 },
   scrollContent: { paddingTop: 20 },
@@ -403,7 +407,7 @@ const s = StyleSheet.create({
   },
   featureGradient: {
     padding: 14,
-    minHeight: 140,
+    minHeight: 110,
     justifyContent: 'space-between',
   },
   featureTitle: { fontSize: 18, fontWeight: '800', color: '#FFFFFF', lineHeight: 24 },
