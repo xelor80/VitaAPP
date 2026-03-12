@@ -54,7 +54,7 @@ export default function RootLayout() {
                 gestureEnabled: true,
                 gestureDirection: 'horizontal',
               }}>
-                <Stack.Screen name="index" options={{ gestureEnabled: false }} />
+                <Stack.Screen name="(tabs)" options={{ headerShown: false, gestureEnabled: false }} />
                 <Stack.Screen name="results" />
                 <Stack.Screen name="recipe" />
                 <Stack.Screen name="diary" />
@@ -64,6 +64,9 @@ export default function RootLayout() {
                 <Stack.Screen name="progress" />
                 <Stack.Screen name="recipes-catalog" />
                 <Stack.Screen name="admin" />
+                <Stack.Screen name="tracking" />
+                <Stack.Screen name="product-comparison" />
+                <Stack.Screen name="videos" />
               </Stack>
               <GuideOverlay />
             </View>
