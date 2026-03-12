@@ -6,7 +6,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://vitaguide-admin.preview.emergentagent.com')
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://vita-guide-redesign.preview.emergentagent.com')
 
 class TestTTSEndpoint:
     """TTS endpoint tests"""

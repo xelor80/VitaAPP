@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
@@ -11,32 +11,19 @@ export default function PlanTab() {
   const router = useRouter();
   const { lang } = useLang();
   const [hasProfile, setHasProfile] = useState<boolean | null>(null);
-  const didNavigate = useRef(false);
 
   useEffect(() => {
     const check = async () => {
       const profileId = await AsyncStorage.getItem('health_profile_id');
       setHasProfile(!!profileId);
-      // Auto-navigate to full supplement plan if profile exists
-      if (profileId && !didNavigate.current) {
-        didNavigate.current = true;
+      if (profileId) {
         router.push('/supplement-plan' as any);
       }
     };
     check();
 
-    const refresh = () => {
-      didNavigate.current = false;
-      check();
-    };
-    eventBus.on('profileUpdated', refresh);
-    return () => eventBus.off('profileUpdated', refresh);
-  }, []);
-
-  // Reset flag when tab is revisited
-  useEffect(() => {
-    const reset = () => { didNavigate.current = false; };
-    return () => reset();
+    eventBus.on('profileUpdated', () => { check(); });
+    return () => eventBus.off('profileUpdated', check);
   }, []);
 
   if (hasProfile === null) {
