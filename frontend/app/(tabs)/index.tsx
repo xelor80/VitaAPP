@@ -373,7 +373,7 @@ const s = StyleSheet.create({
   heroMascot: {
     position: 'absolute',
     right: SIDE_PAD,
-    top: 20,
+    top: 5,
     width: 120,
     height: 120,
     zIndex: 0,
@@ -402,8 +402,8 @@ const s = StyleSheet.create({
     shadowRadius: 8,
   },
   featureGradient: {
-    padding: 16,
-    minHeight: 180,
+    padding: 14,
+    minHeight: 140,
     justifyContent: 'space-between',
   },
   featureTitle: { fontSize: 18, fontWeight: '800', color: '#FFFFFF', lineHeight: 24 },
