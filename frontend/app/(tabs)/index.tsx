@@ -150,7 +150,7 @@ export default function DashboardHome() {
       {/* Background gradient */}
       <LinearGradient colors={['#E8F5E9', '#F1F8F3', '#F5F7FA']} style={s.bgGradient} />
       {/* Header with gradient */}
-      <LinearGradient colors={['#1B6B45', '#2E9E6B', '#43C68A']} style={s.header}>
+      <LinearGradient colors={['#1B6B45', '#2E9E6B', '#43C68A']} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} style={s.header}>
         <View style={s.headerRow}>
           <Text style={s.logoText}><Text style={s.logoVita}>Vita</Text>Guide<Text style={s.logoPlus}>+</Text></Text>
         </View>
@@ -363,9 +363,9 @@ const s = StyleSheet.create({
   },
   headerRow: { alignItems: 'center', justifyContent: 'center' },
   logoRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  logoText: { fontSize: 24, fontWeight: '800', color: '#8BC9A0', letterSpacing: -0.5 },
+  logoText: { fontSize: 24, fontWeight: '800', color: '#FFD700', letterSpacing: -0.5 },
   logoVita: { color: '#FFFFFF', fontWeight: '800' },
-  logoPlus: { color: '#8BC9A0', fontWeight: '800' },
+  logoPlus: { color: '#FFD700', fontWeight: '800' },
   settingsBtn: { padding: 6 },
   scroll: { flex: 1 },
   scrollContent: { paddingTop: 20 },
@@ -406,11 +406,11 @@ const s = StyleSheet.create({
     shadowRadius: 8,
   },
   featureGradient: {
-    padding: 14,
-    minHeight: 110,
+    padding: 12,
+    minHeight: 85,
     justifyContent: 'space-between',
   },
-  featureTitle: { fontSize: 18, fontWeight: '800', color: '#FFFFFF', lineHeight: 24 },
+  featureTitle: { fontSize: 16, fontWeight: '800', color: '#FFFFFF', lineHeight: 20 },
   featureIcon: { position: 'absolute', right: 12, top: 12 },
   featureStat: { fontSize: 13, color: 'rgba(255,255,255,0.85)', fontWeight: '600', marginTop: 8 },
   featureCta: {
