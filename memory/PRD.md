@@ -30,6 +30,7 @@ Bilingual (German/Italian) health app using an LLM to provide nutrition tips bas
 10. **Supplement Plans** - Daily dose calculations
 
 ## Completed Work
+- [2026-03-12] Bugfix: Leerer Supplement-Plan bei Profil ohne Beschwerden - Basis-Supplement-Set + Frontend leerer-Stack-Check
 - [2026-03-12] Bugfix: VERO-Bubble Position höher (verdeckt keine Tabs), Go-Back Navigation repariert (kein router.replace mehr in Tabs)
 - [2026-03-12] GROSSES REDESIGN: Tab-basierte Navigation mit 4 Tabs (Home Dashboard, Gesundheitsprofil, Supplement Plan, Rezepte) nach Screenshot-Vorlage
 - [2026-03-12] VIO→VERO Umbenennung: Alle Referenzen geändert, 4 neue VERO-Bilder (Hallo/Super/Achtung/Herz) integriert, Bounce-In + Spring-Slide-Up + Slide-Fade Animationen, Event-Bus für Screen-Refresh

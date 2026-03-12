@@ -523,6 +523,27 @@ def generate_supplement_plan(profile: dict, assessment: dict, lang: str = "de") 
         if nutrient in SUPPLEMENT_DB and score >= 0.3:
             selected.append({"nutrient": nutrient, "risk_level": risk_level, "score": score})
 
+    # Baseline recommendations if no deficiencies detected
+    # Common supplements beneficial for most adults
+    if not selected:
+        baseline = []
+        # Vitamin D - very common deficiency, especially in Central Europe
+        if "vitamin_d" in SUPPLEMENT_DB:
+            baseline.append({"nutrient": "vitamin_d", "risk_level": "low", "score": 0.35})
+        # Omega-3 - beneficial for most adults
+        if "omega3" in SUPPLEMENT_DB:
+            baseline.append({"nutrient": "omega3", "risk_level": "low", "score": 0.3})
+        # Magnesium - commonly under-consumed
+        if "magnesium" in SUPPLEMENT_DB:
+            baseline.append({"nutrient": "magnesium", "risk_level": "low", "score": 0.3})
+        # Zinc for men over 50
+        if age >= 50 and gender == "male" and "zinc" in SUPPLEMENT_DB:
+            baseline.append({"nutrient": "zinc", "risk_level": "low", "score": 0.3})
+        # Probiotics for general gut health
+        if "probiotics" in SUPPLEMENT_DB:
+            baseline.append({"nutrient": "probiotics", "risk_level": "low", "score": 0.3})
+        selected = baseline
+
     # Add stress adaptogen if high stress
     if stress_level >= 7 and "ashwagandha" not in [s["nutrient"] for s in selected]:
         contraindicated = any(c in ["hashimoto", "hypothyroidism"] for c in conditions)

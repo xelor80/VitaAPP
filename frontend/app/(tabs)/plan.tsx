@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
@@ -10,26 +10,40 @@ import { eventBus } from '../../src/eventBus';
 export default function PlanTab() {
   const router = useRouter();
   const { lang } = useLang();
-  const [hasProfile, setHasProfile] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [hasProfile, setHasProfile] = useState<boolean | null>(null);
+  const didNavigate = useRef(false);
 
-  const checkProfile = async () => {
-    setLoading(true);
-    const profileId = await AsyncStorage.getItem('health_profile_id');
-    setHasProfile(!!profileId);
-    setLoading(false);
-  };
-
-  useEffect(() => { checkProfile(); }, []);
   useEffect(() => {
-    eventBus.on('profileUpdated', checkProfile);
-    return () => eventBus.off('profileUpdated', checkProfile);
+    const check = async () => {
+      const profileId = await AsyncStorage.getItem('health_profile_id');
+      setHasProfile(!!profileId);
+      // Auto-navigate to full supplement plan if profile exists
+      if (profileId && !didNavigate.current) {
+        didNavigate.current = true;
+        router.push('/supplement-plan' as any);
+      }
+    };
+    check();
+
+    const refresh = () => {
+      didNavigate.current = false;
+      check();
+    };
+    eventBus.on('profileUpdated', refresh);
+    return () => eventBus.off('profileUpdated', refresh);
   }, []);
 
-  if (loading) {
+  // Reset flag when tab is revisited
+  useEffect(() => {
+    const reset = () => { didNavigate.current = false; };
+    return () => reset();
+  }, []);
+
+  if (hasProfile === null) {
     return <View style={s.center}><ActivityIndicator size="large" color="#2E7D52" /></View>;
   }
 
+  // If profile exists but user came back from plan, show shortcut
   if (hasProfile) {
     return (
       <View style={s.container}>
@@ -41,12 +55,11 @@ export default function PlanTab() {
           <Text style={s.emptyTitle}>
             {lang === 'de' ? 'Dein Supplement Plan' : 'Il tuo piano integratori'}
           </Text>
-          <Text style={s.emptyText}>
-            {lang === 'de'
-              ? 'Oeffne deinen personalisierten Supplement-Plan mit Einnahmeempfehlungen.'
-              : 'Apri il tuo piano integratori personalizzato con le raccomandazioni.'}
-          </Text>
-          <TouchableOpacity style={s.createBtn} onPress={() => router.push('/supplement-plan' as any)} data-testid="open-plan-btn">
+          <TouchableOpacity
+            style={s.createBtn}
+            onPress={() => router.push('/supplement-plan' as any)}
+            data-testid="open-plan-btn"
+          >
             <Text style={s.createBtnText}>{lang === 'de' ? 'Plan oeffnen' : 'Apri piano'}</Text>
             <MaterialCommunityIcons name="arrow-right" size={20} color="#FFFFFF" />
           </TouchableOpacity>

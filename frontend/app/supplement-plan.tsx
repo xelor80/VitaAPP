@@ -416,7 +416,7 @@ export default function SupplementPlanScreen() {
     );
   }
 
-  if (!plan) {
+  if (!plan || !plan.stack || plan.stack.length === 0) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.emptyState}>
