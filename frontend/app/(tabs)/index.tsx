@@ -368,7 +368,7 @@ const s = StyleSheet.create({
   logoPlus: { color: '#FFD700', fontWeight: '800' },
   settingsBtn: { padding: 6 },
   scroll: { flex: 1 },
-  scrollContent: { paddingTop: 20 },
+  scrollContent: { paddingTop: 35 },
   heroSection: {
     position: 'relative',
     paddingTop: 8,
