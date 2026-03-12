@@ -25,6 +25,7 @@ const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
 // VERO mascot images
 const VERO_HALLO = require('../../assets/images/vero-hallo.png');
+const VERO_DASHBOARD = require('../../assets/images/vero-dashboard.png');
 
 export default function DashboardHome() {
   const router = useRouter();
@@ -174,7 +175,7 @@ export default function DashboardHome() {
             <Text style={s.greetingName}>{greeting}</Text>
             <Text style={s.greetingSub}>{subtitle}</Text>
           </View>
-          <Image source={VERO_HALLO} style={s.greetingMascot} resizeMode="contain" />
+          <Image source={VERO_DASHBOARD} style={s.greetingMascot} resizeMode="contain" />
         </View>
 
         {/* Two Feature Cards */}
@@ -326,6 +327,13 @@ export default function DashboardHome() {
           </TouchableOpacity>
         </View>
 
+        {/* Small circular VERO mascot */}
+        <View style={s.miniVeroWrap}>
+          <View style={s.miniVeroCircle}>
+            <Image source={VERO_DASHBOARD} style={s.miniVeroImg} resizeMode="cover" />
+          </View>
+        </View>
+
         {/* Tracking Card */}
         <TouchableOpacity
           style={s.trackingCard}
@@ -371,7 +379,7 @@ const s = StyleSheet.create({
   },
   greetingName: { fontSize: 28, fontWeight: '800', color: '#1A2E35', letterSpacing: -0.5 },
   greetingSub: { fontSize: 16, color: '#6B7280', marginTop: 2 },
-  greetingMascot: { width: 70, height: 70, marginLeft: 8 },
+  greetingMascot: { width: 120, height: 120, marginLeft: 8, marginTop: -10 },
   cardsRow: {
     flexDirection: 'row',
     paddingHorizontal: SIDE_PAD,
@@ -520,4 +528,30 @@ const s = StyleSheet.create({
   },
   trackingTitle: { fontSize: 15, fontWeight: '700', color: '#1A2E35' },
   trackingSub: { fontSize: 12, color: '#6B7280', marginTop: 2 },
+  miniVeroWrap: {
+    alignItems: 'flex-end',
+    paddingHorizontal: SIDE_PAD,
+    marginTop: -30,
+    marginBottom: 8,
+    zIndex: 10,
+  },
+  miniVeroCircle: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    borderWidth: 2,
+    borderColor: '#2E9E6B',
+    backgroundColor: '#FFFFFF',
+    overflow: 'hidden',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+  },
+  miniVeroImg: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+  },
 });
