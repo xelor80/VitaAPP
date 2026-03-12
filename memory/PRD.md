@@ -30,6 +30,7 @@ Bilingual (German/Italian) health app using an LLM to provide nutrition tips bas
 10. **Supplement Plans** - Daily dose calculations
 
 ## Completed Work
+- [2026-03-12] VIO Maskottchen-Posen: 3 neue Bilder (Hallo/Super/Achtung) kontextabhängig in Onboarding + Screens integriert
 - [2026-03] Mobile-responsive admin panel verified
 - [2026-03] In-app admin access via WebView
 - [2026-03] Shopify sync overhaul (soft deletion, hashing, expanded data extraction)

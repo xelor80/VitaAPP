@@ -9,10 +9,14 @@ export interface GuideQuickAction {
   response: { de: string; it: string };
 }
 
+// Mascot pose types matching the available VIO images
+export type MascotPose = 'default' | 'hallo' | 'super' | 'achtung';
+
 export interface GuideScreenData {
   greeting: { de: string; it: string };
   explanation: { de: string; it: string };
   nextStep: { de: string; it: string };
+  pose: MascotPose;         // which VIO pose to show for this screen
   quickActions: GuideQuickAction[];
 }
 
@@ -21,6 +25,7 @@ export interface OnboardingStep {
   title: { de: string; it: string };
   text: { de: string; it: string };
   icon: string;
+  pose: MascotPose;
 }
 
 // Onboarding Tour Steps (first-time users)
@@ -33,6 +38,7 @@ export const ONBOARDING_TOUR: OnboardingStep[] = [
       it: 'Sono il vostro accompagnatore sanitario personale. Vi aiuto a comprendere l\'app e a ottenere il massimo dai vostri dati sanitari.',
     },
     icon: 'hand-wave',
+    pose: 'hallo',
   },
   {
     id: 'health_score',
@@ -42,6 +48,7 @@ export const ONBOARDING_TOUR: OnboardingStep[] = [
       it: 'L\'Health Score vi mostra a colpo d\'occhio come sta la vostra salute. Si basa sul vostro profilo, sui sintomi e sull\'assunzione di integratori.',
     },
     icon: 'heart-pulse',
+    pose: 'achtung',
   },
   {
     id: 'supplement_plan',
@@ -51,6 +58,7 @@ export const ONBOARDING_TOUR: OnboardingStep[] = [
       it: 'Nel piano integratori trovate le vostre raccomandazioni personalizzate per 8 settimane. Toccate gli integratori per confrontare i prodotti.',
     },
     icon: 'pill',
+    pose: 'achtung',
   },
   {
     id: 'tracking',
@@ -60,6 +68,7 @@ export const ONBOARDING_TOUR: OnboardingStep[] = [
       it: 'Nella sezione progressi potete documentare quotidianamente sonno, energia e benessere. Cosi vedete come si sviluppano i vostri valori.',
     },
     icon: 'chart-line',
+    pose: 'super',
   },
   {
     id: 'reminders',
@@ -69,6 +78,7 @@ export const ONBOARDING_TOUR: OnboardingStep[] = [
       it: 'Attivate i promemoria nel vostro piano integratori per non dimenticare l\'assunzione. Potete adattare orari e turni di lavoro.',
     },
     icon: 'bell-ring',
+    pose: 'super',
   },
 ];
 
@@ -87,6 +97,7 @@ export const GUIDE_SCREENS: Record<string, GuideScreenData> = {
       de: 'Starten Sie mit Ihrem Gesundheitsprofil, um personalisierte Empfehlungen zu erhalten.',
       it: 'Iniziate con il vostro profilo sanitario per ricevere raccomandazioni personalizzate.',
     },
+    pose: 'hallo',
     quickActions: [
       {
         id: 'explain_home',
@@ -120,6 +131,7 @@ export const GUIDE_SCREENS: Record<string, GuideScreenData> = {
       de: 'Aktualisieren Sie Ihr Profil regelmaessig, um genauere Empfehlungen zu erhalten.',
       it: 'Aggiornate regolarmente il vostro profilo per ricevere raccomandazioni piu precise.',
     },
+    pose: 'achtung',
     quickActions: [
       {
         id: 'explain_profile',
@@ -145,6 +157,7 @@ export const GUIDE_SCREENS: Record<string, GuideScreenData> = {
       de: 'Wechseln Sie zwischen den Tabs, um alle Empfehlungen zu sehen. Tippen Sie auf Produkte, um Preise zu vergleichen.',
       it: 'Passate tra le schede per vedere tutte le raccomandazioni. Toccate i prodotti per confrontare i prezzi.',
     },
+    pose: 'super',
     quickActions: [
       {
         id: 'explain_risk',
@@ -178,6 +191,7 @@ export const GUIDE_SCREENS: Record<string, GuideScreenData> = {
       de: 'Aktivieren Sie Erinnerungen, um keine Einnahme zu vergessen. Sie finden die Einstellungen unten im Plan.',
       it: 'Attivate i promemoria per non dimenticare l\'assunzione. Trovate le impostazioni in fondo al piano.',
     },
+    pose: 'achtung',
     quickActions: [
       {
         id: 'explain_plan',
@@ -211,6 +225,7 @@ export const GUIDE_SCREENS: Record<string, GuideScreenData> = {
       de: 'Tragen Sie taeglich Ihre Werte ein. Je mehr Daten, desto bessere Einblicke.',
       it: 'Inserite quotidianamente i vostri valori. Piu dati avete, migliori saranno le informazioni.',
     },
+    pose: 'super',
     quickActions: [
       {
         id: 'explain_tracking',
@@ -236,6 +251,7 @@ export const GUIDE_SCREENS: Record<string, GuideScreenData> = {
       de: 'Vergleichen Sie Ihre Werte ueber verschiedene Zeitraeume, um Trends zu erkennen.',
       it: 'Confrontate i vostri valori su diversi periodi per riconoscere le tendenze.',
     },
+    pose: 'super',
     quickActions: [],
   },
 
@@ -252,6 +268,7 @@ export const GUIDE_SCREENS: Record<string, GuideScreenData> = {
       de: 'Filtern Sie nach Kategorien oder suchen Sie nach bestimmten Zutaten.',
       it: 'Filtrate per categorie o cercate ingredienti specifici.',
     },
+    pose: 'hallo',
     quickActions: [
       {
         id: 'explain_recipes',
@@ -277,6 +294,7 @@ export const GUIDE_SCREENS: Record<string, GuideScreenData> = {
       de: 'Fuellen Sie alle Schritte aus und speichern Sie Ihr Profil.',
       it: 'Completate tutti i passaggi e salvate il vostro profilo.',
     },
+    pose: 'achtung',
     quickActions: [],
   },
 
@@ -293,6 +311,7 @@ export const GUIDE_SCREENS: Record<string, GuideScreenData> = {
       de: 'Fuellen Sie heute einen Eintrag aus, um Ihre Trends aufzubauen.',
       it: 'Compilate oggi una voce per costruire le vostre tendenze.',
     },
+    pose: 'hallo',
     quickActions: [],
   },
 };

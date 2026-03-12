@@ -6,12 +6,22 @@ import {
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useGuide } from '../src/GuideContext';
 import { useLang } from '../src/LangContext';
-import { GUIDE_SCREENS, ONBOARDING_TOUR, t } from '../src/guideData';
+import { GUIDE_SCREENS, ONBOARDING_TOUR, t, MascotPose } from '../src/guideData';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-// VIO mascot image
-const VIO_MASCOT = require('../assets/images/vio-mascot.png');
+// VIO mascot images - different poses
+const VIO_IMAGES: Record<MascotPose, any> = {
+  default: require('../assets/images/vio-mascot.png'),
+  hallo: require('../assets/images/vio-hallo.png'),
+  super: require('../assets/images/vio-super.png'),
+  achtung: require('../assets/images/vio-achtung.png'),
+};
+
+// Helper to get the right image for a pose
+function getVioImage(pose: MascotPose) {
+  return VIO_IMAGES[pose] || VIO_IMAGES.default;
+}
 
 // Mascot States
 type MascotState = 'idle' | 'highlight' | 'explaining' | 'success';
@@ -32,6 +42,8 @@ export function GuideMascot({ currentRoute, firstName }: Props) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const screenData = GUIDE_SCREENS[currentRoute] || GUIDE_SCREENS['/'];
+  const currentPose = screenData.pose || 'default';
+  const currentImage = getVioImage(currentPose);
 
   // Start onboarding tour for new users
   useEffect(() => {
@@ -97,7 +109,7 @@ export function GuideMascot({ currentRoute, firstName }: Props) {
           activeOpacity={0.85}
           data-testid="guide-mascot-bubble"
         >
-          <Image source={VIO_MASCOT} style={s.bubbleImage} resizeMode="cover" />
+          <Image source={currentImage} style={s.bubbleImage} resizeMode="cover" />
         </TouchableOpacity>
         {mascotState === 'highlight' && (
           <View style={s.badge}>
@@ -114,7 +126,7 @@ export function GuideMascot({ currentRoute, firstName }: Props) {
               {/* Panel Header with VIO */}
               <View style={s.panelHeader}>
                 <View style={s.panelHeaderLeft}>
-                  <Image source={VIO_MASCOT} style={s.panelAvatar} resizeMode="cover" />
+                  <Image source={currentImage} style={s.panelAvatar} resizeMode="cover" />
                   <View>
                     <Text style={s.panelTitle}>VIO</Text>
                     <Text style={s.panelSubtitle}>
@@ -141,7 +153,7 @@ export function GuideMascot({ currentRoute, firstName }: Props) {
               <ScrollView style={s.panelBody} showsVerticalScrollIndicator={false}>
                 {/* Greeting */}
                 <View style={s.messageBox}>
-                  <Image source={VIO_MASCOT} style={s.messageAvatar} resizeMode="cover" />
+                  <Image source={currentImage} style={s.messageAvatar} resizeMode="cover" />
                   <Text style={s.messageText}>{greeting}</Text>
                 </View>
 
@@ -227,6 +239,7 @@ function OnboardingTourModal({
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const current = ONBOARDING_TOUR[step];
   const isLast = step === ONBOARDING_TOUR.length - 1;
+  const stepImage = getVioImage(current.pose);
 
   const animateTransition = (nextStep: number) => {
     Animated.timing(fadeAnim, { toValue: 0, duration: 150, useNativeDriver: true }).start(() => {
@@ -241,7 +254,7 @@ function OnboardingTourModal({
         <View style={s.onboardingCard}>
           {/* VIO Avatar */}
           <View style={s.onboardingAvatarWrap}>
-            <Image source={VIO_MASCOT} style={s.onboardingAvatar} resizeMode="contain" />
+            <Image source={stepImage} style={s.onboardingAvatar} resizeMode="contain" />
           </View>
 
           {/* Progress Dots */}
