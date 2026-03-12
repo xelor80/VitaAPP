@@ -328,13 +328,6 @@ export default function DashboardHome() {
           </TouchableOpacity>
         </View>
 
-        {/* Small circular VERO mascot */}
-        <View style={s.miniVeroWrap}>
-          <View style={s.miniVeroCircle}>
-            <Image source={VERO_DASHBOARD} style={s.miniVeroImg} resizeMode="cover" />
-          </View>
-        </View>
-
         {/* Tracking Card */}
         <TouchableOpacity
           style={s.trackingCard}
@@ -540,30 +533,4 @@ const s = StyleSheet.create({
   },
   trackingTitle: { fontSize: 15, fontWeight: '700', color: '#1A2E35' },
   trackingSub: { fontSize: 12, color: '#6B7280', marginTop: 2 },
-  miniVeroWrap: {
-    alignItems: 'flex-end',
-    paddingHorizontal: SIDE_PAD,
-    marginTop: -30,
-    marginBottom: 8,
-    zIndex: 10,
-  },
-  miniVeroCircle: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    borderWidth: 2,
-    borderColor: '#2E9E6B',
-    backgroundColor: '#FFFFFF',
-    overflow: 'hidden',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-  },
-  miniVeroImg: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-  },
 });
