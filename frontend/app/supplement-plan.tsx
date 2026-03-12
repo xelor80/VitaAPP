@@ -4,7 +4,7 @@ import {
   SafeAreaView, ActivityIndicator, TextInput, Linking, Alert, StyleSheet, Platform
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter, useLocalSearchParams, useNavigation } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createAudioPlayer } from 'expo-audio';
 import * as FileSystem from 'expo-file-system';
@@ -123,6 +123,8 @@ const TIME_LABELS: Record<string, Record<string, string>> = {
 
 export default function SupplementPlanScreen() {
   const router = useRouter();
+  const navigation = useNavigation();
+  const canGoBack = navigation.canGoBack();
   const { lang } = useLang();
   const params = useLocalSearchParams<{ profileId: string }>();
   const [currentProfileId, setCurrentProfileId] = useState<string | null>(params.profileId || null);
@@ -446,9 +448,11 @@ export default function SupplementPlanScreen() {
               </>
             )}
           </TouchableOpacity>
-          <TouchableOpacity style={styles.backLink} onPress={() => router.back()}>
-            <Text style={styles.backLinkText}>{lang === 'de' ? 'Zurueck' : 'Indietro'}</Text>
-          </TouchableOpacity>
+          {canGoBack && (
+            <TouchableOpacity style={styles.backLink} onPress={() => router.back()}>
+              <Text style={styles.backLinkText}>{lang === 'de' ? 'Zurueck' : 'Indietro'}</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </SafeAreaView>
     );
@@ -459,14 +463,16 @@ export default function SupplementPlanScreen() {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Gradient Header */}
         <LinearGradient
-          colors={['#2C8C99', '#4EAAB5', '#6EC4CE']}
+          colors={['#1B6B45', '#2E9E6B', '#43C68A']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={ns.gradientHeader}
         >
-          <TouchableOpacity onPress={() => router.back()} style={ns.headerBackBtn} testID="plan-back-btn">
-            <MaterialCommunityIcons name="arrow-left" size={22} color="#FFFFFF" />
-          </TouchableOpacity>
+          {canGoBack && (
+            <TouchableOpacity onPress={() => router.back()} style={ns.headerBackBtn} testID="plan-back-btn">
+              <MaterialCommunityIcons name="arrow-left" size={22} color="#FFFFFF" />
+            </TouchableOpacity>
+          )}
           <View style={{ flex: 1 }}>
             <Text style={ns.headerGreeting}>
               {firstName
@@ -543,7 +549,7 @@ export default function SupplementPlanScreen() {
           return (
           <View style={ns.reminderCard} testID="reminder-card">
             <LinearGradient
-              colors={['#2C8C99', '#4EAAB5']}
+              colors={['#1B6B45', '#2E9E6B']}
               style={ns.reminderHeader}
             >
               <Text style={ns.reminderHeaderTitle}>
@@ -570,7 +576,7 @@ export default function SupplementPlanScreen() {
                 >
                   <MaterialCommunityIcons
                     name={reminders.enabled ? 'toggle-switch' : 'toggle-switch-off'}
-                    size={44} color={reminders.enabled ? '#2C8C99' : '#C4CEC8'}
+                    size={44} color={reminders.enabled ? '#1B6B45' : '#C4CEC8'}
                   />
                   <Text style={[ns.settingsToggleText, { color: reminders.enabled ? '#1A2D26' : '#8FA39B' }]}>
                     {reminders.enabled
@@ -582,9 +588,9 @@ export default function SupplementPlanScreen() {
                   <View style={ns.settingsTimeRows}>
                     {/* Shift selector for shift/night workers */}
                     {(workType === 'shift_work' || workType === 'night_work') && (
-                      <View style={{ marginBottom: 14, padding: 12, backgroundColor: '#EDF6FF', borderRadius: 12 }}>
+                      <View style={{ marginBottom: 14, padding: 12, backgroundColor: '#E8F5E9', borderRadius: 12 }}>
                         <Text style={{ fontSize: 13, fontWeight: '700', color: '#1A2D26', marginBottom: 8 }}>
-                          <MaterialCommunityIcons name="clock-fast" size={15} color="#2C8C99" />
+                          <MaterialCommunityIcons name="clock-fast" size={15} color="#1B6B45" />
                           {' '}{lang === 'de' ? 'Schicht-Vorlage' : 'Modello turno'}
                         </Text>
                         <View style={{ flexDirection: 'row', gap: 6 }}>
@@ -599,16 +605,16 @@ export default function SupplementPlanScreen() {
                               style={{
                                 flex: 1, flexDirection: 'column', alignItems: 'center', gap: 4,
                                 padding: 10, borderRadius: 10, borderWidth: 2,
-                                borderColor: activeShift === shift.key ? '#2C8C99' : '#D1E5EB',
-                                backgroundColor: activeShift === shift.key ? '#D7F0F5' : '#FFFFFF',
+                                borderColor: activeShift === shift.key ? '#1B6B45' : '#D1E8D5',
+                                backgroundColor: activeShift === shift.key ? '#D7EDDF' : '#FFFFFF',
                               }}
                               onPress={() => {
                                 setActiveShift(shift.key);
                                 setReminders({ ...reminders, ...shift.times });
                               }}
                             >
-                              <MaterialCommunityIcons name={shift.icon} size={22} color={activeShift === shift.key ? '#2C8C99' : '#8FA39B'} />
-                              <Text style={{ fontSize: 12, fontWeight: '700', color: activeShift === shift.key ? '#2C8C99' : '#5C7A6F' }}>
+                              <MaterialCommunityIcons name={shift.icon} size={22} color={activeShift === shift.key ? '#1B6B45' : '#8FA39B'} />
+                              <Text style={{ fontSize: 12, fontWeight: '700', color: activeShift === shift.key ? '#1B6B45' : '#5C7A6F' }}>
                                 {shift.label}
                               </Text>
                             </TouchableOpacity>
@@ -624,7 +630,7 @@ export default function SupplementPlanScreen() {
 
                     {/* Shift Cycle Rotator - only for shift/night workers */}
                     {(workType === 'shift_work' || workType === 'night_work') && (
-                      <View style={{ marginBottom: 14, padding: 12, backgroundColor: '#F0F7FF', borderRadius: 12 }}>
+                      <View style={{ marginBottom: 14, padding: 12, backgroundColor: '#E8F5E9', borderRadius: 12 }}>
                         <Text style={{ fontSize: 13, fontWeight: '700', color: '#1A2D26', marginBottom: 10 }}>
                           <MaterialCommunityIcons name="calendar-sync" size={15} color="#5C6BC0" />
                           {' '}{lang === 'de' ? 'Schichtzyklus-Rotator' : 'Rotatore turni'}
@@ -751,7 +757,7 @@ export default function SupplementPlanScreen() {
                     )}
                     {[
                       { key: 'morning_time', icon: 'weather-sunny', label: lang === 'de' ? 'Morgens' : 'Mattina', color: '#FF9800' },
-                      { key: 'noon_time', icon: 'weather-partly-cloudy', label: lang === 'de' ? 'Mittags' : 'Mezzogiorno', color: '#4EAAB5' },
+                      { key: 'noon_time', icon: 'weather-partly-cloudy', label: lang === 'de' ? 'Mittags' : 'Mezzogiorno', color: '#2E9E6B' },
                       { key: 'evening_time', icon: 'weather-night', label: lang === 'de' ? 'Abends' : 'Sera', color: '#5C6BC0' },
                     ].map(({ key, icon, label, color }) => (
                       <View key={key} style={ns.settingsTimeRow}>
@@ -777,13 +783,13 @@ export default function SupplementPlanScreen() {
                     onPress={() => sendTestNotification(lang)}
                     testID="test-notification-btn"
                   >
-                    <MaterialCommunityIcons name="bell-ring" size={16} color="#2C8C99" />
+                    <MaterialCommunityIcons name="bell-ring" size={16} color="#1B6B45" />
                     <Text style={ns.settingsTestBtnText}>
                       {lang === 'de' ? 'Testen' : 'Prova'}
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={ns.settingsSaveBtn} onPress={() => { saveReminders(); setShowReminderSettings(false); }} testID="save-reminders-btn">
-                    <LinearGradient colors={['#2C8C99', '#4EAAB5']} style={ns.settingsSaveGradient}>
+                    <LinearGradient colors={['#1B6B45', '#2E9E6B']} style={ns.settingsSaveGradient}>
                       <MaterialCommunityIcons name="content-save" size={16} color="#FFFFFF" />
                       <Text style={ns.settingsSaveBtnText}>
                         {lang === 'de' ? 'Speichern' : 'Salva'}
@@ -801,7 +807,7 @@ export default function SupplementPlanScreen() {
                     : `E' ora della tua assunzione ${slotName}!`}
                 </Text>
                 <View style={ns.reminderClockRow}>
-                  <MaterialCommunityIcons name="clock-outline" size={52} color="#2C8C99" />
+                  <MaterialCommunityIcons name="clock-outline" size={52} color="#1B6B45" />
                   <Text style={ns.reminderTimeText}>{activeTimeStr} Uhr</Text>
                 </View>
                 {activeItems.slice(0, 3).map((item: any) => (
@@ -823,7 +829,7 @@ export default function SupplementPlanScreen() {
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={ns.takeNowBtn} onPress={saveReminders} testID="take-now-btn">
-                    <LinearGradient colors={['#2C8C99', '#4EAAB5']} style={ns.takeNowGradient}>
+                    <LinearGradient colors={['#1B6B45', '#2E9E6B']} style={ns.takeNowGradient}>
                       <Text style={ns.takeNowBtnText}>
                         {lang === 'de' ? 'Jetzt einnehmen' : 'Assumi ora'}
                       </Text>
@@ -1005,7 +1011,7 @@ export default function SupplementPlanScreen() {
                 : reminders.evening_time;
               const timeName = TIME_LABELS[timing]?.[lang] || timing;
               const timingIcon = timing === 'morning' ? 'weather-sunny' : timing === 'noon' ? 'weather-partly-cloudy' : 'weather-night';
-              const timingColor = timing === 'morning' ? '#FF9800' : timing === 'noon' ? '#4EAAB5' : '#5C6BC0';
+              const timingColor = timing === 'morning' ? '#FF9800' : timing === 'noon' ? '#2E9E6B' : '#5C6BC0';
 
               return (
                 <View key={timing} style={ns.timeCard}>
@@ -1058,7 +1064,7 @@ export default function SupplementPlanScreen() {
 
             {/* Einnahme abgehakt Button */}
             <TouchableOpacity style={ns.completionBtn} testID="intake-complete-btn">
-              <LinearGradient colors={['#2C8C99', '#4EAAB5']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={ns.completionGradient}>
+              <LinearGradient colors={['#1B6B45', '#2E9E6B']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={ns.completionGradient}>
                 <MaterialCommunityIcons name="check-circle" size={18} color="#FFFFFF" />
                 <Text style={ns.completionBtnText}>
                   {lang === 'de' ? 'Einnahme abgehakt' : 'Assunzione confermata'}
@@ -1068,7 +1074,7 @@ export default function SupplementPlanScreen() {
 
             {/* Supplement Uebersicht Card */}
             <View style={ns.overviewCard}>
-              <LinearGradient colors={['#2C8C99', '#4EAAB5', '#6BB5A0']} start={{ x: 0, y: 0 }} end={{ x: 0.5, y: 1 }} style={ns.overviewHeader}>
+              <LinearGradient colors={['#1B6B45', '#2E9E6B', '#43C68A']} start={{ x: 0, y: 0 }} end={{ x: 0.5, y: 1 }} style={ns.overviewHeader}>
                 <View>
                   <Text style={ns.overviewTitle}>
                     {lang === 'de' ? 'Supplement Uebersicht' : 'Panoramica supplementi'}
@@ -1269,7 +1275,7 @@ const ns = StyleSheet.create({
   reminderBody: { padding: 18, gap: 14 },
   reminderSubtitle: { fontSize: 15, fontWeight: '600', color: '#1A2D26', textAlign: 'center' },
   reminderClockRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12 },
-  reminderTimeText: { fontSize: 28, fontWeight: '800', color: '#2C8C99' },
+  reminderTimeText: { fontSize: 28, fontWeight: '800', color: '#1B6B45' },
   reminderItem: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
     backgroundColor: '#F8FAF9', borderRadius: 14, padding: 12,
@@ -1302,17 +1308,17 @@ const ns = StyleSheet.create({
   },
   settingsTimeLabel: { flex: 1, fontSize: 14, fontWeight: '600', color: '#1A2D26' },
   settingsTimeInput: {
-    width: 70, fontSize: 16, fontWeight: '700', color: '#2C8C99',
-    textAlign: 'center', borderBottomWidth: 2, borderBottomColor: '#2C8C99',
+    width: 70, fontSize: 16, fontWeight: '700', color: '#1B6B45',
+    textAlign: 'center', borderBottomWidth: 2, borderBottomColor: '#1B6B45',
     paddingVertical: 4,
   },
   settingsBtnRow: { flexDirection: 'row', gap: 10 },
   settingsTestBtn: {
     flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
     backgroundColor: '#F0F4F2', borderRadius: 14, paddingVertical: 12,
-    borderWidth: 1.5, borderColor: '#2C8C99',
+    borderWidth: 1.5, borderColor: '#1B6B45',
   },
-  settingsTestBtnText: { fontSize: 13, fontWeight: '600', color: '#2C8C99' },
+  settingsTestBtnText: { fontSize: 13, fontWeight: '600', color: '#1B6B45' },
   settingsSaveBtn: { flex: 1, borderRadius: 14, overflow: 'hidden' },
   settingsSaveGradient: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
@@ -1328,7 +1334,7 @@ const ns = StyleSheet.create({
   },
   timeCardHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 14 },
   timeLabel: { fontSize: 17, fontWeight: '700', color: '#1A2D26' },
-  timeValue: { fontSize: 15, fontWeight: '600', color: '#2C8C99' },
+  timeValue: { fontSize: 15, fontWeight: '600', color: '#1B6B45' },
   timeCount: { fontSize: 12, color: '#8FA39B', fontWeight: '500' },
   pillGrid: {
     flexDirection: 'row', flexWrap: 'wrap', gap: 12,
@@ -1365,7 +1371,7 @@ const ns = StyleSheet.create({
   overviewItemName: { fontSize: 13, fontWeight: '600', color: '#1A2D26', textAlign: 'center' },
   overviewItemDose: { fontSize: 11, color: '#8FA39B' },
   showAllBtn: {
-    backgroundColor: '#2C8C99', borderRadius: 10,
+    backgroundColor: '#1B6B45', borderRadius: 10,
     paddingVertical: 10, alignItems: 'center',
     marginHorizontal: 14, marginBottom: 14,
   },

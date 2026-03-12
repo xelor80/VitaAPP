@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
@@ -6,53 +6,31 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLang } from '../../src/LangContext';
 import { eventBus } from '../../src/eventBus';
+import SupplementPlanScreen from '../supplement-plan';
 
 export default function PlanTab() {
   const router = useRouter();
   const { lang } = useLang();
   const [hasProfile, setHasProfile] = useState<boolean | null>(null);
 
-  useEffect(() => {
-    const check = async () => {
-      const profileId = await AsyncStorage.getItem('health_profile_id');
-      setHasProfile(!!profileId);
-      if (profileId) {
-        router.push('/supplement-plan' as any);
-      }
-    };
-    check();
-
-    eventBus.on('profileUpdated', () => { check(); });
-    return () => eventBus.off('profileUpdated', check);
+  const check = useCallback(async () => {
+    const profileId = await AsyncStorage.getItem('health_profile_id');
+    setHasProfile(!!profileId);
   }, []);
+
+  useEffect(() => {
+    check();
+    eventBus.on('profileUpdated', check);
+    return () => eventBus.off('profileUpdated', check);
+  }, [check]);
 
   if (hasProfile === null) {
     return <View style={s.center}><ActivityIndicator size="large" color="#2E7D52" /></View>;
   }
 
-  // If profile exists but user came back from plan, show shortcut
+  // Render supplement plan directly in the tab (no intermediate screen)
   if (hasProfile) {
-    return (
-      <View style={s.container}>
-        <LinearGradient colors={['#1B6B45', '#2E9E6B', '#43C68A']} style={s.header}>
-          <Text style={s.headerTitle}>{lang === 'de' ? 'Supplement Plan' : 'Piano Integratori'}</Text>
-        </LinearGradient>
-        <View style={s.emptyState}>
-          <MaterialCommunityIcons name="pill" size={80} color="#2E7D52" />
-          <Text style={s.emptyTitle}>
-            {lang === 'de' ? 'Dein Supplement Plan' : 'Il tuo piano integratori'}
-          </Text>
-          <TouchableOpacity
-            style={s.createBtn}
-            onPress={() => router.push('/supplement-plan' as any)}
-            data-testid="open-plan-btn"
-          >
-            <Text style={s.createBtnText}>{lang === 'de' ? 'Plan oeffnen' : 'Apri piano'}</Text>
-            <MaterialCommunityIcons name="arrow-right" size={20} color="#FFFFFF" />
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
+    return <SupplementPlanScreen />;
   }
 
   return (

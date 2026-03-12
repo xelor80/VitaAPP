@@ -4,7 +4,7 @@ import {
   SafeAreaView, ActivityIndicator, StyleSheet
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useRouter, useNavigation } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Svg, { Path, Circle as SvgCircle } from 'react-native-svg';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -173,6 +173,8 @@ function getSleepStatus(quality: number, lang: string) {
 /* ── Main Screen ── */
 export default function HealthProfileScreen() {
   const router = useRouter();
+  const navigation = useNavigation();
+  const canGoBack = navigation.canGoBack();
   const { lang } = useLang();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
@@ -271,9 +273,12 @@ export default function HealthProfileScreen() {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} testID="back-btn">
-            <MaterialCommunityIcons name="arrow-left" size={24} color="#1A2D26" />
-          </TouchableOpacity>
+          {canGoBack && (
+            <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} testID="back-btn">
+              <MaterialCommunityIcons name="arrow-left" size={24} color="#1A2D26" />
+            </TouchableOpacity>
+          )}
+          {!canGoBack && <View style={{ width: 40 }} />}
           <Text style={styles.headerTitle}>
             {lang === 'de' ? 'Gesundheitsprofil' : 'Profilo salute'}
           </Text>
@@ -453,7 +458,7 @@ export default function HealthProfileScreen() {
                 <TouchableOpacity
                   data-testid={`cta-plan-${d.nutrient}`}
                   style={[ctaStyles.primaryBtn, { backgroundColor: d.risk_level === 'high' ? '#EF4444' : '#F59E0B' }]}
-                  onPress={() => router.push({ pathname: '/supplement-plan', params: { profileId: profileId || '' } })}
+                  onPress={() => router.push('/(tabs)/plan' as any)}
                 >
                   <MaterialCommunityIcons name="clipboard-check-outline" size={15} color="#FFF" />
                   <Text style={ctaStyles.primaryBtnText}>
@@ -503,7 +508,7 @@ export default function HealthProfileScreen() {
             <TouchableOpacity
               data-testid="view-supplement-plan-btn"
               style={styles.ctaBtn}
-              onPress={() => router.push({ pathname: '/supplement-plan', params: { profileId: profileId || '' } })}
+              onPress={() => router.push('/(tabs)/plan' as any)}
             >
               <MaterialCommunityIcons name="pill" size={20} color="#FFFFFF" />
               <Text style={styles.ctaBtnText}>
@@ -514,7 +519,7 @@ export default function HealthProfileScreen() {
             <TouchableOpacity
               data-testid="create-supplement-plan-btn"
               style={styles.ctaBtn}
-              onPress={() => router.push({ pathname: '/supplement-plan', params: { profileId: profileId || '' } })}
+              onPress={() => router.push('/(tabs)/plan' as any)}
             >
               <MaterialCommunityIcons name="creation" size={20} color="#FFFFFF" />
               <Text style={styles.ctaBtnText}>

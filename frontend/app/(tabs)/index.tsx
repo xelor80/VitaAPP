@@ -183,7 +183,7 @@ export default function DashboardHome() {
           <TouchableOpacity
             style={[s.featureCard]}
             activeOpacity={0.85}
-            onPress={() => hasPlan ? router.push('/supplement-plan' as any) : (hasProfile ? router.push('/supplement-plan' as any) : router.push('/onboarding' as any))}
+            onPress={() => hasPlan ? router.push('/(tabs)/plan' as any) : (hasProfile ? router.push('/(tabs)/plan' as any) : router.push('/onboarding' as any))}
             data-testid="supplement-plan-card"
           >
             <LinearGradient colors={['#1B8A5A', '#2EAD6E']} style={s.featureGradient}>
