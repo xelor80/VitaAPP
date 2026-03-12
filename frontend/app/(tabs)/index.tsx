@@ -355,8 +355,8 @@ const s = StyleSheet.create({
   bgGradient: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F7FA' },
   header: {
-    paddingTop: Platform.OS === 'ios' ? 60 : 44,
-    paddingBottom: 24,
+    paddingTop: Platform.OS === 'ios' ? 64 : 48,
+    paddingBottom: 28,
     paddingHorizontal: SIDE_PAD,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
@@ -377,7 +377,7 @@ const s = StyleSheet.create({
   heroMascot: {
     position: 'absolute',
     right: SIDE_PAD,
-    top: 5,
+    top: -30,
     width: 120,
     height: 120,
     zIndex: 0,
