@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
-  Image, Dimensions, Platform, ActivityIndicator,
+  Image, Dimensions, Platform, ActivityIndicator, Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -10,7 +10,11 @@ import { useRouter } from 'expo-router';
 import { useLang } from '../../src/LangContext';
 import { useGuide } from '../../src/GuideContext';
 import { eventBus } from '../../src/eventBus';
+import { setCurrentAnalysis } from '../../src/store';
 import { DisclaimerScreen } from '../../components/home/DisclaimerScreen';
+import { SymptomInput } from '../../components/home/SymptomInput';
+import { SymptomChips } from '../../components/home/SymptomChips';
+import { AnalyzeButton } from '../../components/home/AnalyzeButton';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_GAP = 12;
@@ -34,6 +38,10 @@ export default function DashboardHome() {
   const [healthScore, setHealthScore] = useState<number | null>(null);
   const [loadingRecipes, setLoadingRecipes] = useState(true);
   const [achievements, setAchievements] = useState<any>(null);
+  const [showAnalysis, setShowAnalysis] = useState(false);
+  const [symptomText, setSymptomText] = useState('');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   // Disclaimer check
   useEffect(() => {
@@ -95,6 +103,37 @@ export default function DashboardHome() {
     setDisclaimerAccepted(true);
     guide.setDisclaimerAccepted(true);
   }, [guide]);
+
+  const toggleTag = useCallback((tag: string) => {
+    setSelectedTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]);
+  }, []);
+
+  const analyzeSymptoms = useCallback(async () => {
+    const allSymptoms = [symptomText, ...selectedTags].filter(Boolean).join(', ');
+    if (!allSymptoms.trim()) {
+      Alert.alert(lang === 'de' ? 'Hinweis' : 'Avviso', lang === 'de' ? 'Bitte beschreiben Sie Ihre Symptome.' : 'Descrivete i vostri sintomi.');
+      return;
+    }
+    setIsAnalyzing(true);
+    try {
+      const profileId = await AsyncStorage.getItem('health_profile_id');
+      const res = await fetch(`${API_URL}/api/symptoms/analyze`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ symptoms: allSymptoms, lang, profile_id: profileId }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCurrentAnalysis(data);
+        await AsyncStorage.setItem('saved_analysis', JSON.stringify(data));
+        router.push('/results' as any);
+      }
+    } catch (e) {
+      Alert.alert('Error', String(e));
+    } finally {
+      setIsAnalyzing(false);
+    }
+  }, [symptomText, selectedTags, lang, router]);
 
   if (disclaimerAccepted === null) return <View style={s.loadingContainer}><ActivityIndicator size="large" color="#2E7D52" /></View>;
   if (!disclaimerAccepted) return <DisclaimerScreen lang={lang} onAccept={acceptDisclaimer} />;
@@ -223,11 +262,11 @@ export default function DashboardHome() {
           )}
         </ScrollView>
 
-        {/* Symptom Analysis Card */}
+        {/* Symptom Analysis Section */}
         <TouchableOpacity
           style={s.analysisCard}
           activeOpacity={0.85}
-          onPress={() => router.push('/' as any)}
+          onPress={() => setShowAnalysis(!showAnalysis)}
           data-testid="analysis-card"
         >
           <View style={s.analysisLeft}>
@@ -237,8 +276,15 @@ export default function DashboardHome() {
               <Text style={s.analysisSub}>{lang === 'de' ? 'Beschreibe deine Symptome' : 'Descrivi i tuoi sintomi'}</Text>
             </View>
           </View>
-          <MaterialCommunityIcons name="chevron-right" size={24} color="#2E7D52" />
+          <MaterialCommunityIcons name={showAnalysis ? 'chevron-up' : 'chevron-down'} size={24} color="#2E7D52" />
         </TouchableOpacity>
+        {showAnalysis && (
+          <View style={s.analysisExpanded}>
+            <SymptomInput lang={lang} value={symptomText} onChangeText={setSymptomText} />
+            <SymptomChips lang={lang} selectedTags={selectedTags} onToggleTag={toggleTag} />
+            <AnalyzeButton lang={lang} isLoading={isAnalyzing} onPress={analyzeSymptoms} />
+          </View>
+        )}
 
         {/* Info Cards Row */}
         <View style={s.infoRow}>
@@ -407,6 +453,21 @@ const s = StyleSheet.create({
   analysisLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
   analysisTitle: { fontSize: 15, fontWeight: '700', color: '#1A2E35' },
   analysisSub: { fontSize: 12, color: '#6B7280', marginTop: 2 },
+  analysisExpanded: {
+    marginHorizontal: SIDE_PAD,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    padding: 16,
+    marginTop: -8,
+    marginBottom: 16,
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 0,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+  },
   infoRow: {
     flexDirection: 'row',
     paddingHorizontal: SIDE_PAD,
