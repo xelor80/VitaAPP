@@ -150,17 +150,7 @@ export default function DashboardHome() {
       {/* Header with gradient */}
       <LinearGradient colors={['#1B6B45', '#2E9E6B', '#43C68A']} style={s.header}>
         <View style={s.headerRow}>
-          <View style={s.logoRow}>
-            <MaterialCommunityIcons name="leaf" size={26} color="#FFFFFF" />
-            <Text style={s.logoText}>VitaGuide+</Text>
-          </View>
-          <TouchableOpacity
-            onPress={() => router.push('/admin' as any)}
-            style={s.settingsBtn}
-            data-testid="settings-btn"
-          >
-            <MaterialCommunityIcons name="cog" size={24} color="rgba(255,255,255,0.85)" />
-          </TouchableOpacity>
+          <Text style={s.logoText}>VitaGuide<Text style={s.logoPlus}>+</Text></Text>
         </View>
       </LinearGradient>
 
@@ -343,7 +333,16 @@ export default function DashboardHome() {
           <MaterialCommunityIcons name="chevron-right" size={24} color="#6366F1" />
         </TouchableOpacity>
 
-        <View style={{ height: 24 }} />
+        {/* Version link to admin */}
+        <TouchableOpacity
+          onPress={() => router.push('/admin' as any)}
+          style={s.versionLink}
+          data-testid="version-link"
+        >
+          <Text style={s.versionText}>V. 1.0</Text>
+        </TouchableOpacity>
+
+        <View style={{ height: 12 }} />
       </ScrollView>
     </View>
   );
@@ -359,9 +358,10 @@ const s = StyleSheet.create({
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
   },
-  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  headerRow: { alignItems: 'center', justifyContent: 'center' },
   logoRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   logoText: { fontSize: 24, fontWeight: '800', color: '#FFFFFF', letterSpacing: -0.5 },
+  logoPlus: { color: '#F5C842', fontWeight: '800' },
   settingsBtn: { padding: 6 },
   scroll: { flex: 1 },
   scrollContent: { paddingTop: 20 },
@@ -533,4 +533,14 @@ const s = StyleSheet.create({
   },
   trackingTitle: { fontSize: 15, fontWeight: '700', color: '#1A2E35' },
   trackingSub: { fontSize: 12, color: '#6B7280', marginTop: 2 },
+  versionLink: {
+    alignItems: 'center',
+    paddingVertical: 16,
+    marginTop: 8,
+  },
+  versionText: {
+    fontSize: 11,
+    color: '#C0C5CB',
+    letterSpacing: 0.5,
+  },
 });
