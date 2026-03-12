@@ -18,9 +18,6 @@ export default function PlanTab() {
     const profileId = await AsyncStorage.getItem('health_profile_id');
     setHasProfile(!!profileId);
     setLoading(false);
-    if (profileId) {
-      router.replace('/supplement-plan' as any);
-    }
   };
 
   useEffect(() => { checkProfile(); }, []);
@@ -31,6 +28,31 @@ export default function PlanTab() {
 
   if (loading) {
     return <View style={s.center}><ActivityIndicator size="large" color="#2E7D52" /></View>;
+  }
+
+  if (hasProfile) {
+    return (
+      <View style={s.container}>
+        <LinearGradient colors={['#1B6B45', '#2E9E6B', '#43C68A']} style={s.header}>
+          <Text style={s.headerTitle}>{lang === 'de' ? 'Supplement Plan' : 'Piano Integratori'}</Text>
+        </LinearGradient>
+        <View style={s.emptyState}>
+          <MaterialCommunityIcons name="pill" size={80} color="#2E7D52" />
+          <Text style={s.emptyTitle}>
+            {lang === 'de' ? 'Dein Supplement Plan' : 'Il tuo piano integratori'}
+          </Text>
+          <Text style={s.emptyText}>
+            {lang === 'de'
+              ? 'Oeffne deinen personalisierten Supplement-Plan mit Einnahmeempfehlungen.'
+              : 'Apri il tuo piano integratori personalizzato con le raccomandazioni.'}
+          </Text>
+          <TouchableOpacity style={s.createBtn} onPress={() => router.push('/supplement-plan' as any)} data-testid="open-plan-btn">
+            <Text style={s.createBtnText}>{lang === 'de' ? 'Plan oeffnen' : 'Apri piano'}</Text>
+            <MaterialCommunityIcons name="arrow-right" size={20} color="#FFFFFF" />
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
   }
 
   return (

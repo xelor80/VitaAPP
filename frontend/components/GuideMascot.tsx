@@ -359,7 +359,7 @@ const s = StyleSheet.create({
   // Floating Bubble
   bubbleContainer: {
     position: 'absolute',
-    bottom: Platform.OS === 'web' ? 24 : 40,
+    bottom: Platform.OS === 'web' ? 90 : 110,
     right: 16,
     zIndex: 999,
   },
