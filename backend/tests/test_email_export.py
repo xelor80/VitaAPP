@@ -6,7 +6,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://vita-guide-redesign.preview.emergentagent.com')
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://vitaguide-water.preview.emergentagent.com')
 
 # Test profile with supplement plan (provided in test requirements)
 TEST_PROFILE_ID = "2416f8aa-09aa-47f1-b600-2c9ada87124d"

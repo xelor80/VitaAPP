@@ -25,7 +25,7 @@
     "frontend": "100% (8/8 tests passed)"
   },
   "test_credentials": {
-    "app_url": "https://vita-guide-redesign.preview.emergentagent.com"
+    "app_url": "https://vitaguide-water.preview.emergentagent.com"
   },
   "seed_data_creation": "Created test symptom analyses: 'Kopfschmerzen und Müdigkeit' and 'Stress und Schlafprobleme'",
   "retest_needed": false,

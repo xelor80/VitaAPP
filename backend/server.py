@@ -103,7 +103,7 @@ app.include_router(api_router)
 # 1. CORS - restrict to own domains
 ALLOWED_ORIGINS = [
     os.environ.get("EXPO_PUBLIC_BACKEND_URL", ""),
-    "https://vita-guide-redesign.preview.emergentagent.com",
+    "https://vitaguide-water.preview.emergentagent.com",
     "http://localhost:3000",
     "http://localhost:8001",
     "exp://localhost:8081",
