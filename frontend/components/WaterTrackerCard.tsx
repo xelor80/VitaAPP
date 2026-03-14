@@ -169,14 +169,6 @@ export function WaterTrackerCard({ profileId, lang, waterData, onDataUpdate, onN
             </View>
           </View>
 
-          {/* Feedback */}
-          {lastFeedback ? (
-            <Animated.View entering={FadeIn.duration(200)} style={st.feedbackBadge}>
-              <MaterialCommunityIcons name="check-circle" size={14} color="#16A34A" />
-              <Text style={st.feedbackText}>{lastFeedback}</Text>
-            </Animated.View>
-          ) : null}
-
           {/* Quick-Add Buttons */}
           <View style={st.buttonsRow}>
             {quickAmounts.map((amt) => (
@@ -304,19 +296,6 @@ const st = StyleSheet.create({
     color: '#6B7280',
     marginTop: 6,
     fontWeight: '500',
-  },
-  // Feedback
-  feedbackBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    alignSelf: 'center',
-    marginBottom: 8,
-  },
-  feedbackText: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#16A34A',
   },
   // Quick-add buttons
   buttonsRow: {
