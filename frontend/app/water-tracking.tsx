@@ -13,6 +13,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import Svg, { Path, Defs, LinearGradient as SvgGradient, Stop, Circle } from 'react-native-svg';
 import { useLang } from '../src/LangContext';
+import { eventBus } from '../src/eventBus';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 const { width: SCREEN_W } = Dimensions.get('window');
@@ -140,6 +141,7 @@ export default function WaterTrackingScreen() {
       setShowFeedback(true);
       setTimeout(() => setShowFeedback(false), 2500);
       loadHistory();
+      eventBus.emit('waterUpdated');
     } catch {}
   };
 

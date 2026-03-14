@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  View, Text, TouchableOpacity, StyleSheet, Dimensions, TextInput,
-  Modal, ActivityIndicator,
+  View, Text, TouchableOpacity, StyleSheet, Dimensions,
+  ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -74,10 +74,7 @@ interface WaterTrackerCardProps {
 }
 
 export function WaterTrackerCard({ profileId, lang, waterData, onDataUpdate, onNavigate }: WaterTrackerCardProps) {
-  const [showCustom, setShowCustom] = useState(false);
-  const [customAmount, setCustomAmount] = useState('');
   const [adding, setAdding] = useState(false);
-  const [lastFeedback, setLastFeedback] = useState('');
 
   // Wave animation
   const waveX = useSharedValue(0);
@@ -114,9 +111,6 @@ export function WaterTrackerCard({ profileId, lang, waterData, onDataUpdate, onN
         body: JSON.stringify({ amount_ml: amount }),
       });
       if (res.ok) {
-        const d = await res.json();
-        setLastFeedback(`+${amount} ml`);
-        setTimeout(() => setLastFeedback(''), 2000);
         onDataUpdate();
       }
     } catch {} finally {
@@ -197,53 +191,9 @@ export function WaterTrackerCard({ profileId, lang, waterData, onDataUpdate, onN
                 <Text style={st.quickBtnText}>+{amt} ml</Text>
               </TouchableOpacity>
             ))}
-            <TouchableOpacity
-              style={st.quickBtn}
-              activeOpacity={0.7}
-              onPress={(e) => { e.stopPropagation?.(); setShowCustom(true); }}
-              data-testid="dashboard-add-water-custom"
-            >
-              <MaterialCommunityIcons name="pencil-outline" size={13} color="#4B5563" />
-              <Text style={st.quickBtnText}>{lang === 'de' ? 'Eigene Menge' : 'Personalizzato'}</Text>
-            </TouchableOpacity>
           </View>
         </LinearGradient>
       </View>
-
-      {/* Custom Amount Modal */}
-      <Modal visible={showCustom} transparent animationType="fade">
-        <TouchableOpacity
-          style={st.modalOverlay}
-          activeOpacity={1}
-          onPress={() => setShowCustom(false)}
-        >
-          <View style={st.modalCard}>
-            <Text style={st.modalTitle}>{lang === 'de' ? 'Eigene Menge' : 'Quantita personalizzata'}</Text>
-            <TextInput
-              style={st.modalInput}
-              keyboardType="numeric"
-              placeholder="ml"
-              value={customAmount}
-              onChangeText={setCustomAmount}
-              autoFocus
-            />
-            <View style={st.modalBtns}>
-              <TouchableOpacity style={st.modalCancel} onPress={() => setShowCustom(false)}>
-                <Text style={st.modalCancelText}>{lang === 'de' ? 'Abbrechen' : 'Annulla'}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={st.modalSave}
-                onPress={() => {
-                  const v = parseInt(customAmount);
-                  if (v > 0) { addWater(v); setShowCustom(false); setCustomAmount(''); }
-                }}
-              >
-                <Text style={st.modalSaveText}>{lang === 'de' ? 'Hinzufuegen' : 'Aggiungi'}</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </TouchableOpacity>
-      </Modal>
     </TouchableOpacity>
   );
 }
@@ -394,64 +344,5 @@ const st = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     color: '#374151',
-  },
-  // Modal
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalCard: {
-    backgroundColor: '#FFF',
-    borderRadius: 20,
-    padding: 24,
-    width: SW - 80,
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#1A2E35',
-    marginBottom: 16,
-  },
-  modalInput: {
-    backgroundColor: '#F5F7FA',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#E0E6E2',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 18,
-    fontWeight: '700',
-    textAlign: 'center',
-  },
-  modalBtns: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 20,
-  },
-  modalCancel: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 12,
-    backgroundColor: '#F3F4F6',
-    alignItems: 'center',
-  },
-  modalCancelText: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#6B7280',
-  },
-  modalSave: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 12,
-    backgroundColor: '#2D9E6B',
-    alignItems: 'center',
-  },
-  modalSaveText: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#FFF',
   },
 });

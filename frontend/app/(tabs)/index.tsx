@@ -105,7 +105,11 @@ export default function DashboardHome() {
   useEffect(() => { loadData(); }, [loadData]);
   useEffect(() => {
     eventBus.on('profileUpdated', loadData);
-    return () => eventBus.off('profileUpdated', loadData);
+    eventBus.on('waterUpdated', loadData);
+    return () => {
+      eventBus.off('profileUpdated', loadData);
+      eventBus.off('waterUpdated', loadData);
+    };
   }, [loadData]);
 
   const acceptDisclaimer = useCallback(async () => {
