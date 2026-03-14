@@ -43,6 +43,7 @@ export default function DashboardHome() {
   const [symptomText, setSymptomText] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [waterData, setWaterData] = useState<any>(null);
 
   // Disclaimer check
   useEffect(() => {
@@ -78,6 +79,11 @@ export default function DashboardHome() {
           const d = await achRes.json();
           setAchievements(d);
         }
+        // Load water tracking
+        try {
+          const waterRes = await fetch(`${API_URL}/api/water-tracking/${profileId}/today?lang=${lang}`);
+          if (waterRes.ok) setWaterData(await waterRes.json());
+        } catch {}
       }
     } catch {}
     // Load recipes
@@ -215,6 +221,44 @@ export default function DashboardHome() {
           </TouchableOpacity>
         </View>
         </View>
+
+        {/* Water Tracking Card */}
+        {hasProfile && (
+          <TouchableOpacity
+            style={s.waterCard}
+            activeOpacity={0.85}
+            onPress={() => router.push('/water-tracking' as any)}
+            data-testid="water-tracking-card"
+          >
+            <LinearGradient
+              colors={['#E3F2FD', '#BBDEFB']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={s.waterCardGradient}
+            >
+              <View style={s.waterCardLeft}>
+                <MaterialCommunityIcons name="water" size={28} color="#1976D2" />
+                <View style={{ marginLeft: 12, flex: 1 }}>
+                  <Text style={s.waterCardTitle}>{lang === 'de' ? 'Wasser Tracking' : 'Idratazione'}</Text>
+                  <Text style={s.waterCardSub}>
+                    {waterData
+                      ? `${(waterData.total_ml / 1000).toFixed(1)} / ${(waterData.daily_goal_ml / 1000).toFixed(1)} L`
+                      : (lang === 'de' ? 'Starte dein Tracking' : 'Inizia il tracking')}
+                  </Text>
+                </View>
+              </View>
+              {waterData && (
+                <View style={s.waterProgress}>
+                  <View style={s.waterProgressBg}>
+                    <View style={[s.waterProgressFill, { width: `${Math.min(waterData.percentage, 100)}%` as any }]} />
+                  </View>
+                  <Text style={s.waterPct}>{waterData.percentage}%</Text>
+                </View>
+              )}
+              <MaterialCommunityIcons name="chevron-right" size={22} color="#1976D2" style={{ marginLeft: 8 }} />
+            </LinearGradient>
+          </TouchableOpacity>
+        )}
 
         {/* Recipes Section */}
         <View style={s.sectionHeader}>
@@ -537,6 +581,48 @@ const s = StyleSheet.create({
   },
   trackingTitle: { fontSize: 15, fontWeight: '700', color: '#1A2E35' },
   trackingSub: { fontSize: 12, color: '#6B7280', marginTop: 2 },
+  // Water Card
+  waterCard: {
+    marginHorizontal: SIDE_PAD,
+    marginBottom: 20,
+    borderRadius: 16,
+    overflow: 'hidden',
+    elevation: 3,
+    shadowColor: '#1976D2',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+  },
+  waterCardGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+  },
+  waterCardLeft: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  waterCardTitle: { fontSize: 15, fontWeight: '700', color: '#1565C0' },
+  waterCardSub: { fontSize: 12, color: '#42A5F5', marginTop: 2 },
+  waterProgress: {
+    alignItems: 'center',
+    marginLeft: 12,
+    width: 60,
+  },
+  waterProgressBg: {
+    width: 60,
+    height: 6,
+    backgroundColor: 'rgba(25,118,210,0.15)',
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  waterProgressFill: {
+    height: 6,
+    backgroundColor: '#1976D2',
+    borderRadius: 3,
+  },
+  waterPct: { fontSize: 11, fontWeight: '700', color: '#1976D2', marginTop: 3 },
   versionLink: {
     alignItems: 'center',
     paddingVertical: 16,
