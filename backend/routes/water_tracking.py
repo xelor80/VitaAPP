@@ -2,6 +2,8 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Optional, List
 from datetime import datetime, timezone, timedelta
+import os
+import uuid
 from core.config import db, logger
 
 router = APIRouter(prefix="/water-tracking", tags=["water-tracking"])
@@ -23,7 +25,8 @@ class UpdateReminderRequest(BaseModel):
 def today_str():
     return datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
-def calculate_water_goal(profile: dict) -> int:
+def calculate_water_goal_fallback(profile: dict) -> int:
+    """Simple fallback formula when AI is unavailable."""
     weight = profile.get("weight")
     if not weight:
         return 2400
@@ -39,6 +42,55 @@ def calculate_water_goal(profile: dict) -> int:
     elif activity == "athlete":
         base_ml += 1000
     return round(base_ml / 100) * 100
+
+async def calculate_water_goal_ai(profile: dict) -> int:
+    """Use AI to calculate personalized water goal from health profile."""
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+
+        profile_summary = (
+            f"Geschlecht: {profile.get('gender', 'unbekannt')}, "
+            f"Alter: {profile.get('age', 'unbekannt')}, "
+            f"Gewicht: {profile.get('weight', 'unbekannt')} kg, "
+            f"Groesse: {profile.get('height', 'unbekannt')} cm, "
+            f"Aktivitaetslevel: {profile.get('activity_level', 'unbekannt')}, "
+            f"Schlafqualitaet: {profile.get('sleep_quality', 'unbekannt')}/10, "
+            f"Schlafdauer: {profile.get('sleep_duration', 'unbekannt')} Stunden, "
+            f"Stresslevel: {profile.get('stress_level', 'unbekannt')}/10, "
+            f"Energielevel: {profile.get('energy_level', 'unbekannt')}/10, "
+            f"Ernaehrung: {profile.get('diet', 'unbekannt')}, "
+            f"Erkrankungen: {profile.get('conditions', [])}, "
+            f"Medikamente: {profile.get('medications', [])}, "
+            f"Allergien: {profile.get('allergies', [])}"
+        )
+
+        system_msg = (
+            "Du bist ein Ernaehrungsexperte. Berechne die empfohlene taegliche Wasserzufuhr in Millilitern "
+            "basierend auf dem Gesundheitsprofil. Beruecksichtige Gewicht, Groesse, Alter, Aktivitaetslevel, "
+            "Schlafqualitaet, Stresslevel und Ernaehrungsweise. "
+            "Antworte NUR mit einer einzigen Zahl in ml (z.B. 2400). Keine Erklaerung, kein Text, nur die Zahl."
+        )
+
+        chat = LlmChat(
+            api_key=os.environ.get('EMERGENT_LLM_KEY', ''),
+            session_id=str(uuid.uuid4()),
+            system_message=system_msg
+        ).with_model("openai", "gpt-4o")
+
+        response = await chat.send_message(UserMessage(text=f"Gesundheitsprofil:\n{profile_summary}"))
+        # Extract number from response
+        import re
+        numbers = re.findall(r'\d+', str(response).replace('.', '').replace(',', ''))
+        if numbers:
+            goal = int(numbers[0])
+            # Sanity check: between 1000 and 6000 ml
+            if 1000 <= goal <= 6000:
+                return round(goal / 100) * 100
+        logger.warning(f"AI returned unexpected value: {response}, using fallback")
+    except Exception as e:
+        logger.error(f"AI water calculation failed: {e}")
+
+    return calculate_water_goal_fallback(profile)
 
 def get_vero_message(current_ml: int, goal_ml: int, lang: str, hour: int) -> Optional[dict]:
     pct = (current_ml / goal_ml * 100) if goal_ml > 0 else 0
@@ -85,7 +137,7 @@ async def get_today(profile_id: str, lang: str = "de"):
         daily_goal = goal_doc["daily_goal_ml"]
     else:
         profile = await db.health_profiles.find_one({"id": profile_id}, {"_id": 0})
-        daily_goal = calculate_water_goal(profile) if profile else 2400
+        daily_goal = await calculate_water_goal_ai(profile) if profile else 2400
         await db.water_goals.update_one(
             {"profile_id": profile_id},
             {"$set": {"profile_id": profile_id, "daily_goal_ml": daily_goal, "auto_calculated": True}},
@@ -179,7 +231,7 @@ async def get_goal(profile_id: str):
     if goal_doc:
         return {"daily_goal_ml": goal_doc["daily_goal_ml"], "auto_calculated": goal_doc.get("auto_calculated", False)}
     profile = await db.health_profiles.find_one({"id": profile_id}, {"_id": 0})
-    daily_goal = calculate_water_goal(profile) if profile else 2400
+    daily_goal = await calculate_water_goal_ai(profile) if profile else 2400
     return {"daily_goal_ml": daily_goal, "auto_calculated": True}
 
 @router.put("/{profile_id}/goal")
@@ -208,3 +260,78 @@ async def update_reminder(profile_id: str, req: UpdateReminderRequest):
         upsert=True
     )
     return {"enabled": req.enabled, "times": req.times or ["08:00", "12:00", "16:00", "20:00"]}
+
+
+@router.post("/{profile_id}/recalculate-goal")
+async def recalculate_goal(profile_id: str):
+    """Recalculate goal using AI based on current health profile."""
+    profile = await db.health_profiles.find_one({"id": profile_id}, {"_id": 0})
+    if not profile:
+        raise HTTPException(404, "Profile not found")
+    daily_goal = await calculate_water_goal_ai(profile)
+    await db.water_goals.update_one(
+        {"profile_id": profile_id},
+        {"$set": {"profile_id": profile_id, "daily_goal_ml": daily_goal, "auto_calculated": True}},
+        upsert=True
+    )
+    return {"daily_goal_ml": daily_goal, "auto_calculated": True}
+
+@router.get("/{profile_id}/hydration-tip")
+async def get_hydration_tip(profile_id: str, lang: str = "de"):
+    """Get a contextual hydration tip from VERO using AI."""
+    profile = await db.health_profiles.find_one({"id": profile_id}, {"_id": 0})
+    date = today_str()
+    doc = await db.water_tracking.find_one({"profile_id": profile_id, "date": date}, {"_id": 0})
+    goal_doc = await db.water_goals.find_one({"profile_id": profile_id}, {"_id": 0})
+
+    current_ml = doc["total_ml"] if doc else 0
+    daily_goal = goal_doc["daily_goal_ml"] if goal_doc else 2400
+    pct = round(current_ml / daily_goal * 100) if daily_goal > 0 else 0
+    hour = datetime.now(timezone.utc).hour
+
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+
+        context = (
+            f"Aktuelle Uhrzeit: {hour}:00, "
+            f"Wasseraufnahme heute: {current_ml} ml von {daily_goal} ml ({pct}%), "
+            f"Aktivitaet: {profile.get('activity_level', 'unbekannt') if profile else 'unbekannt'}, "
+            f"Stresslevel: {profile.get('stress_level', 'unbekannt') if profile else 'unbekannt'}/10"
+        )
+
+        system_msg = (
+            "Du bist VERO, ein freundliches Gesundheitsmaskottchen. "
+            "Gib einen kurzen, motivierenden Tipp zur Hydration (max 2 Saetze). "
+            "Beziehe dich auf die aktuelle Tageszeit und den Fortschritt. "
+            "Sei ermutigend und freundlich. " +
+            ("Antworte auf Deutsch." if lang == "de" else "Rispondi in italiano.")
+        )
+
+        chat = LlmChat(
+            api_key=os.environ.get('EMERGENT_LLM_KEY', ''),
+            session_id=str(uuid.uuid4()),
+            system_message=system_msg
+        ).with_model("openai", "gpt-4o")
+
+        tip = await chat.send_message(UserMessage(text=context))
+        return {"tip": str(tip), "source": "ai"}
+    except Exception as e:
+        logger.error(f"Hydration tip AI error: {e}")
+        # Fallback tips
+        tips_de = [
+            "Wusstest du, dass dein Gehirn zu 75% aus Wasser besteht? Trinke regelmaessig!",
+            "Ein Glas Wasser vor dem Essen kann dir helfen, dich besser zu fuehlen.",
+            "Dein Koerper verliert taeglich etwa 2.5 Liter Wasser. Fuelle es wieder auf!",
+            "Kaltes Wasser kann deinen Stoffwechsel leicht ankurbeln.",
+            "Muedigkeit ist oft ein Zeichen von Dehydration. Trink ein Glas Wasser!",
+        ]
+        tips_it = [
+            "Sapevi che il tuo cervello e composto al 75% di acqua? Bevi regolarmente!",
+            "Un bicchiere d'acqua prima dei pasti puo aiutarti a sentirti meglio.",
+            "Il tuo corpo perde circa 2.5 litri di acqua al giorno. Reintegrali!",
+            "L'acqua fredda puo accelerare leggermente il metabolismo.",
+            "La stanchezza e spesso un segno di disidratazione. Bevi un bicchiere d'acqua!",
+        ]
+        import random
+        tips = tips_de if lang == "de" else tips_it
+        return {"tip": random.choice(tips), "source": "fallback"}

@@ -70,6 +70,8 @@ export default function WaterTrackingScreen() {
   const [profileId, setProfileId] = useState<string | null>(null);
   const [history, setHistory] = useState<any>(null);
   const [historyPeriod, setHistoryPeriod] = useState<'week' | 'month'>('week');
+  const [veroTip, setVeroTip] = useState<string | null>(null);
+  const [loadingTip, setLoadingTip] = useState(false);
 
   // Animations
   const waveAnim = useSharedValue(0);
@@ -210,11 +212,51 @@ export default function WaterTrackingScreen() {
         {/* Feedback Toast */}
         <FeedbackToast message={feedback} visible={showFeedback} />
 
-        {/* VERO message */}
+        {/* VERO message - tap for hydration tip */}
         {data?.vero_message && (
-          <Animated.View entering={FadeIn.delay(400).duration(500)} style={st.veroCard}>
-            <MaterialCommunityIcons name="emoticon-happy-outline" size={22} color="#2E7D52" />
-            <Text style={st.veroText}>{data.vero_message.text}</Text>
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={async () => {
+              if (!profileId || loadingTip) return;
+              setLoadingTip(true);
+              try {
+                const res = await fetch(`${API_URL}/api/water-tracking/${profileId}/hydration-tip?lang=${lang}`);
+                if (res.ok) {
+                  const d = await res.json();
+                  setVeroTip(d.tip);
+                }
+              } catch {} finally {
+                setLoadingTip(false);
+              }
+            }}
+            data-testid="vero-tip-button"
+          >
+            <Animated.View entering={FadeIn.delay(400).duration(500)} style={st.veroCard}>
+              <View style={st.veroLeft}>
+                <MaterialCommunityIcons name="emoticon-happy-outline" size={28} color="#2E7D52" />
+                <Text style={st.veroLabel}>VERO</Text>
+              </View>
+              <View style={st.veroRight}>
+                <Text style={st.veroText}>{data.vero_message.text}</Text>
+                <Text style={st.veroHint}>
+                  {loadingTip ? (lang === 'de' ? 'Lade Tipp...' : 'Caricamento...') : (lang === 'de' ? 'Tippe fuer einen Hydrations-Tipp' : 'Tocca per un consiglio')}
+                </Text>
+              </View>
+            </Animated.View>
+          </TouchableOpacity>
+        )}
+
+        {/* VERO AI Tip */}
+        {veroTip && (
+          <Animated.View entering={FadeIn.duration(300)} style={st.tipCard}>
+            <View style={st.tipHeader}>
+              <MaterialCommunityIcons name="lightbulb-outline" size={18} color="#F59E0B" />
+              <Text style={st.tipTitle}>{lang === 'de' ? 'VEROs Tipp' : 'Consiglio di VERO'}</Text>
+              <TouchableOpacity onPress={() => setVeroTip(null)} style={st.tipClose}>
+                <MaterialCommunityIcons name="close" size={16} color="#9CA3AF" />
+              </TouchableOpacity>
+            </View>
+            <Text style={st.tipText}>{veroTip}</Text>
           </Animated.View>
         )}
 
@@ -376,11 +418,62 @@ const st = StyleSheet.create({
   toastText: { color: '#FFF', fontSize: 14, fontWeight: '600' },
   // VERO
   veroCard: {
-    flexDirection: 'row', alignItems: 'center', gap: 10,
-    backgroundColor: '#E8F5E9', marginHorizontal: 20, borderRadius: 14,
-    padding: 14, marginBottom: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: '#E8F5E9',
+    marginHorizontal: 20,
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#C8E6C9',
   },
-  veroText: { fontSize: 13, color: '#2E7D52', flex: 1, lineHeight: 18 },
+  veroLeft: {
+    alignItems: 'center',
+    gap: 2,
+  },
+  veroLabel: {
+    fontSize: 9,
+    fontWeight: '700',
+    color: '#2E7D52',
+    letterSpacing: 0.5,
+  },
+  veroRight: {
+    flex: 1,
+  },
+  veroText: { fontSize: 13, color: '#2E7D52', lineHeight: 18, fontWeight: '500' },
+  veroHint: { fontSize: 10, color: '#81C784', marginTop: 4, fontStyle: 'italic' },
+  // Tip card
+  tipCard: {
+    backgroundColor: '#FFFBEB',
+    marginHorizontal: 20,
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+  },
+  tipHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 8,
+  },
+  tipTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#92400E',
+    flex: 1,
+  },
+  tipClose: {
+    padding: 4,
+  },
+  tipText: {
+    fontSize: 13,
+    color: '#78350F',
+    lineHeight: 18,
+  },
   // Buttons
   buttonsWrap: { paddingHorizontal: 20, marginBottom: 20 },
   sectionLabel: { fontSize: 16, fontWeight: '700', color: '#1A2E35', marginBottom: 12 },
