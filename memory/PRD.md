@@ -1,53 +1,51 @@
 # VitaGuide+ - Product Requirements Document
 
 ## Original Problem Statement
-Bilingual (German/Italian) health app using an LLM to provide nutrition tips based on user symptoms. Evolved into a comprehensive personal health coach application.
+Bilingual (German/Italian) health app with AI-powered nutrition tips. Comprehensive personal health coach application.
 
 ## Tech Stack
-- **Frontend**: React Native (Expo)
-- **Backend**: FastAPI + MongoDB
-- **3rd Party**: OpenAI GPT-4o (Emergent LLM Key), OpenAI TTS, Shopify API, SMTP (kasserver.com), Unsplash, react-native-webview
+- **Frontend**: React Native (Expo) — reanimated, svg, notifications
+- **Backend**: FastAPI + MongoDB (Motor async)
+- **3rd Party**: OpenAI GPT-4o (Emergent LLM Key), OpenAI TTS, Shopify API, SMTP, Unsplash
 
-## Core Features (Implemented)
-1. Symptom Analysis - AI-powered with bilingual support (DE/IT)
-2. Product Recommendations - Shopify-synced supplements
-3. Recipe System - AI-generated healthy recipes
-4. Health Profiles - User health data tracking
-5. Admin Panel - Full-featured web admin
-6. Digital Mascot "VERO" - Dashboard hero + small circular + onboarding tour
-7. In-App Admin Access - WebView with token-based auto-login
-8. Text-to-Speech - OpenAI TTS
-9. Supplement Plans - Daily dose calculations with baseline fallback
-10. Tab-Based Navigation - 4 tabs always visible, screens embedded in tabs
-11. Dashboard Home Screen - Hero section with VERO peeking behind feature cards
-12. Swipe-Back Gesture - Custom PanResponder for tab/stack navigation
+## Core Features
+1. Symptom Analysis (AI-powered, DE/IT)
+2. Product Recommendations (Shopify-synced)
+3. Recipe System (AI-generated)
+4. Health Profiles
+5. Admin Panel (full-featured web admin)
+6. Digital Mascot "VERO"
+7. Supplement Plans (baseline fallback)
+8. Tab-Based Navigation (4 tabs, always visible)
+9. Dashboard Home Screen (VERO hero, feature cards, recipes)
+10. Swipe-Back Gesture
+11. **NEW: Water Tracking** — Personalized hydration tracking with:
+    - Auto-calculated daily goal from health profile (33ml/kg + adjustments)
+    - Animated water circle with wave visualization
+    - Quick-add buttons (+100, +200, +250, +500ml, custom)
+    - VERO contextual tips (morning, progress-based, goal reached)
+    - 7-day/30-day history with bar chart
+    - Custom goal adjustment
+    - Reminder settings (user opt-in push notifications)
+    - Dashboard card with progress bar
 
-## Key Architecture
+## Architecture
 ```
-backend/ - FastAPI + MongoDB
+backend/
+  routes/water_tracking.py — GET today, POST add, GET history, GET/PUT goal, GET/PUT reminder
+  (MongoDB collections: water_tracking, water_goals, water_reminders)
 frontend/
-  app/(tabs)/ - Tab navigation
-    plan.tsx -> renders SupplementPlanScreen directly
-    profile.tsx -> renders HealthProfileScreen directly
-  app/supplement-plan.tsx - Green color scheme, conditional back button
-  app/health-profile.tsx - Conditional back button
-  src/useSwipeBack.ts - Custom swipe-back with tab support
-  assets/images/vero-dashboard.png - VERO heart-gesture pose
+  app/water-tracking.tsx — Full water tracking screen
+  app/(tabs)/index.tsx — Dashboard with water card
 ```
 
 ## Credentials
 - Admin Password: Wk220480xel!
 
 ## Completed Work
-- [2026-03-12] VERO Dashboard: Hero position with peeking effect (z-index layering for native), small circular VERO
-- [2026-03-12] Swipe-Back: Custom PanResponder updated with tab path support, Capture mode for ScrollView compatibility
-- [2026-03-12] 4 UI Improvements: Tab bar always visible, full profile in tab, no intermediate screens, green color scheme
-- [2026-03-12] All bug fixes verified (recipes, symptoms, supplements, navigation)
-
-## Notes
-- Z-index layering for VERO "peeking behind cards" effect works on native iOS/Android but not on web preview (RN Web limitation)
-- Swipe-back gesture works via custom PanResponder (edge swipe from left 40px)
+- [2026-03-14] Water Tracking Feature: Backend (7 endpoints, 17/17 tests passed) + Frontend (animated UI, dashboard card)
+- [2026-03-12] UI improvements: Header redesign, VERO positioning, tab navigation, color scheme
 
 ## Backlog
-- No open issues
-- Awaiting user direction for next features
+- Push notification scheduling for water reminders (expo-notifications local)
+- Awaiting user feedback on water tracking UI
