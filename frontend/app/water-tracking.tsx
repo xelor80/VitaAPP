@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet, ScrollView, Platform,
-  SafeAreaView, ActivityIndicator, TextInput, Modal, Dimensions,
+  SafeAreaView, ActivityIndicator, TextInput, Modal, Dimensions, Image,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -14,6 +14,8 @@ import Animated, {
 import Svg, { Path, Defs, LinearGradient as SvgGradient, Stop, Circle } from 'react-native-svg';
 import { useLang } from '../src/LangContext';
 import { eventBus } from '../src/eventBus';
+
+const VERO_WATER_IMAGE = { uri: 'https://customer-assets.emergentagent.com/job_1555994b-6d08-464e-b162-3cd8fab568d9/artifacts/i4oylwy4_ChatGPT%20Image%2014.%20Ma%CC%88rz%202026%2C%2009_16_03.png' };
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 const { width: SCREEN_W } = Dimensions.get('window');
@@ -234,10 +236,7 @@ export default function WaterTrackingScreen() {
             data-testid="vero-tip-button"
           >
             <Animated.View entering={FadeIn.delay(400).duration(500)} style={st.veroCard}>
-              <View style={st.veroLeft}>
-                <MaterialCommunityIcons name="emoticon-happy-outline" size={28} color="#2E7D52" />
-                <Text style={st.veroLabel}>VERO</Text>
-              </View>
+              <Image source={VERO_WATER_IMAGE} style={st.veroImage} resizeMode="contain" />
               <View style={st.veroRight}>
                 <Text style={st.veroText}>{data.vero_message.text}</Text>
                 <Text style={st.veroHint}>
@@ -431,15 +430,9 @@ const st = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#C8E6C9',
   },
-  veroLeft: {
-    alignItems: 'center',
-    gap: 2,
-  },
-  veroLabel: {
-    fontSize: 9,
-    fontWeight: '700',
-    color: '#2E7D52',
-    letterSpacing: 0.5,
+  veroImage: {
+    width: 70,
+    height: 85,
   },
   veroRight: {
     flex: 1,
