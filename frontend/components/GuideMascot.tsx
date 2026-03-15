@@ -45,7 +45,21 @@ export function GuideMascot({ currentRoute, firstName }: Props) {
   const panelSlideAnim = useRef(new Animated.Value(300)).current;
   const panelOpacityAnim = useRef(new Animated.Value(0)).current;
 
-  const screenData = GUIDE_SCREENS[currentRoute] || GUIDE_SCREENS['/'];
+  // Match route to screen data with fallback logic
+  const getScreenData = (route: string): GuideScreenData => {
+    // Direct match
+    if (GUIDE_SCREENS[route]) return GUIDE_SCREENS[route];
+    // Try without leading slash
+    const clean = route.startsWith('/') ? route.slice(1) : route;
+    if (GUIDE_SCREENS['/' + clean]) return GUIDE_SCREENS['/' + clean];
+    // Try matching the last segment (e.g. "/(tabs)/profile" → "/profile")
+    const lastSegment = '/' + route.split('/').filter(Boolean).pop();
+    if (lastSegment && GUIDE_SCREENS[lastSegment]) return GUIDE_SCREENS[lastSegment];
+    // Default fallback
+    return GUIDE_SCREENS['/'];
+  };
+
+  const screenData = getScreenData(currentRoute);
   const currentPose = screenData.pose || 'default';
   const currentImage = getVeroImage(currentPose);
 

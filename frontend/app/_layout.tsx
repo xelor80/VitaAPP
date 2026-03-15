@@ -17,9 +17,15 @@ function SwipeWrapper({ children }: { children: React.ReactNode }) {
 }
 
 function GuideOverlay() {
-  const pathname = usePathname();
+  const rawPathname = usePathname();
   const [firstName, setFirstName] = useState<string | null>(null);
   const guide = useGuide();
+
+  // Normalize pathname: remove group segments like "(tabs)" and clean up
+  const pathname = (rawPathname || '/')
+    .replace(/\/?\(tabs\)\/?/g, '/')
+    .replace(/\/+/g, '/')
+    .replace(/\/$/, '') || '/';
 
   useEffect(() => {
     if (!guide.disclaimerAccepted) return;
