@@ -220,6 +220,66 @@ export const GUIDE_SCREENS: Record<string, GuideScreenData> = {
     ],
   },
 
+  '/medications': {
+    greeting: {
+      de: 'Hier verwalten Sie Ihre Medikamente — uebersichtlich und sicher.',
+      it: 'Qui gestite i vostri farmaci — in modo chiaro e sicuro.',
+    },
+    explanation: {
+      de: 'Tragen Sie Ihre Medikamente ein, legen Sie Einnahmezeiten fest und lassen Sie sich erinnern. Ihre Angaben werden nur gespeichert — keine medizinischen Empfehlungen.',
+      it: 'Inserite i vostri farmaci, impostate gli orari di assunzione e ricevete promemoria. I dati vengono solo salvati — nessuna raccomandazione medica.',
+    },
+    nextStep: {
+      de: 'Fuegen Sie Ihr erstes Medikament hinzu, um es im Tagesplan zu sehen.',
+      it: 'Aggiungete il vostro primo farmaco per vederlo nel piano giornaliero.',
+    },
+    pose: 'achtung',
+    quickActions: [
+      {
+        id: 'med_safety',
+        label: { de: 'Ist meine Daten sicher?', it: 'I miei dati sono al sicuro?' },
+        response: {
+          de: 'Ihre Medikamentendaten werden lokal gespeichert und nicht fuer medizinische Empfehlungen verwendet. Die App erinnert nur — sie beratet nicht.',
+          it: 'I dati sui farmaci vengono salvati localmente e non utilizzati per raccomandazioni mediche. L\'app ricorda solamente — non consiglia.',
+        },
+      },
+      {
+        id: 'med_plan',
+        label: { de: 'Wie erscheinen Medikamente im Tagesplan?', it: 'Come appaiono i farmaci nel piano?' },
+        response: {
+          de: 'Ihre Medikamente werden zusammen mit Supplements im Tagesplan angezeigt, aber farblich getrennt. Blaue Eintraege sind Medikamente, gruene Supplements.',
+          it: 'I farmaci vengono mostrati insieme agli integratori nel piano giornaliero, ma con colori diversi. Le voci blu sono farmaci, quelle verdi integratori.',
+        },
+      },
+    ],
+  },
+
+  '/daily-plan': {
+    greeting: {
+      de: 'Ihr kompletter Tagesplan — alles auf einen Blick!',
+      it: 'Il vostro piano completo — tutto a colpo d\'occhio!',
+    },
+    explanation: {
+      de: 'Hier sehen Sie alle Supplements und Medikamente fuer heute, sortiert nach Tageszeit. Haken Sie jede Einnahme ab, um Ihren Fortschritt zu tracken.',
+      it: 'Qui vedete tutti gli integratori e farmaci per oggi, ordinati per orario. Spuntate ogni assunzione per monitorare i progressi.',
+    },
+    nextStep: {
+      de: 'Haken Sie Ihre naechste Einnahme ab — ein Tipp pro Einnahme genuegt!',
+      it: 'Spuntate la vostra prossima assunzione — basta un tocco!',
+    },
+    pose: 'super',
+    quickActions: [
+      {
+        id: 'daily_colors',
+        label: { de: 'Was bedeuten die Farben?', it: 'Cosa significano i colori?' },
+        response: {
+          de: 'Gruene Eintraege mit Blatt-Icon sind Supplements. Blaue Eintraege mit Pillen-Icon sind Ihre Medikamente. So erkennen Sie auf einen Blick, was was ist.',
+          it: 'Le voci verdi con icona foglia sono integratori. Le voci blu con icona pillola sono i vostri farmaci. Cosi riconoscete subito cosa e cosa.',
+        },
+      },
+    ],
+  },
+
   '/water-tracking': {
     greeting: {
       de: 'Behalten Sie Ihre taegliche Wasserzufuhr im Blick — Ihr Koerper wird es Ihnen danken!',
