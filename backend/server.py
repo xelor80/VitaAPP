@@ -104,7 +104,7 @@ app.include_router(api_router)
 # 1. CORS - restrict to own domains
 ALLOWED_ORIGINS = [
     os.environ.get("EXPO_PUBLIC_BACKEND_URL", ""),
-    "https://medication-tracker-10.preview.emergentagent.com",
+    "https://performance-boost-86.preview.emergentagent.com",
     "http://localhost:3000",
     "http://localhost:8001",
     "exp://localhost:8081",

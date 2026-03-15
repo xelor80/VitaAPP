@@ -118,7 +118,7 @@
     "frontend": "100% (8/8 UI checks passed)"
   },
   "test_credentials": {
-    "preview_url": "https://medication-tracker-10.preview.emergentagent.com",
+    "preview_url": "https://performance-boost-86.preview.emergentagent.com",
     "recipe_catalog_page": "/recipes-catalog"
   },
   "seed_data_creation": "No new seed data created - tested with existing 37 recipes",

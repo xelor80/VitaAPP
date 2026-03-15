@@ -415,12 +415,7 @@ async def get_recipes(tags: str = "", lang: str = "de", search: str = "", catego
     
     results = []
     for r in recipes_raw:
-        if lang in r:
-            loc = r[lang]
-        elif lang in ("de", "it"):
-            loc = r.get("de", {})
-        else:
-            loc = await translate_recipe(r, lang)
+        loc = r.get(lang) or r.get("en") or r.get("de", {})
         results.append({
             "id": r["id"],
             "title": loc.get("title", ""),
@@ -746,12 +741,7 @@ async def get_recipe_by_id(recipe_id: str, lang: str = "de"):
     if not recipe:
         return {"error": "Recipe not found"}
     
-    if lang in recipe:
-        loc = recipe[lang]
-    elif lang in ("de", "it"):
-        loc = recipe.get("de", {})
-    else:
-        loc = await translate_recipe(recipe, lang)
+    loc = recipe.get(lang) or recipe.get("en") or recipe.get("de", {})
     
     return {
         "id": recipe["id"],

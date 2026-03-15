@@ -6,7 +6,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://medication-tracker-10.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://performance-boost-86.preview.emergentagent.com')
 
 # Test profile IDs from review_request
 TEST_PROFILE_WITH_PLAN = "2416f8aa-09aa-47f1-b600-2c9ada87124d"

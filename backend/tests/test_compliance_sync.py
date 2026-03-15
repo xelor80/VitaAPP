@@ -16,7 +16,7 @@ import os
 from datetime import datetime, timezone
 import uuid
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://medication-tracker-10.preview.emergentagent.com').rstrip('/')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://performance-boost-86.preview.emergentagent.com').rstrip('/')
 TEST_PROFILE_ID = "c454e95d-7033-4207-ba7e-553fe477a234"
 
 

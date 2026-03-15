@@ -1,78 +1,74 @@
 <analysis>**original_problem_statement:**
-The user initially requested a Water Tracking feature with AI-based goal calculation, an animated dashboard card, and VERO mascot integration. After that was completed, the user requested a major new feature: Medication Management.
+The user initially requested a Water Tracking feature. Subsequently, the user requested a major new feature: Medication Management. Following that, the user has made a series of iterative requests for UI/UX improvements, feature refactoring, and a comprehensive internationalization (i18n) feature to support multiple languages.
 
-**PRODUCT REQUIREMENTS (Medication Management):**
-1.  **Add/Manage Medications**: Users must be able to manually add their own medications with details like name, dose, unit, intake times, frequency, food relation (e.g., after eating), start/end dates, and notes.
-2.  **UI Integration**: Integrate a new Medications section into the app. Both supplements and medications should appear together in a unified Daily Plan view but be visually distinct.
-3.  **Daily Plan**: The daily plan should list all supplements and medications for the day, grouped by time (e.g., Morning, Evening). Each item needs a checkbox to mark it as taken.
-4.  **Confirm Intake**: Ticking a checkbox should save the intake status and time, and update the daily progress.
-5.  **Reminders**: Extend the existing reminder system to include push notifications for medication intake.
-6.  **Progress Tracking**: Track and display medication adherence (planned vs. taken) in the Progress section.
-7.  **UX & Safety**: The feature must be easy to use and clearly separate from supplements. It must include a disclaimer that the app only documents user-entered data and does not provide medical advice.
-8.  **VERO Integration**: VERO should provide non-medical guidance on how to use the feature (e.g., Here you can add your medications).
+**PRODUCT REQUIREMENTS (Ongoing):**
+1.  **Fix Performance**: The app has become very slow after implementing on-the-fly AI translations for recipes. This needs to be resolved.
+2.  **Medication Management**:
+    *   **Reminders**: Implement push notifications for medication intake.
+    *   **Progress Tracking**: Integrate medication adherence data into the Progress section.
+3.  **Data Visualization**: Add graphs/charts for historical water intake.
+4.  **UI/UX**: The user frequently requests iterative UI changes, such as reordering components and adjusting text.
 
 **User's preferred language**: German. The next agent MUST respond in German.
 
 **what currently exists?**
-A full-stack health coach app (React Native/Expo + FastAPI) with user profiles, a supplement plan, AI-driven water tracking, and context-aware VERO tips. The backend and initial frontend pages for the new Medication Management feature have been created, but they are currently non-functional due to a crash.
+A full-stack health coach app (React Native/Expo + FastAPI) with user profiles, supplement planning, AI water tracking, and medication management. The app has been heavily refactored to support 7 languages (German, Italian, English, Turkish, French, Spanish, Russian) with a language switcher on the dashboard. Recipe content is translated into all languages using an AI backend service, but this has introduced significant performance issues.
 
 **Last working item**:
--   **Last item agent was working**: Fixing a crash on the newly created medication management pages ( and ). The user reported an error related to  which prevents the pages from loading. The agent identified that a named export  was being imported as a default and that it was being called with an unnecessary argument ().
+-   **Last item agent was working**: Addressing a user complaint that the app is very slow, particularly when loading recipes. The agent identified that the on-the-fly AI translation for recipes was the cause and proposed a fix. The plan is to create and run a one-time batch script to pre-translate all recipes into all target languages and store them in the database. The API will then be modified to read these pre-translated values directly, eliminating the slow, real-time AI calls.
 -   **Status**: IN PROGRESS
 -   **Agent Testing Done**: N
--   **Which testing method agent to use?**: Frontend testing agent to verify the entire medication management flow after the fix. A quick  check on  would be a good first step to confirm the crash is resolved.
--   **User Testing Done**: N (User reported the bug)
+-   **Which testing method agent to use?**: backend testing agent. The agent should verify the  and  endpoints respond quickly with the correct language after the fix. This can be tested by sending  requests with different  headers (e.g., , , ).
+-   **User Testing Done**: N
 
 **All Pending/In progress Issue list**:
--   **Issue 1: Crash on Medication Pages (P0)**: The app crashes when navigating to the new medication management pages. This is the highest priority blocker.
+-   **Issue 1: App Slowness due to On-the-Fly Recipe Translations (P0)**: Loading recipes is very slow because each request triggers a real-time AI translation call. This is the highest priority issue.
 
 **Issues Detail**:
--   **Issue 1: Crash on Medication Pages**
-    -   **Attempted fixes**: The agent attempted to fix the issue by changing the import statement for  from a default to a named import in  and . However, the root cause seems to be a combination of the wrong import type AND calling the hook with an argument () when it expects none (). The fix was incomplete.
+-   **Issue 1: App Slowness due to On-the-Fly Recipe Translations**
+    -   **Attempted fixes**: The agent implemented a solution with live AI translation and database caching for subsequent calls. However, the initial translation for each recipe in a new language is too slow, leading to a poor user experience.
     -   **Next debug checklist**:
-        1.  Verify the file  exports  as a named function without parameters.
-        2.  In , ensure the import is .
-        3.  In , ensure the call is  (no arguments).
-        4.  Repeat steps 2 and 3 for .
-        5.  Restart the frontend service (frontend: ERROR (no such process)
-frontend: ERROR (no such process)) to ensure the Metro bundler cache is cleared and picks up the changes.
-    -   **Why fix this issue and what will be achieved with the fix?**: Fixing this will unblock the entire Medication Management feature, allowing for user testing and further development.
+        1.  Execute the batch translation script located at  to pre-populate the database with all recipe translations.
+        2.  Monitor the script's execution to ensure it completes successfully for all recipes and languages.
+        3.  Refactor the recipe endpoints in  to remove the live translation logic ( function call). The endpoints should now only query the database for the pre-translated fields (e.g., , ).
+        4.  Restart the backend service using backend: ERROR (not running)
+backend: ERROR (abnormal termination).
+        5.  Thoroughly test the performance and correctness of the recipe endpoints using .
+    -   **Why fix this issue and what will be achieved with the fix?**: This will drastically improve app performance and responsiveness, resolving the user's primary complaint.
     -   **Status**: IN PROGRESS
     -   **Is recurring issue?**: N
-    -   **Should Test frontend/backend/both after fix?**: Frontend
+    -   **Should Test frontend/backend/both after fix?**: Backend
     -   **Blocked on other issue**: None
 
 **In progress Task List**:
--   None. The current focus is on the P0 bug fix.
+-   **Task 1: Batch Translate All Recipes (P0)**
+    -   **Where to resume**: The script  has been created. The next step is to execute it and then modify the live endpoints in  to use the pre-translated data.
+    -   **What will be achieved with this?**: All recipe data will be pre-translated and stored in MongoDB, making API responses for recipes nearly instantaneous.
+    -   **Status**: IN PROGRESS
+    -   **Should Test frontend/backend/both after fix?**: Backend
+    -   **Blocked on something**: None
 
 **Upcoming and Future Tasks**
 **Upcoming Tasks:**
--   **Task 1: User Verification of Medication Feature (P1)**: Once the crash is fixed, the user needs to test the entire flow: adding a medication, seeing it in the daily plan, and deleting it.
--   **Task 2: Medication Daily Plan Logic (P1)**: The  page is a placeholder. It needs to be implemented to fetch and display both supplements and medications for the current day, grouped by time, with interactive checkboxes.
--   **Task 3: Implement Medication Intake Logging (P1)**: The checkboxes in the daily plan must call a backend endpoint to log the intake status and time.
+-   **Task 1: Implement Medication Reminders (P2)**: Integrate medication schedules with the existing unified push notification system in .
+-   **Task 2: Implement Medication Progress Tracking (P2)**: Integrate medication adherence data (planned vs. taken) into the main Progress section of the app.
 
 **Future Tasks:**
--   **Task 4: Medication Reminders (P2)**: Integrate medication schedules with the existing push notification system.
--   **Task 5: Medication Progress Tracking (P2)**: Integrate medication adherence data into the main Progress section of the app.
--   **Task 6: Historical Data Visualization (P2)**: Add graphs/charts for water intake history.
+-   **Task 3: Historical Data Visualization (P2)**: Add graphs/charts to visualize the user's water intake history.
 
 **Completed work in this session**
--   **Water Tracking Feature Revamp (DONE)**
-    -   Implemented AI-based water goal calculation using the user's health profile.
-    -   Created a new animated water tracker card for the dashboard.
-    -   Added interactive VERO mascot to show AI-generated hydration tips.
--   **Symptom Analysis Bug Fix (DONE)**: Fixed a bug where selected symptom chips were ignored during analysis because the frontend sent a combined field instead of separate  and  fields.
--   **Context-Aware VERO (DONE)**: VERO now provides unique, page-specific tips and explanations for every section of the app by using a more robust route-matching logic.
--   **Manual Product Pricing (DONE)**: Moved the price per day manual override from the Supplements section to the Products section in the admin panel.
--   **UI/UX Cleanups (DONE)**:
-    -   Removed the Read Aloud (TTS) function from the supplement plan page.
-    -   Renamed Ernährungs-Tipps to Gesundheits-Tipps on the dashboard.
-    -   Fixed a dashboard crash caused by a removed state variable.
-    -   Fixed a data synchronization issue where the dashboard water card didn't update after adding water on the dedicated page.
--   **Medication Feature - Phase 1 (DONE, but buggy)**:
-    -   Created backend CRUD endpoints and data models for medications ().
-    -   Created initial frontend pages for managing medications () and viewing the daily plan ().
-    -   Refactored the Plan tab into a central hub linking to Supplements, Medications, and the Daily Plan.
+-   **P0 Crash Fix (DONE)**: Resolved a critical crash on the  and  pages by correctly registering the screens in the stack navigator ().
+-   **Product Selection Feature (DONE)**: Implemented a feature for users to select a specific commercial product for a recommended supplement. The selected product's name now appears in the daily intake plan instead of the generic supplement name. Backend endpoints and frontend UI in  were created for this.
+-   **Internationalization (i18n) (DONE)**:
+    -   Expanded app support to 7 languages: DE, IT, EN, TR, FR, ES, RU.
+    -   Created a language switcher component with flags on the dashboard.
+    -   Refactored all major frontend pages to use a translation helper function (), removing hardcoded text.
+    -   Fixed an issue where Russian was displayed in transliterated characters instead of Cyrillic.
+    -   Implemented backend translation for recipe content.
+-   **Major UI/UX Refactoring (DONE)**:
+    -   Centralized all daily intake tasks (supplements & medications) onto the Mein Plan () page, making it the main hub.
+    -   Simplified the Supplement Plan () page by removing the schedule and reminder functions.
+    -   Reordered components on the Mein Plan and Dashboard pages based on user feedback.
 
 **Earlier issues found/mentioned but not fixed**
 -   None.
@@ -84,86 +80,74 @@ frontend: ERROR (no such process)) to ensure the Metro bundler cache is cleared 
 
 
 **Key Technical Concepts**
--   **Frontend**: React Native (Expo), React Native Reanimated, React Native SVG
--   **Backend**: FastAPI, MongoDB
--   **State Management**: React Context, , , and a simple  for cross-component communication.
+-   **Frontend**: React Native (Expo), custom i18n solution.
+-   **Backend**: FastAPI, MongoDB.
+-   **AI Integration**:  used for text translation.
+-   **Performance Optimization**: Migrating from on-demand AI calls to a batch-processing-and-lookup pattern to improve API response times.
 
 **key DB schema**
--   : 
--   : 
--   : 
+-   : Schema was modified to include translated fields for name, instructions, and ingredients for each target language (e.g., , ).
+-   : A  field was added to link a user's supplement to a specific product from the  collection.
 
 **changes in tech stack**
 -   None.
 
 **All files of reference**
--   : New page for managing medications. **Currently crashes.**
--   : New page for the daily medication/supplement plan. **Currently crashes.**
--   : The hook causing the crash due to incorrect import/usage.
--   : The refactored Plan hub page.
--   : New backend endpoints for the medication feature.
--   : Updated to include the new medication router.
+-   : New script to be executed to fix the performance issue.
+-   : The file containing the live API endpoints that need to be refactored after the batch script runs.
+-   : The main hub for daily user tasks.
+-   : Contains all UI text translations for all 7 languages.
+-   : Frontend for the feature allowing users to select a product for a supplement.
 
 **Areas that need refactoring**:
--   The usage of the  hook needs to be corrected and standardized across the two new files (, ).
+-   The recipe endpoints in  must be refactored to remove the live AI translation logic and instead serve the pre-translated data from the database. This is the core of the current P0 task.
 
 **key api endpoints**
--   : Manage user's medications.
--   : Manage a specific medication.
--   : Log an intake for a medication.
--   : New endpoint to trigger AI water goal calculation.
--   : New endpoint to get an AI-generated hydration tip.
+-   , : The slow endpoints that need to be fixed. They were modified to accept  headers.
+-   : New endpoint to save a user's product choice for a supplement.
+-   : Endpoint that provides data for the main Mein Plan screen, now includes selected product names.
 
 **Critical Info for New Agent**
--   **User Language**: All communication MUST be in German.
--   **P0 Blocker**: Your first and only priority is to fix the crash on the medication pages. The user cannot proceed until this is resolved.
--   **Root Cause**: The crash is in . The agent correctly identified a named vs. default import mismatch but the fix was incomplete. The hook is likely still being called with an incorrect argument (). You must fix both the import AND the function call in  and .
--   **Cache**: The Metro bundler cache on the Expo server is aggressive. After applying the fix, you MUST restart the frontend service (frontend: ERROR (no such process)
-frontend: ERROR (no such process)) to ensure the changes are served to the user's app.
+-   **User Language**: MUST communicate in German.
+-   **P0 Blocker**: The immediate and only priority is to fix the app's slowness. The user has explicitly complained about it.
+-   **The Fix**: The plan is solid: run the batch script  to pre-translate all recipes, then update the code in  to remove the on-the-fly translation and serve the stored data. Do not attempt another live-translation approach.
 
 **documents and test reports created in this job**
 -    (updated)
--   
--   
+-    (new script)
+-   Multiple test reports from the testing agent, with the last being  (for the product selection feature).
 
 **Last 10 User Messages and any pending HUMAN messages**
-1.  **User**: Reports an error in the medication feature with a screenshot showing . **Status: PENDING (BUG FIX IN PROGRESS)**
-2.  **Agent**: Acknowledges the error and identifies the cause as a wrong import for .
-3.  **User**: Requests a large new feature: Medication Management. Provides detailed product requirements. **Status: COMPLETED (Initial implementation done, but buggy)**
-4.  **User**: Asks to have the supplement daily cost be configurable on the products page instead of the supplements page. **Status: COMPLETED**
-5.  **User**: Asks to remove the read aloud (TTS) function from the supplement plan page. **Status: COMPLETED**
-6.  **User**: Initially reports that VERO's context-aware tips are not working. **Status: RESOLVED (User was on the wrong app version)**
-7.  **User**: Asks to restart the frontend. **Status: COMPLETED**
-8.  **User**: Asks to rename the Nutrition Tips card to Health Tips on the dashboard. **Status: COMPLETED**
-9.  **User**: Reports a bug in Symptom Analysis where clicking predefined symptom chips doesn't work, and the analysis only considers the text field. **Status: COMPLETED**
-10. **User**: Reports a bug: after filling out the health profile, a white screen appears. **Status: COMPLETED (Fixed a crash in the WaterTrackerCard component)**
+10. **User**: Requests Russian language not be transliterated and for recipes to be translated. **Status: COMPLETED (but caused slowness)**
+9.  **Agent**: Implemented Cyrillic characters and on-the-fly AI recipe translation.
+8.  **User**: Reports that the app is now very slow. Asks if translations can be stored in the database to make it faster. **Status: PENDING (Fix in progress)**
+7.  **Agent**: Agrees with the user's diagnosis and proposes the batch script solution.
+6.  **User**: Asks to expand language support to English, Turkish, French, Spanish, and Russian. **Status: COMPLETED**
+5.  **User**: Requests to make the language icons on the dashboard smaller. **Status: COMPLETED**
+4.  **User**: Reports that the new languages are not working correctly (fall back to Italian). **Status: COMPLETED**
+3.  **Agent**: Fixed the i18n logic by replacing all binary  text with a universal  helper function.
+2.  **User**: Reports a crash when selecting French due to an unescaped apostrophe. **Status: COMPLETED**
+1.  **Agent**: Fixed the apostrophe issue and cleared the Metro cache.
 
 **Project Health Check:**
--   **Broken**: The new Medication Management feature is completely broken due to a JavaScript error () on the main pages, preventing users from accessing it.
+-   **Broken**: Degraded Performance. The application is functional but a core feature (Recipes) is unacceptably slow, severely impacting the user experience.
 -   **Mocked**: None.
 
 **3rd Party Integrations**
--   **OpenAI GPT-4o**: Used for AI-powered analysis (water intake, health tips). (Uses Emergent LLM Key)
--   **OpenAI TTS**: Was used for text-to-speech, but the feature was removed from the supplement plan page.
+-   **OpenAI GPT-4o**: Used for AI-powered analysis (water intake, health tips) and now for recipe translations (via ). (Uses Emergent LLM Key)
 -   **Shopify**: Integrated via public  API for supplement products.
 -   **SMTP (kasserver.com)**: Used for sending emails.
 -   **Unsplash**: Source for recipe images.
--   **react-native-webview**: Used to embed the web-based admin panel.
 
 **Testing status**
--   **Testing agent used after significant changes**: YES, for backend changes related to the medication feature. 23/23 tests passed.
+-   **Testing agent used after significant changes**: YES, used multiple times after feature implementations.
 -   **Troubleshoot agent used after agent stuck in loop**: NO
--   **Test files created**: The testing agent created temporary test files, but no permanent ============================= test session starts ==============================
-platform linux -- Python 3.11.14, pytest-9.0.2, pluggy-1.6.0
-rootdir: /app/frontend
-plugins: anyio-4.12.1
-collected 0 items
-
-============================ no tests ran in 0.01s ============================= files were added to the repo.
--   **Known regressions**: The new medication feature introduced a critical frontend crash.
+-   **Test files created**:
+    -  (A one-off script for data processing)
+-   **Known regressions**: The recipe translation feature introduced a major performance regression.
 
 **Credentials to test flow:**
 -   **Admin App Password**: 
 
 **What agent forgot to execute**
--   The agent did not fully resolve the  crash. It fixed the import statement () but failed to remove the invalid argument from the function call ( should be ). This incomplete fix is the reason the crash persists.</analysis>
+-   The agent did not forget but was in the middle of a task. It created the batch translation script () but has not yet executed it or refactored the live API endpoints in  to use the pre-translated data. This is the immediate next step.</analysis>

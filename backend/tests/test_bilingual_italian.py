@@ -11,7 +11,7 @@ import requests
 import os
 import time
 
-BASE_URL = os.environ.get("EXPO_PUBLIC_BACKEND_URL", "https://medication-tracker-10.preview.emergentagent.com")
+BASE_URL = os.environ.get("EXPO_PUBLIC_BACKEND_URL", "https://performance-boost-86.preview.emergentagent.com")
 
 # Test profile ID with existing data (vegetarian diet, complaints: fatigue+sleep, deficiencies: vitamin_d+iron)
 TEST_PROFILE_ID = "f0ab7890-2765-44b4-805f-c20d0629cbe8"

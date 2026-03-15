@@ -60,7 +60,7 @@
   "test_credentials": {
     "test_profile_id_with_plan": "2416f8aa-09aa-47f1-b600-2c9ada87124d",
     "test_profile_id_with_tracking": "c659365e-dcce-4f11-8eae-6813e468ec54",
-    "app_url": "https://medication-tracker-10.preview.emergentagent.com"
+    "app_url": "https://performance-boost-86.preview.emergentagent.com"
   },
   "seed_data_creation": "Used existing test profiles with supplement plans",
   "retest_needed": false,
