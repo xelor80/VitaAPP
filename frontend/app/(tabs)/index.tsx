@@ -195,7 +195,7 @@ export default function DashboardHome() {
             data-testid="supplement-plan-card"
           >
             <LinearGradient colors={['#1B8A5A', '#2EAD6E']} style={s.featureGradient}>
-              <Text style={s.featureTitle}>{lang === 'de' ? 'Dein\nSupplement Plan' : 'Il tuo\nPiano Integratori'}</Text>
+              <Text style={s.featureTitle}>{lang === 'de' ? 'Dein\nEinnahme Plan' : 'Il tuo\nPiano Assunzione'}</Text>
               <MaterialCommunityIcons name="pill" size={40} color="rgba(255,255,255,0.3)" style={s.featureIcon} />
               <Text style={s.featureStat}>
                 {hasPlan ? (lang === 'de' ? 'Plan aktiv' : 'Piano attivo') : (lang === 'de' ? 'Plan erstellen' : 'Crea piano')}
