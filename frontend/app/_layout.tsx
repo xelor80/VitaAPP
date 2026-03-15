@@ -73,6 +73,8 @@ export default function RootLayout() {
                 <Stack.Screen name="tracking" />
                 <Stack.Screen name="product-comparison" />
                 <Stack.Screen name="videos" />
+                <Stack.Screen name="medications" />
+                <Stack.Screen name="daily-plan" />
               </Stack>
               <GuideOverlay />
             </View>

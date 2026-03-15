@@ -4,12 +4,11 @@ import {
   SafeAreaView, Platform, ActivityIndicator,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useRouter, useNavigation } from 'expo-router';
+import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { useLang } from '../src/LangContext';
-import useSwipeBack from '../src/useSwipeBack';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -27,8 +26,6 @@ const TIMING_COLORS: Record<string, string[]> = {
 export default function DailyPlanScreen() {
   const { lang } = useLang();
   const router = useRouter();
-  const navigation = useNavigation();
-  useSwipeBack(navigation);
 
   const [profileId, setProfileId] = useState<string | null>(null);
   const [plan, setPlan] = useState<any>(null);

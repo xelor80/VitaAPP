@@ -12,7 +12,7 @@ import requests
 import os
 import time
 
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://vitaguide-water.preview.emergentagent.com')
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://medication-tracker-10.preview.emergentagent.com')
 ADMIN_PASSWORD = "Wk220480xel!"
 
 class TestAdminRecipeFeatures:

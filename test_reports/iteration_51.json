@@ -74,7 +74,7 @@
   },
   "test_credentials": {
     "test_profile_id": "4f3cc8dc-170c-4f7b-a179-bf2f0e789ff4",
-    "api_url": "https://vitaguide-water.preview.emergentagent.com"
+    "api_url": "https://medication-tracker-10.preview.emergentagent.com"
   },
   "seed_data_creation": "No new seed data created - used existing test profile with symptom entry for 2026-03-05",
   "retest_needed": false,

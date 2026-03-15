@@ -11,7 +11,7 @@ import requests
 import os
 import time
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://vitaguide-water.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://medication-tracker-10.preview.emergentagent.com')
 BASE_URL = BASE_URL.rstrip('/')
 
 # Real profile ID for testing (from request)
