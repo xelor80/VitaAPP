@@ -501,4 +501,9 @@ export function t(lang: Lang, key: string, dynamicOverrides?: Record<string, Rec
   return translations[lang]?.[key] ?? translations.de[key] ?? key;
 }
 
+/** Inline multi-language text helper. Falls back to en, then de. */
+export function tx(lang: Lang, texts: { de: string; it?: string; en?: string; tr?: string; fr?: string; es?: string; ru?: string }): string {
+  return (texts as any)[lang] || texts.en || texts.de;
+}
+
 export default translations;

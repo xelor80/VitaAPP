@@ -9,6 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { useLang } from '../src/LangContext';
+import { tx } from '../src/i18n';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 const { width: SW } = Dimensions.get('window');
@@ -90,11 +91,11 @@ export default function MedicationsScreen() {
 
   const saveMedication = async () => {
     if (!name.trim()) {
-      Alert.alert(lang === 'de' ? 'Hinweis' : 'Avviso', lang === 'de' ? 'Bitte Medikamentennamen eingeben.' : 'Inserire il nome del farmaco.');
+      Alert.alert(tx(lang, { de: 'Hinweis', it: 'Avviso', en: 'Hinweis' }), tx(lang, { de: 'Bitte Medikamentennamen eingeben.', it: 'Inserire il nome del farmaco.', en: 'Bitte Medikamentennamen eingeben.' }));
       return;
     }
     if (selectedTimings.length === 0) {
-      Alert.alert(lang === 'de' ? 'Hinweis' : 'Avviso', lang === 'de' ? 'Bitte mindestens eine Einnahmezeit waehlen.' : 'Selezionare almeno un orario.');
+      Alert.alert(tx(lang, { de: 'Hinweis', it: 'Avviso', en: 'Hinweis' }), tx(lang, { de: 'Bitte mindestens eine Einnahmezeit waehlen.', it: 'Selezionare almeno un orario.', en: 'Bitte mindestens eine Einnahmezeit waehlen.' }));
       return;
     }
     setSaving(true);
@@ -127,12 +128,12 @@ export default function MedicationsScreen() {
 
   const deleteMed = (med: any) => {
     Alert.alert(
-      lang === 'de' ? 'Medikament loeschen' : 'Eliminare farmaco',
-      lang === 'de' ? `"${med.name}" wirklich loeschen?` : `Eliminare "${med.name}"?`,
+      tx(lang, { de: 'Medikament loeschen', it: 'Eliminare farmaco', en: 'Medikament loeschen' }),
+      tx(lang, { de: `"${med.name}" wirklich loeschen?`, it: `Eliminare "${med.name}"?`, en: `"${med.name}" wirklich loeschen?` }),
       [
-        { text: lang === 'de' ? 'Abbrechen' : 'Annulla', style: 'cancel' },
+        { text: tx(lang, { de: 'Abbrechen', it: 'Annulla', en: 'Abbrechen' }), style: 'cancel' },
         {
-          text: lang === 'de' ? 'Loeschen' : 'Elimina', style: 'destructive',
+          text: tx(lang, { de: 'Loeschen', it: 'Elimina', en: 'Loeschen' }), style: 'destructive',
           onPress: async () => {
             await fetch(`${API_URL}/api/medications/${profileId}/${med.id}`, { method: 'DELETE' });
             loadMeds();
@@ -149,8 +150,8 @@ export default function MedicationsScreen() {
     setSpecificDays(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]);
   };
 
-  const mealLabel = (key: string) => MEAL_OPTIONS.find(m => m.key === key)?.[lang === 'de' ? 'de' : 'it'] || '';
-  const timingLabel = (key: string) => TIMINGS.find(t => t.key === key)?.[lang === 'de' ? 'de' : 'it'] || key;
+  const mealLabel = (key: string) => MEAL_OPTIONS.find(m => m.key === key)?.[tx(lang, { de: 'de', it: 'it', en: 'de' })] || '';
+  const timingLabel = (key: string) => TIMINGS.find(t => t.key === key)?.[tx(lang, { de: 'de', it: 'it', en: 'de' })] || key;
 
   if (loading) return <View style={s.center}><ActivityIndicator size="large" color="#3B82F6" /></View>;
 
@@ -161,7 +162,7 @@ export default function MedicationsScreen() {
         <TouchableOpacity onPress={() => router.back()} style={s.backBtn}>
           <MaterialCommunityIcons name="arrow-left" size={24} color="#FFF" />
         </TouchableOpacity>
-        <Text style={s.headerTitle}>{lang === 'de' ? 'Medikamente' : 'Farmaci'}</Text>
+        <Text style={s.headerTitle}>{tx(lang, { de: 'Medikamente', it: 'Farmaci', en: 'Medications' })}</Text>
         <TouchableOpacity onPress={() => { resetForm(); setShowForm(true); }} style={s.addBtn} data-testid="add-medication-btn">
           <MaterialCommunityIcons name="plus" size={24} color="#FFF" />
         </TouchableOpacity>
@@ -171,9 +172,7 @@ export default function MedicationsScreen() {
       <View style={s.disclaimer}>
         <MaterialCommunityIcons name="information-outline" size={16} color="#6B7280" />
         <Text style={s.disclaimerText}>
-          {lang === 'de'
-            ? 'Bitte Medikamente nur nach aerztlicher Vorgabe eintragen und einnehmen.'
-            : 'Inserire e assumere farmaci solo secondo prescrizione medica.'}
+          {tx(lang, { de: 'Bitte Medikamente nur nach aerztlicher Vorgabe eintragen und einnehmen.', it: 'Inserire e assumere farmaci solo secondo prescrizione medica.', en: 'Bitte Medikamente nur nach aerztlicher Vorgabe eintragen und einnehmen.' })}
         </Text>
       </View>
 
@@ -181,11 +180,9 @@ export default function MedicationsScreen() {
         {medications.length === 0 ? (
           <Animated.View entering={FadeIn} style={s.empty}>
             <MaterialCommunityIcons name="pill" size={60} color="#BFDBFE" />
-            <Text style={s.emptyTitle}>{lang === 'de' ? 'Keine Medikamente' : 'Nessun farmaco'}</Text>
+            <Text style={s.emptyTitle}>{tx(lang, { de: 'Keine Medikamente', it: 'Nessun farmaco', en: 'Keine Medikamente' })}</Text>
             <Text style={s.emptyText}>
-              {lang === 'de'
-                ? 'Fuegen Sie Ihre Medikamente hinzu, um Einnahmezeiten zu verwalten und Erinnerungen zu erhalten.'
-                : 'Aggiungete i vostri farmaci per gestire gli orari e ricevere promemoria.'}
+              {tx(lang, { de: 'Fuegen Sie Ihre Medikamente hinzu, um Einnahmezeiten zu verwalten und Erinnerungen zu erhalten.', it: 'Aggiungete i vostri farmaci per gestire gli orari e ricevere promemoria.', en: 'Fuegen Sie Ihre Medikamente hinzu, um Einnahmezeiten zu verwalten und Erinnerungen zu erhalten.' })}
             </Text>
           </Animated.View>
         ) : (
@@ -228,27 +225,27 @@ export default function MedicationsScreen() {
         <SafeAreaView style={s.formContainer}>
           <View style={s.formHeader}>
             <TouchableOpacity onPress={() => { setShowForm(false); resetForm(); }}>
-              <Text style={s.cancelText}>{lang === 'de' ? 'Abbrechen' : 'Annulla'}</Text>
+              <Text style={s.cancelText}>{tx(lang, { de: 'Abbrechen', it: 'Annulla', en: 'Abbrechen' })}</Text>
             </TouchableOpacity>
             <Text style={s.formTitle}>
               {editingMed
-                ? (lang === 'de' ? 'Bearbeiten' : 'Modifica')
-                : (lang === 'de' ? 'Neues Medikament' : 'Nuovo farmaco')}
+                ? (tx(lang, { de: 'Bearbeiten', it: 'Modifica', en: 'Bearbeiten' }))
+                : (tx(lang, { de: 'Neues Medikament', it: 'Nuovo farmaco', en: 'Neues Medikament' }))}
             </Text>
             <TouchableOpacity onPress={saveMedication} disabled={saving}>
               {saving ? <ActivityIndicator size="small" color="#3B82F6" /> : (
-                <Text style={s.saveText}>{lang === 'de' ? 'Speichern' : 'Salva'}</Text>
+                <Text style={s.saveText}>{tx(lang, { de: 'Speichern', it: 'Salva', en: 'Save' })}</Text>
               )}
             </TouchableOpacity>
           </View>
 
           <ScrollView contentContainerStyle={s.form} showsVerticalScrollIndicator={false}>
             {/* Name */}
-            <Text style={s.label}>{lang === 'de' ? 'Medikamentenname' : 'Nome farmaco'} *</Text>
+            <Text style={s.label}>{tx(lang, { de: 'Medikamentenname', it: 'Nome farmaco', en: 'Medikamentenname' })} *</Text>
             <TextInput style={s.input} value={name} onChangeText={setName} placeholder="z.B. Metformin" />
 
             {/* Dosage + Unit */}
-            <Text style={s.label}>{lang === 'de' ? 'Dosierung' : 'Dosaggio'} *</Text>
+            <Text style={s.label}>{tx(lang, { de: 'Dosierung', it: 'Dosaggio', en: 'Dosage' })} *</Text>
             <View style={s.row}>
               <TextInput style={[s.input, { flex: 1 }]} value={dosage} onChangeText={setDosage} placeholder="500" keyboardType="numeric" />
               <View style={s.unitRow}>
@@ -261,22 +258,22 @@ export default function MedicationsScreen() {
             </View>
 
             {/* Timings */}
-            <Text style={s.label}>{lang === 'de' ? 'Einnahmezeit(en)' : 'Orari'} *</Text>
+            <Text style={s.label}>{tx(lang, { de: 'Einnahmezeit(en)', it: 'Orari', en: 'Einnahmezeit(en)' })} *</Text>
             <View style={s.chipRow}>
               {TIMINGS.map(t => (
                 <TouchableOpacity key={t.key} style={[s.timingBtn, selectedTimings.includes(t.key) && s.timingBtnActive]} onPress={() => toggleTiming(t.key)}>
                   <MaterialCommunityIcons name={t.icon as any} size={18} color={selectedTimings.includes(t.key) ? '#FFF' : '#6B7280'} />
-                  <Text style={[s.timingBtnText, selectedTimings.includes(t.key) && s.timingBtnTextActive]}>{t[lang === 'de' ? 'de' : 'it']}</Text>
+                  <Text style={[s.timingBtnText, selectedTimings.includes(t.key) && s.timingBtnTextActive]}>{t[tx(lang, { de: 'de', it: 'it', en: 'de' })]}</Text>
                 </TouchableOpacity>
               ))}
             </View>
 
             {/* Frequency */}
-            <Text style={s.label}>{lang === 'de' ? 'Haeufigkeit' : 'Frequenza'}</Text>
+            <Text style={s.label}>{tx(lang, { de: 'Haeufigkeit', it: 'Frequenza', en: 'Frequency' })}</Text>
             <View style={s.chipRow}>
               {FREQUENCIES.map(f => (
                 <TouchableOpacity key={f.key} style={[s.chip, frequency === f.key && s.chipActive]} onPress={() => setFrequency(f.key)}>
-                  <Text style={[s.chipText, frequency === f.key && s.chipTextActive]}>{f[lang === 'de' ? 'de' : 'it']}</Text>
+                  <Text style={[s.chipText, frequency === f.key && s.chipTextActive]}>{f[tx(lang, { de: 'de', it: 'it', en: 'de' })]}</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -293,18 +290,18 @@ export default function MedicationsScreen() {
             )}
 
             {/* Meal relation */}
-            <Text style={s.label}>{lang === 'de' ? 'Mahlzeitbezug' : 'Relazione pasto'}</Text>
+            <Text style={s.label}>{tx(lang, { de: 'Mahlzeitbezug', it: 'Relazione pasto', en: 'Mahlzeitbezug' })}</Text>
             <View style={s.chipRow}>
               {MEAL_OPTIONS.map(m => (
                 <TouchableOpacity key={m.key} style={[s.chip, mealRelation === m.key && s.chipActive]} onPress={() => setMealRelation(m.key)}>
-                  <Text style={[s.chipText, mealRelation === m.key && s.chipTextActive]}>{m[lang === 'de' ? 'de' : 'it']}</Text>
+                  <Text style={[s.chipText, mealRelation === m.key && s.chipTextActive]}>{m[tx(lang, { de: 'de', it: 'it', en: 'de' })]}</Text>
                 </TouchableOpacity>
               ))}
             </View>
 
             {/* Note */}
-            <Text style={s.label}>{lang === 'de' ? 'Hinweis / Notiz' : 'Nota'}</Text>
-            <TextInput style={[s.input, { height: 60 }]} value={note} onChangeText={setNote} placeholder={lang === 'de' ? 'Optionale Notiz...' : 'Nota opzionale...'} multiline />
+            <Text style={s.label}>{tx(lang, { de: 'Hinweis / Notiz', it: 'Nota', en: 'Hinweis / Notiz' })}</Text>
+            <TextInput style={[s.input, { height: 60 }]} value={note} onChangeText={setNote} placeholder={tx(lang, { de: 'Optionale Notiz...', it: 'Nota opzionale...', en: 'Optionale Notiz...' })} multiline />
           </ScrollView>
         </SafeAreaView>
       </Modal>

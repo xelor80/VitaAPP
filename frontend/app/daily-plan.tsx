@@ -9,6 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { useLang } from '../src/LangContext';
+import { tx } from '../src/i18n';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -73,7 +74,7 @@ export default function DailyPlanScreen() {
           <MaterialCommunityIcons name="arrow-left" size={24} color="#FFF" />
         </TouchableOpacity>
         <View style={s.headerCenter}>
-          <Text style={s.headerTitle}>{lang === 'de' ? 'Tagesplan' : 'Piano giornaliero'}</Text>
+          <Text style={s.headerTitle}>{tx(lang, { de: 'Tagesplan', it: 'Piano giornaliero', en: 'Tagesplan' })}</Text>
           <Text style={s.headerSub}>{plan?.date || ''}</Text>
         </View>
         <View style={s.pctBadge}>
@@ -87,7 +88,7 @@ export default function DailyPlanScreen() {
           <Animated.View entering={FadeIn.duration(500)} style={[s.progressFill, { width: `${Math.min(pct, 100)}%` as any }]} />
         </View>
         <Text style={s.progressLabel}>
-          {plan?.checked_items || 0} / {plan?.total_items || 0} {lang === 'de' ? 'erledigt' : 'completati'}
+          {plan?.checked_items || 0} / {plan?.total_items || 0} {tx(lang, { de: 'erledigt', it: 'completati', en: 'erledigt' })}
         </Text>
       </View>
 
@@ -95,7 +96,7 @@ export default function DailyPlanScreen() {
         {(!plan?.plan || plan.plan.length === 0) ? (
           <View style={s.empty}>
             <MaterialCommunityIcons name="calendar-check" size={50} color="#D1D5DB" />
-            <Text style={s.emptyText}>{lang === 'de' ? 'Keine Einnahmen fuer heute geplant.' : 'Nessuna assunzione pianificata per oggi.'}</Text>
+            <Text style={s.emptyText}>{tx(lang, { de: 'Keine Einnahmen fuer heute geplant.', it: 'Nessuna assunzione pianificata per oggi.', en: 'Keine Einnahmen fuer heute geplant.' })}</Text>
           </View>
         ) : (
           plan.plan.map((group: any, gi: number) => (
@@ -142,7 +143,7 @@ export default function DailyPlanScreen() {
                   {/* Type badge */}
                   <View style={[s.typeBadge, item.type === 'medication' ? s.typeBadgeMed : s.typeBadgeSupp]}>
                     <Text style={[s.typeBadgeText, item.type === 'medication' ? s.typeBadgeTextMed : s.typeBadgeTextSupp]}>
-                      {item.type === 'medication' ? (lang === 'de' ? 'Med' : 'Farm') : (lang === 'de' ? 'Supp' : 'Int')}
+                      {item.type === 'medication' ? (tx(lang, { de: 'Med', it: 'Farm', en: 'Med' })) : (tx(lang, { de: 'Supp', it: 'Int', en: 'Supp' }))}
                     </Text>
                   </View>
                 </TouchableOpacity>

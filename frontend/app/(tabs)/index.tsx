@@ -8,6 +8,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { useLang } from '../../src/LangContext';
+import { tx } from '../../src/i18n';
 import { useGuide } from '../../src/GuideContext';
 import { eventBus } from '../../src/eventBus';
 import { setCurrentAnalysis } from '../../src/store';
@@ -125,8 +126,8 @@ export default function DashboardHome() {
   const analyzeSymptoms = useCallback(async () => {
     if (!symptomText.trim() && selectedTags.length === 0) {
       Alert.alert(
-        lang === 'de' ? 'Hinweis' : 'Avviso',
-        lang === 'de' ? 'Bitte beschreiben Sie Ihre Symptome oder waehlen Sie einen Bereich aus.' : 'Descrivete i vostri sintomi o selezionate un\'area.'
+        tx(lang, { de: 'Hinweis', it: 'Avviso', en: 'Hinweis' }),
+        tx(lang, { de: 'Bitte beschreiben Sie Ihre Symptome oder waehlen Sie einen Bereich aus.', it: 'Descrivete i vostri sintomi o selezionate un\', en: 'Bitte beschreiben Sie Ihre Symptome oder waehlen Sie einen Bereich aus.' })area.'
       );
       return;
     }
@@ -155,9 +156,9 @@ export default function DashboardHome() {
   if (!disclaimerAccepted) return <DisclaimerScreen lang={lang} onAccept={acceptDisclaimer} />;
 
   const greeting = firstName
-    ? (lang === 'de' ? `Hallo ${firstName},` : `Ciao ${firstName},`)
-    : (lang === 'de' ? 'Willkommen!' : 'Benvenuto!');
-  const subtitle = lang === 'de' ? 'Willkommen zurueck!' : 'Bentornato!';
+    ? (tx(lang, { de: `Hallo ${firstName},`, it: `Ciao ${firstName},`, en: `Hallo ${firstName},` }))
+    : (tx(lang, { de: 'Willkommen!', it: 'Benvenuto!', en: 'Willkommen!' }));
+  const subtitle = tx(lang, { de: 'Willkommen zurueck!', it: 'Bentornato!', en: 'Willkommen zurueck!' });
   const earnedCount = achievements?.earned?.length || 0;
 
   return (
@@ -195,13 +196,13 @@ export default function DashboardHome() {
             data-testid="supplement-plan-card"
           >
             <LinearGradient colors={['#1B8A5A', '#2EAD6E']} style={s.featureGradient}>
-              <Text style={s.featureTitle}>{lang === 'de' ? 'Dein\nEinnahme Plan' : 'Il tuo\nPiano Assunzione'}</Text>
+              <Text style={s.featureTitle}>{tx(lang, { de: 'Dein\nEinnahme Plan', it: 'Il tuo\nPiano Assunzione', en: 'Dein\nEinnahme Plan' })}</Text>
               <MaterialCommunityIcons name="pill" size={40} color="rgba(255,255,255,0.3)" style={s.featureIcon} />
               <Text style={s.featureStat}>
-                {hasPlan ? (lang === 'de' ? 'Plan aktiv' : 'Piano attivo') : (lang === 'de' ? 'Plan erstellen' : 'Crea piano')}
+                {hasPlan ? (tx(lang, { de: 'Plan aktiv', it: 'Piano attivo', en: 'Plan aktiv' })) : (tx(lang, { de: 'Plan erstellen', it: 'Crea piano', en: 'Plan erstellen' }))}
               </Text>
               <View style={s.featureCta}>
-                <Text style={s.featureCtaText}>{lang === 'de' ? 'Zum Plan' : 'Al piano'}</Text>
+                <Text style={s.featureCtaText}>{tx(lang, { de: 'Zum Plan', it: 'Al piano', en: 'Zum Plan' })}</Text>
                 <MaterialCommunityIcons name="chevron-right" size={18} color="#1B6B45" />
               </View>
             </LinearGradient>
@@ -215,15 +216,15 @@ export default function DashboardHome() {
             data-testid="progress-card"
           >
             <LinearGradient colors={['#E8820C', '#F5A623']} style={s.featureGradient}>
-              <Text style={s.featureTitle}>{lang === 'de' ? 'Deine\nFortschritte' : 'I tuoi\nProgressi'}</Text>
+              <Text style={s.featureTitle}>{tx(lang, { de: 'Deine\nFortschritte', it: 'I tuoi\nProgressi', en: 'Deine\nFortschritte' })}</Text>
               <MaterialCommunityIcons name="chart-line" size={40} color="rgba(255,255,255,0.3)" style={s.featureIcon} />
               <Text style={s.featureStat}>
                 {earnedCount > 0
-                  ? (lang === 'de' ? `${earnedCount} Ziele erreicht!` : `${earnedCount} obiettivi!`)
-                  : (lang === 'de' ? 'Fortschritt tracken' : 'Traccia progressi')}
+                  ? (tx(lang, { de: `${earnedCount} Ziele erreicht!`, it: `${earnedCount} obiettivi!`, en: `${earnedCount} Ziele erreicht!` }))
+                  : (tx(lang, { de: 'Fortschritt tracken', it: 'Traccia progressi', en: 'Fortschritt tracken' }))}
               </Text>
               <View style={s.featureCta}>
-                <Text style={[s.featureCtaText, { color: '#9E5500' }]}>{lang === 'de' ? 'Ansehen' : 'Visualizza'}</Text>
+                <Text style={[s.featureCtaText, { color: '#9E5500' }]}>{tx(lang, { de: 'Ansehen', it: 'Visualizza', en: 'Ansehen' })}</Text>
                 <MaterialCommunityIcons name="chevron-right" size={18} color="#9E5500" />
               </View>
             </LinearGradient>
@@ -241,8 +242,8 @@ export default function DashboardHome() {
           <View style={s.analysisLeft}>
             <MaterialCommunityIcons name="magnify" size={28} color="#2E7D52" />
             <View style={{ marginLeft: 12, flex: 1 }}>
-              <Text style={s.analysisTitle}>{lang === 'de' ? 'Symptom-Analyse' : 'Analisi sintomi'}</Text>
-              <Text style={s.analysisSub}>{lang === 'de' ? 'Beschreibe deine Symptome' : 'Descrivi i tuoi sintomi'}</Text>
+              <Text style={s.analysisTitle}>{tx(lang, { de: 'Symptom-Analyse', it: 'Analisi sintomi', en: 'Symptom Analysis' })}</Text>
+              <Text style={s.analysisSub}>{tx(lang, { de: 'Beschreibe deine Symptome', it: 'Descrivi i tuoi sintomi', en: 'Describe your symptoms' })}</Text>
             </View>
           </View>
           <MaterialCommunityIcons name={showAnalysis ? 'chevron-up' : 'chevron-down'} size={24} color="#2E7D52" />
@@ -269,8 +270,8 @@ export default function DashboardHome() {
         {/* Recipes Section */}
         <View style={s.sectionHeader}>
           <View>
-            <Text style={s.sectionTitle}>{lang === 'de' ? 'Passende Rezepte fuer dich' : 'Ricette adatte a te'}</Text>
-            <Text style={s.sectionSub}>{lang === 'de' ? 'Gesund & lecker' : 'Sano e gustoso'}</Text>
+            <Text style={s.sectionTitle}>{tx(lang, { de: 'Passende Rezepte fuer dich', it: 'Ricette adatte a te', en: 'Passende Rezepte fuer dich' })}</Text>
+            <Text style={s.sectionSub}>{tx(lang, { de: 'Gesund & lecker', it: 'Sano e gustoso', en: 'Gesund & lecker' })}</Text>
           </View>
           <TouchableOpacity onPress={() => router.push('/recipes-catalog' as any)} data-testid="recipes-see-all">
             <MaterialCommunityIcons name="chevron-right" size={28} color="#6B7280" />
@@ -302,7 +303,7 @@ export default function DashboardHome() {
               </TouchableOpacity>
             ))
           ) : (
-            <Text style={{ color: '#9CA3AF', padding: 12 }}>{lang === 'de' ? 'Keine Rezepte vorhanden' : 'Nessuna ricetta'}</Text>
+            <Text style={{ color: '#9CA3AF', padding: 12 }}>{tx(lang, { de: 'Keine Rezepte vorhanden', it: 'Nessuna ricetta', en: 'Keine Rezepte vorhanden' })}</Text>
           )}
         </ScrollView>
 
@@ -319,12 +320,12 @@ export default function DashboardHome() {
             <View style={[s.infoIconWrap, { backgroundColor: '#E8F5E9' }]}>
               <MaterialCommunityIcons name="heart-pulse" size={22} color="#2E7D52" />
             </View>
-            <Text style={s.infoTitle}>{lang === 'de' ? 'Dein\nGesundheitsstatus' : 'Il tuo\nStato di salute'}</Text>
+            <Text style={s.infoTitle}>{tx(lang, { de: 'Dein\nGesundheitsstatus', it: 'Il tuo\nStato di salute', en: 'Dein\nGesundheitsstatus' })}</Text>
             {healthScore !== null && (
               <Text style={[s.infoScore, { color: '#2E7D52' }]}>{healthScore}/100</Text>
             )}
             <View style={s.infoCta}>
-              <Text style={[s.infoCtaText, { color: '#2E7D52' }]}>{lang === 'de' ? 'Profil ansehen' : 'Vedi profilo'}</Text>
+              <Text style={[s.infoCtaText, { color: '#2E7D52' }]}>{tx(lang, { de: 'Profil ansehen', it: 'Vedi profilo', en: 'Profil ansehen' })}</Text>
               <MaterialCommunityIcons name="chevron-right" size={16} color="#2E7D52" />
             </View>
           </TouchableOpacity>
@@ -339,9 +340,9 @@ export default function DashboardHome() {
             <View style={[s.infoIconWrap, { backgroundColor: '#FFF3E0' }]}>
               <MaterialCommunityIcons name="book-open-variant" size={22} color="#E8820C" />
             </View>
-            <Text style={s.infoTitle}>{lang === 'de' ? 'Gesundheits-\nTipps' : 'Consigli\nper la salute'}</Text>
+            <Text style={s.infoTitle}>{tx(lang, { de: 'Gesundheits-\nTipps', it: 'Consigli\nper la salute', en: 'Gesundheits-\nTipps' })}</Text>
             <View style={s.infoCta}>
-              <Text style={[s.infoCtaText, { color: '#E8820C' }]}>{lang === 'de' ? 'Nuetzliche Infos' : 'Info utili'}</Text>
+              <Text style={[s.infoCtaText, { color: '#E8820C' }]}>{tx(lang, { de: 'Nuetzliche Infos', it: 'Info utili', en: 'Nuetzliche Infos' })}</Text>
               <MaterialCommunityIcons name="chevron-right" size={16} color="#E8820C" />
             </View>
           </TouchableOpacity>
@@ -356,8 +357,8 @@ export default function DashboardHome() {
         >
           <MaterialCommunityIcons name="notebook-outline" size={24} color="#6366F1" />
           <View style={{ marginLeft: 12, flex: 1 }}>
-            <Text style={s.trackingTitle}>{lang === 'de' ? 'Tagebuch & Tracking' : 'Diario & Tracking'}</Text>
-            <Text style={s.trackingSub}>{lang === 'de' ? 'Schlaf, Energie & Wohlbefinden' : 'Sonno, energia & benessere'}</Text>
+            <Text style={s.trackingTitle}>{tx(lang, { de: 'Tagebuch & Tracking', it: 'Diario & Tracking', en: 'Tagebuch & Tracking' })}</Text>
+            <Text style={s.trackingSub}>{tx(lang, { de: 'Schlaf, Energie & Wohlbefinden', it: 'Sonno, energia & benessere', en: 'Schlaf, Energie & Wohlbefinden' })}</Text>
           </View>
           <MaterialCommunityIcons name="chevron-right" size={24} color="#6366F1" />
         </TouchableOpacity>

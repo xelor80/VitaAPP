@@ -7,6 +7,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLang } from '../src/LangContext';
+import { tx as txl } from '../src/i18n';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -98,27 +99,23 @@ export default function ProductComparisonScreen() {
   const accentColor = RISK_COLORS[risk] || '#F59E0B';
   const nutrientName = NUTRIENT_NAMES[nutrient]?.[lang] || nutrient;
 
-  const tx = {
-    title: lang === 'de' ? 'Qualitaetsgepruefte Optionen' : 'Opzioni verificate',
-    for: lang === 'de' ? 'fuer' : 'per',
-    dailyDose: lang === 'de' ? 'Empf. Tagesdosis' : 'Dose giornaliera',
-    form: lang === 'de' ? 'Empf. Form' : 'Forma consigliata',
-    tip: lang === 'de' ? 'Einnahme-Tipp' : 'Consiglio',
-    price: lang === 'de' ? 'Preis' : 'Prezzo',
-    pricePerDay: lang === 'de' ? 'Preis/Tag' : 'Prezzo/giorno',
-    rating: lang === 'de' ? 'Bewertung' : 'Valutazione',
-    quality: lang === 'de' ? 'Qualitaetsmerkmale' : 'Qualita',
+  const texts = {
+    title: txl(lang, { de: 'Qualitaetsgepruefte Optionen', it: 'Opzioni verificate', en: 'Qualitaetsgepruefte Optionen' }),
+    for: txl(lang, { de: 'fuer', it: 'per', en: 'fuer' }),
+    dailyDose: txl(lang, { de: 'Empf. Tagesdosis', it: 'Dose giornaliera', en: 'Empf. Tagesdosis' }),
+    form: txl(lang, { de: 'Empf. Form', it: 'Forma consigliata', en: 'Empf. Form' }),
+    tip: txl(lang, { de: 'Einnahme-Tipp', it: 'Consiglio', en: 'Einnahme-Tipp' }),
+    price: txl(lang, { de: 'Preis', it: 'Prezzo', en: 'Preis' }),
+    pricePerDay: txl(lang, { de: 'Preis/Tag', it: 'Prezzo/giorno', en: 'Preis/Tag' }),
+    rating: txl(lang, { de: 'Bewertung', it: 'Valutazione', en: 'Bewertung' }),
+    quality: txl(lang, { de: 'Qualitaetsmerkmale', it: 'Qualita', en: 'Qualitaetsmerkmale' }),
     viewProduct: risk === 'high'
-      ? (lang === 'de' ? `Optimale ${nutrientName}-Quelle` : `Fonte ottimale di ${nutrientName}`)
-      : (lang === 'de' ? 'Optionen vergleichen' : 'Confronta opzioni'),
-    noProducts: lang === 'de' ? 'Keine passenden Produkte gefunden' : 'Nessun prodotto trovato',
-    noProductsSub: lang === 'de'
-      ? 'Fuer diesen Naehrstoff sind aktuell keine Produkte verfuegbar.'
-      : 'Al momento non sono disponibili prodotti per questo nutriente.',
-    disclaimer: lang === 'de'
-      ? 'Transparenzhinweis: Diese Seite enthaelt Affiliate-Links. Bei einem Kauf ueber diese Links erhalten wir eine kleine Provision - fuer Sie ohne Mehrkosten.'
-      : 'Nota di trasparenza: questa pagina contiene link di affiliazione. Se acquisti tramite questi link, riceviamo una piccola commissione - senza costi aggiuntivi per te.',
-    backToPlan: lang === 'de' ? 'Zum Supplement-Plan' : 'Vai al piano',
+      ? (txl(lang, { de: `Optimale ${nutrientName}-Quelle`, it: `Fonte ottimale di ${nutrientName}`, en: `Optimale ${nutrientName}-Quelle` }))
+      : (txl(lang, { de: 'Optionen vergleichen', it: 'Confronta opzioni', en: 'Optionen vergleichen' })),
+    noProducts: txl(lang, { de: 'Keine passenden Produkte gefunden', it: 'Nessun prodotto trovato', en: 'Keine passenden Produkte gefunden' }),
+    noProductsSub: txl(lang, { de: 'Fuer diesen Naehrstoff sind aktuell keine Produkte verfuegbar.', it: 'Al momento non sono disponibili prodotti per questo nutriente.', en: 'Fuer diesen Naehrstoff sind aktuell keine Produkte verfuegbar.' }),
+    disclaimer: txl(lang, { de: 'Transparenzhinweis: Diese Seite enthaelt Affiliate-Links. Bei einem Kauf ueber diese Links erhalten wir eine kleine Provision - fuer Sie ohne Mehrkosten.', it: 'Nota di trasparenza: questa pagina contiene link di affiliazione. Se acquisti tramite questi link, riceviamo una piccola commissione - senza costi aggiuntivi per te.', en: 'Transparenzhinweis: Diese Seite enthaelt Affiliate-Links. Bei einem Kauf ueber diese Links erhalten wir eine kleine Provision - fuer Sie ohne Mehrkosten.' }),
+    backToPlan: txl(lang, { de: 'Zum Supplement-Plan', it: 'Vai al piano', en: 'Zum Supplement-Plan' }),
   };
 
   if (loading) {
@@ -140,8 +137,8 @@ export default function ProductComparisonScreen() {
             <MaterialCommunityIcons name="arrow-left" size={24} color="#1A2D26" />
           </TouchableOpacity>
           <View style={{ flex: 1 }}>
-            <Text style={s.headerTitle}>{tx.title}</Text>
-            <Text style={[s.headerSub, { color: accentColor }]}>{tx.for} {nutrientName}</Text>
+            <Text style={s.headerTitle}>{texts.title}</Text>
+            <Text style={[s.headerSub, { color: accentColor }]}>{texts.for} {nutrientName}</Text>
           </View>
         </View>
 
@@ -153,8 +150,8 @@ export default function ProductComparisonScreen() {
           />
           <Text style={[s.riskBannerText, { color: risk === 'high' ? '#991B1B' : '#92400E' }]}>
             {risk === 'high'
-              ? (lang === 'de' ? 'Hohes Risiko – Handlung empfohlen' : 'Rischio alto – azione consigliata')
-              : (lang === 'de' ? 'Mittleres Risiko – Optimierung moeglich' : 'Rischio medio – ottimizzazione possibile')}
+              ? (txl(lang, { de: 'Hohes Risiko – Handlung empfohlen', it: 'Rischio alto – azione consigliata', en: 'Hohes Risiko – Handlung empfohlen' }))
+              : (txl(lang, { de: 'Mittleres Risiko – Optimierung moeglich', it: 'Rischio medio – ottimizzazione possibile', en: 'Mittleres Risiko – Optimierung moeglich' }))}
           </Text>
         </View>
 
@@ -163,15 +160,15 @@ export default function ProductComparisonScreen() {
           <View style={s.qualityCard}>
             <Text style={s.qualityTitle}>
               <MaterialCommunityIcons name="shield-check" size={16} color="#4A8B71" />
-              {'  '}{tx.quality}
+              {'  '}{texts.quality}
             </Text>
             <View style={s.qualityGrid}>
               <View style={s.qualityItem}>
-                <Text style={s.qualityLabel}>{tx.dailyDose}</Text>
+                <Text style={s.qualityLabel}>{texts.dailyDose}</Text>
                 <Text style={s.qualityValue}>{qualityInfo.daily_dose_hint}</Text>
               </View>
               <View style={s.qualityItem}>
-                <Text style={s.qualityLabel}>{tx.form}</Text>
+                <Text style={s.qualityLabel}>{texts.form}</Text>
                 <Text style={s.qualityValue}>{qualityInfo.form}</Text>
               </View>
             </View>
@@ -186,8 +183,8 @@ export default function ProductComparisonScreen() {
         {products.length === 0 ? (
           <View style={s.emptyState}>
             <MaterialCommunityIcons name="package-variant" size={48} color="#8FA39B" />
-            <Text style={s.emptyTitle}>{tx.noProducts}</Text>
-            <Text style={s.emptySub}>{tx.noProductsSub}</Text>
+            <Text style={s.emptyTitle}>{texts.noProducts}</Text>
+            <Text style={s.emptySub}>{texts.noProductsSub}</Text>
           </View>
         ) : (
           products.map((p: any, i: number) => (
@@ -197,7 +194,7 @@ export default function ProductComparisonScreen() {
                 <View style={s.selectedBanner}>
                   <MaterialCommunityIcons name="check-circle" size={16} color="#FFF" />
                   <Text style={s.selectedBannerText}>
-                    {lang === 'de' ? 'Mein Produkt' : 'Il mio prodotto'}
+                    {txl(lang, { de: 'Mein Produkt', it: 'Il mio prodotto', en: 'Mein Produkt' })}
                   </Text>
                 </View>
               )}
@@ -220,12 +217,12 @@ export default function ProductComparisonScreen() {
               <View style={s.metaRow}>
                 <View style={s.metaItem}>
                   <MaterialCommunityIcons name="tag" size={14} color="#4A8B71" />
-                  <Text style={s.metaLabel}>{tx.price}</Text>
+                  <Text style={s.metaLabel}>{texts.price}</Text>
                   <Text style={s.metaValue}>{p.price}</Text>
                 </View>
                 <View style={s.metaItem}>
                   <MaterialCommunityIcons name="star" size={14} color="#F59E0B" />
-                  <Text style={s.metaLabel}>{tx.rating}</Text>
+                  <Text style={s.metaLabel}>{texts.rating}</Text>
                   <Text style={s.metaValue}>{p.rating}</Text>
                 </View>
               </View>
@@ -257,14 +254,14 @@ export default function ProductComparisonScreen() {
                         ))}
                         <Text style={s.trustStarVal}>{stars.toFixed(1).replace('.', ',')}</Text>
                         {reviewCount && (
-                          <Text style={s.trustReviewCount}>({reviewCount} {lang === 'de' ? 'Bewertungen' : 'recensioni'})</Text>
+                          <Text style={s.trustReviewCount}>({reviewCount} {txl(lang, { de: 'Bewertungen', it: 'recensioni', en: 'Bewertungen' })})</Text>
                         )}
                       </View>
                     )}
                     {hasLabel && (
                       <View style={s.labBadge}>
                         <MaterialCommunityIcons name="flask-outline" size={12} color="#059669" />
-                        <Text style={s.labBadgeText}>{lang === 'de' ? 'Laborgeprüft' : 'Testato in laboratorio'}</Text>
+                        <Text style={s.labBadgeText}>{txl(lang, { de: 'Laborgeprüft', it: 'Testato in laboratorio', en: 'Laborgeprüft' })}</Text>
                       </View>
                     )}
                   </View>
@@ -278,7 +275,7 @@ export default function ProductComparisonScreen() {
                 data-testid={`affiliate-btn-${i}`}
               >
                 <MaterialCommunityIcons name="shield-search" size={16} color="#FFF" />
-                <Text style={s.affiliateBtnText}>{tx.viewProduct}</Text>
+                <Text style={s.affiliateBtnText}>{texts.viewProduct}</Text>
               </TouchableOpacity>
 
               {/* Select Product Button */}
@@ -300,8 +297,8 @@ export default function ProductComparisonScreen() {
                   { color: selectedProductId === p.product_id ? '#FFF' : '#1B6B45' }
                 ]}>
                   {selectedProductId === p.product_id
-                    ? (lang === 'de' ? 'Mein Produkt' : 'Il mio prodotto')
-                    : (lang === 'de' ? 'Ich nehme dieses Produkt' : 'Prendo questo prodotto')}
+                    ? (txl(lang, { de: 'Mein Produkt', it: 'Il mio prodotto', en: 'Mein Produkt' }))
+                    : (txl(lang, { de: 'Ich nehme dieses Produkt', it: 'Prendo questo prodotto', en: 'Ich nehme dieses Produkt' }))}
                 </Text>
               </TouchableOpacity>
 
@@ -310,7 +307,7 @@ export default function ProductComparisonScreen() {
                 <View style={s.pricePerDayRow}>
                   <MaterialCommunityIcons name="calculator-variant" size={13} color="#5C7A6F" />
                   <Text style={s.pricePerDayText}>
-                    {tx.pricePerDay}: ~{(parseFloat(p.price.replace(/[^0-9.,]/g, '').replace(',', '.')) / Math.max(1, parseInt(p.servings) || 30)).toFixed(2).replace('.', ',')} EUR
+                    {texts.pricePerDay}: ~{(parseFloat(p.price.replace(/[^0-9.,]/g, '').replace(',', '.')) / Math.max(1, parseInt(p.servings) || 30)).toFixed(2).replace('.', ',')} EUR
                   </Text>
                 </View>
               )}
@@ -319,7 +316,7 @@ export default function ProductComparisonScreen() {
         )}
 
         {/* Disclaimer */}
-        <Text style={s.disclaimer}>{tx.disclaimer}</Text>
+        <Text style={s.disclaimer}>{texts.disclaimer}</Text>
       </ScrollView>
     </SafeAreaView>
   );

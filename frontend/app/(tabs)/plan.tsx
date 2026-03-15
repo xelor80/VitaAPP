@@ -6,6 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useLang } from '../../src/LangContext';
+import { tx } from '../../src/i18n';
 import {
   scheduleCombinedReminders,
   sendTestNotification,
@@ -125,13 +126,13 @@ export default function PlanScreen() {
           if (success) {
             await sendTestNotification(lang);
             Alert.alert(
-              lang === 'de' ? 'Erinnerungen aktiviert' : 'Promemoria attivati',
-              lang === 'de' ? 'Sie erhalten Benachrichtigungen fuer Supplements und Medikamente.' : 'Riceverai notifiche per supplementi e farmaci.'
+              tx(lang, { de: 'Erinnerungen aktiviert', it: 'Promemoria attivati', en: 'Erinnerungen aktiviert' }),
+              tx(lang, { de: 'Sie erhalten Benachrichtigungen fuer Supplements und Medikamente.', it: 'Riceverai notifiche per supplementi e farmaci.', en: 'Sie erhalten Benachrichtigungen fuer Supplements und Medikamente.' })
             );
           } else {
             Alert.alert(
-              lang === 'de' ? 'Berechtigung erforderlich' : 'Autorizzazione richiesta',
-              lang === 'de' ? 'Bitte erlauben Sie Benachrichtigungen in den Einstellungen.' : 'Per favore consenti le notifiche nelle impostazioni.'
+              tx(lang, { de: 'Berechtigung erforderlich', it: 'Autorizzazione richiesta', en: 'Berechtigung erforderlich' }),
+              tx(lang, { de: 'Bitte erlauben Sie Benachrichtigungen in den Einstellungen.', it: 'Per favore consenti le notifiche nelle impostazioni.', en: 'Bitte erlauben Sie Benachrichtigungen in den Einstellungen.' })
             );
           }
         }
@@ -161,9 +162,9 @@ export default function PlanScreen() {
       {/* Header */}
       <LinearGradient colors={['#1B6B45', '#2E9E6B']} style={s.header}>
         <View style={{ flex: 1 }}>
-          <Text style={s.headerTitle}>{lang === 'de' ? 'Mein Plan' : 'Il mio Piano'}</Text>
+          <Text style={s.headerTitle}>{tx(lang, { de: 'Mein Plan', it: 'Il mio Piano', en: 'My Plan' })}</Text>
           <Text style={s.headerSubtitle}>
-            {lang === 'de' ? 'Supplements & Medikamente' : 'Supplementi & Farmaci'}
+            {tx(lang, { de: 'Supplements & Medikamente', it: 'Supplementi & Farmaci', en: 'Supplements & Medications' })}
           </Text>
         </View>
         <TouchableOpacity
@@ -182,7 +183,7 @@ export default function PlanScreen() {
       {/* Nav Cards - ganz oben */}
       <Animated.View entering={FadeInDown.delay(100)} style={s.navSection}>
         <Text style={s.navSectionTitle}>
-          {lang === 'de' ? 'Verwalten' : 'Gestisci'}
+          {tx(lang, { de: 'Verwalten', it: 'Gestisci', en: 'Manage' })}
         </Text>
         <View style={s.navRow}>
           <TouchableOpacity
@@ -192,8 +193,8 @@ export default function PlanScreen() {
           >
             <LinearGradient colors={['#1B6B45', '#2E9E6B']} style={s.navCardGradient}>
               <MaterialCommunityIcons name="pill" size={28} color="#FFF" />
-              <Text style={s.navCardTitle}>{lang === 'de' ? 'Supplements' : 'Supplementi'}</Text>
-              <Text style={s.navCardSub}>{lang === 'de' ? 'Plan ansehen' : 'Vedi piano'}</Text>
+              <Text style={s.navCardTitle}>{tx(lang, { de: 'Supplements', it: 'Supplementi', en: 'Supplements' })}</Text>
+              <Text style={s.navCardSub}>{tx(lang, { de: 'Plan ansehen', it: 'Vedi piano', en: 'View plan' })}</Text>
             </LinearGradient>
           </TouchableOpacity>
           <TouchableOpacity
@@ -203,8 +204,8 @@ export default function PlanScreen() {
           >
             <LinearGradient colors={['#3B82F6', '#60A5FA']} style={s.navCardGradient}>
               <MaterialCommunityIcons name="medical-bag" size={28} color="#FFF" />
-              <Text style={s.navCardTitle}>{lang === 'de' ? 'Medikamente' : 'Farmaci'}</Text>
-              <Text style={s.navCardSub}>{lang === 'de' ? 'Verwalten' : 'Gestisci'}</Text>
+              <Text style={s.navCardTitle}>{tx(lang, { de: 'Medikamente', it: 'Farmaci', en: 'Medications' })}</Text>
+              <Text style={s.navCardSub}>{tx(lang, { de: 'Verwalten', it: 'Gestisci', en: 'Manage' })}</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>
@@ -215,7 +216,7 @@ export default function PlanScreen() {
         <Animated.View entering={FadeInDown.delay(150)} style={s.progressCard}>
           <View style={s.progressRow}>
             <Text style={s.progressLabel}>
-              {lang === 'de' ? 'Tagesfortschritt' : 'Progresso giornaliero'}
+              {tx(lang, { de: 'Tagesfortschritt', it: 'Progresso giornaliero', en: 'Daily Progress' })}
             </Text>
             <Text style={s.progressPct}>{pct}%</Text>
           </View>
@@ -223,7 +224,7 @@ export default function PlanScreen() {
             <View style={[s.progressBarFill, { width: `${pct}%` }]} />
           </View>
           <Text style={s.progressDetail}>
-            {checkedItems}/{totalItems} {lang === 'de' ? 'eingenommen' : 'assunti'}
+            {checkedItems}/{totalItems} {tx(lang, { de: 'eingenommen', it: 'assunti', en: 'taken' })}
           </Text>
         </Animated.View>
       )}
@@ -233,7 +234,7 @@ export default function PlanScreen() {
         <Animated.View entering={FadeInDown.delay(150)} style={s.reminderCard}>
           <Text style={s.reminderTitle}>
             <MaterialCommunityIcons name="bell-cog-outline" size={18} color="#1B6B45" />
-            {' '}{lang === 'de' ? 'Erinnerungen' : 'Promemoria'}
+            {' '}{tx(lang, { de: 'Erinnerungen', it: 'Promemoria', en: 'Reminders' })}
           </Text>
 
           <TouchableOpacity
@@ -248,17 +249,17 @@ export default function PlanScreen() {
             />
             <Text style={[s.toggleText, { color: reminders.enabled ? '#1A2D26' : '#8FA39B' }]}>
               {reminders.enabled
-                ? (lang === 'de' ? 'Push-Benachrichtigungen aktiv' : 'Notifiche push attive')
-                : (lang === 'de' ? 'Push-Benachrichtigungen aus' : 'Notifiche push disattivate')}
+                ? (tx(lang, { de: 'Push-Benachrichtigungen aktiv', it: 'Notifiche push attive', en: 'Push notifications active' }))
+                : (tx(lang, { de: 'Push-Benachrichtigungen aus', it: 'Notifiche push disattivate', en: 'Push notifications off' }))}
             </Text>
           </TouchableOpacity>
 
           {reminders.enabled && (
             <View style={{ gap: 10, marginTop: 8 }}>
               {[
-                { key: 'morning_time', timing: 'morning', icon: 'weather-sunny', label: lang === 'de' ? 'Morgens' : 'Mattina', color: '#FF9800' },
-                { key: 'noon_time', timing: 'noon', icon: 'weather-partly-cloudy', label: lang === 'de' ? 'Mittags' : 'Mezzogiorno', color: '#2E9E6B' },
-                { key: 'evening_time', timing: 'evening', icon: 'weather-night', label: lang === 'de' ? 'Abends' : 'Sera', color: '#5C6BC0' },
+                { key: 'morning_time', timing: 'morning', icon: 'weather-sunny', label: tx(lang, { de: 'Morgens', it: 'Mattina', en: 'Morning' }), color: '#FF9800' },
+                { key: 'noon_time', timing: 'noon', icon: 'weather-partly-cloudy', label: tx(lang, { de: 'Mittags', it: 'Mezzogiorno', en: 'Noon' }), color: '#2E9E6B' },
+                { key: 'evening_time', timing: 'evening', icon: 'weather-night', label: tx(lang, { de: 'Abends', it: 'Sera', en: 'Evening' }), color: '#5C6BC0' },
               ].map(({ key, timing, icon, label, color }) => {
                 const combined = buildCombinedSchedule();
                 const items = combined[timing as keyof CombinedSchedule] || [];
@@ -286,7 +287,7 @@ export default function PlanScreen() {
                           <View style={[s.previewBadge, { backgroundColor: '#E8F5E9' }]}>
                             <MaterialCommunityIcons name="pill" size={12} color="#1B6B45" />
                             <Text style={[s.previewBadgeText, { color: '#1B6B45' }]}>
-                              {suppCount} {lang === 'de' ? 'Supp.' : 'Int.'}
+                              {suppCount} {tx(lang, { de: 'Supp.', it: 'Int.', en: 'Supp.' })}
                             </Text>
                           </View>
                         )}
@@ -294,7 +295,7 @@ export default function PlanScreen() {
                           <View style={[s.previewBadge, { backgroundColor: '#E3F2FD' }]}>
                             <MaterialCommunityIcons name="medical-bag" size={12} color="#3B82F6" />
                             <Text style={[s.previewBadgeText, { color: '#3B82F6' }]}>
-                              {medCount} {lang === 'de' ? 'Med.' : 'Farm.'}
+                              {medCount} {tx(lang, { de: 'Med.', it: 'Farm.', en: 'Med.' })}
                             </Text>
                           </View>
                         )}
@@ -312,12 +313,12 @@ export default function PlanScreen() {
           <View style={s.reminderBtns}>
             <TouchableOpacity style={s.testBtn} onPress={() => sendTestNotification(lang)} data-testid="test-notification-btn">
               <MaterialCommunityIcons name="bell-ring" size={16} color="#1B6B45" />
-              <Text style={s.testBtnText}>{lang === 'de' ? 'Testen' : 'Prova'}</Text>
+              <Text style={s.testBtnText}>{tx(lang, { de: 'Testen', it: 'Prova', en: 'Test' })}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={s.saveBtn} onPress={saveReminders} data-testid="save-reminders-btn">
               <LinearGradient colors={['#1B6B45', '#2E9E6B']} style={s.saveBtnGradient}>
                 <MaterialCommunityIcons name="content-save" size={16} color="#FFF" />
-                <Text style={s.saveBtnText}>{lang === 'de' ? 'Speichern' : 'Salva'}</Text>
+                <Text style={s.saveBtnText}>{tx(lang, { de: 'Speichern', it: 'Salva', en: 'Save' })}</Text>
               </LinearGradient>
             </TouchableOpacity>
           </View>
@@ -357,8 +358,8 @@ export default function PlanScreen() {
                     <View style={[s.typeBadge, item.type === 'medication' ? s.typeBadgeMed : s.typeBadgeSupp]}>
                       <Text style={[s.typeBadgeText, item.type === 'medication' ? s.typeBadgeTextMed : s.typeBadgeTextSupp]}>
                         {item.type === 'medication'
-                          ? (lang === 'de' ? 'Med' : 'Farm')
-                          : (lang === 'de' ? 'Supp' : 'Int')}
+                          ? (tx(lang, { de: 'Med', it: 'Farm', en: 'Med' }))
+                          : (tx(lang, { de: 'Supp', it: 'Int', en: 'Supp' }))}
                       </Text>
                     </View>
                   </View>
@@ -375,9 +376,7 @@ export default function PlanScreen() {
         <View style={s.emptyCard}>
           <MaterialCommunityIcons name="clipboard-text-outline" size={48} color="#C4CEC8" />
           <Text style={s.emptyText}>
-            {lang === 'de'
-              ? 'Noch kein Einnahmeplan vorhanden.\nFuege Supplements oder Medikamente hinzu.'
-              : 'Nessun piano ancora.\nAggiungi supplementi o farmaci.'}
+            {tx(lang, { de: 'Noch kein Einnahmeplan vorhanden.\nFuege Supplements oder Medikamente hinzu.', it: 'Nessun piano ancora.\nAggiungi supplementi o farmaci.', en: 'Noch kein Einnahmeplan vorhanden.\nFuege Supplements oder Medikamente hinzu.' })}
           </Text>
         </View>
       )}
@@ -386,9 +385,7 @@ export default function PlanScreen() {
       <View style={s.disclaimer}>
         <MaterialCommunityIcons name="information-outline" size={14} color="#8FA39B" />
         <Text style={s.disclaimerText}>
-          {lang === 'de'
-            ? 'Diese App dokumentiert nur Ihre Eingaben und ersetzt keine aerztliche Beratung.'
-            : 'Questa app documenta solo i tuoi dati e non sostituisce il consulto medico.'}
+          {tx(lang, { de: 'Diese App dokumentiert nur Ihre Eingaben und ersetzt keine aerztliche Beratung.', it: 'Questa app documenta solo i tuoi dati e non sostituisce il consulto medico.', en: 'This app only documents your inputs and does not replace medical advice.' })}
         </Text>
       </View>
     </ScrollView>

@@ -10,6 +10,7 @@ import { createAudioPlayer } from 'expo-audio'; // kept for potential future use
 import * as FileSystem from 'expo-file-system';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLang } from '../src/LangContext';
+import { tx } from '../src/i18n';
 import { planStyles as styles } from '../components/supplement/planStyles';
 import { InteractionAnalysis } from '../components/supplement/InteractionAnalysis';
 import { EmailExportModal } from '../components/supplement/EmailExportModal';
@@ -238,12 +239,10 @@ export default function SupplementPlanScreen() {
         <View style={styles.emptyState}>
           <MaterialCommunityIcons name="pill" size={64} color="#4A8B71" />
           <Text style={styles.emptyTitle}>
-            {lang === 'de' ? 'Supplement-Plan erstellen' : 'Crea piano supplementi'}
+            {tx(lang, { de: 'Supplement-Plan erstellen', it: 'Crea piano supplementi', en: 'Supplement-Plan erstellen' })}
           </Text>
           <Text style={styles.emptySubtitle}>
-            {lang === 'de'
-              ? 'Basierend auf Ihrem Gesundheitsprofil erstellen wir Ihren personalisierten 8-Wochen-Plan.'
-              : 'In base al tuo profilo di salute creeremo il tuo piano personalizzato di 8 settimane.'}
+            {tx(lang, { de: 'Basierend auf Ihrem Gesundheitsprofil erstellen wir Ihren personalisierten 8-Wochen-Plan.', it: 'In base al tuo profilo di salute creeremo il tuo piano personalizzato di 8 settimane.', en: 'Basierend auf Ihrem Gesundheitsprofil erstellen wir Ihren personalisierten 8-Wochen-Plan.' })}
           </Text>
           <TouchableOpacity
             data-testid="generate-plan-btn"
@@ -257,14 +256,14 @@ export default function SupplementPlanScreen() {
               <>
                 <MaterialCommunityIcons name="creation" size={20} color="#FFFFFF" />
                 <Text style={styles.generateButtonText}>
-                  {lang === 'de' ? 'Plan generieren' : 'Genera piano'}
+                  {tx(lang, { de: 'Plan generieren', it: 'Genera piano', en: 'Plan generieren' })}
                 </Text>
               </>
             )}
           </TouchableOpacity>
           {canGoBack && (
             <TouchableOpacity style={styles.backLink} onPress={() => router.back()}>
-              <Text style={styles.backLinkText}>{lang === 'de' ? 'Zurueck' : 'Indietro'}</Text>
+              <Text style={styles.backLinkText}>{tx(lang, { de: 'Zurueck', it: 'Indietro', en: 'Zurueck' })}</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -290,11 +289,11 @@ export default function SupplementPlanScreen() {
           <View style={{ flex: 1 }}>
             <Text style={ns.headerGreeting}>
               {firstName
-                ? (lang === 'de' ? `Hallo ${firstName}` : `Ciao ${firstName}`)
-                : (lang === 'de' ? 'Hallo' : 'Ciao')}
+                ? (tx(lang, { de: `Hallo ${firstName}`, it: `Ciao ${firstName}`, en: `Hallo ${firstName}` }))
+                : (tx(lang, { de: 'Hallo', it: 'Ciao', en: 'Hallo' }))}
             </Text>
             <Text style={ns.headerSubtitle}>
-              {lang === 'de' ? 'Dein Supplement-Plan fuer heute' : 'Il tuo piano supplementi per oggi'}
+              {tx(lang, { de: 'Dein Supplement-Plan fuer heute', it: 'Il tuo piano supplementi per oggi', en: 'Dein Supplement-Plan fuer heute' })}
             </Text>
           </View>
           <MaterialCommunityIcons name="white-balance-sunny" size={36} color="#FFD54F" />
@@ -318,7 +317,7 @@ export default function SupplementPlanScreen() {
           <View style={styles.warningsCard}>
             <Text style={styles.warningsTitle}>
               <MaterialCommunityIcons name="alert" size={18} color="#DC2626" />
-              {' '}{lang === 'de' ? 'Wichtige Hinweise' : 'Avvisi importanti'}
+              {' '}{tx(lang, { de: 'Wichtige Hinweise', it: 'Avvisi importanti', en: 'Wichtige Hinweise' })}
             </Text>
             {plan.warnings.map((w: string, i: number) => (
               <Text key={i} style={styles.warningText}>{w}</Text>
@@ -330,9 +329,9 @@ export default function SupplementPlanScreen() {
         {/* Tabs */}
         <View style={styles.tabs}>
           {[
-            { key: 'stack' as const, label: lang === 'de' ? 'Stack' : 'Stack', icon: 'pill' },
-            { key: 'phases' as const, label: lang === 'de' ? 'Wochen' : 'Settimane', icon: 'calendar-week' },
-            { key: 'interactions' as const, label: lang === 'de' ? 'Analyse' : 'Analisi', icon: 'shield-search' },
+            { key: 'stack' as const, label: tx(lang, { de: 'Stack', it: 'Stack', en: 'Stack' }), icon: 'pill' },
+            { key: 'phases' as const, label: tx(lang, { de: 'Wochen', it: 'Settimane', en: 'Wochen' }), icon: 'calendar-week' },
+            { key: 'interactions' as const, label: tx(lang, { de: 'Analyse', it: 'Analisi', en: 'Analyse' }), icon: 'shield-search' },
           ].map(tab => (
             <TouchableOpacity
               key={tab.key}
@@ -350,17 +349,17 @@ export default function SupplementPlanScreen() {
           const riskColor = RISK_COLORS[s.risk_level] || '#10B981';
           const riskBg = s.risk_level === 'high' ? '#FEF2F2' : s.risk_level === 'medium' ? '#FFFBEB' : '#F0FDF4';
           const riskLabel = s.risk_level === 'high'
-            ? (lang === 'de' ? 'HOCH' : 'ALTO')
-            : s.risk_level === 'medium' ? (lang === 'de' ? 'MITTEL' : 'MEDIO')
-            : (lang === 'de' ? 'NIEDRIG' : 'BASSO');
+            ? (tx(lang, { de: 'HOCH', it: 'ALTO', en: 'HOCH' }))
+            : s.risk_level === 'medium' ? (tx(lang, { de: 'MITTEL', it: 'MEDIO', en: 'MITTEL' }))
+            : (tx(lang, { de: 'NIEDRIG', it: 'BASSO', en: 'NIEDRIG' }));
           const evColor = s.evidence_level === 'high' ? '#16A34A' : s.evidence_level === 'medium' ? '#D97706' : '#EA580C';
           const evBg = s.evidence_level === 'high' ? '#DCFCE7' : s.evidence_level === 'medium' ? '#FEF3C7' : '#FFEDD5';
           const evIcon = s.evidence_level === 'high' ? 'check-decagram' : s.evidence_level === 'medium' ? 'flask-outline' : 'magnify';
           const evLabel = s.evidence_level === 'high'
-            ? (lang === 'de' ? 'Hohe Evidenz' : 'Alta evidenza')
+            ? (tx(lang, { de: 'Hohe Evidenz', it: 'Alta evidenza', en: 'Hohe Evidenz' }))
             : s.evidence_level === 'medium'
-            ? (lang === 'de' ? 'Mittlere Evidenz' : 'Evidenza media')
-            : (lang === 'de' ? 'Explorativ' : 'Esplorativo');
+            ? (tx(lang, { de: 'Mittlere Evidenz', it: 'Evidenza media', en: 'Mittlere Evidenz' }))
+            : (tx(lang, { de: 'Explorativ', it: 'Esplorativo', en: 'Explorativ' }));
           const timingIcon = s.timing === 'morning' ? 'weather-sunny' : s.timing === 'evening' ? 'weather-night' : 'weather-partly-cloudy';
 
           return (
@@ -369,7 +368,7 @@ export default function SupplementPlanScreen() {
               <View style={ms.cardHeader}>
                 <View style={[ms.statusStripe, { backgroundColor: riskColor }]} />
                 <View style={{ flex: 1 }}>
-                  <Text style={ms.supplementNum}>{lang === 'de' ? `Supplement ${idx + 1}/${plan.stack.length}` : `Supplemento ${idx + 1}/${plan.stack.length}`}</Text>
+                  <Text style={ms.supplementNum}>{tx(lang, { de: `Supplement ${idx + 1}/${plan.stack.length}`, it: `Supplemento ${idx + 1}/${plan.stack.length}`, en: `Supplement ${idx + 1}/${plan.stack.length}` })}</Text>
                   <Text style={ms.supplementName}>{s.name}</Text>
                 </View>
                 <View style={[ms.statusBadge, { backgroundColor: riskBg, borderColor: riskColor }]}>
@@ -380,14 +379,14 @@ export default function SupplementPlanScreen() {
 
               {/* 2. Wirkung */}
               <View style={ms.section}>
-                <Text style={ms.sectionLabel}>{lang === 'de' ? 'WIRKUNG' : 'EFFETTO'}</Text>
+                <Text style={ms.sectionLabel}>{tx(lang, { de: 'WIRKUNG', it: 'EFFETTO', en: 'WIRKUNG' })}</Text>
                 <Text style={ms.effectText}>{s.reason}</Text>
               </View>
 
               {/* 3. Warum empfohlen */}
               {s.recommendation_reasons?.length > 0 && (
                 <View style={ms.section}>
-                  <Text style={ms.sectionLabel}>{lang === 'de' ? 'WARUM EMPFOHLEN' : 'PERCHE RACCOMANDATO'}</Text>
+                  <Text style={ms.sectionLabel}>{tx(lang, { de: 'WARUM EMPFOHLEN', it: 'PERCHE RACCOMANDATO', en: 'WARUM EMPFOHLEN' })}</Text>
                   <View style={ms.reasonsList}>
                     {s.recommendation_reasons.map((r: string, ri: number) => (
                       <View key={ri} style={ms.reasonItem}>
@@ -404,27 +403,27 @@ export default function SupplementPlanScreen() {
                 {/* Dosierung */}
                 <View style={ms.dataCell}>
                   <MaterialCommunityIcons name="pill" size={16} color="#4A8B71" />
-                  <Text style={ms.dataCellLabel}>{lang === 'de' ? 'Dosierung' : 'Dosaggio'}</Text>
+                  <Text style={ms.dataCellLabel}>{tx(lang, { de: 'Dosierung', it: 'Dosaggio', en: 'Dosage' })}</Text>
                   <Text style={ms.dataCellValue}>{s.dosage} {s.unit}</Text>
                 </View>
                 {/* Einnahmezeitpunkt */}
                 <View style={ms.dataCell}>
                   <MaterialCommunityIcons name={timingIcon as any} size={16} color="#4A8B71" />
-                  <Text style={ms.dataCellLabel}>{lang === 'de' ? 'Einnahme' : 'Assunzione'}</Text>
+                  <Text style={ms.dataCellLabel}>{tx(lang, { de: 'Einnahme', it: 'Assunzione', en: 'Einnahme' })}</Text>
                   <Text style={ms.dataCellValue}>{s.timing_label}</Text>
                   <Text style={ms.dataCellSub}>{s.with_food_label}</Text>
                 </View>
                 {/* Evidenz */}
                 <View style={[ms.dataCell, { backgroundColor: evBg }]}>
                   <MaterialCommunityIcons name={evIcon as any} size={16} color={evColor} />
-                  <Text style={ms.dataCellLabel}>{lang === 'de' ? 'Evidenz' : 'Evidenza'}</Text>
+                  <Text style={ms.dataCellLabel}>{tx(lang, { de: 'Evidenz', it: 'Evidenza', en: 'Evidenz' })}</Text>
                   <Text style={[ms.dataCellValue, { color: evColor }]}>{evLabel}</Text>
                 </View>
                 {/* Wirkungseintritt */}
                 <View style={ms.dataCell}>
                   <MaterialCommunityIcons name="timer-sand" size={16} color="#4A8B71" />
-                  <Text style={ms.dataCellLabel}>{lang === 'de' ? 'Wirkung ab' : 'Effetto da'}</Text>
-                  <Text style={ms.dataCellValue}>{s.onset_weeks} {lang === 'de' ? 'Wo.' : 'sett.'}</Text>
+                  <Text style={ms.dataCellLabel}>{tx(lang, { de: 'Wirkung ab', it: 'Effetto da', en: 'Wirkung ab' })}</Text>
+                  <Text style={ms.dataCellValue}>{s.onset_weeks} {tx(lang, { de: 'Wo.', it: 'sett.', en: 'Wo.' })}</Text>
                 </View>
               </View>
 
@@ -432,7 +431,7 @@ export default function SupplementPlanScreen() {
               {s.synergies?.length > 0 && (
                 <View style={ms.synRow}>
                   <MaterialCommunityIcons name="link-variant" size={14} color="#4A8B71" />
-                  <Text style={ms.synLabel}>{lang === 'de' ? 'Synergie:' : 'Sinergia:'}</Text>
+                  <Text style={ms.synLabel}>{tx(lang, { de: 'Synergie:', it: 'Sinergia:', en: 'Synergie:' })}</Text>
                   <Text style={ms.synText}>{s.synergies.join(', ')}</Text>
                 </View>
               )}
@@ -464,17 +463,15 @@ export default function SupplementPlanScreen() {
                   <MaterialCommunityIcons name="shield-search" size={16} color="#FFF" />
                   <Text style={ms.primaryCtaText}>{
                     s.risk_level === 'high'
-                      ? (lang === 'de' ? `Optimale ${s.name?.split(' ')[0] || s.id}-Quelle finden` : `Trova fonte ottimale di ${s.name?.split(' ')[0] || s.id}`)
-                      : (lang === 'de' ? 'Qualitaetsgepruefte Optionen vergleichen' : 'Confronta opzioni certificate')
+                      ? (tx(lang, { de: `Optimale ${s.name?.split(' ')[0] || s.id}-Quelle finden`, it: `Trova fonte ottimale di ${s.name?.split(' ')[0] || s.id}`, en: `Optimale ${s.name?.split(' ')[0] || s.id}-Quelle finden` }))
+                      : (tx(lang, { de: 'Qualitaetsgepruefte Optionen vergleichen', it: 'Confronta opzioni certificate', en: 'Qualitaetsgepruefte Optionen vergleichen' }))
                   }</Text>
                 </TouchableOpacity>
                 {pricingMap[s.id] && (
                   <Text data-testid={`price-per-day-${s.id}`} style={ms.pricePerDay}>
-                    {lang === 'de'
-                      ? `Preis pro Tag: ca. ${pricingMap[s.id].avg_per_day.toFixed(2).replace('.', ',')} \u20AC`
-                      : `Prezzo al giorno: ca. ${pricingMap[s.id].avg_per_day.toFixed(2).replace('.', ',')} \u20AC`}
+                    {tx(lang, { de: `Preis pro Tag: ca. ${pricingMap[s.id].avg_per_day.toFixed(2).replace('.', ',')} \u20AC`, it: `Prezzo al giorno: ca. ${pricingMap[s.id].avg_per_day.toFixed(2).replace('.', ',')} \u20AC`, en: `Preis pro Tag: ca. ${pricingMap[s.id].avg_per_day.toFixed(2).replace('.', ',')} \u20AC` })}
                     {pricingMap[s.id].product_count > 1
-                      ? ` (${pricingMap[s.id].product_count} ${lang === 'de' ? 'Produkte verglichen' : 'prodotti confrontati'})`
+                      ? ` (${pricingMap[s.id].product_count} ${tx(lang, { de: 'Produkte verglichen', it: 'prodotti confrontati', en: 'Produkte verglichen' })})`
                       : ''}
                   </Text>
                 )}
@@ -491,7 +488,7 @@ export default function SupplementPlanScreen() {
             <View style={styles.phaseHeader}>
               <View style={styles.phaseBadge}>
                 <Text style={styles.phaseBadgeText}>
-                  {lang === 'de' ? `Woche ${phase.weeks}` : `Settimana ${phase.weeks}`}
+                  {tx(lang, { de: `Woche ${phase.weeks}`, it: `Settimana ${phase.weeks}`, en: `Woche ${phase.weeks}` })}
                 </Text>
               </View>
               <Text style={styles.phaseTitle}>{phase.title}</Text>
@@ -510,9 +507,7 @@ export default function SupplementPlanScreen() {
 
         {/* Disclaimer */}
         <Text style={styles.disclaimerText}>
-          {lang === 'de'
-            ? 'Dieser Plan ersetzt keine aerztliche Beratung. Bei Beschwerden oder Unsicherheiten konsultieren Sie bitte einen Arzt oder Apotheker.'
-            : 'Questo piano non sostituisce una consulenza medica. In caso di disturbi o dubbi consultare un medico o farmacista.'}
+          {tx(lang, { de: 'Dieser Plan ersetzt keine aerztliche Beratung. Bei Beschwerden oder Unsicherheiten konsultieren Sie bitte einen Arzt oder Apotheker.', it: 'Questo piano non sostituisce una consulenza medica. In caso di disturbi o dubbi consultare un medico o farmacista.', en: 'Dieser Plan ersetzt keine aerztliche Beratung. Bei Beschwerden oder Unsicherheiten konsultieren Sie bitte einen Arzt oder Apotheker.' })}
         </Text>
       </ScrollView>
 
