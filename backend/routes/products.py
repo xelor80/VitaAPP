@@ -293,15 +293,34 @@ def _parse_price(price_str: str) -> float | None:
 
 @router.get("/products/pricing-summary")
 async def get_pricing_summary(nutrients: str = "", lang: str = "de"):
-    """Return price-per-day estimates for a list of nutrients."""
+    """Return price-per-day estimates for a list of nutrients.
+    Uses manual admin overrides first, then falls back to auto-calculation from products."""
     if not nutrients:
         return {"pricing": {}}
 
     nutrient_list = [n.strip() for n in nutrients.split(",") if n.strip()]
+
+    # Load manual price overrides from supplement_overrides
+    manual_prices = {}
+    cursor = db.supplement_overrides.find({"price_per_day": {"$exists": True, "$ne": None}}, {"_id": 0, "id": 1, "price_per_day": 1})
+    async for doc in cursor:
+        manual_prices[doc["id"]] = doc["price_per_day"]
+
     collection = await get_products_collection(lang)
     result = {}
 
     for nutrient in nutrient_list:
+        # Check manual override first
+        if nutrient in manual_prices:
+            result[nutrient] = {
+                "avg_per_day": manual_prices[nutrient],
+                "min_per_day": manual_prices[nutrient],
+                "max_per_day": manual_prices[nutrient],
+                "product_count": 0,
+                "manual": True,
+            }
+            continue
+
         tags = NUTRIENT_TAG_MAP.get(nutrient, [])
         if not tags:
             continue
