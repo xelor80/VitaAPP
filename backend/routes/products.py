@@ -294,44 +294,31 @@ def _parse_price(price_str: str) -> float | None:
 @router.get("/products/pricing-summary")
 async def get_pricing_summary(nutrients: str = "", lang: str = "de"):
     """Return price-per-day estimates for a list of nutrients.
-    Uses manual admin overrides first, then falls back to auto-calculation from products."""
+    Uses manual product-level price_per_day first, then falls back to auto-calculation."""
     if not nutrients:
         return {"pricing": {}}
 
     nutrient_list = [n.strip() for n in nutrients.split(",") if n.strip()]
-
-    # Load manual price overrides from supplement_overrides
-    manual_prices = {}
-    cursor = db.supplement_overrides.find({"price_per_day": {"$exists": True, "$ne": None}}, {"_id": 0, "id": 1, "price_per_day": 1})
-    async for doc in cursor:
-        manual_prices[doc["id"]] = doc["price_per_day"]
-
     collection = await get_products_collection(lang)
     result = {}
 
     for nutrient in nutrient_list:
-        # Check manual override first
-        if nutrient in manual_prices:
-            result[nutrient] = {
-                "avg_per_day": manual_prices[nutrient],
-                "min_per_day": manual_prices[nutrient],
-                "max_per_day": manual_prices[nutrient],
-                "product_count": 0,
-                "manual": True,
-            }
-            continue
-
         tags = NUTRIENT_TAG_MAP.get(nutrient, [])
         if not tags:
             continue
         regex_pattern = f"^({'|'.join(tags)})$"
         products = await collection.find(
             {"tags": {"$elemMatch": {"$regex": regex_pattern, "$options": "i"}}},
-            {"_id": 0, "price": 1, "servings": 1}
+            {"_id": 0, "price": 1, "servings": 1, "price_per_day": 1}
         ).limit(10).to_list(10)
 
         prices_per_day = []
         for p in products:
+            # Use manual price_per_day if set on the product
+            if p.get("price_per_day") is not None:
+                prices_per_day.append(round(float(p["price_per_day"]), 2))
+                continue
+            # Otherwise auto-calculate
             price = _parse_price(p.get("price", ""))
             if price is None or price <= 0:
                 continue
@@ -339,7 +326,7 @@ async def get_pricing_summary(nutrients: str = "", lang: str = "de"):
             if servings and isinstance(servings, (int, float)) and servings > 0:
                 daily = price / servings
             else:
-                daily = price / 30  # default: 30-day supply
+                daily = price / 30
             prices_per_day.append(round(daily, 2))
 
         if prices_per_day:

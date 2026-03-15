@@ -141,11 +141,16 @@ async function loadProducts() {
         const data = await res.json();
         
         const tbody = document.getElementById('products-table');
-        tbody.innerHTML = data.products.map(p => `
+        tbody.innerHTML = data.products.map(p => {
+            const pricePerDay = p.price_per_day != null
+                ? `<span style="color:#10B981;font-weight:600">${parseFloat(p.price_per_day).toFixed(2).replace('.', ',')} &euro;</span>`
+                : `<span style="color:#94A3B8">-</span>`;
+            return `
             <tr>
                 <td>${p.product_id}</td>
                 <td>${p.name}</td>
                 <td>${p.price || '-'}</td>
+                <td>${pricePerDay}</td>
                 <td>${(p.tags || []).slice(0, 3).join(', ')}</td>
                 <td>
                     ${p.label_image 
@@ -163,8 +168,8 @@ async function loadProducts() {
                         <i class="fas fa-trash"></i>
                     </button>
                 </td>
-            </tr>
-        `).join('');
+            </tr>`;
+        }).join('');
     } catch (err) {
         console.error('Error loading products:', err);
     }
@@ -184,6 +189,7 @@ function openProductModal(product = null) {
     document.getElementById('prod-tags').value = (product?.tags || []).join(', ');
     document.getElementById('prod-affiliate-url').value = product?.affiliate_url || '';
     document.getElementById('prod-image-url').value = product?.image_url || '';
+    document.getElementById('prod-price-per-day').value = product?.price_per_day != null ? product.price_per_day : '';
     document.getElementById('prod-instructions').value = product?.application_instructions || '';
     document.getElementById('prod-video-url').value = product?.video_url || '';
     document.getElementById('video-url-group').style.display = currentLang === 'it' ? 'block' : 'none';
@@ -217,6 +223,13 @@ async function saveProduct(e) {
         application_instructions: document.getElementById('prod-instructions').value,
         video_url: document.getElementById('prod-video-url').value
     };
+    const ppd = document.getElementById('prod-price-per-day').value.trim().replace(',', '.');
+    if (ppd === '') {
+        productData.price_per_day = null;
+    } else {
+        const val = parseFloat(ppd);
+        if (!isNaN(val) && val >= 0) productData.price_per_day = Math.round(val * 100) / 100;
+    }
     
     try {
         const method = editingProduct ? 'PUT' : 'POST';
@@ -738,21 +751,16 @@ async function loadSupplements() {
         const categoryMap = { vitamin: 'Vitamin', mineral: 'Mineral', fatty_acid: 'Fettsaeure', antioxidant: 'Antioxidans', probiotic: 'Probiotikum', adaptogen: 'Adaptogen' };
         tbody.innerHTML = data.map(s => {
             const active = s.active !== false;
-            const priceDisplay = s.price_per_day != null
-                ? `<span style="color:#10B981;font-weight:600">${parseFloat(s.price_per_day).toFixed(2).replace('.', ',')} &euro;/Tag</span>`
-                : `<span style="color:#94A3B8">Auto</span>`;
             return `<tr style="${!active ? 'opacity:0.5' : ''}">
                 <td><code>${s.id}</code></td>
                 <td><strong>${s.name_de}</strong><br><small style="color:#888">${s.name_it}</small></td>
                 <td><span class="badge">${categoryMap[s.category] || s.category}</span></td>
                 <td>${s.dosage_default.amount} ${s.dosage_default.unit}<br><small>Hoch: ${s.dosage_high_risk.amount} ${s.dosage_high_risk.unit}</small></td>
                 <td>${timingMap[s.timing] || s.timing}</td>
-                <td>${priceDisplay}</td>
                 <td><span class="badge ${s.evidence_level === 'high' ? 'badge-success' : s.evidence_level === 'medium' ? 'badge-warning' : 'badge-info'}">${evidenceMap[s.evidence_level] || s.evidence_level}</span></td>
                 <td><span style="color:${active ? '#10B981' : '#EF4444'}">${active ? 'Aktiv' : 'Inaktiv'}</span></td>
                 <td>
                     <button class="btn-edit" onclick="editSupplement('${s.id}', ${JSON.stringify(s).replace(/"/g, '&quot;')})"><i class="fas fa-edit"></i></button>
-                    <button class="btn-edit" onclick="editSupplementPrice('${s.id}', ${s.price_per_day != null ? s.price_per_day : 'null'}, '${s.name_de}')" title="Preis/Tag"><i class="fas fa-euro-sign"></i></button>
                     <button class="btn-edit" onclick="toggleSupplement('${s.id}', ${!active})" title="${active ? 'Deaktivieren' : 'Aktivieren'}"><i class="fas fa-${active ? 'toggle-on' : 'toggle-off'}"></i></button>
                 </td>
             </tr>`;
@@ -785,28 +793,6 @@ function editSupplement(id, data) {
             dosage_high_risk: { ...data.dosage_high_risk, amount: parseFloat(newHighDosage) },
             timing: newTiming
         })
-    }).then(() => loadSupplements()).catch(err => console.error('Error:', err));
-}
-
-function editSupplementPrice(id, currentPrice, name) {
-    const hint = currentPrice != null ? currentPrice.toString().replace('.', ',') : '';
-    const input = prompt(
-        `Preis pro Tag fuer "${name}" in Euro eingeben.\n\nAktuell: ${hint || 'Automatisch berechnet'}\n\nLeer lassen = automatische Berechnung:`,
-        hint
-    );
-    if (input === null) return; // cancelled
-    const cleanInput = input.trim().replace(',', '.');
-    const update = {};
-    if (cleanInput === '') {
-        update.price_per_day = null; // reset to auto
-    } else {
-        const val = parseFloat(cleanInput);
-        if (isNaN(val) || val < 0) { alert('Bitte eine gueltige Zahl eingeben.'); return; }
-        update.price_per_day = Math.round(val * 100) / 100;
-    }
-    apiCall(`/admin/supplements/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify(update)
     }).then(() => loadSupplements()).catch(err => console.error('Error:', err));
 }
 
