@@ -118,6 +118,150 @@ export const GUIDE_SCREENS: Record<string, GuideScreenData> = {
     ],
   },
 
+  '/profile': {
+    greeting: {
+      de: 'Hier finden Sie Ihr komplettes Gesundheitsprofil auf einen Blick.',
+      it: 'Qui trovate il vostro profilo sanitario completo a colpo d\'occhio.',
+    },
+    explanation: {
+      de: 'Das Gesundheitsprofil zeigt alle Ihre persoenlichen Daten: Koerperwerte, Aktivitaet, Ernaehrung, Schlaf und mehr. Halten Sie es aktuell fuer bessere Empfehlungen.',
+      it: 'Il profilo sanitario mostra tutti i vostri dati personali: valori corporei, attivita, alimentazione, sonno e altro. Mantenetelo aggiornato per raccomandazioni migliori.',
+    },
+    nextStep: {
+      de: 'Pruefen Sie, ob Ihre Daten noch aktuell sind — Veraenderungen wie Gewicht oder Aktivitaet beeinflussen Ihre Empfehlungen.',
+      it: 'Controllate se i vostri dati sono ancora attuali — cambiamenti come peso o attivita influenzano le raccomandazioni.',
+    },
+    pose: 'achtung',
+    quickActions: [
+      {
+        id: 'profile_update',
+        label: { de: 'Wann sollte ich mein Profil aktualisieren?', it: 'Quando dovrei aggiornare il profilo?' },
+        response: {
+          de: 'Aktualisieren Sie Ihr Profil bei Aenderungen an Gewicht, Aktivitaetslevel, Schlafgewohnheiten oder Ernaehrung. Auch neue Beschwerden oder Medikamente sollten eingetragen werden.',
+          it: 'Aggiornate il profilo in caso di cambiamenti di peso, livello di attivita, abitudini di sonno o alimentazione. Anche nuovi disturbi o farmaci dovrebbero essere inseriti.',
+        },
+      },
+      {
+        id: 'profile_impact',
+        label: { de: 'Wie beeinflusst mein Profil die App?', it: 'Come influenza il profilo l\'app?' },
+        response: {
+          de: 'Ihr Profil ist die Basis fuer alles: Supplement-Empfehlungen, Rezeptvorschlaege, Wasserziel und Risikoeinschaetzungen. Je genauer Ihre Daten, desto besser die Ergebnisse.',
+          it: 'Il vostro profilo e la base di tutto: raccomandazioni integratori, suggerimenti ricette, obiettivo acqua e valutazioni di rischio. Piu precisi i dati, migliori i risultati.',
+        },
+      },
+    ],
+  },
+
+  '/plan': {
+    greeting: {
+      de: 'Ihr persoenlicher Supplement-Plan — strukturiert fuer optimale Wirkung.',
+      it: 'Il vostro piano integratori personale — strutturato per un effetto ottimale.',
+    },
+    explanation: {
+      de: 'Der 8-Wochen-Plan verteilt Ihre Supplements optimal ueber den Tag. Morgens, Mittags und Abends — abgestimmt auf Wechselwirkungen und beste Aufnahme.',
+      it: 'Il piano di 8 settimane distribuisce i vostri integratori in modo ottimale durante la giornata. Mattina, mezzogiorno e sera — in base alle interazioni e al miglior assorbimento.',
+    },
+    nextStep: {
+      de: 'Tippen Sie auf ein Supplement, um passende Produkte zu vergleichen und guenstige Preise zu finden.',
+      it: 'Toccate un integratore per confrontare i prodotti adatti e trovare prezzi convenienti.',
+    },
+    pose: 'achtung',
+    quickActions: [
+      {
+        id: 'plan_how',
+        label: { de: 'Wie funktioniert der Plan?', it: 'Come funziona il piano?' },
+        response: {
+          de: 'Der Plan verteilt Ihre Supplements ueber den Tag: Morgens fuer Energie, Mittags fuer Konzentration, Abends fuer Regeneration. Er beruecksichtigt Wechselwirkungen zwischen den Naehrstoffen.',
+          it: 'Il piano distribuisce gli integratori durante la giornata: mattina per energia, mezzogiorno per concentrazione, sera per rigenerazione. Considera le interazioni tra i nutrienti.',
+        },
+      },
+      {
+        id: 'plan_reminders',
+        label: { de: 'Kann ich Erinnerungen aktivieren?', it: 'Posso attivare i promemoria?' },
+        response: {
+          de: 'Ja! Aktivieren Sie Erinnerungen in den Einstellungen unten im Plan. Sie koennen Zeiten anpassen und sogar einen Schichtplan konfigurieren.',
+          it: 'Si! Attivate i promemoria nelle impostazioni in fondo al piano. Potete adattare gli orari e persino configurare un piano turni.',
+        },
+      },
+    ],
+  },
+
+  '/recipes': {
+    greeting: {
+      de: 'Entdecken Sie gesunde Rezepte, die zu Ihrem Profil und Ihren Beduerfnissen passen.',
+      it: 'Scoprite ricette sane adatte al vostro profilo e alle vostre esigenze.',
+    },
+    explanation: {
+      de: 'Die Rezepte werden per KI nach Relevanz fuer Ihr Gesundheitsprofil sortiert. Allergien, Ernaehrungsgewohnheiten und Naehrstoffbeduerfnisse werden beruecksichtigt.',
+      it: 'Le ricette vengono ordinate dall\'AI per rilevanza rispetto al vostro profilo. Si considerano allergie, abitudini alimentari e fabbisogno nutrizionale.',
+    },
+    nextStep: {
+      de: 'Speichern Sie Lieblingsrezepte und filtern Sie nach Kategorien wie Fruehstueck, Mittag oder Abend.',
+      it: 'Salvate le ricette preferite e filtrate per categorie come colazione, pranzo o cena.',
+    },
+    pose: 'herz',
+    quickActions: [
+      {
+        id: 'recipes_sorting',
+        label: { de: 'Wie werden Rezepte sortiert?', it: 'Come vengono ordinate le ricette?' },
+        response: {
+          de: 'Rezepte mit Zutaten, die Ihre Naehrstoffluecken abdecken, erscheinen zuerst. Ihre Allergien und Unvertraeglichkeiten werden automatisch beruecksichtigt.',
+          it: 'Le ricette con ingredienti che coprono le vostre carenze nutrizionali appaiono per prime. Le allergie e intolleranze vengono considerate automaticamente.',
+        },
+      },
+      {
+        id: 'recipes_save',
+        label: { de: 'Kann ich Rezepte speichern?', it: 'Posso salvare le ricette?' },
+        response: {
+          de: 'Ja, tippen Sie auf das Herz-Icon bei einem Rezept, um es zu Ihren Favoriten hinzuzufuegen. Finden Sie Ihre gespeicherten Rezepte jederzeit in Ihrer Sammlung.',
+          it: 'Si, toccate l\'icona cuore su una ricetta per aggiungerla ai preferiti. Trovate le ricette salvate in qualsiasi momento nella vostra raccolta.',
+        },
+      },
+    ],
+  },
+
+  '/water-tracking': {
+    greeting: {
+      de: 'Behalten Sie Ihre taegliche Wasserzufuhr im Blick — Ihr Koerper wird es Ihnen danken!',
+      it: 'Tenete d\'occhio la vostra idratazione quotidiana — il vostro corpo vi ringraziera!',
+    },
+    explanation: {
+      de: 'Ihr Wasserziel wird per KI basierend auf Gewicht, Aktivitaet, Alter und Lebensstil berechnet. Tracken Sie jedes Glas und sehen Sie Ihren Fortschritt in Echtzeit.',
+      it: 'Il vostro obiettivo di idratazione viene calcolato dall\'AI in base a peso, attivita, eta e stile di vita. Tracciate ogni bicchiere e vedete i progressi in tempo reale.',
+    },
+    nextStep: {
+      de: 'Trinken Sie gleich ein Glas Wasser und tracken Sie es! Kleine Mengen ueber den Tag verteilt sind besser als alles auf einmal.',
+      it: 'Bevete subito un bicchiere d\'acqua e tracciamolo! Piccole quantita distribuite durante il giorno sono meglio di tutto in una volta.',
+    },
+    pose: 'super',
+    quickActions: [
+      {
+        id: 'water_goal',
+        label: { de: 'Wie wird mein Wasserziel berechnet?', it: 'Come viene calcolato il mio obiettivo?' },
+        response: {
+          de: 'Ihr Wasserziel wird per KI aus Ihrem Gesundheitsprofil berechnet: Koerpergewicht, Groesse, Aktivitaetslevel, Schlaf, Stress und Ernaehrung fliessen ein. Sie koennen das Ziel auch manuell anpassen.',
+          it: 'Il vostro obiettivo viene calcolato dall\'AI dal profilo: peso, altezza, attivita, sonno, stress e alimentazione. Potete anche regolare manualmente l\'obiettivo.',
+        },
+      },
+      {
+        id: 'water_tips',
+        label: { de: 'Tipps fuer mehr Trinken im Alltag?', it: 'Consigli per bere di piu?' },
+        response: {
+          de: 'Stellen Sie eine Wasserflasche auf den Schreibtisch, trinken Sie vor jeder Mahlzeit ein Glas und starten Sie den Morgen mit warmem Wasser und Zitrone. Erinnerungen helfen ebenfalls!',
+          it: 'Mettete una bottiglia d\'acqua sulla scrivania, bevete un bicchiere prima di ogni pasto e iniziate la mattina con acqua tiepida e limone. Anche i promemoria aiutano!',
+        },
+      },
+      {
+        id: 'water_history',
+        label: { de: 'Wo sehe ich meinen Verlauf?', it: 'Dove vedo il mio storico?' },
+        response: {
+          de: 'Scrollen Sie auf dieser Seite nach unten — dort finden Sie Ihren 7-Tage und 30-Tage Verlauf als Balkendiagramm. Gruene Tage bedeuten: Ziel erreicht!',
+          it: 'Scorrete verso il basso su questa pagina — troverete il vostro storico di 7 e 30 giorni come grafico a barre. I giorni verdi significano: obiettivo raggiunto!',
+        },
+      },
+    ],
+  },
+
   '/health-profile': {
     greeting: {
       de: 'Hier wird Ihr persoenliches Gesundheitsprofil ausgewertet.',
