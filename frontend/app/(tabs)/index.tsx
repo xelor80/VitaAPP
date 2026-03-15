@@ -127,7 +127,7 @@ export default function DashboardHome() {
     if (!symptomText.trim() && selectedTags.length === 0) {
       Alert.alert(
         tx(lang, { de: 'Hinweis', it: 'Avviso', en: 'Hinweis' }),
-        tx(lang, { de: 'Bitte beschreiben Sie Ihre Symptome oder waehlen Sie einen Bereich aus.', it: 'Descrivete i vostri sintomi o selezionate un\', en: 'Bitte beschreiben Sie Ihre Symptome oder waehlen Sie einen Bereich aus.' })area.'
+        tx(lang, { de: 'Bitte beschreiben Sie Ihre Symptome oder waehlen Sie einen Bereich aus.', it: 'Descrivete i vostri sintomi o selezionate un area.', en: 'Please describe your symptoms or select an area.' })
       );
       return;
     }
