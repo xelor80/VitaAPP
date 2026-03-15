@@ -6,7 +6,7 @@ import {
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams, useNavigation } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createAudioPlayer } from 'expo-audio';
+import { createAudioPlayer } from 'expo-audio'; // kept for potential future use
 import * as FileSystem from 'expo-file-system';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLang } from '../src/LangContext';
@@ -137,8 +137,6 @@ export default function SupplementPlanScreen() {
   const [showReminderSettings, setShowReminderSettings] = useState(false);
   const [products, setProducts] = useState<any[]>([]);
   const [showEmailModal, setShowEmailModal] = useState(false);
-  const [ttsLoading, setTtsLoading] = useState(false);
-  const [ttsPlaying, setTtsPlaying] = useState(false);
   const [firstName, setFirstName] = useState<string | null>(null);
   const [workType, setWorkType] = useState<string | null>(null);
   const [activeShift, setActiveShift] = useState<string | null>(null);
@@ -147,77 +145,6 @@ export default function SupplementPlanScreen() {
   const [todayShift, setTodayShift] = useState<any>(null);
   const [todayCompliance, setTodayCompliance] = useState<Record<string, boolean>>({});
   const [pricingMap, setPricingMap] = useState<Record<string, { avg_per_day: number; min_per_day: number; max_per_day: number; product_count: number }>>({});
-  const playerRef = useRef<any>(null);
-  const webAudioRef = useRef<any>(null);
-
-  const stopAudio = () => {
-    if (Platform.OS === 'web') {
-      if (webAudioRef.current) {
-        webAudioRef.current.pause();
-        webAudioRef.current.currentTime = 0;
-        webAudioRef.current = null;
-      }
-    } else {
-      if (playerRef.current) {
-        playerRef.current.pause();
-        playerRef.current = null;
-      }
-    }
-    setTtsPlaying(false);
-  };
-
-  const playTTS = async (text: string) => {
-    if (ttsPlaying) {
-      stopAudio();
-      return;
-    }
-    setTtsLoading(true);
-    try {
-      const res = await fetch(`${API_URL}/api/tts/generate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, lang }),
-      });
-      if (!res.ok) throw new Error('TTS failed');
-      const data = await res.json();
-
-      if (Platform.OS === 'web') {
-        const audio = new window.Audio(`data:audio/mp3;base64,${data.audio_base64}`);
-        audio.onended = () => setTtsPlaying(false);
-        audio.play();
-        webAudioRef.current = audio;
-        setTtsPlaying(true);
-      } else {
-        const fileUri = `${FileSystem.cacheDirectory}tts_plan_${Date.now()}.mp3`;
-        await FileSystem.writeAsStringAsync(fileUri, data.audio_base64, {
-          encoding: FileSystem.EncodingType.Base64,
-        });
-        const player = createAudioPlayer(fileUri);
-        player.addListener('playbackStatusUpdate', (status: any) => {
-          if (status.playing === false && status.currentTime > 0) {
-            setTtsPlaying(false);
-            playerRef.current = null;
-          }
-        });
-        playerRef.current = player;
-        player.play();
-        setTtsPlaying(true);
-      }
-    } catch (e) {
-      console.error('TTS error:', e);
-      Alert.alert(
-        lang === 'de' ? 'Fehler' : 'Errore',
-        lang === 'de' ? 'Audio konnte nicht generiert werden.' : 'Impossibile generare l\'audio.'
-      );
-    } finally {
-      setTtsLoading(false);
-    }
-  };
-
-  // Cleanup audio on unmount
-  useEffect(() => {
-    return () => { stopAudio(); };
-  }, []);
 
   // Fetch pricing when plan stack is available
   useEffect(() => {
@@ -497,29 +424,8 @@ export default function SupplementPlanScreen() {
         {/* Personal Summary */}
         {plan.personal_summary && (
           <View style={styles.summaryCard}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <MaterialCommunityIcons name="account-heart" size={24} color="#4A8B71" />
-              <TouchableOpacity
-                testID="tts-play-btn"
-                onPress={() => playTTS(plan.personal_summary)}
-                disabled={ttsLoading}
-                style={ttsStyles.playBtn}
-              >
-                {ttsLoading ? (
-                  <ActivityIndicator size="small" color="#4A8B71" />
-                ) : (
-                  <MaterialCommunityIcons
-                    name={ttsPlaying ? 'stop-circle' : 'play-circle'}
-                    size={32}
-                    color="#4A8B71"
-                  />
-                )}
-                <Text style={ttsStyles.playLabel}>
-                  {ttsPlaying
-                    ? (lang === 'de' ? 'Stopp' : 'Stop')
-                    : (lang === 'de' ? 'Vorlesen' : 'Ascolta')}
-                </Text>
-              </TouchableOpacity>
             </View>
             <Text style={styles.summaryText}>{plan.personal_summary}</Text>
           </View>
@@ -1223,22 +1129,6 @@ const ms = StyleSheet.create({
   secondaryCtaText: { color: '#6B7280', fontSize: 12, fontWeight: '500', textDecorationLine: 'underline' },
 });
 
-const ttsStyles = StyleSheet.create({
-  playBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: '#D7EDDF',
-    borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-  },
-  playLabel: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#2D5A3F',
-  },
-});
 
 
 const ns = StyleSheet.create({
