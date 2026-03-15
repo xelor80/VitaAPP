@@ -6,7 +6,7 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 ### Core Features
 - Health Profile & Onboarding
 - AI-powered Supplement Plans (8-week personalized)
-- Medication Management (NEW)
+- Medication Management
 - Water Tracking with AI-based goal calculation
 - Symptom Analysis & Tracking
 - Daily Tasks & Achievements
@@ -30,41 +30,44 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - Symptom Analysis bug fix (chips + text fields)
 - Context-Aware VERO mascot
 - Manual Product Pricing (admin panel)
-- UI/UX cleanups (TTS removal, rename Ernährungs-Tipps → Gesundheits-Tipps)
-- **Medication Management - Phase 1** (Backend CRUD + Frontend pages)
-  - Backend: Full CRUD, daily-plan, check-in toggle, stats endpoints
-  - Frontend: medications.tsx (add/edit/delete), daily-plan.tsx (combined view)
-  - Plan tab refactored as hub page
+- UI/UX cleanups (TTS removal, rename dashboard card)
+- Medication Management - Phase 1 (Backend CRUD + Frontend pages)
+- P0 Crash Fix: medication pages (useSwipeBack import)
 
-### Bug Fixes Applied (2026-03-15)
-- P0: Fixed crash on medication pages (medications.tsx, daily-plan.tsx)
-  - Removed unused useSwipeBack import/panHandlers (handled globally in _layout.tsx)
-  - Added missing Stack.Screen registrations in _layout.tsx
-  - Cleared Metro cache
-  - All 23 backend tests passing (100%)
-
-## Prioritized Backlog
-
-### P1 - In Progress
-- User verification of Medication Feature (needs testing on device)
-
-### P1 - Upcoming
-- Medication Daily Plan Logic enhancement (interactive checkboxes fully wired)
-- Medication Intake Logging verification
-
-### P2 - Future
-- Medication Reminders (push notifications)
-- Medication Progress Tracking (integrate into Progress section)
-- Historical Data Visualization (water intake graphs)
+### Completed (2026-03-15) - Plan Restructuring
+- **Supplement Plan**: Removed schedule/daily-plan tab, reminder card, and reminder settings. Now only shows Stack, Phases, and Interactions tabs (info-only).
+- **Mein Plan Tab (plan.tsx)**: Complete rewrite as central intake hub:
+  - Combined daily check-off list (supplements + medications) grouped by timing
+  - Interactive checkboxes with toggle (check/uncheck)
+  - Progress bar showing daily intake percentage
+  - Integrated reminder settings (push notifications with time configuration)
+  - Navigation cards to Supplement Plan and Medications management
+  - Medical disclaimer
+- **New Backend Endpoint**: `POST /api/medications/{profile_id}/supplement-check-in` for toggling supplement intake
+- **Dashboard**: Renamed "Dein Supplement Plan" to "Dein Einnahme Plan"
+- All 16 backend tests passed (100%)
 
 ## Key API Endpoints
 - `GET/POST /api/medications/{profile_id}` - List/Create medications
 - `PUT/DELETE /api/medications/{profile_id}/{medication_id}` - Update/Delete
 - `GET /api/medications/{profile_id}/daily-plan?lang=de` - Combined daily plan
-- `POST /api/medications/{profile_id}/{medication_id}/check-in` - Toggle intake
+- `POST /api/medications/{profile_id}/{medication_id}/check-in` - Toggle medication intake
+- `POST /api/medications/{profile_id}/supplement-check-in` - Toggle supplement intake
+- `GET/PUT /api/supplement-plan/{profile_id}/reminders` - Reminder CRUD
 - `GET /api/medications/{profile_id}/stats?days=7` - Adherence stats
 
 ## DB Collections
 - `medications`: { id, profile_id, name, dosage, unit, timings, frequency, specific_days, meal_relation, note, start_date, end_date, active, created_at }
 - `medication_logs`: { profile_id, medication_id, date, timing, taken_at }
+- `supplement_check_ins`: { profile_id, date, supplement_ids, timing, taken_at }
 - `water_tracking`: { user_id, date, intake, goal }
+
+## Prioritized Backlog
+
+### P1 - User Verification
+- User should test: Plan tab check-off flow, reminder settings, supplement-plan without schedule tab
+
+### P2 - Future
+- Medication Reminders (push notifications per medication)
+- Medication Progress Tracking (integrate into Progress section)
+- Historical Data Visualization (water intake graphs)
