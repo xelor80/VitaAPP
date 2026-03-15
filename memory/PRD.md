@@ -35,29 +35,29 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - P0 Crash Fix: medication pages (useSwipeBack import)
 
 ### Completed (2026-03-15) - Plan Restructuring
-- **Supplement Plan**: Removed schedule/daily-plan tab, reminder card, and reminder settings. Now only shows Stack, Phases, and Interactions tabs (info-only).
-- **Mein Plan Tab (plan.tsx)**: Complete rewrite as central intake hub:
-  - Combined daily check-off list (supplements + medications) grouped by timing
-  - Interactive checkboxes with toggle (check/uncheck)
-  - Progress bar showing daily intake percentage
-  - Integrated reminder settings (push notifications with time configuration)
-  - Navigation cards to Supplement Plan and Medications management
-  - Medical disclaimer
-- **New Backend Endpoint**: `POST /api/medications/{profile_id}/supplement-check-in` for toggling supplement intake
-- **Dashboard**: Renamed "Dein Supplement Plan" to "Dein Einnahme Plan"
-- All 16 backend tests passed (100%)
+- Supplement Plan: Removed schedule/daily-plan tab, reminder card. Now info-only (Stack, Phases, Interactions tabs).
+- Mein Plan Tab: Central intake hub with combined check-off list
+- Dashboard renamed to "Dein Einnahme Plan"
+
+### Completed (2026-03-15) - Combined Reminders + Bug Fixes
+- **NotificationService**: New `scheduleCombinedReminders()` function creates push notifications mentioning both supplements AND medications by name with type counts (e.g., "4 Supplements + 1 Medikament")
+- **Reminder Panel**: Shows preview of items per timing slot with badges (Supp./Med.) and item names
+- **Critical Bug Fix**: Daily plan was not showing supplements because `weekly_schedule` entries are dicts with `items` key, not flat lists. Fixed parsing in `medications.py`
+- **Dosage Format Fix**: Handled different dosage formats (int vs dict) in supplement data
+- **New Endpoint**: `POST /api/medications/{pid}/supplement-check-in` for toggling supplement intake
+- All 15 backend tests passed (100%) - iteration_69
 
 ## Key API Endpoints
 - `GET/POST /api/medications/{profile_id}` - List/Create medications
 - `PUT/DELETE /api/medications/{profile_id}/{medication_id}` - Update/Delete
-- `GET /api/medications/{profile_id}/daily-plan?lang=de` - Combined daily plan
+- `GET /api/medications/{profile_id}/daily-plan?lang=de` - Combined daily plan (supplements + medications)
 - `POST /api/medications/{profile_id}/{medication_id}/check-in` - Toggle medication intake
 - `POST /api/medications/{profile_id}/supplement-check-in` - Toggle supplement intake
 - `GET/PUT /api/supplement-plan/{profile_id}/reminders` - Reminder CRUD
 - `GET /api/medications/{profile_id}/stats?days=7` - Adherence stats
 
 ## DB Collections
-- `medications`: { id, profile_id, name, dosage, unit, timings, frequency, specific_days, meal_relation, note, start_date, end_date, active, created_at }
+- `medications`: { id, profile_id, name, dosage, unit, timings, frequency, ... }
 - `medication_logs`: { profile_id, medication_id, date, timing, taken_at }
 - `supplement_check_ins`: { profile_id, date, supplement_ids, timing, taken_at }
 - `water_tracking`: { user_id, date, intake, goal }
@@ -65,9 +65,8 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 ## Prioritized Backlog
 
 ### P1 - User Verification
-- User should test: Plan tab check-off flow, reminder settings, supplement-plan without schedule tab
+- Test combined plan (supplements + medications with check-off and reminders)
 
 ### P2 - Future
-- Medication Reminders (push notifications per medication)
 - Medication Progress Tracking (integrate into Progress section)
 - Historical Data Visualization (water intake graphs)
