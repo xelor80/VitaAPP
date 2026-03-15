@@ -3,19 +3,6 @@
 ## Original Problem Statement
 Health Coach App (VitaGuide) - A comprehensive health management platform built with React Native/Expo (frontend) + FastAPI (backend) + MongoDB.
 
-### Core Features
-- Health Profile & Onboarding
-- AI-powered Supplement Plans (8-week personalized)
-- Medication Management
-- Water Tracking with AI-based goal calculation
-- Symptom Analysis & Tracking
-- Daily Tasks & Achievements
-- Recipe Catalog
-- Progress Dashboard
-- VERO Mascot (context-aware guide)
-- Admin Panel
-- Bilingual support (German/Italian)
-
 ## Architecture
 - **Frontend**: React Native (Expo) with expo-router, served via tunnel
 - **Backend**: FastAPI on port 8001
@@ -25,48 +12,47 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 
 ## What's Been Implemented
 
-### Completed Features
-- Water Tracking with AI goal calculation and animated dashboard card
-- Symptom Analysis bug fix (chips + text fields)
-- Context-Aware VERO mascot
-- Manual Product Pricing (admin panel)
-- UI/UX cleanups (TTS removal, rename dashboard card)
-- Medication Management - Phase 1 (Backend CRUD + Frontend pages)
-- P0 Crash Fix: medication pages (useSwipeBack import)
+### Core Features
+- Health Profile & Onboarding
+- AI-powered Supplement Plans (8-week personalized)
+- Medication Management (CRUD + daily plan + check-in)
+- Water Tracking with AI-based goal calculation
+- Symptom Analysis & Tracking
+- Daily Tasks & Achievements
+- Recipe Catalog, Progress Dashboard
+- VERO Mascot (context-aware guide)
+- Admin Panel
+- Bilingual support (German/Italian) with in-app switcher
 
-### Completed (2026-03-15) - Plan Restructuring
-- Supplement Plan: Removed schedule/daily-plan tab, reminder card. Now info-only (Stack, Phases, Interactions tabs).
-- Mein Plan Tab: Central intake hub with combined check-off list
-- Dashboard renamed to "Dein Einnahme Plan"
+### Completed (2026-03-15) - Product Selection Feature
+- **Product Comparison Page**: "Ich nehme dieses Produkt" button on each product card
+  - Green border + "Mein Produkt" banner for selected products
+  - Toggle: tap again to deselect
+- **Daily Plan Integration**: Selected product name replaces generic supplement name
+  - e.g., "Factor D" instead of "Vitamin D3"
+  - `product_selected` flag and `original_name` preserved in API response
+- **Backend Endpoints**:
+  - `POST /api/products/select` - Save product selection (upsert)
+  - `GET /api/products/selections/{profile_id}` - Get all selections
+  - `DELETE /api/products/selections/{profile_id}/{nutrient_id}` - Remove selection
+- **DB Collection**: `product_selections` { profile_id, nutrient_id, product_name, product_id, selected_at }
+- All 16 backend tests passed (100%) - iteration_70
 
-### Completed (2026-03-15) - Combined Reminders + Bug Fixes
-- **NotificationService**: New `scheduleCombinedReminders()` function creates push notifications mentioning both supplements AND medications by name with type counts (e.g., "4 Supplements + 1 Medikament")
-- **Reminder Panel**: Shows preview of items per timing slot with badges (Supp./Med.) and item names
-- **Critical Bug Fix**: Daily plan was not showing supplements because `weekly_schedule` entries are dicts with `items` key, not flat lists. Fixed parsing in `medications.py`
-- **Dosage Format Fix**: Handled different dosage formats (int vs dict) in supplement data
-- **New Endpoint**: `POST /api/medications/{pid}/supplement-check-in` for toggling supplement intake
-- All 15 backend tests passed (100%) - iteration_69
+### Previous Completions
+- Combined Reminders (supplements + medications) with item preview per timing slot
+- Plan Restructuring: Mein Plan tab as central intake hub
+- Dashboard: Symptom-Analyse before Wasseraufnahme, Language Switcher
+- P0 Crash Fix (useSwipeBack), Daily plan supplement parsing fix
 
 ## Key API Endpoints
-- `GET/POST /api/medications/{profile_id}` - List/Create medications
-- `PUT/DELETE /api/medications/{profile_id}/{medication_id}` - Update/Delete
-- `GET /api/medications/{profile_id}/daily-plan?lang=de` - Combined daily plan (supplements + medications)
+- `POST /api/products/select` - Save product selection
+- `GET /api/products/selections/{profile_id}` - Get all selections
+- `DELETE /api/products/selections/{profile_id}/{nutrient_id}` - Remove selection
+- `GET /api/medications/{profile_id}/daily-plan?lang=de` - Combined daily plan (with product names)
 - `POST /api/medications/{profile_id}/{medication_id}/check-in` - Toggle medication intake
 - `POST /api/medications/{profile_id}/supplement-check-in` - Toggle supplement intake
-- `GET/PUT /api/supplement-plan/{profile_id}/reminders` - Reminder CRUD
-- `GET /api/medications/{profile_id}/stats?days=7` - Adherence stats
-
-## DB Collections
-- `medications`: { id, profile_id, name, dosage, unit, timings, frequency, ... }
-- `medication_logs`: { profile_id, medication_id, date, timing, taken_at }
-- `supplement_check_ins`: { profile_id, date, supplement_ids, timing, taken_at }
-- `water_tracking`: { user_id, date, intake, goal }
 
 ## Prioritized Backlog
-
-### P1 - User Verification
-- Test combined plan (supplements + medications with check-off and reminders)
-
 ### P2 - Future
 - Medication Progress Tracking (integrate into Progress section)
 - Historical Data Visualization (water intake graphs)
