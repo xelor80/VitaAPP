@@ -231,6 +231,30 @@ export default function DashboardHome() {
         </View>
         </View>
 
+        {/* Symptom Analysis Section */}
+        <TouchableOpacity
+          style={s.analysisCard}
+          activeOpacity={0.85}
+          onPress={() => setShowAnalysis(!showAnalysis)}
+          data-testid="analysis-card"
+        >
+          <View style={s.analysisLeft}>
+            <MaterialCommunityIcons name="magnify" size={28} color="#2E7D52" />
+            <View style={{ marginLeft: 12, flex: 1 }}>
+              <Text style={s.analysisTitle}>{lang === 'de' ? 'Symptom-Analyse' : 'Analisi sintomi'}</Text>
+              <Text style={s.analysisSub}>{lang === 'de' ? 'Beschreibe deine Symptome' : 'Descrivi i tuoi sintomi'}</Text>
+            </View>
+          </View>
+          <MaterialCommunityIcons name={showAnalysis ? 'chevron-up' : 'chevron-down'} size={24} color="#2E7D52" />
+        </TouchableOpacity>
+        {showAnalysis && (
+          <View style={s.analysisExpanded}>
+            <SymptomInput lang={lang} value={symptomText} onChangeText={setSymptomText} />
+            <SymptomChips lang={lang} selectedTags={selectedTags} onToggleTag={toggleTag} />
+            <AnalyzeButton lang={lang} isLoading={isAnalyzing} onPress={analyzeSymptoms} />
+          </View>
+        )}
+
         {/* Water Tracking Card - Animated */}
         {hasProfile && (
           <WaterTrackerCard
@@ -282,29 +306,6 @@ export default function DashboardHome() {
           )}
         </ScrollView>
 
-        {/* Symptom Analysis Section */}
-        <TouchableOpacity
-          style={s.analysisCard}
-          activeOpacity={0.85}
-          onPress={() => setShowAnalysis(!showAnalysis)}
-          data-testid="analysis-card"
-        >
-          <View style={s.analysisLeft}>
-            <MaterialCommunityIcons name="magnify" size={28} color="#2E7D52" />
-            <View style={{ marginLeft: 12, flex: 1 }}>
-              <Text style={s.analysisTitle}>{lang === 'de' ? 'Symptom-Analyse' : 'Analisi sintomi'}</Text>
-              <Text style={s.analysisSub}>{lang === 'de' ? 'Beschreibe deine Symptome' : 'Descrivi i tuoi sintomi'}</Text>
-            </View>
-          </View>
-          <MaterialCommunityIcons name={showAnalysis ? 'chevron-up' : 'chevron-down'} size={24} color="#2E7D52" />
-        </TouchableOpacity>
-        {showAnalysis && (
-          <View style={s.analysisExpanded}>
-            <SymptomInput lang={lang} value={symptomText} onChangeText={setSymptomText} />
-            <SymptomChips lang={lang} selectedTags={selectedTags} onToggleTag={toggleTag} />
-            <AnalyzeButton lang={lang} isLoading={isAnalyzing} onPress={analyzeSymptoms} />
-          </View>
-        )}
 
         {/* Info Cards Row */}
         <View style={s.infoRow}>
