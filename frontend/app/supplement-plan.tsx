@@ -293,7 +293,7 @@ export default function SupplementPlanScreen() {
                 : (tx(lang, { de: 'Hallo', it: 'Ciao', en: 'Hello', tr: 'Merhaba', fr: 'Bonjour', es: 'Hola', ru: 'Privet' }))}
             </Text>
             <Text style={ns.headerSubtitle}>
-              {tx(lang, { de: 'Dein Supplement-Plan fuer heute', it: 'Il tuo piano integratori per oggi', en: 'Your supplement plan for today', tr: 'Bugunun takviye plani', fr: 'Votre plan de supplements pour aujourd'hui', es: 'Tu plan de suplementos para hoy', ru: 'Vash plan dobavok na segodnya' })}
+              {tx(lang, { de: 'Dein Supplement-Plan fuer heute', it: 'Il tuo piano integratori per oggi', en: 'Your supplement plan for today', tr: 'Bugunun takviye plani', fr: 'Votre plan de supplements pour aujourdhui', es: 'Tu plan de suplementos para hoy', ru: 'Vash plan dobavok na segodnya' })}
             </Text>
           </View>
           <MaterialCommunityIcons name="white-balance-sunny" size={36} color="#FFD54F" />

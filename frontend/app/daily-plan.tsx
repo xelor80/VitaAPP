@@ -96,7 +96,7 @@ export default function DailyPlanScreen() {
         {(!plan?.plan || plan.plan.length === 0) ? (
           <View style={s.empty}>
             <MaterialCommunityIcons name="calendar-check" size={50} color="#D1D5DB" />
-            <Text style={s.emptyText}>{tx(lang, { de: 'Keine Einnahmen fuer heute geplant.', it: 'Nessuna assunzione prevista per oggi.', en: 'No intake planned for today.', tr: 'Bugun icin planlanmis alim yok.', fr: 'Aucune prise prevue pour aujourd'hui.', es: 'No hay tomas planificadas para hoy.', ru: 'Na segodnya priem ne zaplanirovah.' })}</Text>
+            <Text style={s.emptyText}>{tx(lang, { de: 'Keine Einnahmen fuer heute geplant.', it: 'Nessuna assunzione prevista per oggi.', en: 'No intake planned for today.', tr: 'Bugun icin planlanmis alim yok.', fr: 'Aucune prise prevue pour aujourdhui.', es: 'No hay tomas planificadas para hoy.', ru: 'Na segodnya priem ne zaplanirovan.' })}</Text>
           </View>
         ) : (
           plan.plan.map((group: any, gi: number) => (
