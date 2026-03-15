@@ -1,71 +1,70 @@
-# VitaGuide+ - Product Requirements Document
+# VitaGuide PRD
 
 ## Original Problem Statement
-Bilingual (German/Italian) health app with AI-powered nutrition tips. Comprehensive personal health coach application.
+Health Coach App (VitaGuide) - A comprehensive health management platform built with React Native/Expo (frontend) + FastAPI (backend) + MongoDB.
 
-## Tech Stack
-- **Frontend**: React Native (Expo) — reanimated, svg, notifications
-- **Backend**: FastAPI + MongoDB (Motor async)
-- **3rd Party**: OpenAI GPT-4o (Emergent LLM Key), OpenAI TTS, Shopify API, SMTP, Unsplash
-
-## Core Features
-1. Symptom Analysis (AI-powered, DE/IT)
-2. Product Recommendations (Shopify-synced)
-3. Recipe System (AI-generated)
-4. Health Profiles
-5. Admin Panel (full-featured web admin)
-6. Digital Mascot "VERO" (page-specific tips)
-7. Supplement Plans (8-week plans with timing)
-8. Tab-Based Navigation (4 tabs)
-9. Dashboard Home Screen (VERO hero, feature cards, recipes)
-10. Water Tracking (AI goal, animated card, VERO tips)
-11. **Medications Management** (NEW):
-    - CRUD: Add/edit/delete medications with name, dosage, unit, timings, frequency, meal relation, notes, dates
-    - Combined daily plan (supplements green + medications blue) with checkboxes
-    - Check-in toggle (mark as taken/untaken)
-    - Adherence statistics (7-day, 30-day)
-    - Legal disclaimer (no medical recommendations)
-    - VERO integration with page-specific tips
+### Core Features
+- Health Profile & Onboarding
+- AI-powered Supplement Plans (8-week personalized)
+- Medication Management (NEW)
+- Water Tracking with AI-based goal calculation
+- Symptom Analysis & Tracking
+- Daily Tasks & Achievements
+- Recipe Catalog
+- Progress Dashboard
+- VERO Mascot (context-aware guide)
+- Admin Panel
+- Bilingual support (German/Italian)
 
 ## Architecture
-```
-backend/
-  routes/medications.py — CRUD, daily-plan, check-in, stats
-  routes/water_tracking.py — Water tracking + AI calculation
-  routes/supplement_plan.py — Supplement plans
-  (MongoDB: medications, medication_logs, water_tracking, water_goals, supplement_plans, supplement_check_ins)
-frontend/
-  app/(tabs)/plan.tsx — Plan hub: Tagesplan card + Supplement card + Medications card
-  app/medications.tsx — Medication management (add/edit/delete form)
-  app/daily-plan.tsx — Combined daily plan with checkboxes
-  app/supplement-plan.tsx — Existing supplement plan
-  app/water-tracking.tsx — Water tracking page
-  components/WaterTrackerCard.tsx — Animated dashboard card
-  src/guideData.ts — Page-specific VERO tips (all pages)
-```
+- **Frontend**: React Native (Expo) with expo-router, served via tunnel
+- **Backend**: FastAPI on port 8001
+- **Database**: MongoDB (local)
+- **AI**: OpenAI GPT-4o via Emergent LLM Key
+- **3rd Party**: Shopify (products), SMTP (emails), Unsplash (images)
 
-## Credentials
-- Admin Password: Wk220480xel!
+## What's Been Implemented
 
-## Completed Work
-- [2026-03-15] Medications Management Feature:
-  - Backend: 7 endpoints (CRUD, daily-plan, check-in, stats) — 23/23 tests passed
-  - Frontend: medications.tsx (management), daily-plan.tsx (combined plan), plan.tsx (hub)
-  - Plan tab redesigned as hub with Tagesplan, Supplement Plan, Medications navigation
-  - VERO tips added for /medications and /daily-plan pages
-  - Legal disclaimer for medications
-- [2026-03-15] Bug fixes:
-  - Symptom analysis: Fixed API field mapping (symptoms → text+tags)
-  - Dashboard card name: "Ernaehrungs-Tipps" → "Gesundheits-Tipps"
-  - Supplement plan: TTS/Vorlesen feature removed
-  - Pricing: Moved price_per_day from supplements to products in admin
-  - VERO: Page-specific tips for all routes
-  - VERO Water: Transparent image (vero_trinkt.png)
-- [2026-03-14] Water Tracking Revamp (AI calculation, animated card, VERO tips)
+### Completed Features
+- Water Tracking with AI goal calculation and animated dashboard card
+- Symptom Analysis bug fix (chips + text fields)
+- Context-Aware VERO mascot
+- Manual Product Pricing (admin panel)
+- UI/UX cleanups (TTS removal, rename Ernährungs-Tipps → Gesundheits-Tipps)
+- **Medication Management - Phase 1** (Backend CRUD + Frontend pages)
+  - Backend: Full CRUD, daily-plan, check-in toggle, stats endpoints
+  - Frontend: medications.tsx (add/edit/delete), daily-plan.tsx (combined view)
+  - Plan tab refactored as hub page
 
-## Backlog
-- P1: Medication reminder push notifications (expo-notifications)
-- P1: Medication adherence display in Progress section
-- P1: Hydration data in Progress section
-- P2: Historical data visualization (charts over weeks/months)
-- P2: Push notification scheduling for water reminders
+### Bug Fixes Applied (2026-03-15)
+- P0: Fixed crash on medication pages (medications.tsx, daily-plan.tsx)
+  - Removed unused useSwipeBack import/panHandlers (handled globally in _layout.tsx)
+  - Added missing Stack.Screen registrations in _layout.tsx
+  - Cleared Metro cache
+  - All 23 backend tests passing (100%)
+
+## Prioritized Backlog
+
+### P1 - In Progress
+- User verification of Medication Feature (needs testing on device)
+
+### P1 - Upcoming
+- Medication Daily Plan Logic enhancement (interactive checkboxes fully wired)
+- Medication Intake Logging verification
+
+### P2 - Future
+- Medication Reminders (push notifications)
+- Medication Progress Tracking (integrate into Progress section)
+- Historical Data Visualization (water intake graphs)
+
+## Key API Endpoints
+- `GET/POST /api/medications/{profile_id}` - List/Create medications
+- `PUT/DELETE /api/medications/{profile_id}/{medication_id}` - Update/Delete
+- `GET /api/medications/{profile_id}/daily-plan?lang=de` - Combined daily plan
+- `POST /api/medications/{profile_id}/{medication_id}/check-in` - Toggle intake
+- `GET /api/medications/{profile_id}/stats?days=7` - Adherence stats
+
+## DB Collections
+- `medications`: { id, profile_id, name, dosage, unit, timings, frequency, specific_days, meal_relation, note, start_date, end_date, active, created_at }
+- `medication_logs`: { profile_id, medication_id, date, timing, taken_at }
+- `water_tracking`: { user_id, date, intake, goal }
