@@ -14,47 +14,58 @@ Bilingual (German/Italian) health app with AI-powered nutrition tips. Comprehens
 3. Recipe System (AI-generated)
 4. Health Profiles
 5. Admin Panel (full-featured web admin)
-6. Digital Mascot "VERO"
-7. Supplement Plans (baseline fallback)
-8. Tab-Based Navigation (4 tabs, always visible)
+6. Digital Mascot "VERO" (page-specific tips)
+7. Supplement Plans (8-week plans with timing)
+8. Tab-Based Navigation (4 tabs)
 9. Dashboard Home Screen (VERO hero, feature cards, recipes)
-10. Swipe-Back Gesture
-11. **Water Tracking** — Personalized hydration tracking with:
-    - **AI-powered daily goal calculation** from health profile (GPT-4o via Emergent LLM Key)
-    - Animated dashboard card with water glass SVG, progress bar, speech bubble, quick-add buttons
-    - Quick-add buttons (+100, +200, +250, +500ml, custom) on dashboard card
-    - VERO contextual tips (morning, progress-based, goal reached)
-    - **VERO AI hydration tips** (tap VERO for personalized AI-generated hydration advice)
-    - 7-day/30-day history with bar chart
-    - Custom goal adjustment
-    - Reminder settings (user opt-in push notifications)
+10. Water Tracking (AI goal, animated card, VERO tips)
+11. **Medications Management** (NEW):
+    - CRUD: Add/edit/delete medications with name, dosage, unit, timings, frequency, meal relation, notes, dates
+    - Combined daily plan (supplements green + medications blue) with checkboxes
+    - Check-in toggle (mark as taken/untaken)
+    - Adherence statistics (7-day, 30-day)
+    - Legal disclaimer (no medical recommendations)
+    - VERO integration with page-specific tips
 
 ## Architecture
 ```
 backend/
-  routes/water_tracking.py — GET today, POST add, GET history, GET/PUT goal, GET/PUT reminder,
-                              POST recalculate-goal (AI), GET hydration-tip (AI)
-  (MongoDB collections: water_tracking, water_goals, water_reminders)
+  routes/medications.py — CRUD, daily-plan, check-in, stats
+  routes/water_tracking.py — Water tracking + AI calculation
+  routes/supplement_plan.py — Supplement plans
+  (MongoDB: medications, medication_logs, water_tracking, water_goals, supplement_plans, supplement_check_ins)
 frontend/
-  components/WaterTrackerCard.tsx — Animated dashboard card (water glass SVG, progress, quick-add)
-  app/water-tracking.tsx — Full water tracking screen with VERO tips
-  app/(tabs)/index.tsx — Dashboard with WaterTrackerCard
+  app/(tabs)/plan.tsx — Plan hub: Tagesplan card + Supplement card + Medications card
+  app/medications.tsx — Medication management (add/edit/delete form)
+  app/daily-plan.tsx — Combined daily plan with checkboxes
+  app/supplement-plan.tsx — Existing supplement plan
+  app/water-tracking.tsx — Water tracking page
+  components/WaterTrackerCard.tsx — Animated dashboard card
+  src/guideData.ts — Page-specific VERO tips (all pages)
 ```
 
 ## Credentials
 - Admin Password: Wk220480xel!
 
 ## Completed Work
-- [2026-03-14] Water Tracking Revamp:
-  - AI-based water goal calculation (GPT-4o) replacing simple formula
-  - Animated WaterTrackerCard component: SVG water glass, progress bar, speech bubble, quick-add buttons
-  - VERO AI hydration tips: tap VERO on water-tracking page for personalized AI advice
-  - New endpoints: /recalculate-goal (AI), /hydration-tip (AI)
-  - Backend: 16/16 tests passed (100%)
-- [2026-03-14] Water Tracking Feature: Backend (7 endpoints, 17/17 tests passed) + Frontend (animated UI, dashboard card)
-- [2026-03-12] UI improvements: Header redesign, VERO positioning, tab navigation, color scheme
+- [2026-03-15] Medications Management Feature:
+  - Backend: 7 endpoints (CRUD, daily-plan, check-in, stats) — 23/23 tests passed
+  - Frontend: medications.tsx (management), daily-plan.tsx (combined plan), plan.tsx (hub)
+  - Plan tab redesigned as hub with Tagesplan, Supplement Plan, Medications navigation
+  - VERO tips added for /medications and /daily-plan pages
+  - Legal disclaimer for medications
+- [2026-03-15] Bug fixes:
+  - Symptom analysis: Fixed API field mapping (symptoms → text+tags)
+  - Dashboard card name: "Ernaehrungs-Tipps" → "Gesundheits-Tipps"
+  - Supplement plan: TTS/Vorlesen feature removed
+  - Pricing: Moved price_per_day from supplements to products in admin
+  - VERO: Page-specific tips for all routes
+  - VERO Water: Transparent image (vero_trinkt.png)
+- [2026-03-14] Water Tracking Revamp (AI calculation, animated card, VERO tips)
 
 ## Backlog
-- P1: Progress & Reminder Integration — Integrate hydration data into main "Progress" section. Implement push notifications.
-- P2: Historical Data Visualization — Graphs/charts for water intake over weeks/months.
-- Push notification scheduling for water reminders (expo-notifications local)
+- P1: Medication reminder push notifications (expo-notifications)
+- P1: Medication adherence display in Progress section
+- P1: Hydration data in Progress section
+- P2: Historical data visualization (charts over weeks/months)
+- P2: Push notification scheduling for water reminders
