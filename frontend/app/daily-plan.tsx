@@ -74,7 +74,7 @@ export default function DailyPlanScreen() {
           <MaterialCommunityIcons name="arrow-left" size={24} color="#FFF" />
         </TouchableOpacity>
         <View style={s.headerCenter}>
-          <Text style={s.headerTitle}>{tx(lang, { de: 'Tagesplan', it: 'Piano giornaliero', en: 'Daily plan', tr: 'Gunluk plan', fr: 'Plan quotidien', es: 'Plan diario', ru: 'Plan na den' })}</Text>
+          <Text style={s.headerTitle}>{tx(lang, { de: 'Tagesplan', it: 'Piano giornaliero', en: 'Daily plan', tr: 'Gunluk plan', fr: 'Plan quotidien', es: 'Plan diario', ru: 'План на день' })}</Text>
           <Text style={s.headerSub}>{plan?.date || ''}</Text>
         </View>
         <View style={s.pctBadge}>
@@ -88,7 +88,7 @@ export default function DailyPlanScreen() {
           <Animated.View entering={FadeIn.duration(500)} style={[s.progressFill, { width: `${Math.min(pct, 100)}%` as any }]} />
         </View>
         <Text style={s.progressLabel}>
-          {plan?.checked_items || 0} / {plan?.total_items || 0} {tx(lang, { de: 'erledigt', it: 'completato', en: 'completed', tr: 'tamamlandi', fr: 'termine', es: 'completado', ru: 'vypolneno' })}
+          {plan?.checked_items || 0} / {plan?.total_items || 0} {tx(lang, { de: 'erledigt', it: 'completato', en: 'completed', tr: 'tamamlandi', fr: 'termine', es: 'completado', ru: 'выполнено' })}
         </Text>
       </View>
 
@@ -96,7 +96,7 @@ export default function DailyPlanScreen() {
         {(!plan?.plan || plan.plan.length === 0) ? (
           <View style={s.empty}>
             <MaterialCommunityIcons name="calendar-check" size={50} color="#D1D5DB" />
-            <Text style={s.emptyText}>{tx(lang, { de: 'Keine Einnahmen fuer heute geplant.', it: 'Nessuna assunzione prevista per oggi.', en: 'No intake planned for today.', tr: 'Bugun icin planlanmis alim yok.', fr: 'Aucune prise prevue pour aujourdhui.', es: 'No hay tomas planificadas para hoy.', ru: 'Na segodnya priem ne zaplanirovan.' })}</Text>
+            <Text style={s.emptyText}>{tx(lang, { de: 'Keine Einnahmen fuer heute geplant.', it: 'Nessuna assunzione prevista per oggi.', en: 'No intake planned for today.', tr: 'Bugun icin planlanmis alim yok.', fr: 'Aucune prise prevue pour aujourdhui.', es: 'No hay tomas planificadas para hoy.', ru: 'На сегодня приём не запланирован.' })}</Text>
           </View>
         ) : (
           plan.plan.map((group: any, gi: number) => (
@@ -143,7 +143,7 @@ export default function DailyPlanScreen() {
                   {/* Type badge */}
                   <View style={[s.typeBadge, item.type === 'medication' ? s.typeBadgeMed : s.typeBadgeSupp]}>
                     <Text style={[s.typeBadgeText, item.type === 'medication' ? s.typeBadgeTextMed : s.typeBadgeTextSupp]}>
-                      {item.type === 'medication' ? (tx(lang, { de: 'Med', it: 'Farm', en: 'Med', tr: 'Ilac', fr: 'Med', es: 'Med', ru: 'Lek' })) : (tx(lang, { de: 'Supp', it: 'Int', en: 'Supp', tr: 'Tak', fr: 'Supp', es: 'Supl', ru: 'Dob' }))}
+                      {item.type === 'medication' ? (tx(lang, { de: 'Med', it: 'Farm', en: 'Med', tr: 'Ilac', fr: 'Med', es: 'Med', ru: 'Лек' })) : (tx(lang, { de: 'Supp', it: 'Int', en: 'Supp', tr: 'Tak', fr: 'Supp', es: 'Supl', ru: 'Доб' }))}
                     </Text>
                   </View>
                 </TouchableOpacity>

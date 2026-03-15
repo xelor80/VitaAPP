@@ -1,8 +1,53 @@
+import os
+import json
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from core.config import db, get_products_collection
 
 router = APIRouter()
+
+LANG_NAMES = {"de": "German", "it": "Italian", "en": "English", "tr": "Turkish", "fr": "French", "es": "Spanish", "ru": "Russian"}
+
+async def translate_recipe(recipe: dict, lang: str) -> dict:
+    """Translate recipe fields using AI and cache in DB."""
+    if lang in recipe:
+        return recipe[lang]
+    
+    source = recipe.get("de", {})
+    if not source:
+        return source
+    
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+        chat = LlmChat(
+            api_key=os.environ['EMERGENT_LLM_KEY'],
+            session_id=f"recipe-translate-{recipe.get('id','')}-{lang}",
+            system_message=f"You are a translator. Translate recipe content to {LANG_NAMES.get(lang, 'English')}. Return ONLY valid JSON, no markdown, no explanation."
+        )
+        
+        prompt = f"""Translate this recipe JSON to {LANG_NAMES.get(lang, 'English')}:
+{{
+  "title": "{source.get('title', '')}",
+  "ingredients": {json.dumps(source.get('ingredients', []), ensure_ascii=False)},
+  "steps": {json.dumps(source.get('steps', []), ensure_ascii=False)},
+  "tags": {json.dumps(source.get('tags', []), ensure_ascii=False)}
+}}"""
+        
+        resp = await chat.send_message(UserMessage(text=prompt))
+        text = str(resp).strip()
+        if text.startswith("```"):
+            text = text.split("\n", 1)[1].rsplit("```", 1)[0].strip()
+        translated = json.loads(text)
+        
+        # Cache in DB
+        await db.recipes.update_one(
+            {"id": recipe["id"]},
+            {"$set": {lang: translated}}
+        )
+        return translated
+    except Exception as e:
+        print(f"Recipe translation error ({lang}): {e}")
+        return source
 
 # Mapping: nutrient key -> (primary_tags, secondary_tags)
 # Primary tags = specific to the nutrient (high relevance)
@@ -370,7 +415,12 @@ async def get_recipes(tags: str = "", lang: str = "de", search: str = "", catego
     
     results = []
     for r in recipes_raw:
-        loc = r.get(lang, r.get("de", {}))
+        if lang in r:
+            loc = r[lang]
+        elif lang in ("de", "it"):
+            loc = r.get("de", {})
+        else:
+            loc = await translate_recipe(r, lang)
         results.append({
             "id": r["id"],
             "title": loc.get("title", ""),
@@ -696,7 +746,13 @@ async def get_recipe_by_id(recipe_id: str, lang: str = "de"):
     if not recipe:
         return {"error": "Recipe not found"}
     
-    loc = recipe.get(lang, recipe.get("de", {}))
+    if lang in recipe:
+        loc = recipe[lang]
+    elif lang in ("de", "it"):
+        loc = recipe.get("de", {})
+    else:
+        loc = await translate_recipe(recipe, lang)
+    
     return {
         "id": recipe["id"],
         "title": loc.get("title", ""),

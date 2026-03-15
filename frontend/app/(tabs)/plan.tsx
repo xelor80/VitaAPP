@@ -9,7 +9,7 @@ import { useLang } from '../../src/LangContext';
 import { tx } from '../../src/i18n';
 import {
   scheduleCombinedReminders,
-  sendTestNotification,
+  sendТестNotification,
   cancelAllReminders,
   ReminderSettings,
   CombinedSchedule,
@@ -124,15 +124,15 @@ export default function PlanScreen() {
             lang
           );
           if (success) {
-            await sendTestNotification(lang);
+            await sendТестNotification(lang);
             Alert.alert(
-              tx(lang, { de: 'Erinnerungen aktiviert', it: 'Promemoria attivati', en: 'Reminders activated', tr: 'Hatirlatmalar etkinlestirildi', fr: 'Rappels actives', es: 'Recordatorios activados', ru: 'Napominaniya aktivirovany' }),
-              tx(lang, { de: 'Sie erhalten Benachrichtigungen fuer Supplements und Medikamente.', it: 'Riceverai notifiche per supplementi e farmaci.', en: 'You will receive notifications for supplements and medications.', tr: 'Takviyeler ve ilaclar icin bildirim alacaksiniz.', fr: 'Vous recevrez des notifications pour les supplements et medicaments.', es: 'Recibira notificaciones para suplementos y medicamentos.', ru: 'Vy budete poluchat uvedomleniya o dobavkakh i lekarstvakh.' })
+              tx(lang, { de: 'Erinnerungen aktiviert', it: 'Promemoria attivati', en: 'Reminders activated', tr: 'Hatirlatmalar etkinlestirildi', fr: 'Rappels actives', es: 'Recordatorios activados', ru: 'Напоминания aktivirovany' }),
+              tx(lang, { de: 'Sie erhalten Benachrichtigungen fuer Supplements und Medikamente.', it: 'Riceverai notifiche per supplementi e farmaci.', en: 'You will receive notifications for supplements and medications.', tr: 'Takviyeler ve ilaclar icin bildirim alacaksiniz.', fr: 'Vous recevrez des notifications pour les supplements et medicaments.', es: 'Recibira notificaciones para suplementos y medicamentos.', ru: 'Вы будете получать уведомления о добавках и лекарствах.' })
             );
           } else {
             Alert.alert(
-              tx(lang, { de: 'Berechtigung erforderlich', it: 'Autorizzazione richiesta', en: 'Permission required', tr: 'Izin gerekli', fr: 'Autorisation requise', es: 'Permiso requerido', ru: 'Trebuetsya razreshenie' }),
-              tx(lang, { de: 'Bitte erlauben Sie Benachrichtigungen in den Einstellungen.', it: 'Consenti le notifiche nelle impostazioni.', en: 'Please allow notifications in settings.', tr: 'Lutfen ayarlarda bildirimlere izin verin.', fr: 'Veuillez autoriser les notifications dans les parametres.', es: 'Por favor permita las notificaciones en la configuracion.', ru: 'Pozhalujsta razreshite uvedomleniya v nastrojkakh.' })
+              tx(lang, { de: 'Berechtigung erforderlich', it: 'Autorizzazione richiesta', en: 'Permission required', tr: 'Izin gerekli', fr: 'Autorisation requise', es: 'Permiso requerido', ru: 'Требуется разрешение' }),
+              tx(lang, { de: 'Bitte erlauben Sie Benachrichtigungen in den Einstellungen.', it: 'Consenti le notifiche nelle impostazioni.', en: 'Please allow notifications in settings.', tr: 'Lutfen ayarlarda bildirimlere izin verin.', fr: 'Veuillez autoriser les notifications dans les parametres.', es: 'Por favor permita las notificaciones en la configuracion.', ru: 'Пожалуйста, разрешите уведомления в настройках.' })
             );
           }
         }
@@ -162,9 +162,9 @@ export default function PlanScreen() {
       {/* Header */}
       <LinearGradient colors={['#1B6B45', '#2E9E6B']} style={s.header}>
         <View style={{ flex: 1 }}>
-          <Text style={s.headerTitle}>{tx(lang, { de: 'Mein Plan', it: 'Il mio Piano', en: 'My Plan', tr: 'Planim', fr: 'Mon Plan', es: 'Mi Plan', ru: 'Moj Plan' })}</Text>
+          <Text style={s.headerTitle}>{tx(lang, { de: 'Mein Plan', it: 'Il mio Piano', en: 'My Plan', tr: 'Planim', fr: 'Mon Plan', es: 'Mi Plan', ru: 'Мой План' })}</Text>
           <Text style={s.headerSubtitle}>
-            {tx(lang, { de: 'Supplements & Medikamente', it: 'Supplementi & Farmaci', en: 'Supplements & Medications', tr: 'Takviyeler ve Ilaclar', fr: 'Supplements & Medicaments', es: 'Suplementos y Medicamentos', ru: 'Dobavki i Lekarstva' })}
+            {tx(lang, { de: 'Supplements & Medikamente', it: 'Supplementi & Farmaci', en: 'Supplements & Medications', tr: 'Takviyeler ve Ilaclar', fr: 'Supplements & Medicaments', es: 'Suplementos y Medicamentos', ru: 'Добavki i Лекarstva' })}
           </Text>
         </View>
         <TouchableOpacity
@@ -183,7 +183,7 @@ export default function PlanScreen() {
       {/* Nav Cards - ganz oben */}
       <Animated.View entering={FadeInDown.delay(100)} style={s.navSection}>
         <Text style={s.navSectionTitle}>
-          {tx(lang, { de: 'Verwalten', it: 'Gestisci', en: 'Manage', tr: 'Yonet', fr: 'Gerer', es: 'Gestionar', ru: 'Upravlenie' })}
+          {tx(lang, { de: 'Verwalten', it: 'Gestisci', en: 'Manage', tr: 'Yonet', fr: 'Gerer', es: 'Gestionar', ru: 'Управление' })}
         </Text>
         <View style={s.navRow}>
           <TouchableOpacity
@@ -193,8 +193,8 @@ export default function PlanScreen() {
           >
             <LinearGradient colors={['#1B6B45', '#2E9E6B']} style={s.navCardGradient}>
               <MaterialCommunityIcons name="pill" size={28} color="#FFF" />
-              <Text style={s.navCardTitle}>{tx(lang, { de: 'Supplements', it: 'Supplementi', en: 'Supplements', tr: 'Takviyeler', fr: 'Supplements', es: 'Suplementos', ru: 'Dobavki' })}</Text>
-              <Text style={s.navCardSub}>{tx(lang, { de: 'Plan ansehen', it: 'Vedi piano', en: 'View plan', tr: 'Plani gor', fr: 'Voir le plan', es: 'Ver plan', ru: 'Smotret plan' })}</Text>
+              <Text style={s.navCardTitle}>{tx(lang, { de: 'Supplements', it: 'Supplementi', en: 'Supplements', tr: 'Takviyeler', fr: 'Supplements', es: 'Suplementos', ru: 'Добavki' })}</Text>
+              <Text style={s.navCardSub}>{tx(lang, { de: 'Plan ansehen', it: 'Vedi piano', en: 'View plan', tr: 'Plani gor', fr: 'Voir le plan', es: 'Ver plan', ru: 'Смотреть план' })}</Text>
             </LinearGradient>
           </TouchableOpacity>
           <TouchableOpacity
@@ -204,8 +204,8 @@ export default function PlanScreen() {
           >
             <LinearGradient colors={['#3B82F6', '#60A5FA']} style={s.navCardGradient}>
               <MaterialCommunityIcons name="medical-bag" size={28} color="#FFF" />
-              <Text style={s.navCardTitle}>{tx(lang, { de: 'Medikamente', it: 'Farmaci', en: 'Medications', tr: 'Ilaclar', fr: 'Medicaments', es: 'Medicamentos', ru: 'Lekarstva' })}</Text>
-              <Text style={s.navCardSub}>{tx(lang, { de: 'Verwalten', it: 'Gestisci', en: 'Manage', tr: 'Yonet', fr: 'Gerer', es: 'Gestionar', ru: 'Upravlenie' })}</Text>
+              <Text style={s.navCardTitle}>{tx(lang, { de: 'Medikamente', it: 'Farmaci', en: 'Medications', tr: 'Ilaclar', fr: 'Medicaments', es: 'Medicamentos', ru: 'Лекarstva' })}</Text>
+              <Text style={s.navCardSub}>{tx(lang, { de: 'Verwalten', it: 'Gestisci', en: 'Manage', tr: 'Yonet', fr: 'Gerer', es: 'Gestionar', ru: 'Управление' })}</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>
@@ -216,7 +216,7 @@ export default function PlanScreen() {
         <Animated.View entering={FadeInDown.delay(150)} style={s.progressCard}>
           <View style={s.progressRow}>
             <Text style={s.progressLabel}>
-              {tx(lang, { de: 'Tagesfortschritt', it: 'Progresso giornaliero', en: 'Daily progress', tr: 'Gunluk ilerleme', fr: 'Progres quotidien', es: 'Progreso diario', ru: 'Dnevnoj progress' })}
+              {tx(lang, { de: 'Tagesfortschritt', it: 'Progresso giornaliero', en: 'Daily progress', tr: 'Gunluk ilerleme', fr: 'Progres quotidien', es: 'Progreso diario', ru: 'Дневной прогресс' })}
             </Text>
             <Text style={s.progressPct}>{pct}%</Text>
           </View>
@@ -224,7 +224,7 @@ export default function PlanScreen() {
             <View style={[s.progressBarFill, { width: `${pct}%` }]} />
           </View>
           <Text style={s.progressDetail}>
-            {checkedItems}/{totalItems} {tx(lang, { de: 'eingenommen', it: 'assunti', en: 'taken', tr: 'alinan', fr: 'pris', es: 'tomados', ru: 'prinyato' })}
+            {checkedItems}/{totalItems} {tx(lang, { de: 'eingenommen', it: 'assunti', en: 'taken', tr: 'alinan', fr: 'pris', es: 'tomados', ru: 'принято' })}
           </Text>
         </Animated.View>
       )}
@@ -234,7 +234,7 @@ export default function PlanScreen() {
         <Animated.View entering={FadeInDown.delay(150)} style={s.reminderCard}>
           <Text style={s.reminderTitle}>
             <MaterialCommunityIcons name="bell-cog-outline" size={18} color="#1B6B45" />
-            {' '}{tx(lang, { de: 'Erinnerungen', it: 'Promemoria', en: 'Reminders', tr: 'Hatirlatmalar', fr: 'Rappels', es: 'Recordatorios', ru: 'Napominaniya' })}
+            {' '}{tx(lang, { de: 'Erinnerungen', it: 'Promemoria', en: 'Reminders', tr: 'Hatirlatmalar', fr: 'Rappels', es: 'Recordatorios', ru: 'Напоминания' })}
           </Text>
 
           <TouchableOpacity
@@ -249,17 +249,17 @@ export default function PlanScreen() {
             />
             <Text style={[s.toggleText, { color: reminders.enabled ? '#1A2D26' : '#8FA39B' }]}>
               {reminders.enabled
-                ? (tx(lang, { de: 'Push-Benachrichtigungen aktiv', it: 'Notifiche push attive', en: 'Push notifications active', tr: 'Bildirimler aktif', fr: 'Notifications push actives', es: 'Notificaciones push activas', ru: 'Push-uvedomleniya aktivny' }))
-                : (tx(lang, { de: 'Push-Benachrichtigungen aus', it: 'Notifiche push disattivate', en: 'Push notifications off', tr: 'Bildirimler kapali', fr: 'Notifications push desactivees', es: 'Notificaciones push desactivadas', ru: 'Push-uvedomleniya otklyucheny' }))}
+                ? (tx(lang, { de: 'Push-Benachrichtigungen aktiv', it: 'Notifiche push attive', en: 'Push notifications active', tr: 'Bildirimler aktif', fr: 'Notifications push actives', es: 'Notificaciones push activas', ru: 'Push-уведомления активны' }))
+                : (tx(lang, { de: 'Push-Benachrichtigungen aus', it: 'Notifiche push disattivate', en: 'Push notifications off', tr: 'Bildirimler kapali', fr: 'Notifications push desactivees', es: 'Notificaciones push desactivadas', ru: 'Push-уведомления отключены' }))}
             </Text>
           </TouchableOpacity>
 
           {reminders.enabled && (
             <View style={{ gap: 10, marginTop: 8 }}>
               {[
-                { key: 'morning_time', timing: 'morning', icon: 'weather-sunny', label: tx(lang, { de: 'Morgens', it: 'Mattina', en: 'Morning', tr: 'Sabah', fr: 'Matin', es: 'Manana', ru: 'Utro' }), color: '#FF9800' },
-                { key: 'noon_time', timing: 'noon', icon: 'weather-partly-cloudy', label: tx(lang, { de: 'Mittags', it: 'Mezzogiorno', en: 'Noon', tr: 'Ogle', fr: 'Midi', es: 'Mediodia', ru: 'Polden' }), color: '#2E9E6B' },
-                { key: 'evening_time', timing: 'evening', icon: 'weather-night', label: tx(lang, { de: 'Abends', it: 'Sera', en: 'Evening', tr: 'Aksam', fr: 'Soir', es: 'Noche', ru: 'Vecher' }), color: '#5C6BC0' },
+                { key: 'morning_time', timing: 'morning', icon: 'weather-sunny', label: tx(lang, { de: 'Morgens', it: 'Mattina', en: 'Morning', tr: 'Sabah', fr: 'Matin', es: 'Manana', ru: 'Утро' }), color: '#FF9800' },
+                { key: 'noon_time', timing: 'noon', icon: 'weather-partly-cloudy', label: tx(lang, { de: 'Mittags', it: 'Mezzogiorno', en: 'Noon', tr: 'Ogle', fr: 'Midi', es: 'Mediodia', ru: 'Полдень' }), color: '#2E9E6B' },
+                { key: 'evening_time', timing: 'evening', icon: 'weather-night', label: tx(lang, { de: 'Abends', it: 'Sera', en: 'Evening', tr: 'Aksam', fr: 'Soir', es: 'Noche', ru: 'Вечер' }), color: '#5C6BC0' },
               ].map(({ key, timing, icon, label, color }) => {
                 const combined = buildCombinedSchedule();
                 const items = combined[timing as keyof CombinedSchedule] || [];
@@ -287,7 +287,7 @@ export default function PlanScreen() {
                           <View style={[s.previewBadge, { backgroundColor: '#E8F5E9' }]}>
                             <MaterialCommunityIcons name="pill" size={12} color="#1B6B45" />
                             <Text style={[s.previewBadgeText, { color: '#1B6B45' }]}>
-                              {suppCount} {tx(lang, { de: 'Supp.', it: 'Int.', en: 'Supp.', tr: 'Tak.', fr: 'Supp.', es: 'Supl.', ru: 'Dob.' })}
+                              {suppCount} {tx(lang, { de: 'Supp.', it: 'Int.', en: 'Supp.', tr: 'Tak.', fr: 'Supp.', es: 'Supl.', ru: 'Доб.' })}
                             </Text>
                           </View>
                         )}
@@ -295,7 +295,7 @@ export default function PlanScreen() {
                           <View style={[s.previewBadge, { backgroundColor: '#E3F2FD' }]}>
                             <MaterialCommunityIcons name="medical-bag" size={12} color="#3B82F6" />
                             <Text style={[s.previewBadgeText, { color: '#3B82F6' }]}>
-                              {medCount} {tx(lang, { de: 'Med.', it: 'Farm.', en: 'Med.', tr: 'Ilac.', fr: 'Med.', es: 'Med.', ru: 'Lek.' })}
+                              {medCount} {tx(lang, { de: 'Med.', it: 'Farm.', en: 'Med.', tr: 'Ilac.', fr: 'Med.', es: 'Med.', ru: 'Лек.' })}
                             </Text>
                           </View>
                         )}
@@ -311,14 +311,14 @@ export default function PlanScreen() {
           )}
 
           <View style={s.reminderBtns}>
-            <TouchableOpacity style={s.testBtn} onPress={() => sendTestNotification(lang)} data-testid="test-notification-btn">
+            <TouchableOpacity style={s.testBtn} onPress={() => sendТестNotification(lang)} data-testid="test-notification-btn">
               <MaterialCommunityIcons name="bell-ring" size={16} color="#1B6B45" />
-              <Text style={s.testBtnText}>{tx(lang, { de: 'Testen', it: 'Prova', en: 'Test', tr: 'Test', fr: 'Tester', es: 'Probar', ru: 'Test' })}</Text>
+              <Text style={s.testBtnText}>{tx(lang, { de: 'Тестen', it: 'Prova', en: 'Тест', tr: 'Тест', fr: 'Тестer', es: 'Probar', ru: 'Тест' })}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={s.saveBtn} onPress={saveReminders} data-testid="save-reminders-btn">
               <LinearGradient colors={['#1B6B45', '#2E9E6B']} style={s.saveBtnGradient}>
                 <MaterialCommunityIcons name="content-save" size={16} color="#FFF" />
-                <Text style={s.saveBtnText}>{tx(lang, { de: 'Speichern', it: 'Salva', en: 'Save', tr: 'Kaydet', fr: 'Enregistrer', es: 'Guardar', ru: 'Sokhranit' })}</Text>
+                <Text style={s.saveBtnText}>{tx(lang, { de: 'Speichern', it: 'Salva', en: 'Save', tr: 'Kaydet', fr: 'Enregistrer', es: 'Guardar', ru: 'Сохранить' })}</Text>
               </LinearGradient>
             </TouchableOpacity>
           </View>
@@ -358,8 +358,8 @@ export default function PlanScreen() {
                     <View style={[s.typeBadge, item.type === 'medication' ? s.typeBadgeMed : s.typeBadgeSupp]}>
                       <Text style={[s.typeBadgeText, item.type === 'medication' ? s.typeBadgeTextMed : s.typeBadgeTextSupp]}>
                         {item.type === 'medication'
-                          ? (tx(lang, { de: 'Med', it: 'Farm', en: 'Med', tr: 'Ilac', fr: 'Med', es: 'Med', ru: 'Lek' }))
-                          : (tx(lang, { de: 'Supp', it: 'Int', en: 'Supp', tr: 'Tak', fr: 'Supp', es: 'Supl', ru: 'Dob' }))}
+                          ? (tx(lang, { de: 'Med', it: 'Farm', en: 'Med', tr: 'Ilac', fr: 'Med', es: 'Med', ru: 'Лек' }))
+                          : (tx(lang, { de: 'Supp', it: 'Int', en: 'Supp', tr: 'Tak', fr: 'Supp', es: 'Supl', ru: 'Доб' }))}
                       </Text>
                     </View>
                   </View>
@@ -376,7 +376,7 @@ export default function PlanScreen() {
         <View style={s.emptyCard}>
           <MaterialCommunityIcons name="clipboard-text-outline" size={48} color="#C4CEC8" />
           <Text style={s.emptyText}>
-            {tx(lang, { de: 'Noch kein Einnahmeplan vorhanden.\nFuege Supplements oder Medikamente hinzu.', it: 'Nessun piano ancora.\nAggiungi supplementi o farmaci.', en: 'No intake plan yet.\nAdd supplements or medications.', tr: 'Henuz alim plani yok.\nTakviye veya ilac ekleyin.', fr: 'Pas encore de plan.\nAjoutez des supplements ou medicaments.', es: 'Aun no hay plan.\nAgregue suplementos o medicamentos.', ru: 'Plana priema poka net.\nDobavte dobavki ili lekarstva.' })}
+            {tx(lang, { de: 'Noch kein Einnahmeplan vorhanden.\nFuege Supplements oder Medikamente hinzu.', it: 'Nessun piano ancora.\nAggiungi supplementi o farmaci.', en: 'No intake plan yet.\nAdd supplements or medications.', tr: 'Henuz alim plani yok.\nTakviye veya ilac ekleyin.', fr: 'Pas encore de plan.\nAjoutez des supplements ou medicaments.', es: 'Aun no hay plan.\nAgregue suplementos o medicamentos.', ru: 'Плана приёма пока нет.\nДобавьте добавки или лекарства.' })}
           </Text>
         </View>
       )}
@@ -385,7 +385,7 @@ export default function PlanScreen() {
       <View style={s.disclaimer}>
         <MaterialCommunityIcons name="information-outline" size={14} color="#8FA39B" />
         <Text style={s.disclaimerText}>
-          {tx(lang, { de: 'Diese App dokumentiert nur Ihre Eingaben und ersetzt keine aerztliche Beratung.', it: 'Questa app documenta solo i tuoi dati e non sostituisce il consulto medico.', en: 'This app only documents your inputs and does not replace medical advice.', tr: 'Bu uygulama yalnizca girdiginiz verileri kaydeder ve tibbi tavsiyenin yerini almaz.', fr: 'Cette application ne fait que documenter vos saisies et ne remplace pas un avis medical.', es: 'Esta aplicacion solo documenta sus datos y no reemplaza el consejo medico.', ru: 'Eto prilozhenie tolko dokumentiruet vashi dannye i ne zamenyaet meditsinskuyu konsultatsiyu.' })}
+          {tx(lang, { de: 'Diese App dokumentiert nur Ihre Eingaben und ersetzt keine aerztliche Beratung.', it: 'Questa app documenta solo i tuoi dati e non sostituisce il consulto medico.', en: 'This app only documents your inputs and does not replace medical advice.', tr: 'Bu uygulama yalnizca girdiginiz verileri kaydeder ve tibbi tavsiyenin yerini almaz.', fr: 'Cette application ne fait que documenter vos saisies et ne remplace pas un avis medical.', es: 'Esta aplicacion solo documenta sus datos y no reemplaza el consejo medico.', ru: 'Это приложение только документирует ваши данные и не заменяет медицинскую консультацию.' })}
         </Text>
       </View>
     </ScrollView>

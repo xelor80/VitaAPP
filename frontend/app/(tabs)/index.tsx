@@ -126,8 +126,8 @@ export default function DashboardHome() {
   const analyzeSymptoms = useCallback(async () => {
     if (!symptomText.trim() && selectedTags.length === 0) {
       Alert.alert(
-        tx(lang, { de: 'Hinweis', it: 'Avviso', en: 'Notice', tr: 'Uyari', fr: 'Avis', es: 'Aviso', ru: 'Uvedomlenie' }),
-        tx(lang, { de: 'Bitte beschreiben Sie Ihre Symptome oder waehlen Sie einen Bereich aus.', it: 'Descrivete i vostri sintomi o selezionate un area.', en: 'Please describe your symptoms or select an area.', tr: 'Lutfen belirtilerinizi tanimlayin veya bir alan secin.', fr: 'Veuillez decrire vos symptomes ou selectionner un domaine.', es: 'Por favor describa sus sintomas o seleccione un area.', ru: 'Pozhalujsta opishite svoi simptomy ili vyberite oblast.' })
+        tx(lang, { de: 'Hinweis', it: 'Avviso', en: 'Notice', tr: 'Uyari', fr: 'Avis', es: 'Aviso', ru: 'Уведомление' }),
+        tx(lang, { de: 'Bitte beschreiben Sie Ihre Symptome oder waehlen Sie einen Bereich aus.', it: 'Descrivete i vostri sintomi o selezionate un area.', en: 'Please describe your symptoms or select an area.', tr: 'Lutfen belirtilerinizi tanimlayin veya bir alan secin.', fr: 'Veuillez decrire vos symptomes ou selectionner un domaine.', es: 'Por favor describa sus sintomas o seleccione un area.', ru: 'Пожалуйста, опишите свои симптомы или выберите область.' })
       );
       return;
     }
@@ -156,9 +156,9 @@ export default function DashboardHome() {
   if (!disclaimerAccepted) return <DisclaimerScreen lang={lang} onAccept={acceptDisclaimer} />;
 
   const greeting = firstName
-    ? (tx(lang, { de: `Hallo ${firstName},`, it: `Ciao ${firstName},`, en: `Hello ${firstName},`, tr: `Merhaba ${firstName},`, fr: `Bonjour ${firstName},`, es: `Hola ${firstName},`, ru: `Privet ${firstName},` }))
-    : (tx(lang, { de: 'Willkommen!', it: 'Benvenuto!', en: 'Welcome!', tr: 'Hosgeldiniz!', fr: 'Bienvenue!', es: 'Bienvenido!', ru: 'Dobro pozhalovat!' }));
-  const subtitle = tx(lang, { de: 'Willkommen zurueck!', it: 'Bentornato!', en: 'Welcome back!', tr: 'Tekrar hosgeldiniz!', fr: 'Bon retour!', es: 'Bienvenido de nuevo!', ru: 'S vozvrashcheniem!' });
+    ? (tx(lang, { de: `Hallo ${firstName},`, it: `Ciao ${firstName},`, en: `Hello ${firstName},`, tr: `Merhaba ${firstName},`, fr: `Bonjour ${firstName},`, es: `Hola ${firstName},`, ru: `Привет ${firstName},` }))
+    : (tx(lang, { de: 'Willkommen!', it: 'Benvenuto!', en: 'Welcome!', tr: 'Hosgeldiniz!', fr: 'Bienvenue!', es: 'Bienvenido!', ru: 'Добro pozhalovat!' }));
+  const subtitle = tx(lang, { de: 'Willkommen zurueck!', it: 'Bentornato!', en: 'Welcome back!', tr: 'Tekrar hosgeldiniz!', fr: 'Bon retour!', es: 'Bienvenido de nuevo!', ru: 'С возвращением!' });
   const earnedCount = achievements?.earned?.length || 0;
 
   return (
@@ -196,13 +196,13 @@ export default function DashboardHome() {
             data-testid="supplement-plan-card"
           >
             <LinearGradient colors={['#1B8A5A', '#2EAD6E']} style={s.featureGradient}>
-              <Text style={s.featureTitle}>{tx(lang, { de: 'Dein\nEinnahme Plan', it: 'Il tuo\nPiano Assunzione', en: 'Your\nIntake Plan', tr: 'Alim\nPlanin', fr: 'Votre\nPlan de Prise', es: 'Tu\nPlan de Toma', ru: 'Vash\nPlan Priema' })}</Text>
+              <Text style={s.featureTitle}>{tx(lang, { de: 'Dein\nEinnahme Plan', it: 'Il tuo\nPiano Assunzione', en: 'Your\nIntake Plan', tr: 'Alım\nPlanın', fr: 'Votre\nPlan de Prise', es: 'Tu\nPlan de Toma', ru: 'Ваш\nПлан Приема' })}</Text>
               <MaterialCommunityIcons name="pill" size={40} color="rgba(255,255,255,0.3)" style={s.featureIcon} />
               <Text style={s.featureStat}>
-                {hasPlan ? (tx(lang, { de: 'Plan aktiv', it: 'Piano attivo', en: 'Plan active', tr: 'Plan aktif', fr: 'Plan actif', es: 'Plan activo', ru: 'Plan aktiven' })) : (tx(lang, { de: 'Plan erstellen', it: 'Crea piano', en: 'Create plan', tr: 'Plan olustur', fr: 'Creer un plan', es: 'Crear plan', ru: 'Sozdat plan' }))}
+                {hasPlan ? (tx(lang, { de: 'Plan aktiv', it: 'Piano attivo', en: 'Plan active', tr: 'Plan aktif', fr: 'Plan actif', es: 'Plan activo', ru: 'План активен' })) : (tx(lang, { de: 'Plan erstellen', it: 'Crea piano', en: 'Create plan', tr: 'Plan olustur', fr: 'Creer un plan', es: 'Crear plan', ru: 'Создать план' }))}
               </Text>
               <View style={s.featureCta}>
-                <Text style={s.featureCtaText}>{tx(lang, { de: 'Zum Plan', it: 'Al piano', en: 'To plan', tr: 'Plana git', fr: 'Au plan', es: 'Al plan', ru: 'K planu' })}</Text>
+                <Text style={s.featureCtaText}>{tx(lang, { de: 'Zum Plan', it: 'Al piano', en: 'To plan', tr: 'Plana git', fr: 'Au plan', es: 'Al plan', ru: 'К плану' })}</Text>
                 <MaterialCommunityIcons name="chevron-right" size={18} color="#1B6B45" />
               </View>
             </LinearGradient>
@@ -216,15 +216,15 @@ export default function DashboardHome() {
             data-testid="progress-card"
           >
             <LinearGradient colors={['#E8820C', '#F5A623']} style={s.featureGradient}>
-              <Text style={s.featureTitle}>{tx(lang, { de: 'Deine\nFortschritte', it: 'I tuoi\nProgressi', en: 'Your\nProgress', tr: 'Ilerleme\nDurumun', fr: 'Vos\nProgres', es: 'Tu\nProgreso', ru: 'Vash\nProgress' })}</Text>
+              <Text style={s.featureTitle}>{tx(lang, { de: 'Deine\nFortschritte', it: 'I tuoi\nProgressi', en: 'Your\nProgress', tr: 'İlerleme\nDurumun', fr: 'Vos\nProgres', es: 'Tu\nProgreso', ru: 'Ваш\nПрогресс' })}</Text>
               <MaterialCommunityIcons name="chart-line" size={40} color="rgba(255,255,255,0.3)" style={s.featureIcon} />
               <Text style={s.featureStat}>
                 {earnedCount > 0
-                  ? (tx(lang, { de: `${earnedCount} Ziele erreicht!`, it: `${earnedCount} obiettivi!`, en: `${earnedCount} goals reached!`, tr: `${earnedCount} hedef ulasildi!`, fr: `${earnedCount} objectifs atteints!`, es: `${earnedCount} objetivos alcanzados!`, ru: `${earnedCount} celej dostigmuto!` }))
-                  : (tx(lang, { de: 'Fortschritt tracken', it: 'Traccia progressi', en: 'Track progress', tr: 'Ilerlemeyi takip et', fr: 'Suivre les progres', es: 'Seguir progreso', ru: 'Otslezhivat progress' }))}
+                  ? (tx(lang, { de: `${earnedCount} Ziele erreicht!`, it: `${earnedCount} obiettivi!`, en: `${earnedCount} goals reached!`, tr: `${earnedCount} hedef ulasildi!`, fr: `${earnedCount} objectifs atteints!`, es: `${earnedCount} objetivos alcanzados!`, ru: `${earnedCount} целей достигнуто!` }))
+                  : (tx(lang, { de: 'Fortschritt tracken', it: 'Traccia progressi', en: 'Track progress', tr: 'Ilerlemeyi takip et', fr: 'Suivre les progres', es: 'Seguir progreso', ru: 'Отслеживать прогресс' }))}
               </Text>
               <View style={s.featureCta}>
-                <Text style={[s.featureCtaText, { color: '#9E5500' }]}>{tx(lang, { de: 'Ansehen', it: 'Visualizza', en: 'View', tr: 'Goruntule', fr: 'Voir', es: 'Ver', ru: 'Prosmotr' })}</Text>
+                <Text style={[s.featureCtaText, { color: '#9E5500' }]}>{tx(lang, { de: 'Ansehen', it: 'Visualizza', en: 'View', tr: 'Goruntule', fr: 'Voir', es: 'Ver', ru: 'Просмотр' })}</Text>
                 <MaterialCommunityIcons name="chevron-right" size={18} color="#9E5500" />
               </View>
             </LinearGradient>
@@ -242,8 +242,8 @@ export default function DashboardHome() {
           <View style={s.analysisLeft}>
             <MaterialCommunityIcons name="magnify" size={28} color="#2E7D52" />
             <View style={{ marginLeft: 12, flex: 1 }}>
-              <Text style={s.analysisTitle}>{tx(lang, { de: 'Symptom-Analyse', it: 'Analisi sintomi', en: 'Symptom Analysis', tr: 'Semptom Analizi', fr: 'Analyse des symptomes', es: 'Analisis de sintomas', ru: 'Analiz simptomov' })}</Text>
-              <Text style={s.analysisSub}>{tx(lang, { de: 'Beschreibe deine Symptome', it: 'Descrivi i tuoi sintomi', en: 'Describe your symptoms', tr: 'Belirtilerinizi tanimlayin', fr: 'Decrivez vos symptomes', es: 'Describa sus sintomas', ru: 'Opishite svoi simptomy' })}</Text>
+              <Text style={s.analysisTitle}>{tx(lang, { de: 'Symptom-Analyse', it: 'Analisi sintomi', en: 'Symptom Analysis', tr: 'Semptom Анализi', fr: 'Analyse des symptomes', es: 'Analisis de sintomas', ru: 'Анализ simptomov' })}</Text>
+              <Text style={s.analysisSub}>{tx(lang, { de: 'Beschreibe deine Symptome', it: 'Descrivi i tuoi sintomi', en: 'Describe your symptoms', tr: 'Belirtilerinizi tanimlayin', fr: 'Decrivez vos symptomes', es: 'Describa sus sintomas', ru: 'Опишите свои симптомы' })}</Text>
             </View>
           </View>
           <MaterialCommunityIcons name={showAnalysis ? 'chevron-up' : 'chevron-down'} size={24} color="#2E7D52" />
@@ -270,8 +270,8 @@ export default function DashboardHome() {
         {/* Recipes Section */}
         <View style={s.sectionHeader}>
           <View>
-            <Text style={s.sectionTitle}>{tx(lang, { de: 'Passende Rezepte fuer dich', it: 'Ricette adatte a te', en: 'Recipes for you', tr: 'Senin icin tarifler', fr: 'Recettes pour vous', es: 'Recetas para ti', ru: 'Retsepty dlya vas' })}</Text>
-            <Text style={s.sectionSub}>{tx(lang, { de: 'Gesund & lecker', it: 'Sano e gustoso', en: 'Healthy & delicious', tr: 'Saglikli ve lezzetli', fr: 'Sain et delicieux', es: 'Saludable y delicioso', ru: 'Polezno i vkusno' })}</Text>
+            <Text style={s.sectionTitle}>{tx(lang, { de: 'Passende Rezepte fuer dich', it: 'Ricette adatte a te', en: 'Recipes for you', tr: 'Senin icin tarifler', fr: 'Recettes pour vous', es: 'Recetas para ti', ru: 'Рецепты для вас' })}</Text>
+            <Text style={s.sectionSub}>{tx(lang, { de: 'Gesund & lecker', it: 'Sano e gustoso', en: 'Healthy & delicious', tr: 'Saglikli ve lezzetli', fr: 'Sain et delicieux', es: 'Saludable y delicioso', ru: 'Полезно и вкусно' })}</Text>
           </View>
           <TouchableOpacity onPress={() => router.push('/recipes-catalog' as any)} data-testid="recipes-see-all">
             <MaterialCommunityIcons name="chevron-right" size={28} color="#6B7280" />
@@ -303,7 +303,7 @@ export default function DashboardHome() {
               </TouchableOpacity>
             ))
           ) : (
-            <Text style={{ color: '#9CA3AF', padding: 12 }}>{tx(lang, { de: 'Keine Rezepte vorhanden', it: 'Nessuna ricetta disponibile', en: 'No recipes available', tr: 'Tarif bulunamadi', fr: 'Aucune recette disponible', es: 'No hay recetas disponibles', ru: 'Net dostupnykh retseptov' })}</Text>
+            <Text style={{ color: '#9CA3AF', padding: 12 }}>{tx(lang, { de: 'Keine Rezepte vorhanden', it: 'Nessuna ricetta disponibile', en: 'No recipes available', tr: 'Tarif bulunamadi', fr: 'Aucune recette disponible', es: 'No hay recetas disponibles', ru: 'Нет доступных рецептов' })}</Text>
           )}
         </ScrollView>
 
@@ -320,12 +320,12 @@ export default function DashboardHome() {
             <View style={[s.infoIconWrap, { backgroundColor: '#E8F5E9' }]}>
               <MaterialCommunityIcons name="heart-pulse" size={22} color="#2E7D52" />
             </View>
-            <Text style={s.infoTitle}>{tx(lang, { de: 'Dein\nGesundheitsstatus', it: 'Il tuo\nStato di Salute', en: 'Your\nHealth Status', tr: 'Saglik\nDurumun', fr: 'Votre\nEtat de Sante', es: 'Tu\nEstado de Salud', ru: 'Vashe\nZdorovye' })}</Text>
+            <Text style={s.infoTitle}>{tx(lang, { de: 'Dein\nGesundheitsstatus', it: 'Il tuo\nStato di Salute', en: 'Your\nHealth Status', tr: 'Saglik\nDurumun', fr: 'Votre\nEtat de Sante', es: 'Tu\nEstado de Salud', ru: 'Ваше\nЗдоровье' })}</Text>
             {healthScore !== null && (
               <Text style={[s.infoScore, { color: '#2E7D52' }]}>{healthScore}/100</Text>
             )}
             <View style={s.infoCta}>
-              <Text style={[s.infoCtaText, { color: '#2E7D52' }]}>{tx(lang, { de: 'Profil ansehen', it: 'Vedi profilo', en: 'View profile', tr: 'Profili gor', fr: 'Voir le profil', es: 'Ver perfil', ru: 'Smotret profil' })}</Text>
+              <Text style={[s.infoCtaText, { color: '#2E7D52' }]}>{tx(lang, { de: 'Profil ansehen', it: 'Vedi profilo', en: 'View profile', tr: 'Profili gor', fr: 'Voir le profil', es: 'Ver perfil', ru: 'Смотреть профиль' })}</Text>
               <MaterialCommunityIcons name="chevron-right" size={16} color="#2E7D52" />
             </View>
           </TouchableOpacity>
@@ -340,9 +340,9 @@ export default function DashboardHome() {
             <View style={[s.infoIconWrap, { backgroundColor: '#FFF3E0' }]}>
               <MaterialCommunityIcons name="book-open-variant" size={22} color="#E8820C" />
             </View>
-            <Text style={s.infoTitle}>{tx(lang, { de: 'Gesundheits-\nTipps', it: 'Consigli\nSalute', en: 'Health\nTips', tr: 'Saglik\nIpuclari', fr: 'Conseils\nSante', es: 'Consejos\nSalud', ru: 'Sovety\nZdorovye' })}</Text>
+            <Text style={s.infoTitle}>{tx(lang, { de: 'Gesundheits-\nTipps', it: 'Consigli\nSalute', en: 'Health\nTips', tr: 'Sağlık\nİpuçları', fr: 'Conseils\nSante', es: 'Consejos\nSalud', ru: 'Советы\nЗдоровье' })}</Text>
             <View style={s.infoCta}>
-              <Text style={[s.infoCtaText, { color: '#E8820C' }]}>{tx(lang, { de: 'Nuetzliche Infos', it: 'Info utili', en: 'Useful Info', tr: 'Faydali Bilgiler', fr: 'Infos utiles', es: 'Informacion util', ru: 'Poleznaya informatsiya' })}</Text>
+              <Text style={[s.infoCtaText, { color: '#E8820C' }]}>{tx(lang, { de: 'Nuetzliche Infos', it: 'Info utili', en: 'Useful Info', tr: 'Faydali Bilgiler', fr: 'Infos utiles', es: 'Informacion util', ru: 'Полезная информация' })}</Text>
               <MaterialCommunityIcons name="chevron-right" size={16} color="#E8820C" />
             </View>
           </TouchableOpacity>
@@ -357,8 +357,8 @@ export default function DashboardHome() {
         >
           <MaterialCommunityIcons name="notebook-outline" size={24} color="#6366F1" />
           <View style={{ marginLeft: 12, flex: 1 }}>
-            <Text style={s.trackingTitle}>{tx(lang, { de: 'Tagebuch & Tracking', it: 'Diario & Tracking', en: 'Diary & Tracking', tr: 'Gunce ve Takip', fr: 'Journal & Suivi', es: 'Diario & Seguimiento', ru: 'Dnevnik i Otslezhivanie' })}</Text>
-            <Text style={s.trackingSub}>{tx(lang, { de: 'Schlaf, Energie & Wohlbefinden', it: 'Sonno, Energia & Benessere', en: 'Sleep, Energy & Wellbeing', tr: 'Uyku, Enerji ve Saglik', fr: 'Sommeil, Energie & Bien-etre', es: 'Sueno, Energia y Bienestar', ru: 'Son, Energiya i Samochuvstvie' })}</Text>
+            <Text style={s.trackingTitle}>{tx(lang, { de: 'Tagebuch & Tracking', it: 'Diario & Tracking', en: 'Diary & Tracking', tr: 'Gunce ve Takip', fr: 'Journal & Suivi', es: 'Diario & Seguimiento', ru: 'Дневник и Отслеживание' })}</Text>
+            <Text style={s.trackingSub}>{tx(lang, { de: 'Schlaf, Energie & Wohlbefinden', it: 'Sonno, Energia & Benessere', en: 'Sleep, Energy & Wellbeing', tr: 'Uyku, Enerji ve Saglik', fr: 'Sommeil, Energie & Bien-etre', es: 'Sueno, Energia y Bienestar', ru: 'Сон, Энергия и Самочувствие' })}</Text>
           </View>
           <MaterialCommunityIcons name="chevron-right" size={24} color="#6366F1" />
         </TouchableOpacity>
@@ -372,7 +372,7 @@ export default function DashboardHome() {
             lang === 'tr' ? 'Dil' :
             lang === 'fr' ? 'Langue' :
             lang === 'es' ? 'Idioma' :
-            'Yazyk'
+            'Язык'
           }</Text>
           <View style={s.langRow}>
             {([
@@ -382,7 +382,7 @@ export default function DashboardHome() {
               { code: 'tr' as const, flag: '\u{1F1F9}\u{1F1F7}', label: 'Turkce' },
               { code: 'fr' as const, flag: '\u{1F1EB}\u{1F1F7}', label: 'Francais' },
               { code: 'es' as const, flag: '\u{1F1EA}\u{1F1F8}', label: 'Espanol' },
-              { code: 'ru' as const, flag: '\u{1F1F7}\u{1F1FA}', label: 'Russkij' },
+              { code: 'ru' as const, flag: '\u{1F1F7}\u{1F1FA}', label: 'Русский' },
             ]).map(item => (
               <TouchableOpacity
                 key={item.code}

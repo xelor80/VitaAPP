@@ -239,10 +239,10 @@ export default function SupplementPlanScreen() {
         <View style={styles.emptyState}>
           <MaterialCommunityIcons name="pill" size={64} color="#4A8B71" />
           <Text style={styles.emptyTitle}>
-            {tx(lang, { de: 'Supplement-Plan erstellen', it: 'Crea piano integratori', en: 'Create supplement plan', tr: 'Takviye plani olustur', fr: 'Creer un plan de supplements', es: 'Crear plan de suplementos', ru: 'Sozdat plan dobavok' })}
+            {tx(lang, { de: 'Supplement-Plan erstellen', it: 'Crea piano integratori', en: 'Create supplement plan', tr: 'Takviye plani olustur', fr: 'Creer un plan de supplements', es: 'Crear plan de suplementos', ru: 'Создать план dobavok' })}
           </Text>
           <Text style={styles.emptySubtitle}>
-            {tx(lang, { de: 'Basierend auf Ihrem Gesundheitsprofil erstellen wir Ihren personalisierten 8-Wochen-Plan.', it: 'In base al tuo profilo salute creiamo il tuo piano personalizzato di 8 settimane.', en: 'Based on your health profile we create your personalized 8-week plan.', tr: 'Saglik profilinize gore 8 haftalik kisisel planinizi olusturuyoruz.', fr: 'Sur la base de votre profil sante nous creons votre plan personnalise de 8 semaines.', es: 'Basandonos en su perfil de salud creamos su plan personalizado de 8 semanas.', ru: 'Na osnove vashego profilya zdorovya my sozdaem vash personalnyj 8-nedelnij plan.' })}
+            {tx(lang, { de: 'Basierend auf Ihrem Gesundheitsprofil erstellen wir Ihren personalisierten 8-Wochen-Plan.', it: 'In base al tuo profilo salute creiamo il tuo piano personalizzato di 8 settimane.', en: 'Based on your health profile we create your personalized 8-week plan.', tr: 'Saglik profilinize gore 8 haftalik kisisel planinizi olusturuyoruz.', fr: 'Sur la base de votre profil sante nous creons votre plan personnalise de 8 semaines.', es: 'Basandonos en su perfil de salud creamos su plan personalizado de 8 semanas.', ru: 'На основе вашего профиля здоровья мы создаем ваш персональный 8-недельный план.' })}
           </Text>
           <TouchableOpacity
             data-testid="generate-plan-btn"
@@ -256,14 +256,14 @@ export default function SupplementPlanScreen() {
               <>
                 <MaterialCommunityIcons name="creation" size={20} color="#FFFFFF" />
                 <Text style={styles.generateButtonText}>
-                  {tx(lang, { de: 'Plan generieren', it: 'Genera piano', en: 'Generate plan', tr: 'Plan olustur', fr: 'Generer le plan', es: 'Generar plan', ru: 'Sgenerirovat plan' })}
+                  {tx(lang, { de: 'Plan generieren', it: 'Genera piano', en: 'Generate plan', tr: 'Plan olustur', fr: 'Generer le plan', es: 'Generar plan', ru: 'Сгенерировать план' })}
                 </Text>
               </>
             )}
           </TouchableOpacity>
           {canGoBack && (
             <TouchableOpacity style={styles.backLink} onPress={() => router.back()}>
-              <Text style={styles.backLinkText}>{tx(lang, { de: 'Zurueck', it: 'Indietro', en: 'Back', tr: 'Geri', fr: 'Retour', es: 'Atras', ru: 'Nazad' })}</Text>
+              <Text style={styles.backLinkText}>{tx(lang, { de: 'Zurueck', it: 'Indietro', en: 'Back', tr: 'Geri', fr: 'Retour', es: 'Atras', ru: 'Назад' })}</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -289,11 +289,11 @@ export default function SupplementPlanScreen() {
           <View style={{ flex: 1 }}>
             <Text style={ns.headerGreeting}>
               {firstName
-                ? (tx(lang, { de: `Hallo ${firstName}`, it: `Ciao ${firstName}`, en: `Hello ${firstName}`, tr: `Merhaba ${firstName}`, fr: `Bonjour ${firstName}`, es: `Hola ${firstName}`, ru: `Privet ${firstName}` }))
-                : (tx(lang, { de: 'Hallo', it: 'Ciao', en: 'Hello', tr: 'Merhaba', fr: 'Bonjour', es: 'Hola', ru: 'Privet' }))}
+                ? (tx(lang, { de: `Hallo ${firstName}`, it: `Ciao ${firstName}`, en: `Hello ${firstName}`, tr: `Merhaba ${firstName}`, fr: `Bonjour ${firstName}`, es: `Hola ${firstName}`, ru: `Привет ${firstName}` }))
+                : (tx(lang, { de: 'Hallo', it: 'Ciao', en: 'Hello', tr: 'Merhaba', fr: 'Bonjour', es: 'Hola', ru: 'Привет' }))}
             </Text>
             <Text style={ns.headerSubtitle}>
-              {tx(lang, { de: 'Dein Supplement-Plan fuer heute', it: 'Il tuo piano integratori per oggi', en: 'Your supplement plan for today', tr: 'Bugunun takviye plani', fr: 'Votre plan de supplements pour aujourdhui', es: 'Tu plan de suplementos para hoy', ru: 'Vash plan dobavok na segodnya' })}
+              {tx(lang, { de: 'Dein Supplement-Plan fuer heute', it: 'Il tuo piano integratori per oggi', en: 'Your supplement plan for today', tr: 'Bugunun takviye plani', fr: 'Votre plan de supplements pour aujourdhui', es: 'Tu plan de suplementos para hoy', ru: 'Ваш план добавок на сегодня' })}
             </Text>
           </View>
           <MaterialCommunityIcons name="white-balance-sunny" size={36} color="#FFD54F" />
@@ -317,7 +317,7 @@ export default function SupplementPlanScreen() {
           <View style={styles.warningsCard}>
             <Text style={styles.warningsTitle}>
               <MaterialCommunityIcons name="alert" size={18} color="#DC2626" />
-              {' '}{tx(lang, { de: 'Wichtige Hinweise', it: 'Note importanti', en: 'Important notes', tr: 'Onemli notlar', fr: 'Notes importantes', es: 'Notas importantes', ru: 'Vazhnye zamechaniya' })}
+              {' '}{tx(lang, { de: 'Wichtige Hinweise', it: 'Note importanti', en: 'Important notes', tr: 'Onemli notlar', fr: 'Notes importantes', es: 'Notas importantes', ru: 'Важные замечания' })}
             </Text>
             {plan.warnings.map((w: string, i: number) => (
               <Text key={i} style={styles.warningText}>{w}</Text>
@@ -330,8 +330,8 @@ export default function SupplementPlanScreen() {
         <View style={styles.tabs}>
           {[
             { key: 'stack' as const, label: tx(lang, { de: 'Stack', it: 'Stack', en: 'Stack', tr: 'Stack', fr: 'Stack', es: 'Stack', ru: 'Stack' }), icon: 'pill' },
-            { key: 'phases' as const, label: tx(lang, { de: 'Wochen', it: 'Settimane', en: 'Weeks', tr: 'Hafta', fr: 'Semaines', es: 'Semanas', ru: 'Nedel' }), icon: 'calendar-week' },
-            { key: 'interactions' as const, label: tx(lang, { de: 'Analyse', it: 'Analisi', en: 'Analysis', tr: 'Analiz', fr: 'Analyse', es: 'Analisis', ru: 'Analiz' }), icon: 'shield-search' },
+            { key: 'phases' as const, label: tx(lang, { de: 'Wochen', it: 'Settimane', en: 'Weeks', tr: 'Hafta', fr: 'Semaines', es: 'Semanas', ru: 'Недель' }), icon: 'calendar-week' },
+            { key: 'interactions' as const, label: tx(lang, { de: 'Analyse', it: 'Analisi', en: 'Analysis', tr: 'Анализ', fr: 'Analyse', es: 'Analisis', ru: 'Анализ' }), icon: 'shield-search' },
           ].map(tab => (
             <TouchableOpacity
               key={tab.key}
@@ -349,17 +349,17 @@ export default function SupplementPlanScreen() {
           const riskColor = RISK_COLORS[s.risk_level] || '#10B981';
           const riskBg = s.risk_level === 'high' ? '#FEF2F2' : s.risk_level === 'medium' ? '#FFFBEB' : '#F0FDF4';
           const riskLabel = s.risk_level === 'high'
-            ? (tx(lang, { de: 'HOCH', it: 'ALTO', en: 'HIGH', tr: 'YUKSEK', fr: 'ELEVE', es: 'ALTO', ru: 'VYSOKIJ' }))
-            : s.risk_level === 'medium' ? (tx(lang, { de: 'MITTEL', it: 'MEDIO', en: 'MEDIUM', tr: 'ORTA', fr: 'MOYEN', es: 'MEDIO', ru: 'SREDNIJ' }))
-            : (tx(lang, { de: 'NIEDRIG', it: 'BASSO', en: 'LOW', tr: 'DUSUK', fr: 'FAIBLE', es: 'BAJO', ru: 'NIZKIJ' }));
+            ? (tx(lang, { de: 'HOCH', it: 'ALTO', en: 'HIGH', tr: 'YUKSEK', fr: 'ELEVE', es: 'ALTO', ru: 'ВЫСОКИЙ' }))
+            : s.risk_level === 'medium' ? (tx(lang, { de: 'MITTEL', it: 'MEDIO', en: 'MEDIUM', tr: 'ORTA', fr: 'MOYEN', es: 'MEDIO', ru: 'СРЕДНИЙ' }))
+            : (tx(lang, { de: 'NIEDRIG', it: 'BASSO', en: 'LOW', tr: 'DUSUK', fr: 'FAIBLE', es: 'BAJO', ru: 'НИЗКИЙ' }));
           const evColor = s.evidence_level === 'high' ? '#16A34A' : s.evidence_level === 'medium' ? '#D97706' : '#EA580C';
           const evBg = s.evidence_level === 'high' ? '#DCFCE7' : s.evidence_level === 'medium' ? '#FEF3C7' : '#FFEDD5';
           const evIcon = s.evidence_level === 'high' ? 'check-decagram' : s.evidence_level === 'medium' ? 'flask-outline' : 'magnify';
           const evLabel = s.evidence_level === 'high'
-            ? (tx(lang, { de: 'Hohe Evidenz', it: 'Alta evidenza', en: 'High evidence', tr: 'Yuksek kanit', fr: 'Evidence elevee', es: 'Alta evidencia', ru: 'Vysokie dokazatelstva' }))
+            ? (tx(lang, { de: 'Hohe Evidenz', it: 'Alta evidenza', en: 'High evidence', tr: 'Yuksek kanit', fr: 'Evidence elevee', es: 'Alta evidencia', ru: 'Высокие доказательства' }))
             : s.evidence_level === 'medium'
-            ? (tx(lang, { de: 'Mittlere Evidenz', it: 'Media evidenza', en: 'Moderate evidence', tr: 'Orta kanit', fr: 'Evidence moderee', es: 'Evidencia moderada', ru: 'Srednie dokazatelstva' }))
-            : (tx(lang, { de: 'Explorativ', it: 'Esplorativo', en: 'Exploratory', tr: 'Kesfedici', fr: 'Exploratoire', es: 'Exploratorio', ru: 'Issledovatelskij' }));
+            ? (tx(lang, { de: 'Mittlere Evidenz', it: 'Media evidenza', en: 'Moderate evidence', tr: 'Orta kanit', fr: 'Evidence moderee', es: 'Evidencia moderada', ru: 'Средние доказательства' }))
+            : (tx(lang, { de: 'Explorativ', it: 'Esplorativo', en: 'Exploratory', tr: 'Kesfedici', fr: 'Exploratoire', es: 'Exploratorio', ru: 'Исследовательский' }));
           const timingIcon = s.timing === 'morning' ? 'weather-sunny' : s.timing === 'evening' ? 'weather-night' : 'weather-partly-cloudy';
 
           return (
@@ -368,7 +368,7 @@ export default function SupplementPlanScreen() {
               <View style={ms.cardHeader}>
                 <View style={[ms.statusStripe, { backgroundColor: riskColor }]} />
                 <View style={{ flex: 1 }}>
-                  <Text style={ms.supplementNum}>{tx(lang, { de: `Supplement ${idx + 1}/${plan.stack.length}`, it: `Supplemento ${idx + 1}/${plan.stack.length}`, en: `Supplement ${idx + 1}/${plan.stack.length}`, tr: `Takviye ${idx + 1}/${plan.stack.length}`, fr: `Supplement ${idx + 1}/${plan.stack.length}`, es: `Suplemento ${idx + 1}/${plan.stack.length}`, ru: `Dobavka ${idx + 1}/${plan.stack.length}` })}</Text>
+                  <Text style={ms.supplementNum}>{tx(lang, { de: `Supplement ${idx + 1}/${plan.stack.length}`, it: `Supplemento ${idx + 1}/${plan.stack.length}`, en: `Supplement ${idx + 1}/${plan.stack.length}`, tr: `Takviye ${idx + 1}/${plan.stack.length}`, fr: `Supplement ${idx + 1}/${plan.stack.length}`, es: `Suplemento ${idx + 1}/${plan.stack.length}`, ru: `Добavka ${idx + 1}/${plan.stack.length}` })}</Text>
                   <Text style={ms.supplementName}>{s.name}</Text>
                 </View>
                 <View style={[ms.statusBadge, { backgroundColor: riskBg, borderColor: riskColor }]}>
@@ -379,14 +379,14 @@ export default function SupplementPlanScreen() {
 
               {/* 2. Wirkung */}
               <View style={ms.section}>
-                <Text style={ms.sectionLabel}>{tx(lang, { de: 'WIRKUNG', it: 'EFFETTO', en: 'EFFECT', tr: 'ETKI', fr: 'EFFET', es: 'EFECTO', ru: 'DEJSTVIE' })}</Text>
+                <Text style={ms.sectionLabel}>{tx(lang, { de: 'WIRKUNG', it: 'EFFETTO', en: 'EFFECT', tr: 'ETKI', fr: 'EFFET', es: 'EFECTO', ru: 'ДЕЙСТВИЕ' })}</Text>
                 <Text style={ms.effectText}>{s.reason}</Text>
               </View>
 
               {/* 3. Warum empfohlen */}
               {s.recommendation_reasons?.length > 0 && (
                 <View style={ms.section}>
-                  <Text style={ms.sectionLabel}>{tx(lang, { de: 'WARUM EMPFOHLEN', it: 'PERCHE CONSIGLIATO', en: 'WHY RECOMMENDED', tr: 'NEDEN ONERILIYOR', fr: 'POURQUOI RECOMMANDE', es: 'POR QUE RECOMENDADO', ru: 'POCHEMU REKOMENDOVANO' })}</Text>
+                  <Text style={ms.sectionLabel}>{tx(lang, { de: 'WARUM EMPFOHLEN', it: 'PERCHE CONSIGLIATO', en: 'WHY RECOMMENDED', tr: 'NEDEN ONERILIYOR', fr: 'POURQUOI RECOMMANDE', es: 'POR QUE RECOMENDADO', ru: 'ПОЧЕМУ РЕКОМЕНДОВАНО' })}</Text>
                   <View style={ms.reasonsList}>
                     {s.recommendation_reasons.map((r: string, ri: number) => (
                       <View key={ri} style={ms.reasonItem}>
@@ -403,27 +403,27 @@ export default function SupplementPlanScreen() {
                 {/* Dosierung */}
                 <View style={ms.dataCell}>
                   <MaterialCommunityIcons name="pill" size={16} color="#4A8B71" />
-                  <Text style={ms.dataCellLabel}>{tx(lang, { de: 'Dosierung', it: 'Dosaggio', en: 'Dosage', tr: 'Dozaj', fr: 'Dosage', es: 'Dosis', ru: 'Dozirovka' })}</Text>
+                  <Text style={ms.dataCellLabel}>{tx(lang, { de: 'Dosierung', it: 'Dosaggio', en: 'Dosage', tr: 'Dozaj', fr: 'Dosage', es: 'Dosis', ru: 'Дозировка' })}</Text>
                   <Text style={ms.dataCellValue}>{s.dosage} {s.unit}</Text>
                 </View>
                 {/* Einnahmezeitpunkt */}
                 <View style={ms.dataCell}>
                   <MaterialCommunityIcons name={timingIcon as any} size={16} color="#4A8B71" />
-                  <Text style={ms.dataCellLabel}>{tx(lang, { de: 'Einnahme', it: 'Assunzione', en: 'Intake', tr: 'Alim', fr: 'Prise', es: 'Toma', ru: 'Priem' })}</Text>
+                  <Text style={ms.dataCellLabel}>{tx(lang, { de: 'Einnahme', it: 'Assunzione', en: 'Intake', tr: 'Alim', fr: 'Prise', es: 'Toma', ru: 'Приём' })}</Text>
                   <Text style={ms.dataCellValue}>{s.timing_label}</Text>
                   <Text style={ms.dataCellSub}>{s.with_food_label}</Text>
                 </View>
                 {/* Evidenz */}
                 <View style={[ms.dataCell, { backgroundColor: evBg }]}>
                   <MaterialCommunityIcons name={evIcon as any} size={16} color={evColor} />
-                  <Text style={ms.dataCellLabel}>{tx(lang, { de: 'Evidenz', it: 'Evidenza', en: 'Evidence', tr: 'Kanit', fr: 'Evidence', es: 'Evidencia', ru: 'Dokazatelstva' })}</Text>
+                  <Text style={ms.dataCellLabel}>{tx(lang, { de: 'Evidenz', it: 'Evidenza', en: 'Evidence', tr: 'Kanit', fr: 'Evidence', es: 'Evidencia', ru: 'Доказательства' })}</Text>
                   <Text style={[ms.dataCellValue, { color: evColor }]}>{evLabel}</Text>
                 </View>
                 {/* Wirkungseintritt */}
                 <View style={ms.dataCell}>
                   <MaterialCommunityIcons name="timer-sand" size={16} color="#4A8B71" />
-                  <Text style={ms.dataCellLabel}>{tx(lang, { de: 'Wirkung ab', it: 'Effetto da', en: 'Effect from', tr: 'Etki baslangici', fr: 'Effet a partir de', es: 'Efecto desde', ru: 'Dejstvie s' })}</Text>
-                  <Text style={ms.dataCellValue}>{s.onset_weeks} {tx(lang, { de: 'Wo.', it: 'Sett.', en: 'Wk.', tr: 'Hf.', fr: 'Sem.', es: 'Sem.', ru: 'Ned.' })}</Text>
+                  <Text style={ms.dataCellLabel}>{tx(lang, { de: 'Wirkung ab', it: 'Effetto da', en: 'Effect from', tr: 'Etki baslangici', fr: 'Effet a partir de', es: 'Efecto desde', ru: 'Действие с' })}</Text>
+                  <Text style={ms.dataCellValue}>{s.onset_weeks} {tx(lang, { de: 'Wo.', it: 'Sett.', en: 'Wk.', tr: 'Hf.', fr: 'Sem.', es: 'Sem.', ru: 'Нед.' })}</Text>
                 </View>
               </View>
 
@@ -431,7 +431,7 @@ export default function SupplementPlanScreen() {
               {s.synergies?.length > 0 && (
                 <View style={ms.synRow}>
                   <MaterialCommunityIcons name="link-variant" size={14} color="#4A8B71" />
-                  <Text style={ms.synLabel}>{tx(lang, { de: 'Synergie:', it: 'Sinergia:', en: 'Synergy:', tr: 'Sinerji:', fr: 'Synergie:', es: 'Sinergia:', ru: 'Sinergiya:' })}</Text>
+                  <Text style={ms.synLabel}>{tx(lang, { de: 'Synergie:', it: 'Sinergia:', en: 'Synergy:', tr: 'Sinerji:', fr: 'Synergie:', es: 'Sinergia:', ru: 'Синергия:' })}</Text>
                   <Text style={ms.synText}>{s.synergies.join(', ')}</Text>
                 </View>
               )}
@@ -464,14 +464,14 @@ export default function SupplementPlanScreen() {
                   <Text style={ms.primaryCtaText}>{
                     s.risk_level === 'high'
                       ? (tx(lang, { de: `Optimale ${s.name?.split(' ')[0] || s.id}-Quelle finden`, it: `Trova fonte ottimale di ${s.name?.split(' ')[0] || s.id}`, en: `Optimale ${s.name?.split(' ')[0] || s.id}-Quelle finden` }))
-                      : (tx(lang, { de: 'Qualitaetsgepruefte Optionen vergleichen', it: 'Confronta opzioni verificate', en: 'Compare quality-checked options', tr: 'Kalite kontrollu secenekleri karsilastir', fr: 'Comparer les options verifiees', es: 'Comparar opciones verificadas', ru: 'Sravnit proverennye varianty' }))
+                      : (tx(lang, { de: 'Qualitaetsgepruefte Optionen vergleichen', it: 'Confronta opzioni verificate', en: 'Compare quality-checked options', tr: 'Kalite kontrollu secenekleri karsilastir', fr: 'Comparer les options verifiees', es: 'Comparar opciones verificadas', ru: 'Сравнить проверенные варианты' }))
                   }</Text>
                 </TouchableOpacity>
                 {pricingMap[s.id] && (
                   <Text data-testid={`price-per-day-${s.id}`} style={ms.pricePerDay}>
                     {tx(lang, { de: `Preis pro Tag: ca. ${pricingMap[s.id].avg_per_day.toFixed(2).replace('.', ',')} \u20AC`, it: `Prezzo al giorno: ca. ${pricingMap[s.id].avg_per_day.toFixed(2).replace('.', ',')} \u20AC`, en: `Preis pro Tag: ca. ${pricingMap[s.id].avg_per_day.toFixed(2).replace('.', ',')} \u20AC` })}
                     {pricingMap[s.id].product_count > 1
-                      ? ` (${pricingMap[s.id].product_count} ${tx(lang, { de: 'Produkte verglichen', it: 'Prodotti confrontati', en: 'Products compared', tr: 'Urunler karsilastirildi', fr: 'Produits compares', es: 'Productos comparados', ru: 'Produkty sravneny' })})`
+                      ? ` (${pricingMap[s.id].product_count} ${tx(lang, { de: 'Produkte verglichen', it: 'Prodotti confrontati', en: 'Products compared', tr: 'Urunler karsilastirildi', fr: 'Produits compares', es: 'Productos comparados', ru: 'Продукты сравнены' })})`
                       : ''}
                   </Text>
                 )}
@@ -488,7 +488,7 @@ export default function SupplementPlanScreen() {
             <View style={styles.phaseHeader}>
               <View style={styles.phaseBadge}>
                 <Text style={styles.phaseBadgeText}>
-                  {tx(lang, { de: `Woche ${phase.weeks}`, it: `Settimana ${phase.weeks}`, en: `Week ${phase.weeks}`, tr: `Hafta ${phase.weeks}`, fr: `Semaine ${phase.weeks}`, es: `Semana ${phase.weeks}`, ru: `Nedelya ${phase.weeks}` })}
+                  {tx(lang, { de: `Woche ${phase.weeks}`, it: `Settimana ${phase.weeks}`, en: `Week ${phase.weeks}`, tr: `Hafta ${phase.weeks}`, fr: `Semaine ${phase.weeks}`, es: `Semana ${phase.weeks}`, ru: `Недельya ${phase.weeks}` })}
                 </Text>
               </View>
               <Text style={styles.phaseTitle}>{phase.title}</Text>
@@ -507,7 +507,7 @@ export default function SupplementPlanScreen() {
 
         {/* Disclaimer */}
         <Text style={styles.disclaimerText}>
-          {tx(lang, { de: 'Dieser Plan ersetzt keine aerztliche Beratung. Bei Beschwerden oder Unsicherheiten konsultieren Sie bitte einen Arzt oder Apotheker.', it: 'Questo piano non sostituisce il consulto medico. In caso di disturbi consultare un medico o farmacista.', en: 'This plan does not replace medical advice. If in doubt please consult a doctor or pharmacist.', tr: 'Bu plan tibbi tavsiyenin yerini almaz. Sikayetleriniz varsa lutfen bir doktora veya eczaciya danisin.', fr: 'Ce plan ne remplace pas un avis medical. En cas de doute consultez un medecin ou pharmacien.', es: 'Este plan no reemplaza el consejo medico. En caso de dudas consulte a un medico o farmaceutico.', ru: 'Etot plan ne zamenyaet meditsinskuyu konsultatsiyu. Pri somnenii obratites k vrachu ili farmatsevtu.' })}
+          {tx(lang, { de: 'Dieser Plan ersetzt keine aerztliche Beratung. Bei Beschwerden oder Unsicherheiten konsultieren Sie bitte einen Arzt oder Apotheker.', it: 'Questo piano non sostituisce il consulto medico. In caso di disturbi consultare un medico o farmacista.', en: 'This plan does not replace medical advice. If in doubt please consult a doctor or pharmacist.', tr: 'Bu plan tibbi tavsiyenin yerini almaz. Sikayetleriniz varsa lutfen bir doktora veya eczaciya danisin.', fr: 'Ce plan ne remplace pas un avis medical. En cas de doute consultez un medecin ou pharmacien.', es: 'Este plan no reemplaza el consejo medico. En caso de dudas consulte a un medico o farmaceutico.', ru: 'Этот план не заменяет медицинскую консультацию. При сомнении обратитесь к врачу или фармацевту.' })}
         </Text>
       </ScrollView>
 
@@ -664,12 +664,12 @@ const ns = StyleSheet.create({
     paddingVertical: 4,
   },
   settingsBtnRow: { flexDirection: 'row', gap: 10 },
-  settingsTestBtn: {
+  settingsТестBtn: {
     flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
     backgroundColor: '#F0F4F2', borderRadius: 14, paddingVertical: 12,
     borderWidth: 1.5, borderColor: '#1B6B45',
   },
-  settingsTestBtnText: { fontSize: 13, fontWeight: '600', color: '#1B6B45' },
+  settingsТестBtnText: { fontSize: 13, fontWeight: '600', color: '#1B6B45' },
   settingsSaveBtn: { flex: 1, borderRadius: 14, overflow: 'hidden' },
   settingsSaveGradient: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,

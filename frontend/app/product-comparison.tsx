@@ -261,7 +261,7 @@ export default function ProductComparisonScreen() {
                     {hasLabel && (
                       <View style={s.labBadge}>
                         <MaterialCommunityIcons name="flask-outline" size={12} color="#059669" />
-                        <Text style={s.labBadgeText}>{txl(lang, { de: 'Laborgeprüft', it: 'Testato in laboratorio', en: 'Laborgeprüft' })}</Text>
+                        <Text style={s.labBadgeText}>{txl(lang, { de: 'Laborgeprüft', it: 'Тестato in laboratorio', en: 'Laborgeprüft' })}</Text>
                       </View>
                     )}
                   </View>

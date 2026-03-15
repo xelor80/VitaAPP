@@ -91,11 +91,11 @@ export default function MedicationsScreen() {
 
   const saveMedication = async () => {
     if (!name.trim()) {
-      Alert.alert(tx(lang, { de: 'Hinweis', it: 'Avviso', en: 'Notice', tr: 'Uyari', fr: 'Avis', es: 'Aviso', ru: 'Uvedomlenie' }), tx(lang, { de: 'Bitte Medikamentennamen eingeben.', it: 'Inserire il nome del farmaco.', en: 'Please enter medication name.', tr: 'Lutfen ilac adini girin.', fr: 'Veuillez entrer le nom du medicament.', es: 'Por favor ingrese el nombre del medicamento.', ru: 'Pozhalujsta vvedite nazvanie lekarstva.' }));
+      Alert.alert(tx(lang, { de: 'Hinweis', it: 'Avviso', en: 'Notice', tr: 'Uyari', fr: 'Avis', es: 'Aviso', ru: 'Уведомление' }), tx(lang, { de: 'Bitte Medikamentennamen eingeben.', it: 'Inserire il nome del farmaco.', en: 'Please enter medication name.', tr: 'Lutfen ilac adini girin.', fr: 'Veuillez entrer le nom du medicament.', es: 'Por favor ingrese el nombre del medicamento.', ru: 'Пожалуйста, введите название лекарства.' }));
       return;
     }
     if (selectedTimings.length === 0) {
-      Alert.alert(tx(lang, { de: 'Hinweis', it: 'Avviso', en: 'Notice', tr: 'Uyari', fr: 'Avis', es: 'Aviso', ru: 'Uvedomlenie' }), tx(lang, { de: 'Bitte mindestens eine Einnahmezeit waehlen.', it: 'Selezionare almeno un orario di assunzione.', en: 'Please select at least one intake time.', tr: 'Lutfen en az bir alim zamani secin.', fr: 'Veuillez selectionner au moins une heure de prise.', es: 'Por favor seleccione al menos una hora de toma.', ru: 'Pozhalujsta vyberite khotya by odno vremya priema.' }));
+      Alert.alert(tx(lang, { de: 'Hinweis', it: 'Avviso', en: 'Notice', tr: 'Uyari', fr: 'Avis', es: 'Aviso', ru: 'Уведомление' }), tx(lang, { de: 'Bitte mindestens eine Einnahmezeit waehlen.', it: 'Selezionare almeno un orario di assunzione.', en: 'Please select at least one intake time.', tr: 'Lutfen en az bir alim zamani secin.', fr: 'Veuillez selectionner au moins une heure de prise.', es: 'Por favor seleccione al menos una hora de toma.', ru: 'Пожалуйста, выберите хотя бы одно время приема.' }));
       return;
     }
     setSaving(true);
@@ -128,12 +128,12 @@ export default function MedicationsScreen() {
 
   const deleteMed = (med: any) => {
     Alert.alert(
-      tx(lang, { de: 'Medikament loeschen', it: 'Elimina farmaco', en: 'Delete medication', tr: 'Ilaci sil', fr: 'Supprimer le medicament', es: 'Eliminar medicamento', ru: 'Udalit lekarstvo' }),
+      tx(lang, { de: 'Medikament loeschen', it: 'Elimina farmaco', en: 'Delete medication', tr: 'Ilaci sil', fr: 'Supprimer le medicament', es: 'Eliminar medicamento', ru: 'Удалить lekarstvo' }),
       tx(lang, { de: `"${med.name}" wirklich loeschen?`, it: `Eliminare "${med.name}"?`, en: `"${med.name}" wirklich loeschen?` }),
       [
-        { text: tx(lang, { de: 'Abbrechen', it: 'Annulla', en: 'Cancel', tr: 'Iptal', fr: 'Annuler', es: 'Cancelar', ru: 'Otmena' }), style: 'cancel' },
+        { text: tx(lang, { de: 'Abbrechen', it: 'Annulla', en: 'Cancel', tr: 'Iptal', fr: 'Annuler', es: 'Cancelar', ru: 'Отмена' }), style: 'cancel' },
         {
-          text: tx(lang, { de: 'Loeschen', it: 'Elimina', en: 'Delete', tr: 'Sil', fr: 'Supprimer', es: 'Eliminar', ru: 'Udalit' }), style: 'destructive',
+          text: tx(lang, { de: 'Loeschen', it: 'Elimina', en: 'Delete', tr: 'Sil', fr: 'Supprimer', es: 'Eliminar', ru: 'Удалить' }), style: 'destructive',
           onPress: async () => {
             await fetch(`${API_URL}/api/medications/${profileId}/${med.id}`, { method: 'DELETE' });
             loadMeds();
@@ -162,7 +162,7 @@ export default function MedicationsScreen() {
         <TouchableOpacity onPress={() => router.back()} style={s.backBtn}>
           <MaterialCommunityIcons name="arrow-left" size={24} color="#FFF" />
         </TouchableOpacity>
-        <Text style={s.headerTitle}>{tx(lang, { de: 'Medikamente', it: 'Farmaci', en: 'Medications', tr: 'Ilaclar', fr: 'Medicaments', es: 'Medicamentos', ru: 'Lekarstva' })}</Text>
+        <Text style={s.headerTitle}>{tx(lang, { de: 'Medikamente', it: 'Farmaci', en: 'Medications', tr: 'Ilaclar', fr: 'Medicaments', es: 'Medicamentos', ru: 'Лекarstva' })}</Text>
         <TouchableOpacity onPress={() => { resetForm(); setShowForm(true); }} style={s.addBtn} data-testid="add-medication-btn">
           <MaterialCommunityIcons name="plus" size={24} color="#FFF" />
         </TouchableOpacity>
@@ -172,7 +172,7 @@ export default function MedicationsScreen() {
       <View style={s.disclaimer}>
         <MaterialCommunityIcons name="information-outline" size={16} color="#6B7280" />
         <Text style={s.disclaimerText}>
-          {tx(lang, { de: 'Bitte Medikamente nur nach aerztlicher Vorgabe eintragen und einnehmen.', it: 'Inserire e assumere farmaci solo secondo prescrizione medica.', en: 'Please only add and take medications as prescribed by your doctor.', tr: 'Lutfen ilaci yalnizca doktor tavsiyesine gore girin ve kullanin.', fr: 'Veuillez entrer et prendre les medicaments uniquement selon les prescriptions medicales.', es: 'Por favor ingrese y tome medicamentos solo segun prescripcion medica.', ru: 'Pozhalujsta vnosite i prinimajte lekarstva tolko po naznacheniyu vracha.' })}
+          {tx(lang, { de: 'Bitte Medikamente nur nach aerztlicher Vorgabe eintragen und einnehmen.', it: 'Inserire e assumere farmaci solo secondo prescrizione medica.', en: 'Please only add and take medications as prescribed by your doctor.', tr: 'Lutfen ilaci yalnizca doktor tavsiyesine gore girin ve kullanin.', fr: 'Veuillez entrer et prendre les medicaments uniquement selon les prescriptions medicales.', es: 'Por favor ingrese y tome medicamentos solo segun prescripcion medica.', ru: 'Пожалуйста, вносите и принимайте лекарства только по назначению врача.' })}
         </Text>
       </View>
 
@@ -180,9 +180,9 @@ export default function MedicationsScreen() {
         {medications.length === 0 ? (
           <Animated.View entering={FadeIn} style={s.empty}>
             <MaterialCommunityIcons name="pill" size={60} color="#BFDBFE" />
-            <Text style={s.emptyTitle}>{tx(lang, { de: 'Keine Medikamente', it: 'Nessun farmaco', en: 'No medications', tr: 'Ilac yok', fr: 'Aucun medicament', es: 'Sin medicamentos', ru: 'Net lekarstv' })}</Text>
+            <Text style={s.emptyTitle}>{tx(lang, { de: 'Keine Medikamente', it: 'Nessun farmaco', en: 'No medications', tr: 'Ilac yok', fr: 'Aucun medicament', es: 'Sin medicamentos', ru: 'Нет лекарств' })}</Text>
             <Text style={s.emptyText}>
-              {tx(lang, { de: 'Fuegen Sie Ihre Medikamente hinzu, um Einnahmezeiten zu verwalten und Erinnerungen zu erhalten.', it: 'Aggiungi i tuoi farmaci per gestire gli orari e ricevere promemoria.', en: 'Add your medications to manage intake times and receive reminders.', tr: 'Alim zamanlarini yonetmek ve hatirlatma almak icin ilaclarinizi ekleyin.', fr: 'Ajoutez vos medicaments pour gerer les horaires et recevoir des rappels.', es: 'Agregue sus medicamentos para gestionar horarios y recibir recordatorios.', ru: 'Dobavte svoi lekarstva dlya upravleniya vremenem priema i polucheniya napominanij.' })}
+              {tx(lang, { de: 'Fuegen Sie Ihre Medikamente hinzu, um Einnahmezeiten zu verwalten und Erinnerungen zu erhalten.', it: 'Aggiungi i tuoi farmaci per gestire gli orari e ricevere promemoria.', en: 'Add your medications to manage intake times and receive reminders.', tr: 'Alim zamanlarini yonetmek ve hatirlatma almak icin ilaclarinizi ekleyin.', fr: 'Ajoutez vos medicaments pour gerer les horaires et recevoir des rappels.', es: 'Agregue sus medicamentos para gestionar horarios y recibir recordatorios.', ru: 'Добавьте свои лекарства для управления временем приёма и получения напоминаний.' })}
             </Text>
           </Animated.View>
         ) : (
@@ -225,27 +225,27 @@ export default function MedicationsScreen() {
         <SafeAreaView style={s.formContainer}>
           <View style={s.formHeader}>
             <TouchableOpacity onPress={() => { setShowForm(false); resetForm(); }}>
-              <Text style={s.cancelText}>{tx(lang, { de: 'Abbrechen', it: 'Annulla', en: 'Cancel', tr: 'Iptal', fr: 'Annuler', es: 'Cancelar', ru: 'Otmena' })}</Text>
+              <Text style={s.cancelText}>{tx(lang, { de: 'Abbrechen', it: 'Annulla', en: 'Cancel', tr: 'Iptal', fr: 'Annuler', es: 'Cancelar', ru: 'Отмена' })}</Text>
             </TouchableOpacity>
             <Text style={s.formTitle}>
               {editingMed
-                ? (tx(lang, { de: 'Bearbeiten', it: 'Modifica', en: 'Edit', tr: 'Duzenle', fr: 'Modifier', es: 'Editar', ru: 'Redaktirovat' }))
-                : (tx(lang, { de: 'Neues Medikament', it: 'Nuovo farmaco', en: 'New medication', tr: 'Yeni ilac', fr: 'Nouveau medicament', es: 'Nuevo medicamento', ru: 'Novoe lekarstvo' }))}
+                ? (tx(lang, { de: 'Bearbeiten', it: 'Modifica', en: 'Edit', tr: 'Duzenle', fr: 'Modifier', es: 'Editar', ru: 'Редактировать' }))
+                : (tx(lang, { de: 'Neues Medikament', it: 'Nuovo farmaco', en: 'New medication', tr: 'Yeni ilac', fr: 'Nouveau medicament', es: 'Nuevo medicamento', ru: 'Новое лекарство' }))}
             </Text>
             <TouchableOpacity onPress={saveMedication} disabled={saving}>
               {saving ? <ActivityIndicator size="small" color="#3B82F6" /> : (
-                <Text style={s.saveText}>{tx(lang, { de: 'Speichern', it: 'Salva', en: 'Save', tr: 'Kaydet', fr: 'Enregistrer', es: 'Guardar', ru: 'Sokhranit' })}</Text>
+                <Text style={s.saveText}>{tx(lang, { de: 'Speichern', it: 'Salva', en: 'Save', tr: 'Kaydet', fr: 'Enregistrer', es: 'Guardar', ru: 'Сохранить' })}</Text>
               )}
             </TouchableOpacity>
           </View>
 
           <ScrollView contentContainerStyle={s.form} showsVerticalScrollIndicator={false}>
             {/* Name */}
-            <Text style={s.label}>{tx(lang, { de: 'Medikamentenname', it: 'Nome farmaco', en: 'Medication name', tr: 'Ilac adi', fr: 'Nom du medicament', es: 'Nombre del medicamento', ru: 'Nazvanie lekarstva' })} *</Text>
+            <Text style={s.label}>{tx(lang, { de: 'Medikamentenname', it: 'Nome farmaco', en: 'Medication name', tr: 'Ilac adi', fr: 'Nom du medicament', es: 'Nombre del medicamento', ru: 'Название лекарства' })} *</Text>
             <TextInput style={s.input} value={name} onChangeText={setName} placeholder="z.B. Metformin" />
 
             {/* Dosage + Unit */}
-            <Text style={s.label}>{tx(lang, { de: 'Dosierung', it: 'Dosaggio', en: 'Dosage', tr: 'Dozaj', fr: 'Dosage', es: 'Dosis', ru: 'Dozirovka' })} *</Text>
+            <Text style={s.label}>{tx(lang, { de: 'Dosierung', it: 'Dosaggio', en: 'Dosage', tr: 'Dozaj', fr: 'Dosage', es: 'Dosis', ru: 'Дозировка' })} *</Text>
             <View style={s.row}>
               <TextInput style={[s.input, { flex: 1 }]} value={dosage} onChangeText={setDosage} placeholder="500" keyboardType="numeric" />
               <View style={s.unitRow}>
@@ -258,7 +258,7 @@ export default function MedicationsScreen() {
             </View>
 
             {/* Timings */}
-            <Text style={s.label}>{tx(lang, { de: 'Einnahmezeit(en)', it: 'Orario/i di assunzione', en: 'Intake time(s)', tr: 'Alim zamani/lari', fr: 'Heure(s) de prise', es: 'Hora(s) de toma', ru: 'Vremya priema' })} *</Text>
+            <Text style={s.label}>{tx(lang, { de: 'Einnahmezeit(en)', it: 'Orario/i di assunzione', en: 'Intake time(s)', tr: 'Alim zamani/lari', fr: 'Heure(s) de prise', es: 'Hora(s) de toma', ru: 'Время приема' })} *</Text>
             <View style={s.chipRow}>
               {TIMINGS.map(t => (
                 <TouchableOpacity key={t.key} style={[s.timingBtn, selectedTimings.includes(t.key) && s.timingBtnActive]} onPress={() => toggleTiming(t.key)}>
@@ -269,7 +269,7 @@ export default function MedicationsScreen() {
             </View>
 
             {/* Frequency */}
-            <Text style={s.label}>{tx(lang, { de: 'Haeufigkeit', it: 'Frequenza', en: 'Frequency', tr: 'Siklik', fr: 'Frequence', es: 'Frecuencia', ru: 'Chastota' })}</Text>
+            <Text style={s.label}>{tx(lang, { de: 'Haeufigkeit', it: 'Frequenza', en: 'Frequency', tr: 'Siklik', fr: 'Frequence', es: 'Frecuencia', ru: 'Частота' })}</Text>
             <View style={s.chipRow}>
               {FREQUENCIES.map(f => (
                 <TouchableOpacity key={f.key} style={[s.chip, frequency === f.key && s.chipActive]} onPress={() => setFrequency(f.key)}>
@@ -290,7 +290,7 @@ export default function MedicationsScreen() {
             )}
 
             {/* Meal relation */}
-            <Text style={s.label}>{tx(lang, { de: 'Mahlzeitbezug', it: 'Relazione pasto', en: 'Meal relation', tr: 'Ogun iliskisi', fr: 'Relation repas', es: 'Relacion con comida', ru: 'Otnoshenie k ede' })}</Text>
+            <Text style={s.label}>{tx(lang, { de: 'Mahlzeitbezug', it: 'Relazione pasto', en: 'Meal relation', tr: 'Ogun iliskisi', fr: 'Relation repas', es: 'Relacion con comida', ru: 'Отношение к еде' })}</Text>
             <View style={s.chipRow}>
               {MEAL_OPTIONS.map(m => (
                 <TouchableOpacity key={m.key} style={[s.chip, mealRelation === m.key && s.chipActive]} onPress={() => setMealRelation(m.key)}>
@@ -300,8 +300,8 @@ export default function MedicationsScreen() {
             </View>
 
             {/* Note */}
-            <Text style={s.label}>{tx(lang, { de: 'Hinweis / Notiz', it: 'Nota', en: 'Note', tr: 'Not', fr: 'Note', es: 'Nota', ru: 'Zametka' })}</Text>
-            <TextInput style={[s.input, { height: 60 }]} value={note} onChangeText={setNote} placeholder={tx(lang, { de: 'Optionale Notiz...', it: 'Nota opzionale...', en: 'Optional note...', tr: 'Istege bagli not...', fr: 'Note optionnelle...', es: 'Nota opcional...', ru: 'Neobyzatelnaya zametka...' })} multiline />
+            <Text style={s.label}>{tx(lang, { de: 'Hinweis / Notiz', it: 'Nota', en: 'Note', tr: 'Not', fr: 'Note', es: 'Nota', ru: 'Заметка' })}</Text>
+            <TextInput style={[s.input, { height: 60 }]} value={note} onChangeText={setNote} placeholder={tx(lang, { de: 'Optionale Notiz...', it: 'Nota opzionale...', en: 'Optional note...', tr: 'Istege bagli not...', fr: 'Note optionnelle...', es: 'Nota opcional...', ru: 'Необязательная заметка...' })} multiline />
           </ScrollView>
         </SafeAreaView>
       </Modal>
