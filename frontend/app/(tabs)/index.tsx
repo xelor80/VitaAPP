@@ -153,7 +153,7 @@ export default function DashboardHome() {
   }, [symptomText, selectedTags, lang, router]);
 
   if (disclaimerAccepted === null) return <View style={s.loadingContainer}><ActivityIndicator size="large" color="#2E7D52" /></View>;
-  if (!disclaimerAccepted) return <DisclaimerScreen lang={lang} onAccept={acceptDisclaimer} />;
+  if (!disclaimerAccepted) return <DisclaimerScreen lang={lang} setLang={setLang} onAccept={acceptDisclaimer} />;
 
   const greeting = firstName
     ? (tx(lang, { de: `Hallo ${firstName},`, it: `Ciao ${firstName},`, en: `Hello ${firstName},`, tr: `Merhaba ${firstName},`, fr: `Bonjour ${firstName},`, es: `Hola ${firstName},`, ru: `Привет ${firstName},` }))

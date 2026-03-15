@@ -29,18 +29,24 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - Language switcher with flags on dashboard
 - All UI text translated via tx() helper
 - Recipe content pre-translated and stored in MongoDB (batch translated)
+- Disclaimer screen: Full 7-language switcher (2026-03-15)
 
 ### Performance Optimization (2026-03-15) - P0 Fix COMPLETED
 - **Problem**: Recipe endpoints were extremely slow due to on-the-fly AI translations
 - **Solution**: 
   1. Seeded 30 recipes from recipes.json into MongoDB
-  2. Ran batch translation script to pre-translate all recipes into 5 additional languages (EN, TR, FR, ES, RU)
+  2. Ran batch translation script to pre-translate all recipes into 5 additional languages
   3. Removed `translate_recipe` AI function from products.py
   4. All recipe endpoints now read pre-translated data directly from DB
   5. Added `get_recipe_locale()` helper with fallback chain: lang -> en -> de
   6. Added auto-seeding of recipes on server startup if collection is empty
 - **Result**: Response times dropped from 5-10s to ~100-270ms (50x improvement)
-- **Testing**: 19/19 backend tests passed (iteration_71), all 37 recipes verified in all 7 languages
+- **Testing**: 19/19 backend tests passed (iteration_71)
+
+### Disclaimer Screen Language Fix (2026-03-15) - COMPLETED
+- **Problem**: First-time "Wichtiger Hinweis" page only showed DE and IT language options, no language could be selected
+- **Fix**: Added all 7 languages (DE, IT, EN, TR, FR, ES, RU) as selectable chips, passed `setLang` prop correctly, used `t()` function for all translations instead of hardcoded DE/IT only
+- **Files changed**: `DisclaimerScreen.tsx`, `(tabs)/index.tsx`
 
 ### Previous Completions
 - Combined Reminders (supplements + medications) with item preview per timing slot
