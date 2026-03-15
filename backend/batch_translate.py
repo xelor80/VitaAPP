@@ -6,8 +6,8 @@ sys.path.insert(0, '/app/backend')
 from motor.motor_asyncio import AsyncIOMotorClient
 from emergentintegrations.llm.chat import LlmChat, UserMessage
 
-MONGO_URL = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
-DB_NAME = os.environ.get('DB_NAME', 'vitaguide')
+MONGO_URL = os.environ.get('MONGO_URL')
+DB_NAME = os.environ.get('DB_NAME')
 LANGS = ['en', 'tr', 'fr', 'es', 'ru']
 LANG_NAMES = {"en": "English", "tr": "Turkish", "fr": "French", "es": "Spanish", "ru": "Russian"}
 
