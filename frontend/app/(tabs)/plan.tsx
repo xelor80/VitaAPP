@@ -14,7 +14,7 @@ import {
   WeeklySchedule
 } from '../../src/services/NotificationService';
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
+const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
 const TIMING_ICONS: Record<string, { icon: string; color: string }> = {
   morning: { icon: 'weather-sunny', color: '#FF9800' },
