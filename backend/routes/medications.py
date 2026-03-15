@@ -139,8 +139,13 @@ async def get_daily_plan(profile_id: str, lang: str = "de"):
     supplements_by_timing = {}
     if plan_doc:
         schedule = plan_doc.get("plan", {}).get("weekly_schedule", {})
-        for timing_key, supps in schedule.items():
-            supplements_by_timing[timing_key] = supps if isinstance(supps, list) else []
+        for timing_key, section in schedule.items():
+            if isinstance(section, dict):
+                supplements_by_timing[timing_key] = section.get("items", [])
+            elif isinstance(section, list):
+                supplements_by_timing[timing_key] = section
+            else:
+                supplements_by_timing[timing_key] = []
 
     # Get today's logs (both supplements and medications)
     med_logs = await db.medication_logs.find(
@@ -181,11 +186,18 @@ async def get_daily_plan(profile_id: str, lang: str = "de"):
         for supp in supplements_by_timing.get(timing, []):
             supp_id = supp.get("id", "")
             is_checked = (supp_id, timing) in supp_log_set
+            # Handle different dosage formats
+            dosage_info = supp.get("dosage", "")
+            if isinstance(dosage_info, dict):
+                dosage_str = f"{dosage_info.get('amount', '')} {dosage_info.get('unit', '')}"
+            else:
+                unit = supp.get("unit", "")
+                dosage_str = f"{dosage_info} {unit}".strip()
             items.append({
                 "id": supp_id,
                 "type": "supplement",
-                "name": supp.get(f"name_{lang}", supp.get("name_de", supp.get("id", ""))),
-                "dosage": f"{supp.get('dosage', {}).get('amount', '')} {supp.get('dosage', {}).get('unit', '')}",
+                "name": supp.get(f"name_{lang}", supp.get("name_de", supp.get("name", supp_id))),
+                "dosage": dosage_str,
                 "checked": is_checked,
                 "timing": timing,
             })

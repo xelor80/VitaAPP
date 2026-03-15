@@ -33,6 +33,17 @@ export interface WeeklySchedule {
   evening?: { label: string; items: ScheduleItem[] };
 }
 
+export interface CombinedTimingItem {
+  name: string;
+  type: 'supplement' | 'medication';
+}
+
+export interface CombinedSchedule {
+  morning: CombinedTimingItem[];
+  noon: CombinedTimingItem[];
+  evening: CombinedTimingItem[];
+}
+
 const STORAGE_KEY = 'supplement_reminder_ids';
 
 /**
@@ -88,7 +99,85 @@ function parseTime(timeStr: string): { hour: number; minute: number } {
 }
 
 /**
- * Schedule supplement reminders
+ * Schedule combined reminders for supplements AND medications
+ */
+export async function scheduleCombinedReminders(
+  reminders: ReminderSettings,
+  combinedSchedule: CombinedSchedule,
+  lang: string = 'de'
+): Promise<boolean> {
+  if (!reminders.enabled) {
+    await cancelAllReminders();
+    return false;
+  }
+
+  const hasPermission = await requestNotificationPermissions();
+  if (!hasPermission) return false;
+
+  await cancelAllReminders();
+
+  const timings = [
+    { key: 'morning' as const, time: reminders.morning_time, label: lang === 'de' ? 'Morgens' : 'Mattina' },
+    { key: 'noon' as const, time: reminders.noon_time, label: lang === 'de' ? 'Mittags' : 'Mezzogiorno' },
+    { key: 'evening' as const, time: reminders.evening_time, label: lang === 'de' ? 'Abends' : 'Sera' },
+  ];
+
+  const scheduledIds: string[] = [];
+
+  for (const timing of timings) {
+    const items = combinedSchedule[timing.key] || [];
+    if (items.length === 0) continue;
+
+    const { hour, minute } = parseTime(timing.time);
+    const names = items.map(i => i.name).join(', ');
+    const suppCount = items.filter(i => i.type === 'supplement').length;
+    const medCount = items.filter(i => i.type === 'medication').length;
+
+    const title = `VitaGuide - ${timing.label}`;
+    let body: string;
+    if (lang === 'de') {
+      const parts: string[] = [];
+      if (suppCount > 0) parts.push(`${suppCount} Supplement${suppCount > 1 ? 's' : ''}`);
+      if (medCount > 0) parts.push(`${medCount} Medikament${medCount > 1 ? 'e' : ''}`);
+      body = `Zeit fuer: ${names} (${parts.join(' + ')})`;
+    } else {
+      const parts: string[] = [];
+      if (suppCount > 0) parts.push(`${suppCount} supplementi`);
+      if (medCount > 0) parts.push(`${medCount} farmaci`);
+      body = `Ora di: ${names} (${parts.join(' + ')})`;
+    }
+
+    if (Platform.OS === 'web') {
+      scheduleWebNotification(hour, minute, title, body);
+    } else {
+      try {
+        const id = await Notifications.scheduleNotificationAsync({
+          content: {
+            title,
+            body,
+            sound: true,
+            priority: Notifications.AndroidNotificationPriority.HIGH,
+            data: { timing: timing.key },
+          },
+          trigger: {
+            type: Notifications.SchedulableTriggerInputTypes.DAILY,
+            hour,
+            minute,
+          },
+        });
+        scheduledIds.push(id);
+      } catch (e) {
+        console.error(`Schedule ${timing.key} error:`, e);
+      }
+    }
+  }
+
+  await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(scheduledIds));
+  return scheduledIds.length > 0 || Platform.OS === 'web';
+}
+
+/**
+ * Schedule supplement reminders (legacy, kept for compatibility)
  */
 export async function scheduleSupplementReminders(
   reminders: ReminderSettings,

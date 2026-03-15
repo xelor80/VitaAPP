@@ -7,11 +7,11 @@ import { useRouter } from 'expo-router';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useLang } from '../../src/LangContext';
 import {
-  scheduleSupplementReminders,
+  scheduleCombinedReminders,
   sendTestNotification,
   cancelAllReminders,
   ReminderSettings,
-  WeeklySchedule
+  CombinedSchedule,
 } from '../../src/services/NotificationService';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
@@ -30,7 +30,6 @@ export default function PlanScreen() {
   const [loading, setLoading] = useState(true);
   const [reminders, setReminders] = useState({ enabled: false, morning_time: '08:00', noon_time: '12:00', evening_time: '20:00' });
   const [showReminderSettings, setShowReminderSettings] = useState(false);
-  const [weeklySchedule, setWeeklySchedule] = useState<any>(null);
 
   useEffect(() => {
     (async () => {
@@ -66,12 +65,22 @@ export default function PlanScreen() {
         const data = await res.json();
         if (data.enabled !== undefined) setReminders(data);
       }
-      const planRes = await fetch(`${API_URL}/api/supplement-plan/${pid}`);
-      if (planRes.ok) {
-        const planData = await planRes.json();
-        if (planData.plan?.weekly_schedule) setWeeklySchedule(planData.plan.weekly_schedule);
-      }
     } catch {}
+  };
+
+  // Build combined schedule from daily plan data
+  const buildCombinedSchedule = (): CombinedSchedule => {
+    const combined: CombinedSchedule = { morning: [], noon: [], evening: [] };
+    if (!plan?.plan) return combined;
+    for (const group of plan.plan) {
+      const key = group.timing as keyof CombinedSchedule;
+      if (combined[key]) {
+        for (const item of group.items) {
+          combined[key].push({ name: item.name, type: item.type });
+        }
+      }
+    }
+    return combined;
   };
 
   const toggleItem = async (item: any) => {
@@ -104,23 +113,27 @@ export default function PlanScreen() {
         body: JSON.stringify(reminders),
       });
 
-      if (reminders.enabled && weeklySchedule) {
-        const success = await scheduleSupplementReminders(
-          reminders as ReminderSettings,
-          weeklySchedule as WeeklySchedule,
-          lang
-        );
-        if (success) {
-          await sendTestNotification(lang);
-          Alert.alert(
-            lang === 'de' ? 'Erinnerungen aktiviert' : 'Promemoria attivati',
-            lang === 'de' ? 'Sie erhalten Benachrichtigungen zu den eingestellten Zeiten.' : 'Riceverai notifiche agli orari impostati.'
+      if (reminders.enabled) {
+        const combined = buildCombinedSchedule();
+        const hasItems = combined.morning.length > 0 || combined.noon.length > 0 || combined.evening.length > 0;
+        if (hasItems) {
+          const success = await scheduleCombinedReminders(
+            reminders as ReminderSettings,
+            combined,
+            lang
           );
-        } else {
-          Alert.alert(
-            lang === 'de' ? 'Berechtigung erforderlich' : 'Autorizzazione richiesta',
-            lang === 'de' ? 'Bitte erlauben Sie Benachrichtigungen in den Einstellungen.' : 'Per favore consenti le notifiche nelle impostazioni.'
-          );
+          if (success) {
+            await sendTestNotification(lang);
+            Alert.alert(
+              lang === 'de' ? 'Erinnerungen aktiviert' : 'Promemoria attivati',
+              lang === 'de' ? 'Sie erhalten Benachrichtigungen fuer Supplements und Medikamente.' : 'Riceverai notifiche per supplementi e farmaci.'
+            );
+          } else {
+            Alert.alert(
+              lang === 'de' ? 'Berechtigung erforderlich' : 'Autorizzazione richiesta',
+              lang === 'de' ? 'Bitte erlauben Sie Benachrichtigungen in den Einstellungen.' : 'Per favore consenti le notifiche nelle impostazioni.'
+            );
+          }
         }
       } else {
         await cancelAllReminders();
@@ -212,25 +225,56 @@ export default function PlanScreen() {
           {reminders.enabled && (
             <View style={{ gap: 10, marginTop: 8 }}>
               {[
-                { key: 'morning_time', icon: 'weather-sunny', label: lang === 'de' ? 'Morgens' : 'Mattina', color: '#FF9800' },
-                { key: 'noon_time', icon: 'weather-partly-cloudy', label: lang === 'de' ? 'Mittags' : 'Mezzogiorno', color: '#2E9E6B' },
-                { key: 'evening_time', icon: 'weather-night', label: lang === 'de' ? 'Abends' : 'Sera', color: '#5C6BC0' },
-              ].map(({ key, icon, label, color }) => (
-                <View key={key} style={s.timeRow}>
-                  <View style={[s.timeIcon, { backgroundColor: color + '18' }]}>
-                    <MaterialCommunityIcons name={icon as any} size={20} color={color} />
+                { key: 'morning_time', timing: 'morning', icon: 'weather-sunny', label: lang === 'de' ? 'Morgens' : 'Mattina', color: '#FF9800' },
+                { key: 'noon_time', timing: 'noon', icon: 'weather-partly-cloudy', label: lang === 'de' ? 'Mittags' : 'Mezzogiorno', color: '#2E9E6B' },
+                { key: 'evening_time', timing: 'evening', icon: 'weather-night', label: lang === 'de' ? 'Abends' : 'Sera', color: '#5C6BC0' },
+              ].map(({ key, timing, icon, label, color }) => {
+                const combined = buildCombinedSchedule();
+                const items = combined[timing as keyof CombinedSchedule] || [];
+                const suppCount = items.filter(i => i.type === 'supplement').length;
+                const medCount = items.filter(i => i.type === 'medication').length;
+                return (
+                  <View key={key}>
+                    <View style={s.timeRow}>
+                      <View style={[s.timeIcon, { backgroundColor: color + '18' }]}>
+                        <MaterialCommunityIcons name={icon as any} size={20} color={color} />
+                      </View>
+                      <Text style={s.timeLabel}>{label}</Text>
+                      <TextInput
+                        style={s.timeInput}
+                        value={(reminders as any)[key]}
+                        onChangeText={v => setReminders({ ...reminders, [key]: v })}
+                        placeholder="HH:MM"
+                        placeholderTextColor="#C4CEC8"
+                        data-testid={`reminder-time-${key}`}
+                      />
+                    </View>
+                    {items.length > 0 && (
+                      <View style={s.previewRow}>
+                        {suppCount > 0 && (
+                          <View style={[s.previewBadge, { backgroundColor: '#E8F5E9' }]}>
+                            <MaterialCommunityIcons name="pill" size={12} color="#1B6B45" />
+                            <Text style={[s.previewBadgeText, { color: '#1B6B45' }]}>
+                              {suppCount} {lang === 'de' ? 'Supp.' : 'Int.'}
+                            </Text>
+                          </View>
+                        )}
+                        {medCount > 0 && (
+                          <View style={[s.previewBadge, { backgroundColor: '#E3F2FD' }]}>
+                            <MaterialCommunityIcons name="medical-bag" size={12} color="#3B82F6" />
+                            <Text style={[s.previewBadgeText, { color: '#3B82F6' }]}>
+                              {medCount} {lang === 'de' ? 'Med.' : 'Farm.'}
+                            </Text>
+                          </View>
+                        )}
+                        <Text style={s.previewNames} numberOfLines={1}>
+                          {items.map(i => i.name).join(', ')}
+                        </Text>
+                      </View>
+                    )}
                   </View>
-                  <Text style={s.timeLabel}>{label}</Text>
-                  <TextInput
-                    style={s.timeInput}
-                    value={(reminders as any)[key]}
-                    onChangeText={v => setReminders({ ...reminders, [key]: v })}
-                    placeholder="HH:MM"
-                    placeholderTextColor="#C4CEC8"
-                    data-testid={`reminder-time-${key}`}
-                  />
-                </View>
-              ))}
+                );
+              })}
             </View>
           )}
 
@@ -377,6 +421,10 @@ const s = StyleSheet.create({
   timeIcon: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   timeLabel: { flex: 1, fontSize: 14, fontWeight: '600', color: '#1A2D26' },
   timeInput: { width: 64, fontSize: 14, fontWeight: '700', color: '#1A2D26', textAlign: 'center', borderWidth: 1, borderColor: '#E0E7E3', borderRadius: 8, paddingVertical: 4 },
+  previewRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4, marginLeft: 46, flexWrap: 'wrap' },
+  previewBadge: { flexDirection: 'row', alignItems: 'center', gap: 3, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 },
+  previewBadgeText: { fontSize: 10, fontWeight: '700' },
+  previewNames: { fontSize: 11, color: '#8FA39B', flex: 1 },
   reminderBtns: { flexDirection: 'row', gap: 10, marginTop: 14, justifyContent: 'flex-end' },
   testBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10, borderWidth: 1, borderColor: '#1B6B45' },
   testBtnText: { fontSize: 13, fontWeight: '600', color: '#1B6B45' },
