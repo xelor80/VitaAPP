@@ -15,7 +15,7 @@ import Svg, { Path, Defs, LinearGradient as SvgGradient, Stop, Circle } from 're
 import { useLang } from '../src/LangContext';
 import { eventBus } from '../src/eventBus';
 
-const VERO_WATER_IMAGE = { uri: 'https://customer-assets.emergentagent.com/job_1555994b-6d08-464e-b162-3cd8fab568d9/artifacts/i4oylwy4_ChatGPT%20Image%2014.%20Ma%CC%88rz%202026%2C%2009_16_03.png' };
+const VERO_WATER_IMAGE = { uri: 'https://customer-assets.emergentagent.com/job_1555994b-6d08-464e-b162-3cd8fab568d9/artifacts/m2lndufl_vero_trinkt.png' };
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 const { width: SCREEN_W } = Dimensions.get('window');
