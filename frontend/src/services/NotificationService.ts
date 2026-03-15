@@ -290,7 +290,7 @@ function scheduleWebNotification(hour: number, minute: number, title: string, bo
 /**
  * Send an immediate test notification
  */
-export async function sendТестNotification(lang: string = 'de'): Promise<boolean> {
+export async function sendTestNotification(lang: string = 'de'): Promise<boolean> {
   const hasPermission = await requestNotificationPermissions();
   if (!hasPermission) return false;
 
@@ -318,7 +318,7 @@ export async function sendТестNotification(lang: string = 'de'): Promise<boo
     });
     return true;
   } catch (e) {
-    console.error('Тест notification error:', e);
+    console.error('Test notification error:', e);
     return false;
   }
 }

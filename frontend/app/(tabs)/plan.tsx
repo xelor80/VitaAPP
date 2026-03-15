@@ -9,7 +9,7 @@ import { useLang } from '../../src/LangContext';
 import { tx } from '../../src/i18n';
 import {
   scheduleCombinedReminders,
-  sendТестNotification,
+  sendTestNotification,
   cancelAllReminders,
   ReminderSettings,
   CombinedSchedule,
@@ -124,7 +124,7 @@ export default function PlanScreen() {
             lang
           );
           if (success) {
-            await sendТестNotification(lang);
+            await sendTestNotification(lang);
             Alert.alert(
               tx(lang, { de: 'Erinnerungen aktiviert', it: 'Promemoria attivati', en: 'Reminders activated', tr: 'Hatirlatmalar etkinlestirildi', fr: 'Rappels actives', es: 'Recordatorios activados', ru: 'Напоминания aktivirovany' }),
               tx(lang, { de: 'Sie erhalten Benachrichtigungen fuer Supplements und Medikamente.', it: 'Riceverai notifiche per supplementi e farmaci.', en: 'You will receive notifications for supplements and medications.', tr: 'Takviyeler ve ilaclar icin bildirim alacaksiniz.', fr: 'Vous recevrez des notifications pour les supplements et medicaments.', es: 'Recibira notificaciones para suplementos y medicamentos.', ru: 'Вы будете получать уведомления о добавках и лекарствах.' })
@@ -311,9 +311,9 @@ export default function PlanScreen() {
           )}
 
           <View style={s.reminderBtns}>
-            <TouchableOpacity style={s.testBtn} onPress={() => sendТестNotification(lang)} data-testid="test-notification-btn">
+            <TouchableOpacity style={s.testBtn} onPress={() => sendTestNotification(lang)} data-testid="test-notification-btn">
               <MaterialCommunityIcons name="bell-ring" size={16} color="#1B6B45" />
-              <Text style={s.testBtnText}>{tx(lang, { de: 'Тестen', it: 'Prova', en: 'Тест', tr: 'Тест', fr: 'Тестer', es: 'Probar', ru: 'Тест' })}</Text>
+              <Text style={s.testBtnText}>{tx(lang, { de: 'Testen', it: 'Prova', en: 'Test', tr: 'Test', fr: 'Tester', es: 'Probar', ru: 'Тест' })}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={s.saveBtn} onPress={saveReminders} data-testid="save-reminders-btn">
               <LinearGradient colors={['#1B6B45', '#2E9E6B']} style={s.saveBtnGradient}>
