@@ -707,3 +707,53 @@ async def get_recipe_by_id(recipe_id: str, lang: str = "de"):
         "symptom_tags": recipe.get("symptom_tags", []),
         "image_url": recipe.get("image_url", ""),
     }
+
+
+# ── Product Selections (user picks a product for a supplement) ──
+
+from pydantic import BaseModel
+from datetime import datetime, timezone
+
+class ProductSelection(BaseModel):
+    profile_id: str
+    nutrient_id: str
+    product_name: str
+    product_id: str = ""
+
+@router.post("/products/select")
+async def select_product(entry: ProductSelection):
+    """Save which product the user takes for a given nutrient."""
+    await db.product_selections.update_one(
+        {"profile_id": entry.profile_id, "nutrient_id": entry.nutrient_id},
+        {"$set": {
+            "profile_id": entry.profile_id,
+            "nutrient_id": entry.nutrient_id,
+            "product_name": entry.product_name,
+            "product_id": entry.product_id,
+            "selected_at": datetime.now(timezone.utc).isoformat(),
+        }},
+        upsert=True,
+    )
+    return {"success": True, "product_name": entry.product_name}
+
+@router.get("/products/selections/{profile_id}")
+async def get_product_selections(profile_id: str):
+    """Get all product selections for a user."""
+    docs = await db.product_selections.find(
+        {"profile_id": profile_id}, {"_id": 0}
+    ).to_list(100)
+    result = {}
+    for d in docs:
+        result[d["nutrient_id"]] = {
+            "product_name": d.get("product_name", ""),
+            "product_id": d.get("product_id", ""),
+        }
+    return {"selections": result}
+
+@router.delete("/products/selections/{profile_id}/{nutrient_id}")
+async def remove_product_selection(profile_id: str, nutrient_id: str):
+    """Remove a product selection."""
+    await db.product_selections.delete_one(
+        {"profile_id": profile_id, "nutrient_id": nutrient_id}
+    )
+    return {"success": True}

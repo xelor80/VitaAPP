@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLang } from '../src/LangContext';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
@@ -40,6 +41,24 @@ export default function ProductComparisonScreen() {
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState<any[]>([]);
   const [qualityInfo, setQualityInfo] = useState<any>(null);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  const [profileId, setProfileId] = useState<string | null>(null);
+
+  useEffect(() => {
+    AsyncStorage.getItem('health_profile_id').then(pid => {
+      if (pid) {
+        setProfileId(pid);
+        // Load existing selection for this nutrient
+        fetch(`${API_URL}/api/products/selections/${pid}`)
+          .then(r => r.json())
+          .then(data => {
+            const sel = data.selections?.[nutrient];
+            if (sel?.product_id) setSelectedProductId(sel.product_id);
+          })
+          .catch(() => {});
+      }
+    });
+  }, []);
 
   useEffect(() => {
     if (!nutrient) return;
@@ -54,6 +73,27 @@ export default function ProductComparisonScreen() {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [nutrient, lang]);
+
+  const selectProduct = async (product: any) => {
+    if (!profileId) return;
+    const isDeselect = selectedProductId === product.product_id;
+    if (isDeselect) {
+      setSelectedProductId(null);
+      fetch(`${API_URL}/api/products/selections/${profileId}/${nutrient}`, { method: 'DELETE' }).catch(() => {});
+    } else {
+      setSelectedProductId(product.product_id);
+      fetch(`${API_URL}/api/products/select`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          profile_id: profileId,
+          nutrient_id: nutrient,
+          product_name: product.name,
+          product_id: product.product_id,
+        }),
+      }).catch(() => {});
+    }
+  };
 
   const accentColor = RISK_COLORS[risk] || '#F59E0B';
   const nutrientName = NUTRIENT_NAMES[nutrient]?.[lang] || nutrient;
@@ -151,7 +191,16 @@ export default function ProductComparisonScreen() {
           </View>
         ) : (
           products.map((p: any, i: number) => (
-            <View key={p.product_id || i} style={s.productCard} data-testid={`product-card-${i}`}>
+            <View key={p.product_id || i} style={[s.productCard, selectedProductId === p.product_id && s.productCardSelected]} data-testid={`product-card-${i}`}>
+              {/* Selection indicator */}
+              {selectedProductId === p.product_id && (
+                <View style={s.selectedBanner}>
+                  <MaterialCommunityIcons name="check-circle" size={16} color="#FFF" />
+                  <Text style={s.selectedBannerText}>
+                    {lang === 'de' ? 'Mein Produkt' : 'Il mio prodotto'}
+                  </Text>
+                </View>
+              )}
               {/* Product Header */}
               <View style={s.productHeader}>
                 {p.image_url ? (
@@ -232,6 +281,30 @@ export default function ProductComparisonScreen() {
                 <Text style={s.affiliateBtnText}>{tx.viewProduct}</Text>
               </TouchableOpacity>
 
+              {/* Select Product Button */}
+              <TouchableOpacity
+                style={[
+                  s.selectBtn,
+                  selectedProductId === p.product_id ? s.selectBtnActive : s.selectBtnInactive,
+                ]}
+                onPress={() => selectProduct(p)}
+                data-testid={`select-product-btn-${i}`}
+              >
+                <MaterialCommunityIcons
+                  name={selectedProductId === p.product_id ? 'check-circle' : 'circle-outline'}
+                  size={20}
+                  color={selectedProductId === p.product_id ? '#FFF' : '#1B6B45'}
+                />
+                <Text style={[
+                  s.selectBtnText,
+                  { color: selectedProductId === p.product_id ? '#FFF' : '#1B6B45' }
+                ]}>
+                  {selectedProductId === p.product_id
+                    ? (lang === 'de' ? 'Mein Produkt' : 'Il mio prodotto')
+                    : (lang === 'de' ? 'Ich nehme dieses Produkt' : 'Prendo questo prodotto')}
+                </Text>
+              </TouchableOpacity>
+
               {/* Price per day hint */}
               {p.price && p.servings && (
                 <View style={s.pricePerDayRow}>
@@ -272,7 +345,10 @@ const s = StyleSheet.create({
   tipRow: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#FFFBEB', borderRadius: 8, padding: 8 },
   tipText: { fontSize: 12, color: '#92400E', flex: 1 },
 
-  productCard: { backgroundColor: '#FFF', borderRadius: 14, padding: 16, marginBottom: 12 },
+  productCard: { backgroundColor: '#FFF', borderRadius: 14, padding: 16, marginBottom: 12, borderWidth: 2, borderColor: 'transparent' },
+  productCardSelected: { borderColor: '#1B6B45', backgroundColor: '#FAFFF9' },
+  selectedBanner: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#1B6B45', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6, marginBottom: 10, alignSelf: 'flex-start' },
+  selectedBannerText: { fontSize: 12, fontWeight: '700', color: '#FFF' },
   productHeader: { flexDirection: 'row', gap: 12, marginBottom: 12 },
   productImg: { width: 60, height: 60, borderRadius: 10 },
   productImgPlaceholder: { backgroundColor: '#F0F4F2', justifyContent: 'center', alignItems: 'center' },
@@ -288,6 +364,11 @@ const s = StyleSheet.create({
 
   affiliateBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderRadius: 10, paddingVertical: 12 },
   affiliateBtnText: { color: '#FFF', fontSize: 14, fontWeight: '600' },
+
+  selectBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderRadius: 10, paddingVertical: 12, marginTop: 8 },
+  selectBtnActive: { backgroundColor: '#1B6B45' },
+  selectBtnInactive: { backgroundColor: '#FFF', borderWidth: 2, borderColor: '#1B6B45' },
+  selectBtnText: { fontSize: 14, fontWeight: '700' },
 
   pricePerDayRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8, paddingHorizontal: 4 },
   pricePerDayText: { fontSize: 12, color: '#5C7A6F' },

@@ -161,6 +161,12 @@ async def get_daily_plan(profile_id: str, lang: str = "de"):
         for sid in sl.get("supplement_ids", []):
             supp_log_set.add((sid, sl.get("timing", "")))
 
+    # Get product selections (user's chosen product for each nutrient)
+    sel_docs = await db.product_selections.find(
+        {"profile_id": profile_id}, {"_id": 0}
+    ).to_list(100)
+    product_selections = {d["nutrient_id"]: d.get("product_name", "") for d in sel_docs}
+
     # Build plan grouped by timing
     timing_labels = {
         "morning": {"de": "Morgens", "it": "Mattina"},
@@ -193,10 +199,16 @@ async def get_daily_plan(profile_id: str, lang: str = "de"):
             else:
                 unit = supp.get("unit", "")
                 dosage_str = f"{dosage_info} {unit}".strip()
+            supp_name = supp.get(f"name_{lang}", supp.get("name_de", supp.get("name", supp_id)))
+            # Use selected product name if available
+            selected_product = product_selections.get(supp_id, "")
+            display_name = selected_product if selected_product else supp_name
             items.append({
                 "id": supp_id,
                 "type": "supplement",
-                "name": supp.get(f"name_{lang}", supp.get("name_de", supp.get("name", supp_id))),
+                "name": display_name,
+                "original_name": supp_name,
+                "product_selected": bool(selected_product),
                 "dosage": dosage_str,
                 "checked": is_checked,
                 "timing": timing,
