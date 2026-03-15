@@ -364,24 +364,35 @@ export default function DashboardHome() {
 
         {/* Language Switcher */}
         <View style={s.langSection} data-testid="language-switcher">
-          <Text style={s.langTitle}>{lang === 'de' ? 'Sprache' : 'Lingua'}</Text>
+          <Text style={s.langTitle}>{
+            lang === 'de' ? 'Sprache' :
+            lang === 'it' ? 'Lingua' :
+            lang === 'en' ? 'Language' :
+            lang === 'tr' ? 'Dil' :
+            lang === 'fr' ? 'Langue' :
+            lang === 'es' ? 'Idioma' :
+            'Yazyk'
+          }</Text>
           <View style={s.langRow}>
-            <TouchableOpacity
-              style={[s.langBtn, lang === 'de' && s.langBtnActive]}
-              onPress={() => setLang('de')}
-              data-testid="lang-de-btn"
-            >
-              <Text style={s.langFlag}>🇩🇪</Text>
-              <Text style={[s.langBtnText, lang === 'de' && s.langBtnTextActive]}>Deutsch</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[s.langBtn, lang === 'it' && s.langBtnActive]}
-              onPress={() => setLang('it')}
-              data-testid="lang-it-btn"
-            >
-              <Text style={s.langFlag}>🇮🇹</Text>
-              <Text style={[s.langBtnText, lang === 'it' && s.langBtnTextActive]}>Italiano</Text>
-            </TouchableOpacity>
+            {([
+              { code: 'de' as const, flag: '\u{1F1E9}\u{1F1EA}', label: 'Deutsch' },
+              { code: 'it' as const, flag: '\u{1F1EE}\u{1F1F9}', label: 'Italiano' },
+              { code: 'en' as const, flag: '\u{1F1EC}\u{1F1E7}', label: 'English' },
+              { code: 'tr' as const, flag: '\u{1F1F9}\u{1F1F7}', label: 'Turkce' },
+              { code: 'fr' as const, flag: '\u{1F1EB}\u{1F1F7}', label: 'Francais' },
+              { code: 'es' as const, flag: '\u{1F1EA}\u{1F1F8}', label: 'Espanol' },
+              { code: 'ru' as const, flag: '\u{1F1F7}\u{1F1FA}', label: 'Russkij' },
+            ]).map(item => (
+              <TouchableOpacity
+                key={item.code}
+                style={[s.langBtn, lang === item.code && s.langBtnActive]}
+                onPress={() => setLang(item.code)}
+                data-testid={`lang-${item.code}-btn`}
+              >
+                <Text style={s.langFlag}>{item.flag}</Text>
+                <Text style={[s.langBtnText, lang === item.code && s.langBtnTextActive]}>{item.label}</Text>
+              </TouchableOpacity>
+            ))}
           </View>
         </View>
 
@@ -613,19 +624,22 @@ const s = StyleSheet.create({
   },
   langRow: {
     flexDirection: 'row',
-    gap: 10,
+    gap: 8,
+    flexWrap: 'wrap',
   },
   langBtn: {
-    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
-    paddingVertical: 12,
+    gap: 6,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
     borderRadius: 12,
     borderWidth: 2,
     borderColor: '#E0E7E3',
     backgroundColor: '#F8FAF9',
+    minWidth: '30%',
+    flexGrow: 1,
   },
   langBtnActive: {
     borderColor: '#1B6B45',
