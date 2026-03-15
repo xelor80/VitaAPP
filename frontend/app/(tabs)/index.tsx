@@ -338,7 +338,7 @@ export default function DashboardHome() {
             <View style={[s.infoIconWrap, { backgroundColor: '#FFF3E0' }]}>
               <MaterialCommunityIcons name="book-open-variant" size={22} color="#E8820C" />
             </View>
-            <Text style={s.infoTitle}>{lang === 'de' ? 'Ernaehrungs-\nTipps' : 'Consigli\nnutrizionali'}</Text>
+            <Text style={s.infoTitle}>{lang === 'de' ? 'Gesundheits-\nTipps' : 'Consigli\nper la salute'}</Text>
             <View style={s.infoCta}>
               <Text style={[s.infoCtaText, { color: '#E8820C' }]}>{lang === 'de' ? 'Nuetzliche Infos' : 'Info utili'}</Text>
               <MaterialCommunityIcons name="chevron-right" size={16} color="#E8820C" />
