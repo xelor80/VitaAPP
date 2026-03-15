@@ -123,9 +123,11 @@ export default function DashboardHome() {
   }, []);
 
   const analyzeSymptoms = useCallback(async () => {
-    const allSymptoms = [symptomText, ...selectedTags].filter(Boolean).join(', ');
-    if (!allSymptoms.trim()) {
-      Alert.alert(lang === 'de' ? 'Hinweis' : 'Avviso', lang === 'de' ? 'Bitte beschreiben Sie Ihre Symptome.' : 'Descrivete i vostri sintomi.');
+    if (!symptomText.trim() && selectedTags.length === 0) {
+      Alert.alert(
+        lang === 'de' ? 'Hinweis' : 'Avviso',
+        lang === 'de' ? 'Bitte beschreiben Sie Ihre Symptome oder waehlen Sie einen Bereich aus.' : 'Descrivete i vostri sintomi o selezionate un\'area.'
+      );
       return;
     }
     setIsAnalyzing(true);
@@ -134,7 +136,7 @@ export default function DashboardHome() {
       const res = await fetch(`${API_URL}/api/symptoms/analyze`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ symptoms: allSymptoms, lang, profile_id: profileId }),
+        body: JSON.stringify({ text: symptomText, tags: selectedTags, lang, profile_id: profileId }),
       });
       if (res.ok) {
         const data = await res.json();
