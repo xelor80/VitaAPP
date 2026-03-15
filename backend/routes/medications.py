@@ -233,6 +233,33 @@ async def get_daily_plan(profile_id: str, lang: str = "de"):
 
 # ── Check-in (mark medication as taken) ──
 
+class SupplementCheckIn(BaseModel):
+    supplement_id: str
+    timing: str
+
+@router.post("/{profile_id}/supplement-check-in")
+async def check_in_supplement(profile_id: str, entry: SupplementCheckIn):
+    """Toggle supplement check-in for today."""
+    today = today_str()
+    existing = await db.supplement_check_ins.find_one({
+        "profile_id": profile_id,
+        "date": today,
+        "supplement_ids": entry.supplement_id,
+        "timing": entry.timing,
+    })
+    if existing:
+        await db.supplement_check_ins.delete_one({"_id": existing["_id"]})
+        return {"checked": False}
+
+    await db.supplement_check_ins.insert_one({
+        "profile_id": profile_id,
+        "date": today,
+        "supplement_ids": [entry.supplement_id],
+        "timing": entry.timing,
+        "taken_at": datetime.now(timezone.utc).isoformat(),
+    })
+    return {"checked": True}
+
 @router.post("/{profile_id}/{medication_id}/check-in")
 async def check_in_medication(profile_id: str, medication_id: str, entry: MedicationLogEntry):
     today = today_str()

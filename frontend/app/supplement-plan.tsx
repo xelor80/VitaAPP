@@ -13,14 +13,6 @@ import { useLang } from '../src/LangContext';
 import { planStyles as styles } from '../components/supplement/planStyles';
 import { InteractionAnalysis } from '../components/supplement/InteractionAnalysis';
 import { EmailExportModal } from '../components/supplement/EmailExportModal';
-import {
-  scheduleSupplementReminders,
-  sendTestNotification,
-  cancelAllReminders,
-  getNotificationPermissionStatus,
-  ReminderSettings,
-  WeeklySchedule
-} from '../src/services/NotificationService';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -131,19 +123,10 @@ export default function SupplementPlanScreen() {
   const [plan, setPlan] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
-  const [activeTab, setActiveTab] = useState<'stack' | 'schedule' | 'phases' | 'interactions'>('schedule');
-  const [reminders, setReminders] = useState({ enabled: false, morning_time: '08:00', noon_time: '12:00', evening_time: '20:00' });
-  const [showReminders, setShowReminders] = useState(true);
-  const [showReminderSettings, setShowReminderSettings] = useState(false);
+  const [activeTab, setActiveTab] = useState<'stack' | 'phases' | 'interactions'>('stack');
   const [products, setProducts] = useState<any[]>([]);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [firstName, setFirstName] = useState<string | null>(null);
-  const [workType, setWorkType] = useState<string | null>(null);
-  const [activeShift, setActiveShift] = useState<string | null>(null);
-  const [shiftCycle, setShiftCycle] = useState<string[]>([]);
-  const [cycleStartDate, setCycleStartDate] = useState('');
-  const [todayShift, setTodayShift] = useState<any>(null);
-  const [todayCompliance, setTodayCompliance] = useState<Record<string, boolean>>({});
   const [pricingMap, setPricingMap] = useState<Record<string, { avg_per_day: number; min_per_day: number; max_per_day: number; product_count: number }>>({});
 
   // Fetch pricing when plan stack is available
@@ -172,36 +155,6 @@ export default function SupplementPlanScreen() {
           if (profileRes.ok) {
             const profileData = await profileRes.json();
             if (profileData.profile?.first_name) setFirstName(profileData.profile.first_name);
-            if (profileData.profile?.work_type) setWorkType(profileData.profile.work_type);
-            if (profileData.profile?.current_shift) setActiveShift(profileData.profile.current_shift);
-          }
-        } catch {}
-
-        // Load shift cycle from reminders & fetch today's shift
-        try {
-          const remDoc = await fetch(`${API_URL}/api/supplement-plan/${pid}/reminders`);
-          if (remDoc.ok) {
-            const remData = await remDoc.json();
-            if (remData.shift_cycle?.pattern) {
-              setShiftCycle(remData.shift_cycle.pattern);
-              setCycleStartDate(remData.shift_cycle.start_date || '');
-            }
-          }
-          const shiftRes = await fetch(`${API_URL}/api/supplement-plan/${pid}/today-shift?lang=${lang}`);
-          if (shiftRes.ok) {
-            const shiftData = await shiftRes.json();
-            if (shiftData.shift) setTodayShift(shiftData);
-          }
-        } catch {}
-
-        // Load today's compliance status
-        try {
-          const compRes = await fetch(`${API_URL}/api/tracking/compliance/today/${pid}`);
-          if (compRes.ok) {
-            const compData = await compRes.json();
-            const taken: Record<string, boolean> = {};
-            for (const id of (compData.taken_ids || [])) { taken[id] = true; }
-            setTodayCompliance(taken);
           }
         } catch {}
 
@@ -244,7 +197,6 @@ export default function SupplementPlanScreen() {
       if (res.ok) {
         const data = await res.json();
         setPlan(data.plan);
-        if (data.reminders) setReminders(data.reminders);
       }
     } catch (e) {
       console.error('Load plan error:', e);
@@ -268,71 +220,6 @@ export default function SupplementPlanScreen() {
     } finally {
       setGenerating(false);
     }
-  };
-
-  const saveReminders = async () => {
-    try {
-      const payload: any = { ...reminders };
-      if (shiftCycle.length > 0 && cycleStartDate) {
-        payload.shift_cycle = { pattern: shiftCycle, start_date: cycleStartDate };
-      }
-      // Save to backend
-      await fetch(`${API_URL}/api/supplement-plan/${currentProfileId}/reminders`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      // Also mark supplements as taken (compliance tracking)
-      if (plan?.stack) {
-        const ids = plan.stack.map((s: any) => s.id);
-        await fetch(`${API_URL}/api/daily-tasks/complete-supplements`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ profile_id: currentProfileId, supplement_ids: ids })
-        });
-        const updated: Record<string, boolean> = { ...todayCompliance };
-        for (const id of ids) updated[id] = true;
-        setTodayCompliance(updated);
-      }
-
-      if (reminders.enabled && plan?.weekly_schedule) {
-        // Schedule notifications using the new service
-        const success = await scheduleSupplementReminders(
-          reminders as ReminderSettings,
-          plan.weekly_schedule as WeeklySchedule,
-          lang
-        );
-
-        if (success) {
-          // Send test notification to confirm
-          await sendTestNotification(lang);
-          Alert.alert(
-            lang === 'de' ? 'Erinnerungen aktiviert' : 'Promemoria attivati',
-            lang === 'de' 
-              ? 'Sie erhalten täglich Benachrichtigungen zu den eingestellten Zeiten.'
-              : 'Riceverai notifiche giornaliere agli orari impostati.'
-          );
-        } else {
-          Alert.alert(
-            lang === 'de' ? 'Berechtigung erforderlich' : 'Autorizzazione richiesta',
-            lang === 'de'
-              ? 'Bitte erlauben Sie Benachrichtigungen in den Einstellungen.'
-              : 'Per favore consenti le notifiche nelle impostazioni.'
-          );
-        }
-      } else {
-        // Disable notifications
-        await cancelAllReminders();
-      }
-    } catch (e) {
-      console.error('Save reminders error:', e);
-      Alert.alert(
-        lang === 'de' ? 'Fehler' : 'Errore',
-        lang === 'de' ? 'Erinnerungen konnten nicht gespeichert werden.' : 'Impossibile salvare i promemoria.'
-      );
-    }
-    setShowReminders(false);
   };
 
   // Remove the old scheduleNotifications function - now handled by NotificationService
@@ -411,14 +298,9 @@ export default function SupplementPlanScreen() {
             </Text>
           </View>
           <MaterialCommunityIcons name="white-balance-sunny" size={36} color="#FFD54F" />
-          <View style={{ flexDirection: 'row', gap: 4, marginLeft: 8 }}>
-            <TouchableOpacity onPress={() => setShowReminders(!showReminders)} style={ns.headerIconBtn}>
-              <MaterialCommunityIcons name={reminders.enabled ? 'bell-ring' : 'bell-outline'} size={20} color="#FFFFFF" />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => setShowEmailModal(true)} style={ns.headerIconBtn} testID="email-export-btn">
-              <MaterialCommunityIcons name="email-fast-outline" size={20} color="#FFFFFF" />
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity onPress={() => setShowEmailModal(true)} style={ns.headerIconBtn} testID="email-export-btn">
+            <MaterialCommunityIcons name="email-fast-outline" size={20} color="#FFFFFF" />
+          </TouchableOpacity>
         </LinearGradient>
 
         {/* Personal Summary */}
@@ -445,314 +327,10 @@ export default function SupplementPlanScreen() {
         )}
 
         {/* Reminder Settings */}
-        {showReminders && plan.weekly_schedule && (() => {
-          const activeSlot = getActiveTimeSlot(plan.weekly_schedule);
-          const activeItems = plan.weekly_schedule?.[activeSlot]?.items || [];
-          const activeTimeStr = activeSlot === 'morning' ? reminders.morning_time
-            : activeSlot === 'noon' ? reminders.noon_time : reminders.evening_time;
-          const slotName = TIME_LABELS[activeSlot]?.[lang] || '';
-          if (activeItems.length === 0) return null;
-          return (
-          <View style={ns.reminderCard} testID="reminder-card">
-            <LinearGradient
-              colors={['#1B6B45', '#2E9E6B']}
-              style={ns.reminderHeader}
-            >
-              <Text style={ns.reminderHeaderTitle}>
-                {lang === 'de' ? 'Erinnerung' : 'Promemoria'}
-              </Text>
-              <View style={{ flexDirection: 'row', gap: 8 }}>
-                <TouchableOpacity onPress={() => setShowReminderSettings(!showReminderSettings)} testID="reminder-settings-btn">
-                  <MaterialCommunityIcons name={showReminderSettings ? 'close' : 'cog'} size={20} color="#FFFFFF" />
-                </TouchableOpacity>
-                <MaterialCommunityIcons name="bell-ring-outline" size={20} color="#FFFFFF" />
-              </View>
-            </LinearGradient>
-
-            {/* Settings Panel */}
-            {showReminderSettings ? (
-              <View style={ns.settingsBody}>
-                <Text style={ns.settingsTitle}>
-                  {lang === 'de' ? 'Benachrichtigungen einstellen' : 'Imposta notifiche'}
-                </Text>
-                <TouchableOpacity
-                  style={ns.settingsToggleRow}
-                  onPress={() => setReminders({ ...reminders, enabled: !reminders.enabled })}
-                  testID="reminder-toggle-btn"
-                >
-                  <MaterialCommunityIcons
-                    name={reminders.enabled ? 'toggle-switch' : 'toggle-switch-off'}
-                    size={44} color={reminders.enabled ? '#1B6B45' : '#C4CEC8'}
-                  />
-                  <Text style={[ns.settingsToggleText, { color: reminders.enabled ? '#1A2D26' : '#8FA39B' }]}>
-                    {reminders.enabled
-                      ? (lang === 'de' ? 'Push-Benachrichtigungen aktiv' : 'Notifiche push attive')
-                      : (lang === 'de' ? 'Push-Benachrichtigungen aus' : 'Notifiche push disattivate')}
-                  </Text>
-                </TouchableOpacity>
-                {reminders.enabled && (
-                  <View style={ns.settingsTimeRows}>
-                    {/* Shift selector for shift/night workers */}
-                    {(workType === 'shift_work' || workType === 'night_work') && (
-                      <View style={{ marginBottom: 14, padding: 12, backgroundColor: '#E8F5E9', borderRadius: 12 }}>
-                        <Text style={{ fontSize: 13, fontWeight: '700', color: '#1A2D26', marginBottom: 8 }}>
-                          <MaterialCommunityIcons name="clock-fast" size={15} color="#1B6B45" />
-                          {' '}{lang === 'de' ? 'Schicht-Vorlage' : 'Modello turno'}
-                        </Text>
-                        <View style={{ flexDirection: 'row', gap: 6 }}>
-                          {([
-                            { key: 'early', icon: 'weather-sunset-up', label: lang === 'de' ? 'Frueh' : 'Mattina', times: { morning_time: '05:00', noon_time: '11:30', evening_time: '20:00' } },
-                            { key: 'late', icon: 'weather-sunset-down', label: lang === 'de' ? 'Spaet' : 'Pomeriggio', times: { morning_time: '09:30', noon_time: '15:30', evening_time: '23:00' } },
-                            { key: 'night', icon: 'weather-night', label: lang === 'de' ? 'Nacht' : 'Notte', times: { morning_time: '14:30', noon_time: '20:00', evening_time: '03:00' } },
-                          ] as const).map(shift => (
-                            <TouchableOpacity
-                              key={shift.key}
-                              data-testid={`shift-preset-${shift.key}`}
-                              style={{
-                                flex: 1, flexDirection: 'column', alignItems: 'center', gap: 4,
-                                padding: 10, borderRadius: 10, borderWidth: 2,
-                                borderColor: activeShift === shift.key ? '#1B6B45' : '#D1E8D5',
-                                backgroundColor: activeShift === shift.key ? '#D7EDDF' : '#FFFFFF',
-                              }}
-                              onPress={() => {
-                                setActiveShift(shift.key);
-                                setReminders({ ...reminders, ...shift.times });
-                              }}
-                            >
-                              <MaterialCommunityIcons name={shift.icon} size={22} color={activeShift === shift.key ? '#1B6B45' : '#8FA39B'} />
-                              <Text style={{ fontSize: 12, fontWeight: '700', color: activeShift === shift.key ? '#1B6B45' : '#5C7A6F' }}>
-                                {shift.label}
-                              </Text>
-                            </TouchableOpacity>
-                          ))}
-                        </View>
-                        <Text style={{ fontSize: 11, color: '#5C7A6F', marginTop: 6 }}>
-                          {lang === 'de'
-                            ? 'Waehle deine aktuelle Schicht - die Zeiten passen sich automatisch an.'
-                            : 'Seleziona il turno attuale - gli orari si adatteranno automaticamente.'}
-                        </Text>
-                      </View>
-                    )}
-
-                    {/* Shift Cycle Rotator - only for shift/night workers */}
-                    {(workType === 'shift_work' || workType === 'night_work') && (
-                      <View style={{ marginBottom: 14, padding: 12, backgroundColor: '#E8F5E9', borderRadius: 12 }}>
-                        <Text style={{ fontSize: 13, fontWeight: '700', color: '#1A2D26', marginBottom: 10 }}>
-                          <MaterialCommunityIcons name="calendar-sync" size={15} color="#5C6BC0" />
-                          {' '}{lang === 'de' ? 'Schichtzyklus-Rotator' : 'Rotatore turni'}
-                        </Text>
-
-                        {/* Today's shift indicator */}
-                        {todayShift?.shift && (
-                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10, padding: 8, backgroundColor: '#E8F5E9', borderRadius: 8 }}>
-                            <MaterialCommunityIcons
-                              name={todayShift.shift === 'early' ? 'weather-sunset-up' : todayShift.shift === 'late' ? 'weather-sunset-down' : todayShift.shift === 'night' ? 'weather-night' : 'sofa'}
-                              size={20} color="#2E7D32"
-                            />
-                            <Text style={{ fontSize: 13, fontWeight: '700', color: '#2E7D32' }}>
-                              {lang === 'de' ? `Heute: ${todayShift.label}` : `Oggi: ${todayShift.label}`}
-                              {' '}({lang === 'de' ? `Tag ${todayShift.cycle_day}` : `Giorno ${todayShift.cycle_day}`})
-                            </Text>
-                          </View>
-                        )}
-
-                        {/* Preset templates */}
-                        <Text style={{ fontSize: 12, color: '#5C7A6F', marginBottom: 6 }}>
-                          {lang === 'de' ? 'Vorlage waehlen:' : 'Scegli modello:'}
-                        </Text>
-                        <View style={{ flexDirection: 'row', gap: 6, marginBottom: 10, flexWrap: 'wrap' }}>
-                          {([
-                            { label: 'VK 4x4', pattern: ['early','early','early','early','late','late','late','late','night','night','night','night','off','off','off','off'] },
-                            { label: lang === 'de' ? '3-Schicht' : '3 turni', pattern: ['early','early','late','late','night','night','off'] },
-                            { label: 'FFSSNN--', pattern: ['early','early','late','late','night','night','off','off'] },
-                            { label: lang === 'de' ? '2-Schicht' : '2 turni', pattern: ['early','early','early','late','late','late','off'] },
-                          ]).map(tpl => (
-                            <TouchableOpacity
-                              key={tpl.label}
-                              testID={`cycle-tpl-${tpl.label}`}
-                              style={{
-                                paddingHorizontal: 10, paddingVertical: 6, borderRadius: 14,
-                                borderWidth: 1.5,
-                                borderColor: JSON.stringify(shiftCycle) === JSON.stringify(tpl.pattern) ? '#5C6BC0' : '#D1D5DB',
-                                backgroundColor: JSON.stringify(shiftCycle) === JSON.stringify(tpl.pattern) ? '#EDE7F6' : '#FFF',
-                              }}
-                              onPress={() => {
-                                setShiftCycle(tpl.pattern);
-                                if (!cycleStartDate) setCycleStartDate(new Date().toISOString().split('T')[0]);
-                              }}
-                            >
-                              <Text style={{ fontSize: 12, fontWeight: '600', color: JSON.stringify(shiftCycle) === JSON.stringify(tpl.pattern) ? '#5C6BC0' : '#5C7A6F' }}>
-                                {tpl.label}
-                              </Text>
-                            </TouchableOpacity>
-                          ))}
-                        </View>
-
-                        {/* Visual cycle editor */}
-                        {shiftCycle.length > 0 && (
-                          <>
-                            <Text style={{ fontSize: 12, color: '#5C7A6F', marginBottom: 6 }}>
-                              {lang === 'de' ? 'Zyklus bearbeiten (tippen zum aendern):' : 'Modifica ciclo (tocca per cambiare):'}
-                            </Text>
-                            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginBottom: 10 }}>
-                              {shiftCycle.map((shift, i) => {
-                                const cfg: Record<string, { bg: string; fg: string; lbl: string }> = {
-                                  early: { bg: '#FFF3E0', fg: '#E65100', lbl: 'F' },
-                                  late: { bg: '#E3F2FD', fg: '#1565C0', lbl: 'S' },
-                                  night: { bg: '#EDE7F6', fg: '#4527A0', lbl: 'N' },
-                                  off: { bg: '#F5F5F5', fg: '#9E9E9E', lbl: '-' },
-                                };
-                                const c = cfg[shift] || cfg.off;
-                                const isToday = todayShift?.day_index === i;
-                                return (
-                                  <TouchableOpacity
-                                    key={i}
-                                    testID={`cycle-day-${i}`}
-                                    style={{
-                                      width: 32, height: 32, borderRadius: 8,
-                                      backgroundColor: c.bg, alignItems: 'center', justifyContent: 'center',
-                                      borderWidth: isToday ? 2.5 : 0, borderColor: '#2E7D32',
-                                    }}
-                                    onPress={() => {
-                                      const order = ['early', 'late', 'night', 'off'];
-                                      const next = order[(order.indexOf(shift) + 1) % order.length];
-                                      const updated = [...shiftCycle];
-                                      updated[i] = next;
-                                      setShiftCycle(updated);
-                                    }}
-                                  >
-                                    <Text style={{ fontSize: 13, fontWeight: '800', color: c.fg }}>{c.lbl}</Text>
-                                  </TouchableOpacity>
-                                );
-                              })}
-                            </View>
-                            <View style={{ flexDirection: 'row', gap: 10, flexWrap: 'wrap', marginBottom: 6 }}>
-                              {[
-                                { lbl: 'F', desc: lang === 'de' ? 'Frueh' : 'Matt.', bg: '#FFF3E0', fg: '#E65100' },
-                                { lbl: 'S', desc: lang === 'de' ? 'Spaet' : 'Pom.', bg: '#E3F2FD', fg: '#1565C0' },
-                                { lbl: 'N', desc: lang === 'de' ? 'Nacht' : 'Notte', bg: '#EDE7F6', fg: '#4527A0' },
-                                { lbl: '-', desc: lang === 'de' ? 'Frei' : 'Libero', bg: '#F5F5F5', fg: '#9E9E9E' },
-                              ].map(l => (
-                                <View key={l.lbl} style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
-                                  <View style={{ width: 16, height: 16, borderRadius: 4, backgroundColor: l.bg, alignItems: 'center', justifyContent: 'center' }}>
-                                    <Text style={{ fontSize: 9, fontWeight: '800', color: l.fg }}>{l.lbl}</Text>
-                                  </View>
-                                  <Text style={{ fontSize: 10, color: '#5C7A6F' }}>{l.desc}</Text>
-                                </View>
-                              ))}
-                            </View>
-
-                            {/* Start date */}
-                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 }}>
-                              <MaterialCommunityIcons name="calendar-start" size={16} color="#5C6BC0" />
-                              <Text style={{ fontSize: 12, color: '#5C7A6F' }}>
-                                {lang === 'de' ? 'Startdatum:' : 'Data inizio:'}
-                              </Text>
-                              <TextInput
-                                testID="cycle-start-date"
-                                style={{ flex: 1, fontSize: 13, fontWeight: '600', color: '#1A2D26', borderBottomWidth: 1, borderBottomColor: '#D1D5DB', paddingVertical: 2 }}
-                                value={cycleStartDate}
-                                onChangeText={setCycleStartDate}
-                                placeholder="JJJJ-MM-TT"
-                                placeholderTextColor="#C4CEC8"
-                              />
-                            </View>
-                          </>
-                        )}
-                      </View>
-                    )}
-                    {[
-                      { key: 'morning_time', icon: 'weather-sunny', label: lang === 'de' ? 'Morgens' : 'Mattina', color: '#FF9800' },
-                      { key: 'noon_time', icon: 'weather-partly-cloudy', label: lang === 'de' ? 'Mittags' : 'Mezzogiorno', color: '#2E9E6B' },
-                      { key: 'evening_time', icon: 'weather-night', label: lang === 'de' ? 'Abends' : 'Sera', color: '#5C6BC0' },
-                    ].map(({ key, icon, label, color }) => (
-                      <View key={key} style={ns.settingsTimeRow}>
-                        <View style={[ns.settingsTimeIcon, { backgroundColor: color + '18' }]}>
-                          <MaterialCommunityIcons name={icon as any} size={20} color={color} />
-                        </View>
-                        <Text style={ns.settingsTimeLabel}>{label}</Text>
-                        <TextInput
-                          style={ns.settingsTimeInput}
-                          value={(reminders as any)[key]}
-                          onChangeText={v => setReminders({ ...reminders, [key]: v })}
-                          placeholder="HH:MM"
-                          placeholderTextColor="#C4CEC8"
-                          testID={`reminder-time-${key}`}
-                        />
-                      </View>
-                    ))}
-                  </View>
-                )}
-                <View style={ns.settingsBtnRow}>
-                  <TouchableOpacity
-                    style={ns.settingsTestBtn}
-                    onPress={() => sendTestNotification(lang)}
-                    testID="test-notification-btn"
-                  >
-                    <MaterialCommunityIcons name="bell-ring" size={16} color="#1B6B45" />
-                    <Text style={ns.settingsTestBtnText}>
-                      {lang === 'de' ? 'Testen' : 'Prova'}
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={ns.settingsSaveBtn} onPress={() => { saveReminders(); setShowReminderSettings(false); }} testID="save-reminders-btn">
-                    <LinearGradient colors={['#1B6B45', '#2E9E6B']} style={ns.settingsSaveGradient}>
-                      <MaterialCommunityIcons name="content-save" size={16} color="#FFFFFF" />
-                      <Text style={ns.settingsSaveBtnText}>
-                        {lang === 'de' ? 'Speichern' : 'Salva'}
-                      </Text>
-                    </LinearGradient>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            ) : (
-              /* Notification Card Body */
-              <View style={ns.reminderBody}>
-                <Text style={ns.reminderSubtitle}>
-                  {lang === 'de'
-                    ? `Zeit fuer deine ${slotName}einnahme!`
-                    : `E' ora della tua assunzione ${slotName}!`}
-                </Text>
-                <View style={ns.reminderClockRow}>
-                  <MaterialCommunityIcons name="clock-outline" size={52} color="#1B6B45" />
-                  <Text style={ns.reminderTimeText}>{activeTimeStr} Uhr</Text>
-                </View>
-                {activeItems.slice(0, 3).map((item: any) => (
-                  <View key={item.id} style={ns.reminderItem}>
-                    <PillIcon id={item.id} size={36} />
-                    <View style={{ flex: 1 }}>
-                      <Text style={ns.reminderItemName}>{item.name}</Text>
-                      <Text style={ns.reminderItemDose}>
-                        {item.form_label || `${item.dosage} ${item.unit}`} – {lang === 'de' ? 'einnehmen' : 'assumere'}
-                      </Text>
-                    </View>
-                    <MaterialCommunityIcons name="check-circle" size={22} color="#10B981" />
-                  </View>
-                ))}
-                <View style={ns.reminderActions}>
-                  <TouchableOpacity style={ns.laterBtn} onPress={() => setShowReminders(false)} testID="later-remind-btn">
-                    <Text style={ns.laterBtnText}>
-                      {lang === 'de' ? 'Spaeter erinnern' : 'Ricorda dopo'}
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={ns.takeNowBtn} onPress={saveReminders} testID="take-now-btn">
-                    <LinearGradient colors={['#1B6B45', '#2E9E6B']} style={ns.takeNowGradient}>
-                      <Text style={ns.takeNowBtnText}>
-                        {lang === 'de' ? 'Jetzt einnehmen' : 'Assumi ora'}
-                      </Text>
-                    </LinearGradient>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            )}
-          </View>
-          );
-        })()}
-
         {/* Tabs */}
         <View style={styles.tabs}>
           {[
             { key: 'stack' as const, label: lang === 'de' ? 'Stack' : 'Stack', icon: 'pill' },
-            { key: 'schedule' as const, label: lang === 'de' ? 'Tagesplan' : 'Piano', icon: 'clock-outline' },
             { key: 'phases' as const, label: lang === 'de' ? 'Wochen' : 'Settimane', icon: 'calendar-week' },
             { key: 'interactions' as const, label: lang === 'de' ? 'Analyse' : 'Analisi', icon: 'shield-search' },
           ].map(tab => (
@@ -906,118 +484,6 @@ export default function SupplementPlanScreen() {
         })}
 
         {/* Schedule Tab - New Tagesplan Design */}
-        {activeTab === 'schedule' && (
-          <View>
-            {['morning', 'noon', 'evening'].map(timing => {
-              const section = plan.weekly_schedule?.[timing];
-              const items = section?.items || [];
-              if (items.length === 0) return null;
-              const timeStr = timing === 'morning' ? reminders.morning_time
-                : timing === 'noon' ? reminders.noon_time
-                : reminders.evening_time;
-              const timeName = TIME_LABELS[timing]?.[lang] || timing;
-              const timingIcon = timing === 'morning' ? 'weather-sunny' : timing === 'noon' ? 'weather-partly-cloudy' : 'weather-night';
-              const timingColor = timing === 'morning' ? '#FF9800' : timing === 'noon' ? '#2E9E6B' : '#5C6BC0';
-
-              return (
-                <View key={timing} style={ns.timeCard}>
-                  <View style={ns.timeCardHeader}>
-                    <MaterialCommunityIcons name={timingIcon as any} size={22} color={timingColor} />
-                    <Text style={ns.timeLabel}>{timeName}</Text>
-                    <Text style={ns.timeValue}>{timeStr}</Text>
-                    <View style={{ flex: 1 }} />
-                    <Text style={ns.timeCount}>{items.length} {lang === 'de' ? 'Supplements' : 'supplementi'}</Text>
-                  </View>
-                  <View style={ns.pillGrid}>
-                    {items.map((item: any) => {
-                      const displayName = abbreviateName(item.name || '', item.id);
-                      const formLabel = item.form_label || `${item.dosage} ${item.unit}`;
-                      const isTaken = todayCompliance[item.id] === true;
-                      return (
-                        <TouchableOpacity
-                          key={item.id}
-                          style={[ns.pillItem, isTaken && { opacity: 0.5 }]}
-                          activeOpacity={0.7}
-                          data-testid={`pill-shop-${item.id}`}
-                          onPress={() => router.push({
-                            pathname: '/product-comparison',
-                            params: { nutrient: item.id, risk: item.risk_level || 'medium' }
-                          })}
-                        >
-                          <View>
-                            <PillIcon id={item.id} />
-                            {isTaken && (
-                              <View style={{ position: 'absolute', right: -4, top: -4, backgroundColor: '#22C55E', borderRadius: 10, width: 20, height: 20, alignItems: 'center', justifyContent: 'center' }}>
-                                <MaterialCommunityIcons name="check" size={14} color="#FFF" />
-                              </View>
-                            )}
-                          </View>
-                          <Text style={[ns.pillName, isTaken && { textDecorationLine: 'line-through', color: '#8FA39B' }]} numberOfLines={1}>{displayName}</Text>
-                          <Text style={ns.pillDose} numberOfLines={1}>{formLabel}</Text>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-                  <Text style={ns.mealNote}>
-                    <MaterialCommunityIcons name="information-outline" size={12} color="#8FA39B" />
-                    {' '}{items[0]?.with_food
-                      ? (lang === 'de' ? 'Mit Mahlzeit einnehmen' : 'Assumere con pasto')
-                      : (lang === 'de' ? 'Nuechtern einnehmen' : 'Assumere a digiuno')}
-                  </Text>
-                </View>
-              );
-            })}
-
-            {/* Einnahme abgehakt Button */}
-            <TouchableOpacity style={ns.completionBtn} testID="intake-complete-btn">
-              <LinearGradient colors={['#1B6B45', '#2E9E6B']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={ns.completionGradient}>
-                <MaterialCommunityIcons name="check-circle" size={18} color="#FFFFFF" />
-                <Text style={ns.completionBtnText}>
-                  {lang === 'de' ? 'Einnahme abgehakt' : 'Assunzione confermata'}
-                </Text>
-              </LinearGradient>
-            </TouchableOpacity>
-
-            {/* Supplement Uebersicht Card */}
-            <View style={ns.overviewCard}>
-              <LinearGradient colors={['#1B6B45', '#2E9E6B', '#43C68A']} start={{ x: 0, y: 0 }} end={{ x: 0.5, y: 1 }} style={ns.overviewHeader}>
-                <View>
-                  <Text style={ns.overviewTitle}>
-                    {lang === 'de' ? 'Supplement Uebersicht' : 'Panoramica supplementi'}
-                  </Text>
-                  <Text style={ns.overviewSubtitle}>
-                    {plan.total_supplements} {lang === 'de' ? 'Supplements' : 'supplementi'} - 8 {lang === 'de' ? 'Wochen' : 'settimane'}
-                  </Text>
-                </View>
-              </LinearGradient>
-              <View style={ns.overviewGrid}>
-                {plan.stack?.slice(0, 4).map((s: any) => (
-                  <TouchableOpacity
-                    key={s.id}
-                    style={ns.overviewItem}
-                    activeOpacity={0.7}
-                    data-testid={`overview-shop-${s.id}`}
-                    onPress={() => router.push({
-                      pathname: '/product-comparison',
-                      params: { nutrient: s.id, risk: s.risk_level || 'medium' }
-                    })}
-                  >
-                    <PillIcon id={s.id} size={36} />
-                    <Text style={ns.overviewItemName} numberOfLines={1}>{s.name?.split(' ')[0] || s.id}</Text>
-                    <Text style={ns.overviewItemDose}>{s.dosage} {s.unit}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-              {(plan.stack?.length || 0) > 4 && (
-                <TouchableOpacity style={ns.showAllBtn} onPress={() => setActiveTab('stack')} testID="show-all-supplements-btn">
-                  <Text style={ns.showAllBtnText}>
-                    {lang === 'de' ? 'ALLE ANZEIGEN' : 'MOSTRA TUTTI'}
-                  </Text>
-                </TouchableOpacity>
-              )}
-            </View>
-          </View>
-        )}
 
         {/* Phases Tab */}
         {activeTab === 'phases' && plan.phases?.map((phase: any, i: number) => (
