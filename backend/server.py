@@ -134,6 +134,21 @@ async def seed_data():
     from routes.shop_import import start_sync_scheduler
     asyncio.create_task(start_sync_scheduler())
     
+    # Seed recipes from JSON if collection is empty
+    try:
+        recipe_count = await db.recipes.count_documents({})
+        if recipe_count == 0:
+            import json
+            recipes_path = os.path.join(os.path.dirname(__file__), "recipes.json")
+            if os.path.exists(recipes_path):
+                with open(recipes_path, "r", encoding="utf-8") as f:
+                    recipes = json.load(f)
+                if recipes:
+                    await db.recipes.insert_many(recipes)
+                    logger.info(f"Seeded {len(recipes)} recipes into MongoDB")
+    except Exception as e:
+        logger.warning(f"Recipe seeding note: {e}")
+    
     # Create MongoDB indexes for performance
     try:
         await db.health_profiles.create_index("profile_id", unique=True, sparse=True)

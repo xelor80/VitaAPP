@@ -1,53 +1,13 @@
-import os
-import json
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from core.config import db, get_products_collection
 
 router = APIRouter()
 
-LANG_NAMES = {"de": "German", "it": "Italian", "en": "English", "tr": "Turkish", "fr": "French", "es": "Spanish", "ru": "Russian"}
 
-async def translate_recipe(recipe: dict, lang: str) -> dict:
-    """Translate recipe fields using AI and cache in DB."""
-    if lang in recipe:
-        return recipe[lang]
-    
-    source = recipe.get("de", {})
-    if not source:
-        return source
-    
-    try:
-        from emergentintegrations.llm.chat import LlmChat, UserMessage
-        chat = LlmChat(
-            api_key=os.environ['EMERGENT_LLM_KEY'],
-            session_id=f"recipe-translate-{recipe.get('id','')}-{lang}",
-            system_message=f"You are a translator. Translate recipe content to {LANG_NAMES.get(lang, 'English')}. Return ONLY valid JSON, no markdown, no explanation."
-        )
-        
-        prompt = f"""Translate this recipe JSON to {LANG_NAMES.get(lang, 'English')}:
-{{
-  "title": "{source.get('title', '')}",
-  "ingredients": {json.dumps(source.get('ingredients', []), ensure_ascii=False)},
-  "steps": {json.dumps(source.get('steps', []), ensure_ascii=False)},
-  "tags": {json.dumps(source.get('tags', []), ensure_ascii=False)}
-}}"""
-        
-        resp = await chat.send_message(UserMessage(text=prompt))
-        text = str(resp).strip()
-        if text.startswith("```"):
-            text = text.split("\n", 1)[1].rsplit("```", 1)[0].strip()
-        translated = json.loads(text)
-        
-        # Cache in DB
-        await db.recipes.update_one(
-            {"id": recipe["id"]},
-            {"$set": {lang: translated}}
-        )
-        return translated
-    except Exception as e:
-        print(f"Recipe translation error ({lang}): {e}")
-        return source
+def get_recipe_locale(recipe: dict, lang: str) -> dict:
+    """Get localized recipe data with fallback chain: requested lang -> en -> de."""
+    return recipe.get(lang) or recipe.get("en") or recipe.get("de", {})
 
 # Mapping: nutrient key -> (primary_tags, secondary_tags)
 # Primary tags = specific to the nutrient (high relevance)
@@ -415,7 +375,7 @@ async def get_recipes(tags: str = "", lang: str = "de", search: str = "", catego
     
     results = []
     for r in recipes_raw:
-        loc = r.get(lang) or r.get("en") or r.get("de", {})
+        loc = get_recipe_locale(r, lang)
         results.append({
             "id": r["id"],
             "title": loc.get("title", ""),
@@ -519,7 +479,7 @@ async def get_personalized_recipes(profile_id: str, lang: str = "de"):
 
     all_recipes = []
     for r in recipes_raw:
-        loc = r.get(lang, r.get("de", {}))
+        loc = get_recipe_locale(r, lang)
         all_recipes.append({
             "id": r["id"],
             "title": loc.get("title", ""),
@@ -611,7 +571,7 @@ async def get_recipe_recommendations(profile_id: str = "", lang: str = "de", lim
 
     all_recipes = []
     for r in recipes_raw:
-        loc = r.get(lang, r.get("de", {}))
+        loc = get_recipe_locale(r, lang)
         all_recipes.append({
             "id": r["id"],
             "title": loc.get("title", ""),
@@ -707,7 +667,7 @@ async def get_recipe_filters(lang: str = "de"):
     time_values = set()
     
     for r in recipes_raw:
-        loc = r.get(lang, r.get("de", {}))
+        loc = get_recipe_locale(r, lang)
         for tag in loc.get("tags", []):
             all_tags.add(tag)
         time_values.add(r.get("time_min", 20))
