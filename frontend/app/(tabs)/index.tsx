@@ -30,7 +30,7 @@ const VERO_DASHBOARD = require('../../assets/images/vero-dashboard.png');
 
 export default function DashboardHome() {
   const router = useRouter();
-  const { lang } = useLang();
+  const { lang, setLang } = useLang();
   const guide = useGuide();
   const [disclaimerAccepted, setDisclaimerAccepted] = useState<boolean | null>(null);
   const [firstName, setFirstName] = useState<string | null>(null);
@@ -362,6 +362,29 @@ export default function DashboardHome() {
           <MaterialCommunityIcons name="chevron-right" size={24} color="#6366F1" />
         </TouchableOpacity>
 
+        {/* Language Switcher */}
+        <View style={s.langSection} data-testid="language-switcher">
+          <Text style={s.langTitle}>{lang === 'de' ? 'Sprache' : 'Lingua'}</Text>
+          <View style={s.langRow}>
+            <TouchableOpacity
+              style={[s.langBtn, lang === 'de' && s.langBtnActive]}
+              onPress={() => setLang('de')}
+              data-testid="lang-de-btn"
+            >
+              <Text style={s.langFlag}>🇩🇪</Text>
+              <Text style={[s.langBtnText, lang === 'de' && s.langBtnTextActive]}>Deutsch</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[s.langBtn, lang === 'it' && s.langBtnActive]}
+              onPress={() => setLang('it')}
+              data-testid="lang-it-btn"
+            >
+              <Text style={s.langFlag}>🇮🇹</Text>
+              <Text style={[s.langBtnText, lang === 'it' && s.langBtnTextActive]}>Italiano</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
         {/* Version link to admin */}
         <TouchableOpacity
           onPress={() => router.push('/admin' as any)}
@@ -574,5 +597,49 @@ const s = StyleSheet.create({
     fontSize: 11,
     color: '#C0C5CB',
     letterSpacing: 0.5,
+  },
+  langSection: {
+    marginHorizontal: 20,
+    marginTop: 16,
+    padding: 16,
+    backgroundColor: '#FFF',
+    borderRadius: 16,
+  },
+  langTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#1A2D26',
+    marginBottom: 10,
+  },
+  langRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  langBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#E0E7E3',
+    backgroundColor: '#F8FAF9',
+  },
+  langBtnActive: {
+    borderColor: '#1B6B45',
+    backgroundColor: '#E8F5E9',
+  },
+  langFlag: {
+    fontSize: 20,
+  },
+  langBtnText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#8FA39B',
+  },
+  langBtnTextActive: {
+    color: '#1B6B45',
   },
 });
