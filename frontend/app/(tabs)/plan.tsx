@@ -179,9 +179,40 @@ export default function PlanScreen() {
         </TouchableOpacity>
       </LinearGradient>
 
+      {/* Nav Cards - ganz oben */}
+      <Animated.View entering={FadeInDown.delay(100)} style={s.navSection}>
+        <Text style={s.navSectionTitle}>
+          {lang === 'de' ? 'Verwalten' : 'Gestisci'}
+        </Text>
+        <View style={s.navRow}>
+          <TouchableOpacity
+            style={s.navCard}
+            onPress={() => router.push('/supplement-plan')}
+            data-testid="nav-supplement-plan"
+          >
+            <LinearGradient colors={['#1B6B45', '#2E9E6B']} style={s.navCardGradient}>
+              <MaterialCommunityIcons name="pill" size={28} color="#FFF" />
+              <Text style={s.navCardTitle}>{lang === 'de' ? 'Supplements' : 'Supplementi'}</Text>
+              <Text style={s.navCardSub}>{lang === 'de' ? 'Plan ansehen' : 'Vedi piano'}</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={s.navCard}
+            onPress={() => router.push('/medications')}
+            data-testid="nav-medications"
+          >
+            <LinearGradient colors={['#3B82F6', '#60A5FA']} style={s.navCardGradient}>
+              <MaterialCommunityIcons name="medical-bag" size={28} color="#FFF" />
+              <Text style={s.navCardTitle}>{lang === 'de' ? 'Medikamente' : 'Farmaci'}</Text>
+              <Text style={s.navCardSub}>{lang === 'de' ? 'Verwalten' : 'Gestisci'}</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </View>
+      </Animated.View>
+
       {/* Progress Bar */}
       {totalItems > 0 && (
-        <Animated.View entering={FadeInDown.delay(100)} style={s.progressCard}>
+        <Animated.View entering={FadeInDown.delay(150)} style={s.progressCard}>
           <View style={s.progressRow}>
             <Text style={s.progressLabel}>
               {lang === 'de' ? 'Tagesfortschritt' : 'Progresso giornaliero'}
@@ -350,37 +381,6 @@ export default function PlanScreen() {
           </Text>
         </View>
       )}
-
-      {/* Nav Cards */}
-      <Animated.View entering={FadeInDown.delay(400)} style={s.navSection}>
-        <Text style={s.navSectionTitle}>
-          {lang === 'de' ? 'Verwalten' : 'Gestisci'}
-        </Text>
-        <View style={s.navRow}>
-          <TouchableOpacity
-            style={s.navCard}
-            onPress={() => router.push('/supplement-plan')}
-            data-testid="nav-supplement-plan"
-          >
-            <LinearGradient colors={['#1B6B45', '#2E9E6B']} style={s.navCardGradient}>
-              <MaterialCommunityIcons name="pill" size={28} color="#FFF" />
-              <Text style={s.navCardTitle}>{lang === 'de' ? 'Supplements' : 'Supplementi'}</Text>
-              <Text style={s.navCardSub}>{lang === 'de' ? 'Plan ansehen' : 'Vedi piano'}</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={s.navCard}
-            onPress={() => router.push('/medications')}
-            data-testid="nav-medications"
-          >
-            <LinearGradient colors={['#3B82F6', '#60A5FA']} style={s.navCardGradient}>
-              <MaterialCommunityIcons name="medical-bag" size={28} color="#FFF" />
-              <Text style={s.navCardTitle}>{lang === 'de' ? 'Medikamente' : 'Farmaci'}</Text>
-              <Text style={s.navCardSub}>{lang === 'de' ? 'Verwalten' : 'Gestisci'}</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-        </View>
-      </Animated.View>
 
       {/* Disclaimer */}
       <View style={s.disclaimer}>
