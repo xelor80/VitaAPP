@@ -8,10 +8,6 @@ const LANGS = [
   { code: 'de', flag: 'DE' },
   { code: 'it', flag: 'IT' },
   { code: 'en', flag: 'EN' },
-  { code: 'tr', flag: 'TR' },
-  { code: 'fr', flag: 'FR' },
-  { code: 'es', flag: 'ES' },
-  { code: 'ru', flag: 'RU' },
 ] as const;
 
 const SUBTITLE: Record<string, string> = {

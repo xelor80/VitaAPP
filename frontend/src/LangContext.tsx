@@ -10,7 +10,7 @@ interface LangContextType {
 
 const LangContext = createContext<LangContextType>({ lang: 'de', setLang: () => {} });
 
-const SUPPORTED_LANGS: Lang[] = ['de', 'it', 'en', 'tr', 'fr', 'es', 'ru'];
+const SUPPORTED_LANGS: Lang[] = ['de', 'it', 'en'];
 
 function detectDeviceLanguage(): Lang {
   try {

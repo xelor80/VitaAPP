@@ -379,10 +379,6 @@ export default function DashboardHome() {
               { code: 'de' as const, flag: '\u{1F1E9}\u{1F1EA}', label: 'Deutsch' },
               { code: 'it' as const, flag: '\u{1F1EE}\u{1F1F9}', label: 'Italiano' },
               { code: 'en' as const, flag: '\u{1F1EC}\u{1F1E7}', label: 'English' },
-              { code: 'tr' as const, flag: '\u{1F1F9}\u{1F1F7}', label: 'Turkce' },
-              { code: 'fr' as const, flag: '\u{1F1EB}\u{1F1F7}', label: 'Francais' },
-              { code: 'es' as const, flag: '\u{1F1EA}\u{1F1F8}', label: 'Espanol' },
-              { code: 'ru' as const, flag: '\u{1F1F7}\u{1F1FA}', label: 'Русский' },
             ]).map(item => (
               <TouchableOpacity
                 key={item.code}
