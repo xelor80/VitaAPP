@@ -41,7 +41,8 @@ export default function RecipesTab() {
         const res = await fetch(`${API_URL}/api/recipes/personalized/${profileId}?lang=${lang}`);
         if (res.ok) {
           const d = await res.json();
-          setPersonalRecipes(d.recipes || []);
+          const all = d.recipes || [];
+          setPersonalRecipes(all.filter((r: any) => r.relevance_score > 0));
         }
       } catch {} finally { setLoadingPersonal(false); }
     })();
