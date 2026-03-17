@@ -20,6 +20,12 @@ class UpdateReminderRequest(BaseModel):
     enabled: bool
     times: Optional[List[str]] = None
 
+class WaterReminderSettings(BaseModel):
+    enabled: bool = False
+    interval_hours: int = 2
+    start_time: str = "08:00"
+    end_time: str = "22:00"
+
 # ── Helpers ──
 
 def today_str():
@@ -335,3 +341,30 @@ async def get_hydration_tip(profile_id: str, lang: str = "de"):
         import random
         tips = tips_de if lang == "de" else tips_it
         return {"tip": random.choice(tips), "source": "fallback"}
+
+
+# ── Water Reminder Settings ──
+
+@router.get("/{profile_id}/water-reminders")
+async def get_water_reminders(profile_id: str):
+    doc = await db.water_reminders.find_one({"profile_id": profile_id}, {"_id": 0})
+    if not doc:
+        return {"enabled": False, "interval_hours": 2, "start_time": "08:00", "end_time": "22:00"}
+    return doc
+
+@router.put("/{profile_id}/water-reminders")
+async def update_water_reminders(profile_id: str, settings: WaterReminderSettings):
+    data = {
+        "profile_id": profile_id,
+        "enabled": settings.enabled,
+        "interval_hours": settings.interval_hours,
+        "start_time": settings.start_time,
+        "end_time": settings.end_time,
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.water_reminders.update_one(
+        {"profile_id": profile_id},
+        {"$set": data},
+        upsert=True,
+    )
+    return data

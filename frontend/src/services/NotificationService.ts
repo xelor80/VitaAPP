@@ -342,3 +342,115 @@ export async function getNotificationPermissionStatus(): Promise<'granted' | 'de
   if (status === 'denied') return 'denied';
   return 'undetermined';
 }
+
+// ── Water Reminder Notifications ──
+
+export interface WaterReminderConfig {
+  enabled: boolean;
+  interval_hours: number; // 1, 2, or 3
+  start_time: string;     // "08:00"
+  end_time: string;       // "22:00"
+}
+
+const WATER_REMINDER_KEY = 'water_reminder_ids';
+
+const VERO_MESSAGES: Record<string, string[]> = {
+  de: [
+    'Hey! Zeit fuer ein Glas Wasser!',
+    'VERO erinnert dich: Trink etwas Wasser!',
+    'Dein Koerper braucht Fluessigkeit - trink ein Glas!',
+    'Kurze Pause? Perfekt fuer ein Glas Wasser!',
+    'Bleib hydriert! VERO passt auf dich auf.',
+  ],
+  it: [
+    'Ehi! E ora di bere un bicchiere d\'acqua!',
+    'VERO ti ricorda: bevi un po\' d\'acqua!',
+    'Il tuo corpo ha bisogno di liquidi - bevi un bicchiere!',
+    'Pausa breve? Perfetta per un bicchiere d\'acqua!',
+    'Resta idratato! VERO si prende cura di te.',
+  ],
+  en: [
+    'Hey! Time for a glass of water!',
+    'VERO reminds you: Drink some water!',
+    'Your body needs fluids - have a glass!',
+    'Quick break? Perfect for a glass of water!',
+    'Stay hydrated! VERO is looking out for you.',
+  ],
+};
+
+/**
+ * Schedule water reminder notifications at regular intervals
+ */
+export async function scheduleWaterReminders(
+  config: WaterReminderConfig,
+  lang: string = 'de'
+): Promise<boolean> {
+  // Cancel existing water reminders
+  await cancelWaterReminders();
+
+  if (!config.enabled) return false;
+
+  const hasPermission = await requestNotificationPermissions();
+  if (!hasPermission) return false;
+
+  const [startH, startM] = config.start_time.split(':').map(Number);
+  const [endH, endM] = config.end_time.split(':').map(Number);
+  const startMin = (startH || 8) * 60 + (startM || 0);
+  const endMin = (endH || 22) * 60 + (endM || 0);
+
+  const messages = VERO_MESSAGES[lang] || VERO_MESSAGES.de;
+  const scheduledIds: string[] = [];
+  let msgIdx = 0;
+
+  for (let min = startMin; min <= endMin; min += config.interval_hours * 60) {
+    const hour = Math.floor(min / 60);
+    const minute = min % 60;
+    const body = messages[msgIdx % messages.length];
+    msgIdx++;
+
+    if (Platform.OS === 'web') {
+      scheduleWebNotification(hour, minute, 'VERO - Wasser Erinnerung', body);
+    } else {
+      try {
+        const id = await Notifications.scheduleNotificationAsync({
+          content: {
+            title: 'VERO - Wasser Erinnerung',
+            body,
+            sound: true,
+            priority: Notifications.AndroidNotificationPriority.HIGH,
+            data: { type: 'water_reminder' },
+          },
+          trigger: {
+            type: Notifications.SchedulableTriggerInputTypes.DAILY,
+            hour,
+            minute,
+          },
+        });
+        scheduledIds.push(id);
+      } catch (e) {
+        console.error(`Water reminder schedule error (${hour}:${minute}):`, e);
+      }
+    }
+  }
+
+  await AsyncStorage.setItem(WATER_REMINDER_KEY, JSON.stringify(scheduledIds));
+  return scheduledIds.length > 0 || Platform.OS === 'web';
+}
+
+/**
+ * Cancel all water reminder notifications
+ */
+export async function cancelWaterReminders(): Promise<void> {
+  try {
+    const idsJson = await AsyncStorage.getItem(WATER_REMINDER_KEY);
+    if (idsJson && Platform.OS !== 'web') {
+      const ids: string[] = JSON.parse(idsJson);
+      for (const id of ids) {
+        await Notifications.cancelScheduledNotificationAsync(id);
+      }
+    }
+    await AsyncStorage.removeItem(WATER_REMINDER_KEY);
+  } catch (e) {
+    console.error('Cancel water reminders error:', e);
+  }
+}

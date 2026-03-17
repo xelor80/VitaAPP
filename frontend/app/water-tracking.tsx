@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet, ScrollView, Platform,
-  SafeAreaView, ActivityIndicator, TextInput, Modal, Dimensions, Image,
+  SafeAreaView, ActivityIndicator, TextInput, Modal, Dimensions, Image, Switch,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -14,6 +14,7 @@ import Animated, {
 import Svg, { Path, Defs, LinearGradient as SvgGradient, Stop, Circle } from 'react-native-svg';
 import { useLang } from '../src/LangContext';
 import { eventBus } from '../src/eventBus';
+import { scheduleWaterReminders, cancelWaterReminders, sendTestNotification } from '../src/services/NotificationService';
 
 const VERO_WATER_IMAGE = { uri: 'https://customer-assets.emergentagent.com/job_1555994b-6d08-464e-b162-3cd8fab568d9/artifacts/m2lndufl_vero_trinkt.png' };
 
@@ -76,6 +77,14 @@ export default function WaterTrackingScreen() {
   const [veroTip, setVeroTip] = useState<string | null>(null);
   const [loadingTip, setLoadingTip] = useState(false);
 
+  // Water reminder state
+  const [reminderEnabled, setReminderEnabled] = useState(false);
+  const [reminderInterval, setReminderInterval] = useState(2);
+  const [reminderStart, setReminderStart] = useState('08:00');
+  const [reminderEnd, setReminderEnd] = useState('22:00');
+  const [reminderSaving, setReminderSaving] = useState(false);
+  const [reminderDirty, setReminderDirty] = useState(false);
+
   // Animations
   const waveAnim = useSharedValue(0);
   const splashScale = useSharedValue(1);
@@ -116,6 +125,50 @@ export default function WaterTrackingScreen() {
 
   useEffect(() => { loadData(); }, [loadData]);
   useEffect(() => { if (profileId) loadHistory(); }, [profileId, historyPeriod, loadHistory]);
+
+  // Load water reminder settings
+  useEffect(() => {
+    if (!profileId) return;
+    (async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/water-tracking/${profileId}/water-reminders`);
+        if (res.ok) {
+          const s = await res.json();
+          setReminderEnabled(s.enabled || false);
+          setReminderInterval(s.interval_hours || 2);
+          setReminderStart(s.start_time || '08:00');
+          setReminderEnd(s.end_time || '22:00');
+        }
+      } catch {}
+    })();
+  }, [profileId]);
+
+  const saveReminders = async () => {
+    if (!profileId) return;
+    setReminderSaving(true);
+    try {
+      const config = {
+        enabled: reminderEnabled,
+        interval_hours: reminderInterval,
+        start_time: reminderStart,
+        end_time: reminderEnd,
+      };
+      await fetch(`${API_URL}/api/water-tracking/${profileId}/water-reminders`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(config),
+      });
+      if (reminderEnabled) {
+        await scheduleWaterReminders(config, lang);
+      } else {
+        await cancelWaterReminders();
+      }
+      setReminderDirty(false);
+    } catch (e) {
+      console.error('Save water reminders error:', e);
+    }
+    setReminderSaving(false);
+  };
 
   // Add water
   const addWater = async (amount: number) => {
@@ -358,6 +411,127 @@ export default function WaterTrackingScreen() {
           )}
         </Animated.View>
 
+        {/* VERO Water Reminders */}
+        <Animated.View entering={FadeInDown.delay(500).duration(500)} style={st.reminderWrap}>
+          <View style={st.reminderHeader}>
+            <Image source={VERO_WATER_IMAGE} style={st.reminderVeroImg} resizeMode="contain" />
+            <View style={{ flex: 1 }}>
+              <Text style={st.sectionLabel}>
+                {lang === 'de' ? 'VERO Erinnerungen' : lang === 'it' ? 'Promemoria VERO' : 'VERO Reminders'}
+              </Text>
+              <Text style={st.reminderSubtitle}>
+                {lang === 'de' ? 'Lass dich ans Trinken erinnern' : lang === 'it' ? 'Ricordati di bere' : 'Get reminded to drink'}
+              </Text>
+            </View>
+            <Switch
+              value={reminderEnabled}
+              onValueChange={(v) => { setReminderEnabled(v); setReminderDirty(true); }}
+              trackColor={{ false: '#D1D5DB', true: '#86EFAC' }}
+              thumbColor={reminderEnabled ? '#2E9E6B' : '#9CA3AF'}
+              data-testid="water-reminder-toggle"
+            />
+          </View>
+
+          {reminderEnabled && (
+            <Animated.View entering={FadeIn.duration(300)}>
+              {/* Interval selection */}
+              <Text style={st.reminderLabel}>
+                {lang === 'de' ? 'Intervall' : lang === 'it' ? 'Intervallo' : 'Interval'}
+              </Text>
+              <View style={st.intervalRow}>
+                {[1, 2, 3].map((h) => (
+                  <TouchableOpacity
+                    key={h}
+                    style={[st.intervalBtn, reminderInterval === h && st.intervalBtnActive]}
+                    onPress={() => { setReminderInterval(h); setReminderDirty(true); }}
+                    data-testid={`interval-${h}h-btn`}
+                  >
+                    <Text style={[st.intervalBtnText, reminderInterval === h && st.intervalBtnTextActive]}>
+                      {lang === 'de' ? `Alle ${h}h` : `Every ${h}h`}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              {/* Time range */}
+              <Text style={st.reminderLabel}>
+                {lang === 'de' ? 'Aktive Stunden' : lang === 'it' ? 'Ore attive' : 'Active hours'}
+              </Text>
+              <View style={st.timeRow}>
+                <View style={st.timeInputWrap}>
+                  <MaterialCommunityIcons name="weather-sunny" size={16} color="#F59E0B" />
+                  <TextInput
+                    style={st.timeInput}
+                    value={reminderStart}
+                    onChangeText={(v) => { setReminderStart(v); setReminderDirty(true); }}
+                    placeholder="08:00"
+                    maxLength={5}
+                    data-testid="reminder-start-time"
+                  />
+                </View>
+                <Text style={st.timeDash}>—</Text>
+                <View style={st.timeInputWrap}>
+                  <MaterialCommunityIcons name="weather-night" size={16} color="#6366F1" />
+                  <TextInput
+                    style={st.timeInput}
+                    value={reminderEnd}
+                    onChangeText={(v) => { setReminderEnd(v); setReminderDirty(true); }}
+                    placeholder="22:00"
+                    maxLength={5}
+                    data-testid="reminder-end-time"
+                  />
+                </View>
+              </View>
+
+              {/* Preview */}
+              <View style={st.previewBox}>
+                <MaterialCommunityIcons name="bell-ring-outline" size={14} color="#6B7280" />
+                <Text style={st.previewText}>
+                  {(() => {
+                    const [sH] = reminderStart.split(':').map(Number);
+                    const [eH] = reminderEnd.split(':').map(Number);
+                    const count = Math.max(0, Math.floor(((eH || 22) - (sH || 8)) / reminderInterval) + 1);
+                    return lang === 'de'
+                      ? `${count} Erinnerungen pro Tag (${reminderStart} - ${reminderEnd})`
+                      : `${count} reminders per day (${reminderStart} - ${reminderEnd})`;
+                  })()}
+                </Text>
+              </View>
+
+              {/* Save + Test buttons */}
+              <View style={st.reminderActions}>
+                <TouchableOpacity
+                  style={[st.saveReminderBtn, !reminderDirty && st.saveReminderBtnDisabled]}
+                  onPress={saveReminders}
+                  disabled={reminderSaving}
+                  data-testid="save-water-reminders-btn"
+                >
+                  {reminderSaving ? (
+                    <ActivityIndicator size="small" color="#FFF" />
+                  ) : (
+                    <>
+                      <MaterialCommunityIcons name="content-save-outline" size={16} color="#FFF" />
+                      <Text style={st.saveReminderBtnText}>
+                        {lang === 'de' ? 'Speichern' : lang === 'it' ? 'Salva' : 'Save'}
+                      </Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={st.testReminderBtn}
+                  onPress={() => sendTestNotification(lang)}
+                  data-testid="test-water-reminder-btn"
+                >
+                  <MaterialCommunityIcons name="bell-ring" size={16} color="#2E9E6B" />
+                  <Text style={st.testReminderBtnText}>
+                    {lang === 'de' ? 'Testen' : 'Test'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </Animated.View>
+          )}
+        </Animated.View>
+
         <View style={{ height: 32 }} />
       </ScrollView>
 
@@ -532,4 +706,48 @@ const st = StyleSheet.create({
   modalCancelText: { fontSize: 15, fontWeight: '600', color: '#6B7280' },
   modalSave: { flex: 1, paddingVertical: 12, borderRadius: 12, backgroundColor: '#3A86FF', alignItems: 'center' },
   modalSaveText: { fontSize: 15, fontWeight: '700', color: '#FFF' },
+  // Reminders
+  reminderWrap: {
+    backgroundColor: '#FFF', marginHorizontal: 20, borderRadius: 18, padding: 18, marginTop: 16,
+    elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 6,
+  },
+  reminderHeader: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+  },
+  reminderVeroImg: { width: 44, height: 54 },
+  reminderSubtitle: { fontSize: 12, color: '#6B7280', marginTop: 2 },
+  reminderLabel: { fontSize: 13, fontWeight: '600', color: '#374151', marginTop: 16, marginBottom: 8 },
+  intervalRow: { flexDirection: 'row', gap: 10 },
+  intervalBtn: {
+    flex: 1, paddingVertical: 12, borderRadius: 12, backgroundColor: '#F3F4F6',
+    alignItems: 'center', borderWidth: 1.5, borderColor: '#E5E7EB',
+  },
+  intervalBtnActive: { backgroundColor: '#E8F5E9', borderColor: '#2E9E6B' },
+  intervalBtnText: { fontSize: 14, fontWeight: '600', color: '#6B7280' },
+  intervalBtnTextActive: { color: '#2E9E6B', fontWeight: '700' },
+  timeRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  timeInputWrap: {
+    flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8,
+    backgroundColor: '#F5F7FA', borderRadius: 12, borderWidth: 1, borderColor: '#E0E6E2',
+    paddingHorizontal: 12, paddingVertical: 10,
+  },
+  timeInput: { flex: 1, fontSize: 16, fontWeight: '600', color: '#1A2E35' },
+  timeDash: { fontSize: 18, color: '#9CA3AF', fontWeight: '700' },
+  previewBox: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    backgroundColor: '#F9FAFB', borderRadius: 10, padding: 10, marginTop: 12,
+  },
+  previewText: { fontSize: 12, color: '#6B7280' },
+  reminderActions: { flexDirection: 'row', gap: 10, marginTop: 14 },
+  saveReminderBtn: {
+    flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+    backgroundColor: '#2E9E6B', borderRadius: 12, paddingVertical: 12,
+  },
+  saveReminderBtnDisabled: { opacity: 0.5 },
+  saveReminderBtnText: { fontSize: 14, fontWeight: '700', color: '#FFF' },
+  testReminderBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+    borderWidth: 1.5, borderColor: '#2E9E6B', borderRadius: 12, paddingVertical: 12, paddingHorizontal: 16,
+  },
+  testReminderBtnText: { fontSize: 14, fontWeight: '600', color: '#2E9E6B' },
 });
