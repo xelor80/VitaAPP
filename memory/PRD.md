@@ -24,51 +24,53 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - Admin Panel
 - Product Selection for Supplements
 
-### Internationalization (i18n) - 7 Languages
-- Supported: DE, IT, EN, TR, FR, ES, RU
-- Language switcher with flags on dashboard
+### VERO Water Reminders (2026-03-17) - NEW
+- **Feature**: Push notification reminders for water intake
+- **Backend**: `GET/PUT /api/water-tracking/{profile_id}/water-reminders`
+  - Settings: enabled, interval_hours (1/2/3), start_time, end_time
+  - Stored in `water_reminders` MongoDB collection
+- **Frontend**: New "VERO Erinnerungen" section in water-tracking.tsx
+  - Toggle on/off with Switch
+  - Interval selection: 1h, 2h, 3h buttons
+  - Custom active hours (start/end time inputs)
+  - Preview showing number of daily reminders
+  - Save & Test buttons
+- **Notifications**: `scheduleWaterReminders()` in NotificationService.ts
+  - Daily repeating notifications at chosen interval
+  - VERO messages in DE/IT/EN
+  - Automatic cancellation when disabled
+- **Testing**: 11/11 backend tests passed (iteration_72)
+
+### Internationalization (i18n) - 3 Active Languages
+- Active: DE, IT, EN (reduced from 7)
+- Language switcher on dashboard and disclaimer screen
 - All UI text translated via tx() helper
-- Recipe content pre-translated and stored in MongoDB (batch translated)
-- Disclaimer screen: Full 7-language switcher (2026-03-15)
+- Recipe content pre-translated in MongoDB
 
-### Performance Optimization (2026-03-15) - P0 Fix COMPLETED
-- **Problem**: Recipe endpoints were extremely slow due to on-the-fly AI translations
-- **Solution**: 
-  1. Seeded 30 recipes from recipes.json into MongoDB
-  2. Ran batch translation script to pre-translate all recipes into 5 additional languages
-  3. Removed `translate_recipe` AI function from products.py
-  4. All recipe endpoints now read pre-translated data directly from DB
-  5. Added `get_recipe_locale()` helper with fallback chain: lang -> en -> de
-  6. Added auto-seeding of recipes on server startup if collection is empty
-- **Result**: Response times dropped from 5-10s to ~100-270ms (50x improvement)
-- **Testing**: 19/19 backend tests passed (iteration_71)
-
-### Disclaimer Screen Language Fix (2026-03-15) - COMPLETED
-- **Problem**: First-time "Wichtiger Hinweis" page only showed DE and IT language options, no language could be selected
-- **Fix**: Added all 7 languages (DE, IT, EN, TR, FR, ES, RU) as selectable chips, passed `setLang` prop correctly, used `t()` function for all translations instead of hardcoded DE/IT only
-- **Files changed**: `DisclaimerScreen.tsx`, `(tabs)/index.tsx`
+### Performance Optimization (2026-03-15) - COMPLETED
+- Recipe endpoints response time: ~100-270ms (down from 5-10s)
+- All 37 recipes pre-translated in 7 languages in DB
 
 ### Previous Completions
-- Combined Reminders (supplements + medications) with item preview per timing slot
+- Combined Reminders (supplements + medications) with item preview
 - Plan Restructuring: Mein Plan tab as central intake hub
-- Dashboard: Symptom-Analyse before Wasseraufnahme, Language Switcher
-- P0 Crash Fix (useSwipeBack), Daily plan supplement parsing fix
-- Product Selection Feature with "Ich nehme dieses Produkt" button
+- Dashboard layout, Language Switcher
+- P0 Crash Fix, Product Selection Feature
+- Disclaimer screen 7-language selector
+- Cyrillic character fixes in notification buttons
 
 ## Key API Endpoints
-- `GET /api/recipes?lang=X` - Get recipes in specified language (fast, pre-translated)
-- `GET /api/recipes/recommendations?lang=X` - Personalized recipe recommendations
-- `GET /api/recipes/filters?lang=X` - Recipe filter options
-- `GET /api/recipes/personalized/{profile_id}?lang=X` - Health-profile-based recipes
+- `GET/PUT /api/water-tracking/{profile_id}/water-reminders` - Water reminder settings (NEW)
+- `GET /api/recipes?lang=X` - Get recipes in specified language
+- `GET /api/recipes/recommendations?lang=X` - Personalized recipes
 - `POST /api/products/select` - Save product selection
-- `GET /api/products/selections/{profile_id}` - Get all selections
 - `GET /api/medications/{profile_id}/daily-plan?lang=de` - Combined daily plan
-- `POST /api/medications/{profile_id}/{medication_id}/check-in` - Toggle medication intake
 
 ## Prioritized Backlog
 ### P2 - Upcoming
-- Medication Reminders (push notifications)
+- Medication Reminders (push notifications for medication intake)
 - Medication Progress Tracking (integrate into Progress section)
 
 ### P2 - Future
 - Historical Data Visualization (water intake graphs)
+- Reactivate TR, FR, ES, RU languages
