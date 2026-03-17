@@ -90,13 +90,19 @@ export default function DashboardHome() {
         } catch {}
       }
     } catch {}
-    // Load recipes
+    // Load recipes (personalized if profile exists)
+    // Note: use local profileId variable (fetched above), not state variable
+    const localProfileId = await AsyncStorage.getItem('health_profile_id');
     try {
       setLoadingRecipes(true);
-      const res = await fetch(`${API_URL}/api/recipes?lang=${lang}&limit=4`);
+      const recipeUrl = localProfileId
+        ? `${API_URL}/api/recipes/personalized/${localProfileId}?lang=${lang}`
+        : `${API_URL}/api/recipes?lang=${lang}&limit=4`;
+      const res = await fetch(recipeUrl);
       if (res.ok) {
         const d = await res.json();
-        setRecipes(Array.isArray(d) ? d : (d.recipes || []));
+        const list = d.recipes || (Array.isArray(d) ? d : []);
+        setRecipes(list.slice(0, 4));
       }
     } catch {} finally {
       setLoadingRecipes(false);
@@ -298,7 +304,11 @@ export default function DashboardHome() {
                 )}
                 <View style={s.recipeInfo}>
                   <Text style={s.recipeName} numberOfLines={1}>{r[`title_${lang}`] || r.title_de || r.title}</Text>
-                  <Text style={s.recipeTag} numberOfLines={1}>{r[`category_${lang}`] || r.category_de || ''}</Text>
+                  {r.relevance_tags?.length > 0 ? (
+                    <Text style={s.recipeRelevance} numberOfLines={1}>{r.relevance_tags[0]}</Text>
+                  ) : (
+                    <Text style={s.recipeTag} numberOfLines={1}>{r[`category_${lang}`] || r.category_de || ''}</Text>
+                  )}
                 </View>
               </TouchableOpacity>
             ))
@@ -509,6 +519,7 @@ const s = StyleSheet.create({
   recipeInfo: { padding: 10 },
   recipeName: { fontSize: 14, fontWeight: '700', color: '#1A2E35' },
   recipeTag: { fontSize: 12, color: '#6B7280', marginTop: 3 },
+  recipeRelevance: { fontSize: 11, color: '#2E9E6B', fontWeight: '600', marginTop: 3 },
   analysisCard: {
     flexDirection: 'row',
     alignItems: 'center',
