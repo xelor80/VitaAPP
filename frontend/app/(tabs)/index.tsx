@@ -304,7 +304,9 @@ export default function DashboardHome() {
                 )}
                 <View style={s.recipeInfo}>
                   <Text style={s.recipeName} numberOfLines={1}>{r[`title_${lang}`] || r.title_de || r.title}</Text>
-                  {r.relevance_tags?.length > 0 ? (
+                  {r.recommendation_reason ? (
+                    <Text style={s.recipeReason} numberOfLines={2}>{r.recommendation_reason}</Text>
+                  ) : r.relevance_tags?.length > 0 ? (
                     <Text style={s.recipeRelevance} numberOfLines={1}>{r.relevance_tags[0]}</Text>
                   ) : (
                     <Text style={s.recipeTag} numberOfLines={1}>{r[`category_${lang}`] || r.category_de || ''}</Text>
@@ -520,6 +522,7 @@ const s = StyleSheet.create({
   recipeName: { fontSize: 14, fontWeight: '700', color: '#1A2E35' },
   recipeTag: { fontSize: 12, color: '#6B7280', marginTop: 3 },
   recipeRelevance: { fontSize: 11, color: '#2E9E6B', fontWeight: '600', marginTop: 3 },
+  recipeReason: { fontSize: 11, color: '#1B6B45', fontStyle: 'italic', marginTop: 3, lineHeight: 14 },
   analysisCard: {
     flexDirection: 'row',
     alignItems: 'center',

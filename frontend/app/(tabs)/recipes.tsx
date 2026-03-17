@@ -132,7 +132,9 @@ export default function RecipesTab() {
               )}
               <View style={s.cardInfo}>
                 <Text style={s.cardTitle} numberOfLines={2}>{r.title || r[`title_${lang}`] || r.title_de || ''}</Text>
-                {activeTab === 'personal' && r.relevance_tags?.length > 0 ? (
+                {activeTab === 'personal' && r.recommendation_reason ? (
+                  <Text style={s.reasonText} numberOfLines={2}>{r.recommendation_reason}</Text>
+                ) : activeTab === 'personal' && r.relevance_tags?.length > 0 ? (
                   <View style={s.tagRow}>
                     {r.relevance_tags.slice(0, 2).map((tag: string, ti: number) => (
                       <View key={ti} style={s.relevanceChip}>
@@ -230,6 +232,7 @@ const s = StyleSheet.create({
   cardInfo: { padding: 10 },
   cardTitle: { fontSize: 14, fontWeight: '700', color: '#1A2E35', lineHeight: 18 },
   cardTag: { fontSize: 12, color: '#6B7280', marginTop: 3 },
+  reasonText: { fontSize: 11, color: '#1B6B45', fontStyle: 'italic', marginTop: 4, lineHeight: 15 },
   tagRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginTop: 6 },
   relevanceChip: {
     backgroundColor: '#E8F5E9',

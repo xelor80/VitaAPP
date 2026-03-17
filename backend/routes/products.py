@@ -440,23 +440,57 @@ COMPLAINT_TAG_MAP = {
 
 # Nutrient deficiency → recipe tag mapping
 DEFICIENCY_RECIPE_MAP = {
-    "iron": {"tags": ["eisenreich", "proteinreich"], "de": "Eisenreich", "it": "Ricco di ferro"},
-    "omega3": {"tags": ["omega-3"], "de": "Reich an Omega-3", "it": "Ricco di Omega-3"},
-    "magnesium": {"tags": ["magnesiumreich"], "de": "Magnesiumreich", "it": "Ricco di magnesio"},
-    "vitamin_c": {"tags": ["vitamin-c", "antioxidantien", "antioxidantienreich", "immunstärkend"], "de": "Vitamin C", "it": "Vitamina C"},
-    "vitamin_b12": {"tags": ["B-Vitamine", "proteinreich"], "de": "B-Vitamine", "it": "Vitamine B"},
-    "vitamin_d": {"tags": ["vitaminreich"], "de": "Vitaminreich", "it": "Ricco di vitamine"},
-    "zinc": {"tags": ["immunstärkend", "proteinreich"], "de": "Immunstaerkend", "it": "Immunostimolante"},
-    "calcium": {"tags": ["proteinreich"], "de": "Calciumreich", "it": "Ricco di calcio"},
-    "folate": {"tags": ["vitaminreich", "ballaststoffreich"], "de": "Folsaeurereich", "it": "Ricco di folato"},
-    "probiotics": {"tags": ["probiotisch", "darmfreundlich", "fermentiert"], "de": "Darmfreundlich", "it": "Per l'intestino"},
-    "vitamin_e": {"tags": ["vitamin-e", "antioxidantienreich"], "de": "Vitamin E", "it": "Vitamina E"},
-    "selenium": {"tags": ["proteinreich", "antioxidantienreich"], "de": "Selenreich", "it": "Ricco di selenio"},
-    "b_vitamins": {"tags": ["B-Vitamine", "vitaminreich"], "de": "B-Vitamine", "it": "Vitamine B"},
-    "vitamin_k2": {"tags": ["vitaminreich"], "de": "Vitamin K2", "it": "Vitamina K2"},
-    "coq10": {"tags": ["antioxidantienreich"], "de": "Antioxidantien", "it": "Antiossidanti"},
-    "iodine": {"tags": ["proteinreich"], "de": "Jodreich", "it": "Ricco di iodio"},
+    "iron": {"tags": ["eisenreich", "proteinreich"], "de": "Eisenreich", "it": "Ricco di ferro", "en": "Iron-rich"},
+    "omega3": {"tags": ["omega-3"], "de": "Reich an Omega-3", "it": "Ricco di Omega-3", "en": "Rich in Omega-3"},
+    "magnesium": {"tags": ["magnesiumreich"], "de": "Magnesiumreich", "it": "Ricco di magnesio", "en": "Rich in magnesium"},
+    "vitamin_c": {"tags": ["vitamin-c", "antioxidantien", "antioxidantienreich", "immunstärkend"], "de": "Vitamin C", "it": "Vitamina C", "en": "Vitamin C"},
+    "vitamin_b12": {"tags": ["B-Vitamine", "proteinreich"], "de": "B-Vitamine", "it": "Vitamine B", "en": "B-Vitamins"},
+    "vitamin_d": {"tags": ["vitaminreich"], "de": "Vitaminreich", "it": "Ricco di vitamine", "en": "Vitamin-rich"},
+    "zinc": {"tags": ["immunstärkend", "proteinreich"], "de": "Immunstaerkend", "it": "Immunostimolante", "en": "Immune-boosting"},
+    "calcium": {"tags": ["proteinreich"], "de": "Calciumreich", "it": "Ricco di calcio", "en": "Calcium-rich"},
+    "folate": {"tags": ["vitaminreich", "ballaststoffreich"], "de": "Folsaeurereich", "it": "Ricco di folato", "en": "Rich in folate"},
+    "probiotics": {"tags": ["probiotisch", "darmfreundlich", "fermentiert"], "de": "Darmfreundlich", "it": "Per l'intestino", "en": "Gut-friendly"},
+    "vitamin_e": {"tags": ["vitamin-e", "antioxidantienreich"], "de": "Vitamin E", "it": "Vitamina E", "en": "Vitamin E"},
+    "selenium": {"tags": ["proteinreich", "antioxidantienreich"], "de": "Selenreich", "it": "Ricco di selenio", "en": "Selenium-rich"},
+    "b_vitamins": {"tags": ["B-Vitamine", "vitaminreich"], "de": "B-Vitamine", "it": "Vitamine B", "en": "B-Vitamins"},
+    "vitamin_k2": {"tags": ["vitaminreich"], "de": "Vitamin K2", "it": "Vitamina K2", "en": "Vitamin K2"},
+    "coq10": {"tags": ["antioxidantienreich"], "de": "Antioxidantien", "it": "Antiossidanti", "en": "Antioxidants"},
+    "iodine": {"tags": ["proteinreich"], "de": "Jodreich", "it": "Ricco di iodio", "en": "Iodine-rich"},
 }
+
+
+def _build_recommendation_reason(tags: list, lang: str, name: str = "") -> str:
+    """Build a short personalized sentence explaining why this recipe is recommended."""
+    if not tags:
+        return ""
+
+    prefixes = {
+        "de": [
+            "Dieses Rezept ist {tags} - perfekt fuer dich",
+            "Ideal fuer dich: {tags}",
+            "Genau richtig: {tags}",
+            "Empfohlen fuer dich - {tags}",
+        ],
+        "it": [
+            "Questa ricetta e {tags} - perfetta per te",
+            "Ideale per te: {tags}",
+            "Consigliata per te - {tags}",
+        ],
+        "en": [
+            "This recipe is {tags} - perfect for you",
+            "Ideal for you: {tags}",
+            "Recommended for you - {tags}",
+        ],
+    }
+
+    templates = prefixes.get(lang, prefixes["de"])
+
+    joined = " & ".join(tags[:2]) if len(tags) <= 2 else ", ".join(tags[:2]) + f" & {tags[2]}"
+    joined = joined.lower()
+
+    import hashlib
+    idx = int(hashlib.md5(joined.encode()).hexdigest(), 16) % len(templates)
+    return templates[idx].format(tags=joined)
 
 
 @router.get("/recipes/personalized/{profile_id}")
@@ -540,6 +574,14 @@ async def get_personalized_recipes(profile_id: str, lang: str = "de"):
                         "anxiety_symptoms": "Contro lo stress", "sleep_problems": "Per dormire meglio",
                         "immune_weakness": "Per il sistema immunitario", "cold_hands_feet": "Per la circolazione",
                     },
+                    "en": {
+                        "fatigue": "Against fatigue", "headache": "Against headaches",
+                        "digestive": "For digestion", "joint_pain": "For joints",
+                        "muscle_pain": "Against muscle pain", "skin_problems": "For skin & hair",
+                        "concentration": "For concentration", "mood_swings": "For mood balance",
+                        "anxiety_symptoms": "Against stress", "sleep_problems": "For better sleep",
+                        "immune_weakness": "For immune system", "cold_hands_feet": "For circulation",
+                    },
                 }
                 label = reason_labels.get(lang, reason_labels["de"]).get(c_name, "")
                 if label and label not in relevance_tags:
@@ -554,6 +596,11 @@ async def get_personalized_recipes(profile_id: str, lang: str = "de"):
 
         recipe["relevance_score"] = score
         recipe["relevance_tags"] = relevance_tags[:3]  # max 3 tags
+
+        # Build personalized recommendation reason
+        recipe["recommendation_reason"] = _build_recommendation_reason(
+            relevance_tags, lang, profile.get("first_name", "")
+        )
 
     # Sort by relevance score (highest first), then by title
     all_recipes.sort(key=lambda r: (-r["relevance_score"], r["title"]))
