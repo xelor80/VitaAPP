@@ -105,7 +105,7 @@
     "profile_deficiencies": "iron (high), omega3 (high), folate (high), zinc (medium), vitamin_b12 (medium)",
     "profile_complaints": "fatigue (7), headache (5)",
     "profile_diet": "vegetarian",
-    "api_url": "https://performance-boost-86.preview.emergentagent.com"
+    "api_url": "https://water-health-hub.preview.emergentagent.com"
   },
   "seed_data_creation": "No new seed data - used existing test profile",
   "retest_needed": false,

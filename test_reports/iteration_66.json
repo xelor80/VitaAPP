@@ -64,7 +64,7 @@
     "frontend": "Skipped (React Native Expo app)"
   },
   "test_credentials": {
-    "api_url": "https://performance-boost-86.preview.emergentagent.com",
+    "api_url": "https://water-health-hub.preview.emergentagent.com",
     "test_profile_id": "5ae69ad6-6bbd-4bbc-ae59-f3e1fba4782b"
   },
   "seed_data_creation": "Test medications created during testing (TEST_Aspirin, TEST_VitaminD_Weekly) - cleanup attempted but rate limited. Existing Metformin medication preserved.",

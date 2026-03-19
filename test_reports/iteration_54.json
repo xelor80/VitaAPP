@@ -96,7 +96,7 @@
     "frontend": "100% (all TTS and tab navigation tests passed)"
   },
   "test_credentials": {
-    "preview_url": "https://performance-boost-86.preview.emergentagent.com",
+    "preview_url": "https://water-health-hub.preview.emergentagent.com",
     "results_page": "/results",
     "supplement_plan_page": "/supplement-plan"
   },

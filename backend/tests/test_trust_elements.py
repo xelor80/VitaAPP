@@ -10,7 +10,7 @@ import requests
 import os
 import re
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://performance-boost-86.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://water-health-hub.preview.emergentagent.com')
 
 class TestTrustStatsAPI:
     """Test /api/stats/trust endpoint"""

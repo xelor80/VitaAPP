@@ -99,7 +99,7 @@
   },
   "test_credentials": {
     "test_shift_worker_profile_id": "6bf7a26c-0620-4e8f-b2ec-091ea4da789a",
-    "preview_url": "https://performance-boost-86.preview.emergentagent.com"
+    "preview_url": "https://water-health-hub.preview.emergentagent.com"
   },
   "seed_data_creation": "Created test shift worker profile with work_type=shift_work, shift_model=3_shift, current_shift=night",
   "retest_needed": false,

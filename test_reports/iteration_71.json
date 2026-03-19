@@ -108,7 +108,7 @@
     "frontend": "Skipped per request"
   },
   "test_credentials": {
-    "api_url": "https://performance-boost-86.preview.emergentagent.com"
+    "api_url": "https://water-health-hub.preview.emergentagent.com"
   },
   "seed_data_creation": "None - using existing seeded recipes",
   "retest_needed": false,

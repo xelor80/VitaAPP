@@ -97,7 +97,7 @@
     "frontend": "100% (9/9 tests passed)"
   },
   "test_credentials": {
-    "api_url": "https://performance-boost-86.preview.emergentagent.com",
+    "api_url": "https://water-health-hub.preview.emergentagent.com",
     "test_profile_id": "f97fdefb-c81f-4d01-8d02-e38dd2132e74"
   },
   "seed_data_creation": "None - using existing profile",

@@ -77,7 +77,7 @@
     "frontend": "100% (All 4 UI improvements verified, all regression tests passed)"
   },
   "test_credentials": {
-    "api_url": "https://performance-boost-86.preview.emergentagent.com"
+    "api_url": "https://water-health-hub.preview.emergentagent.com"
   },
   "seed_data_creation": "No new data created - tested with fresh AsyncStorage (no profile state)",
   "retest_needed": false,

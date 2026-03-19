@@ -7,7 +7,7 @@ import requests
 import os
 from datetime import datetime
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://performance-boost-86.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://water-health-hub.preview.emergentagent.com')
 
 # Test profile ID from review_request
 TEST_PROFILE = "2416f8aa-09aa-47f1-b600-2c9ada87124d"

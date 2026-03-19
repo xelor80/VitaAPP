@@ -76,7 +76,7 @@
   },
   "test_credentials": {
     "admin_password": "Wk220480xel!",
-    "admin_panel_url": "https://performance-boost-86.preview.emergentagent.com/api/admin-app"
+    "admin_panel_url": "https://water-health-hub.preview.emergentagent.com/api/admin-app"
   },
   "seed_data_creation": "Test saved sync configs for DE and IT languages with test shop URLs (enabled=False to avoid triggering actual syncs)",
   "retest_needed": false,

@@ -76,7 +76,7 @@
     "frontend": "Skipped per request"
   },
   "test_credentials": {
-    "api_url": "https://performance-boost-86.preview.emergentagent.com",
+    "api_url": "https://water-health-hub.preview.emergentagent.com",
     "test_profile_id": "f97fdefb-c81f-4d01-8d02-e38dd2132e74"
   },
   "seed_data_creation": "Test medications (TEST_CheckinMed, TEST_DailyPlanMed, TEST_ReflectMed) created and cleaned up during testing",
