@@ -1,9 +1,24 @@
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from core.config import db, get_products_collection
+import re as _re
 
 router = APIRouter()
 
+
+def _strip_html(text: str) -> str:
+    """Remove HTML tags from text."""
+    if not text:
+        return text
+    return _re.sub(r'<[^>]+>', '', text).strip()
+
+
+def _clean_product(product: dict) -> dict:
+    """Clean product data: strip HTML tags from text fields."""
+    for field in ("description", "beschreibung", "auswirkungen_studien", "hinweise", "anwendung"):
+        if field in product and isinstance(product[field], str):
+            product[field] = _strip_html(product[field])
+    return product
 
 def get_recipe_locale(recipe: dict, lang: str) -> dict:
     """Get localized recipe data with fallback chain: requested lang -> en -> de."""
@@ -210,6 +225,10 @@ def _score_product(product: dict, nutrient: str, lang: str = "de") -> float:
     if ptype in ("spray", "tropfen", "kapseln", "capsule", "gocce", "gummies"):
         score += 2
 
+    # Bonus for enriched products (have detailed data from Admin WebApp)
+    if product.get("beschreibung") or product.get("inhaltsstoffe"):
+        score += 10
+
     return score
 
 NUTRIENT_QUALITY_INFO = {
@@ -333,7 +352,7 @@ async def get_products_by_nutrient(nutrient: str, lang: str = "de"):
     # Score and rank products by relevance
     scored = [(p, _score_product(p, nutrient, lang)) for p in unique_products]
     scored.sort(key=lambda x: x[1], reverse=True)
-    top_products = [p for p, _ in scored[:MAX_PRODUCTS_PER_NUTRIENT]]
+    top_products = [_clean_product(p) for p, _ in scored[:MAX_PRODUCTS_PER_NUTRIENT]]
 
     quality_info = _localize_quality_info(NUTRIENT_QUALITY_INFO.get(nutrient), lang)
     return JSONResponse(
@@ -341,8 +360,6 @@ async def get_products_by_nutrient(nutrient: str, lang: str = "de"):
         headers={"Cache-Control": "no-store, no-cache, must-revalidate, max-age=0"}
     )
 
-
-import re as _re
 
 def _parse_price(price_str: str) -> float | None:
     """Extract numeric price from strings like '19.90 EUR' or '24,50 €'."""
