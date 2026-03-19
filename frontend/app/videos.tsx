@@ -197,18 +197,6 @@ export default function VideosScreen() {
           </View>
         ))}
 
-        {/* YouTube Channel Link */}
-        <TouchableOpacity
-          style={styles.channelCard}
-          onPress={() => Linking.openURL('https://www.youtube.com/@joachim_kaeser_italia')}
-          testID="youtube-channel-btn"
-        >
-          <MaterialCommunityIcons name="youtube" size={24} color="#FF0000" />
-          <Text style={styles.channelText}>
-            {lang === 'de' ? 'Alle Videos auf YouTube ansehen' : 'Guarda tutti i video su YouTube'}
-          </Text>
-          <MaterialCommunityIcons name="open-in-new" size={20} color="#FF0000" />
-        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
