@@ -74,10 +74,10 @@ NUTRIENT_TAG_MAP_SCORED = {
         "secondary_it": ["cuore", "energia"],
     },
     "probiotics": {
-        "primary_de": ["probiotika", "microbiom"],
-        "primary_it": ["probiotici", "microbioma"],
-        "secondary_de": ["darm", "verdauung"],
-        "secondary_it": ["intestino", "digestione"],
+        "primary_de": ["probiotika", "microbiom", "mikrobiom", "darmpflege"],
+        "primary_it": ["probiotici", "microbioma", "probiotici naturali"],
+        "secondary_de": ["darm", "verdauung", "flora"],
+        "secondary_it": ["intestino", "digestione", "flora"],
     },
     "folate": {
         "primary_de": ["folat", "folsaeure"],
@@ -251,15 +251,26 @@ def _localize_quality_info(info: dict, lang: str) -> dict:
 @router.get("/products/by-nutrient/{nutrient}")
 async def get_products_by_nutrient(nutrient: str, lang: str = "de"):
     """Get top 3 most relevant products for a specific nutrient deficiency."""
-    primary, secondary = _get_nutrient_tags(nutrient, lang)
-    if not primary:
+    scored_map = NUTRIENT_TAG_MAP_SCORED.get(nutrient)
+    if not scored_map:
+        return {"products": [], "quality_info": None}
+
+    # Combine DE + IT primary tags for search (DB tags may be in either language)
+    all_primary = list(set(
+        scored_map.get("primary_de", []) + scored_map.get("primary_it", [])
+    ))
+    if not all_primary:
         return {"products": [], "quality_info": None}
 
     collection = await get_products_collection(lang)
-    # Search ONLY with language-specific primary tags
-    regex_pattern = f"^({'|'.join(primary)})$"
+    # Search by tags OR product name (many products have empty tags)
+    tag_regex = f"^({'|'.join(all_primary)})$"
+    name_regex = f"({'|'.join(all_primary)})"
     cursor = collection.find(
-        {"tags": {"$elemMatch": {"$regex": regex_pattern, "$options": "i"}}},
+        {"$or": [
+            {"tags": {"$elemMatch": {"$regex": tag_regex, "$options": "i"}}},
+            {"name": {"$regex": name_regex, "$options": "i"}},
+        ]},
         {"_id": 0}
     )
     all_products = await cursor.to_list(length=500)
@@ -308,12 +319,21 @@ async def get_pricing_summary(nutrients: str = "", lang: str = "de"):
     result = {}
 
     for nutrient in nutrient_list:
-        tags = NUTRIENT_TAG_MAP.get(nutrient, [])
-        if not tags:
+        scored_map = NUTRIENT_TAG_MAP_SCORED.get(nutrient)
+        if not scored_map:
             continue
-        regex_pattern = f"^({'|'.join(tags)})$"
+        all_tags = list(set(
+            scored_map.get("primary_de", []) + scored_map.get("primary_it", [])
+        ))
+        if not all_tags:
+            continue
+        tag_regex = f"^({'|'.join(all_tags)})$"
+        name_regex = f"({'|'.join(all_tags)})"
         products = await collection.find(
-            {"tags": {"$elemMatch": {"$regex": regex_pattern, "$options": "i"}}},
+            {"$or": [
+                {"tags": {"$elemMatch": {"$regex": tag_regex, "$options": "i"}}},
+                {"name": {"$regex": name_regex, "$options": "i"}},
+            ]},
             {"_id": 0, "price": 1, "servings": 1, "price_per_day": 1}
         ).limit(10).to_list(10)
 
