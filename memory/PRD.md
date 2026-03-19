@@ -6,7 +6,7 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 ## Architecture
 - **Frontend**: React Native (Expo) with expo-router, served via tunnel
 - **Backend**: FastAPI on port 8001
-- **Database**: MongoDB (local, DB_NAME=test_database)
+- **Database**: MongoDB Atlas (cloud) - DB_NAME=test_database
 - **AI**: OpenAI GPT-4o via Emergent LLM Key
 - **3rd Party**: Shopify (products), SMTP (emails), Unsplash (images)
 
@@ -26,13 +26,16 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - Admin Panel
 - Product Selection for Supplements
 
-### Personalized Recipes (2026-03-17) - NEW
-- **Dashboard**: Shows top 4 personalized recipes (by relevance_score) instead of generic
-- **Recipes Tab**: Two sub-tabs:
-  - "Fuer dich" (personal) - sorted by relevance, with relevance_tags chips & star badges
-  - "Alle Rezepte" (all) - full catalog, generic display
-- **Backend**: `/api/recipes/personalized/{profile_id}` scores recipes by symptom match
-- **Testing**: 23/23 tests passed (14 backend + 9 frontend, iteration_73)
+### Database Migration to MongoDB Atlas (2026-03-19) - COMPLETED
+- Migrated 36 collections with 1688 documents from local MongoDB to Atlas
+- All 19 API regression tests passed (iteration_74)
+- Atlas URL: mongodb+srv://xelor80:***@vitaguide.f2cj30h.mongodb.net
+
+### Personalized Recipes (2026-03-17) - COMPLETED
+- Dashboard: Top 4 personalized recipes by relevance_score
+- Recipes Tab: "Fuer dich" (personal) + "Alle Rezepte" (all)
+- Backend: /api/recipes/personalized/{profile_id} scores by symptom match
+- Testing: 23/23 tests passed (iteration_73)
 
 ### Internationalization (i18n) - 3 Active Languages
 - Active: DE, IT, EN
@@ -44,17 +47,21 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - All 37 recipes pre-translated in DB
 
 ## Key API Endpoints
-- `GET /api/recipes/personalized/{profile_id}?lang=X` - Personalized recipes (sorted by relevance)
+- `GET /api/recipes/personalized/{profile_id}?lang=X` - Personalized recipes
 - `GET /api/recipes?lang=X` - All recipes
-- `GET/PUT /api/water-tracking/{profile_id}/water-reminders` - Water reminder settings
+- `GET/PUT /api/water-tracking/{profile_id}/water-reminders` - Water reminders
 - `POST /api/products/select` - Save product selection
 - `GET /api/medications/{profile_id}/daily-plan` - Combined daily plan
+- `POST /api/admin/auth` - Admin authentication
 
 ## Prioritized Backlog
-### P2 - Upcoming
+### P1 - Upcoming
 - Medication Reminders (push notifications)
-- Medication Progress Tracking (integrate into Progress section)
 
-### P2 - Future
+### P2 - Upcoming
+- Medication Progress Tracking (integrate into Progress section)
 - Historical Data Visualization (water intake graphs)
+
+### Future
+- Admin Web Dashboard (separate project, briefing at /app/memory/ADMIN_DASHBOARD_BRIEFING.md)
 - Reactivate TR, FR, ES, RU languages
