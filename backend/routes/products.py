@@ -138,7 +138,13 @@ MAX_PRODUCTS_PER_NUTRIENT = 3
 
 def _score_product(product: dict, nutrient: str, lang: str = "de") -> float:
     """Score a product by relevance to a specific nutrient. Higher = more relevant."""
-    primary, secondary = _get_nutrient_tags(nutrient, lang)
+    scored_map = NUTRIENT_TAG_MAP_SCORED.get(nutrient)
+    if not scored_map:
+        return 0
+
+    # Use ALL language tags for matching
+    primary = list(set(scored_map.get("primary_de", []) + scored_map.get("primary_it", [])))
+    secondary = list(set(scored_map.get("secondary_de", []) + scored_map.get("secondary_it", [])))
     if not primary:
         return 0
 
@@ -168,6 +174,36 @@ def _score_product(product: dict, nutrient: str, lang: str = "de") -> float:
     for st in secondary:
         if st in product_tags:
             score += 1
+
+    # NEW: Score from enriched product fields
+    inhaltsstoffe = str(product.get("inhaltsstoffe", "")).lower()
+    auswirkungen = str(product.get("auswirkungen_studien", "")).lower()
+    beschreibung = str(product.get("beschreibung", "")).lower()
+    zutaten = str(product.get("zutaten", "")).lower()
+
+    # +15 if nutrient in inhaltsstoffe (strongest signal after name)
+    for pt in primary:
+        if pt in inhaltsstoffe:
+            score += 15
+            break
+
+    # +12 if nutrient in auswirkungen_studien (EFSA claims)
+    for pt in primary:
+        if pt in auswirkungen:
+            score += 12
+            break
+
+    # +6 if nutrient in beschreibung
+    for pt in primary:
+        if pt in beschreibung:
+            score += 6
+            break
+
+    # +4 if nutrient in zutaten
+    for pt in primary:
+        if pt in zutaten:
+            score += 4
+            break
 
     # Bonus for specific supplement formats
     ptype = (product.get("product_type", "") or "").lower()
@@ -263,26 +299,36 @@ async def get_products_by_nutrient(nutrient: str, lang: str = "de"):
         return {"products": [], "quality_info": None}
 
     collection = await get_products_collection(lang)
-    # Search by tags OR product name (many products have empty tags)
+    # Search by tags, name, OR enriched fields (beschreibung, inhaltsstoffe, etc.)
     tag_regex = f"^({'|'.join(all_primary)})$"
-    name_regex = f"({'|'.join(all_primary)})"
+    content_regex = f"({'|'.join(all_primary)})"
     cursor = collection.find(
         {"$or": [
             {"tags": {"$elemMatch": {"$regex": tag_regex, "$options": "i"}}},
-            {"name": {"$regex": name_regex, "$options": "i"}},
+            {"name": {"$regex": content_regex, "$options": "i"}},
+            {"inhaltsstoffe": {"$regex": content_regex, "$options": "i"}},
+            {"auswirkungen_studien": {"$regex": content_regex, "$options": "i"}},
+            {"beschreibung": {"$regex": content_regex, "$options": "i"}},
+            {"zutaten": {"$regex": content_regex, "$options": "i"}},
         ]},
         {"_id": 0}
     )
     all_products = await cursor.to_list(length=500)
 
-    # Deduplicate by product name (case-insensitive)
-    seen_names = set()
-    unique_products = []
+    # Deduplicate by product name - prefer version with enriched data
+    name_map = {}
     for p in all_products:
         name_key = p.get("name", "").strip().lower()
-        if name_key not in seen_names:
-            seen_names.add(name_key)
-            unique_products.append(p)
+        existing = name_map.get(name_key)
+        if existing is None:
+            name_map[name_key] = p
+        else:
+            # Prefer the product with more enriched fields
+            new_has = bool(p.get("beschreibung") or p.get("inhaltsstoffe"))
+            old_has = bool(existing.get("beschreibung") or existing.get("inhaltsstoffe"))
+            if new_has and not old_has:
+                name_map[name_key] = p
+    unique_products = list(name_map.values())
 
     # Score and rank products by relevance
     scored = [(p, _score_product(p, nutrient, lang)) for p in unique_products]
@@ -328,11 +374,13 @@ async def get_pricing_summary(nutrients: str = "", lang: str = "de"):
         if not all_tags:
             continue
         tag_regex = f"^({'|'.join(all_tags)})$"
-        name_regex = f"({'|'.join(all_tags)})"
+        content_regex = f"({'|'.join(all_tags)})"
         products = await collection.find(
             {"$or": [
                 {"tags": {"$elemMatch": {"$regex": tag_regex, "$options": "i"}}},
-                {"name": {"$regex": name_regex, "$options": "i"}},
+                {"name": {"$regex": content_regex, "$options": "i"}},
+                {"inhaltsstoffe": {"$regex": content_regex, "$options": "i"}},
+                {"auswirkungen_studien": {"$regex": content_regex, "$options": "i"}},
             ]},
             {"_id": 0, "price": 1, "servings": 1, "price_per_day": 1}
         ).limit(10).to_list(10)
