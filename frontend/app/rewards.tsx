@@ -248,25 +248,35 @@ export default function RewardsPage() {
       >
         {(activeTab === 'available' ? availableItems : redeemedItems).map(item => (
           <View key={item.id} style={[styles.rewardCard, item.status === 'locked' && styles.rewardCardLocked]} data-testid={`reward-card-${item.id}`}>
-            <View style={styles.rewardHeader}>
-              <View style={[styles.categoryBadge, { backgroundColor: STATUS_COLORS[item.status] + '18' }]}>
-                <MaterialCommunityIcons
-                  name={(CATEGORY_ICONS[item.category] || 'gift') as any}
-                  size={20}
-                  color={STATUS_COLORS[item.status]}
-                />
+            {/* Reward Image */}
+            {item.image_url ? (
+              <Image
+                source={{ uri: item.image_url }}
+                style={styles.rewardImage}
+                resizeMode="cover"
+              />
+            ) : null}
+
+            <View style={styles.rewardCardBody}>
+              <View style={styles.rewardHeader}>
+                <View style={[styles.categoryBadge, { backgroundColor: STATUS_COLORS[item.status] + '18' }]}>
+                  <MaterialCommunityIcons
+                    name={(CATEGORY_ICONS[item.category] || 'gift') as any}
+                    size={20}
+                    color={STATUS_COLORS[item.status]}
+                  />
+                </View>
+                <View style={styles.rewardInfo}>
+                  <Text style={[styles.rewardTitle, item.status === 'locked' && styles.rewardTitleLocked]}>
+                    {item.title}
+                  </Text>
+                  <Text style={styles.rewardDesc} numberOfLines={2}>{item.description}</Text>
+                </View>
+                <View style={styles.pointsBadge}>
+                  <MaterialCommunityIcons name="star-four-points" size={14} color="#F59E0B" />
+                  <Text style={styles.pointsText}>{item.points_required}</Text>
+                </View>
               </View>
-              <View style={styles.rewardInfo}>
-                <Text style={[styles.rewardTitle, item.status === 'locked' && styles.rewardTitleLocked]}>
-                  {item.title}
-                </Text>
-                <Text style={styles.rewardDesc} numberOfLines={2}>{item.description}</Text>
-              </View>
-              <View style={styles.pointsBadge}>
-                <MaterialCommunityIcons name="star-four-points" size={14} color="#F59E0B" />
-                <Text style={styles.pointsText}>{item.points_required}</Text>
-              </View>
-            </View>
 
             {item.status === 'locked' && (
               <View style={styles.progressBar}>
@@ -300,6 +310,7 @@ export default function RewardsPage() {
                 <Text style={styles.redeemedText}>{t('Eingeloest', 'Riscattato')}</Text>
               </View>
             )}
+            </View>
           </View>
         ))}
 
@@ -366,8 +377,10 @@ const styles = StyleSheet.create({
   tabText: { fontSize: 13, fontWeight: '500', color: '#6B7280' },
   tabTextActive: { color: '#2E7D52', fontWeight: '600' },
   catalogScroll: { flex: 1, paddingHorizontal: 16 },
-  rewardCard: { backgroundColor: '#fff', borderRadius: 14, padding: 16, marginBottom: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 4, elevation: 2 },
+  rewardCard: { backgroundColor: '#fff', borderRadius: 14, marginBottom: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 4, elevation: 2, overflow: 'hidden' },
   rewardCardLocked: { opacity: 0.8 },
+  rewardImage: { width: '100%', height: 160, backgroundColor: '#F3F4F6' },
+  rewardCardBody: { padding: 16 },
   rewardHeader: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
   categoryBadge: { width: 40, height: 40, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
   rewardInfo: { flex: 1 },
