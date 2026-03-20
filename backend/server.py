@@ -14,7 +14,7 @@ from core.middleware import (
     RateLimitMiddleware, create_admin_token, verify_admin_token,
     cleanup_expired_tokens
 )
-from routes import analysis, products, tracking, diary, admin, settings, health_profile, supplement_plan, progress, videos, label_analysis, health_score, admin_health_stats, supplement_interactions, correlation_analysis, shop_import, email_export, tts, daily_tasks, achievements, trust_stats, price_alerts, water_tracking, medications, rewards
+from routes import analysis, products, tracking, diary, admin, settings, health_profile, supplement_plan, progress, videos, label_analysis, health_score, admin_health_stats, supplement_interactions, correlation_analysis, shop_import, email_export, tts, daily_tasks, achievements, trust_stats, price_alerts, water_tracking, medications, rewards, auth
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
@@ -89,6 +89,7 @@ api_router.include_router(price_alerts.router)
 api_router.include_router(water_tracking.router)
 api_router.include_router(medications.router)
 api_router.include_router(rewards.router)
+api_router.include_router(auth.router)
 
 # Serve uploaded files (labels)
 @api_router.get("/uploads/labels/{filename}")
@@ -163,6 +164,8 @@ async def seed_data():
         await db.diary_entries.create_index([("profile_id", 1), ("created_at", -1)])
         await db.achievements.create_index("profile_id")
         await db.price_alerts.create_index("profile_id")
+        await db.users.create_index("email", unique=True, sparse=True)
+        await db.users.create_index("user_id", unique=True)
         logger.info("MongoDB indexes ensured")
     except Exception as e:
         logger.warning(f"Index creation note: {e}")

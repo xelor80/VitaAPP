@@ -1,4 +1,4 @@
-import { Stack, usePathname } from 'expo-router';
+import { Stack, usePathname, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { View } from 'react-native';
 import { useState, useEffect } from 'react';
@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LangProvider } from '../src/LangContext';
 import { SettingsProvider } from '../src/SettingsContext';
 import { GuideProvider, useGuide } from '../src/GuideContext';
+import { AuthProvider, useAuth } from '../src/AuthContext';
 import { useSwipeBack } from '../src/useSwipeBack';
 import { GuideMascot } from '../components/GuideMascot';
 
@@ -50,37 +51,40 @@ export default function RootLayout() {
   return (
     <LangProvider>
       <SettingsProvider>
-        <GuideProvider>
-          <StatusBar style="dark" />
-          <SwipeWrapper>
-            <View style={{ flex: 1 }}>
-              <Stack screenOptions={{
-                headerShown: false,
-                animation: 'slide_from_right',
-                gestureEnabled: true,
-                gestureDirection: 'horizontal',
-              }}>
-                <Stack.Screen name="(tabs)" options={{ headerShown: false, gestureEnabled: false }} />
-                <Stack.Screen name="results" />
-                <Stack.Screen name="recipe" />
-                <Stack.Screen name="diary" />
-                <Stack.Screen name="onboarding" />
-                <Stack.Screen name="supplement-plan" />
-                <Stack.Screen name="health-profile" />
-                <Stack.Screen name="progress" />
-                <Stack.Screen name="recipes-catalog" />
-                <Stack.Screen name="admin" />
-                <Stack.Screen name="tracking" />
-                <Stack.Screen name="product-comparison" />
-                <Stack.Screen name="videos" />
-                <Stack.Screen name="medications" />
-                <Stack.Screen name="daily-plan" />
-                <Stack.Screen name="rewards" />
-              </Stack>
-              <GuideOverlay />
-            </View>
-          </SwipeWrapper>
-        </GuideProvider>
+        <AuthProvider>
+          <GuideProvider>
+            <StatusBar style="dark" />
+            <SwipeWrapper>
+              <View style={{ flex: 1 }}>
+                <Stack screenOptions={{
+                  headerShown: false,
+                  animation: 'slide_from_right',
+                  gestureEnabled: true,
+                  gestureDirection: 'horizontal',
+                }}>
+                  <Stack.Screen name="login" options={{ gestureEnabled: false }} />
+                  <Stack.Screen name="(tabs)" options={{ headerShown: false, gestureEnabled: false }} />
+                  <Stack.Screen name="results" />
+                  <Stack.Screen name="recipe" />
+                  <Stack.Screen name="diary" />
+                  <Stack.Screen name="onboarding" />
+                  <Stack.Screen name="supplement-plan" />
+                  <Stack.Screen name="health-profile" />
+                  <Stack.Screen name="progress" />
+                  <Stack.Screen name="recipes-catalog" />
+                  <Stack.Screen name="admin" />
+                  <Stack.Screen name="tracking" />
+                  <Stack.Screen name="product-comparison" />
+                  <Stack.Screen name="videos" />
+                  <Stack.Screen name="medications" />
+                  <Stack.Screen name="daily-plan" />
+                  <Stack.Screen name="rewards" />
+                </Stack>
+                <GuideOverlay />
+              </View>
+            </SwipeWrapper>
+          </GuideProvider>
+        </AuthProvider>
       </SettingsProvider>
     </LangProvider>
   );

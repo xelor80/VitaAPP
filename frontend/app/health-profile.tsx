@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity,
-  SafeAreaView, ActivityIndicator, StyleSheet
+  SafeAreaView, ActivityIndicator, StyleSheet, Alert
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter, useNavigation } from 'expo-router';
@@ -9,6 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Svg, { Path, Circle as SvgCircle } from 'react-native-svg';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLang } from '../src/LangContext';
+import { useAuth } from '../src/AuthContext';
 import { profileStyles as styles } from '../components/profile/profileStyles';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
@@ -176,6 +177,7 @@ export default function HealthProfileScreen() {
   const navigation = useNavigation();
   const canGoBack = navigation.canGoBack();
   const { lang } = useLang();
+  const { user, logout } = useAuth();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
   const [assessment, setAssessment] = useState<any>(null);
@@ -539,6 +541,74 @@ export default function HealthProfileScreen() {
           </TouchableOpacity>
         </View>
 
+        {/* Account Section */}
+        <View style={accountStyles.section}>
+          <Text style={accountStyles.sectionTitle}>
+            {lang === 'de' ? 'Konto' : 'Account'}
+          </Text>
+          {user ? (
+            <View style={accountStyles.card}>
+              <View style={accountStyles.row}>
+                <View style={accountStyles.iconWrap}>
+                  <MaterialCommunityIcons
+                    name={user.auth_provider === 'google' ? 'google' : 'email-outline'}
+                    size={20}
+                    color={user.auth_provider === 'google' ? '#EA4335' : '#2E7D52'}
+                  />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={accountStyles.email}>{user.email}</Text>
+                  <Text style={accountStyles.provider}>
+                    {user.auth_provider === 'google'
+                      ? 'Google Account'
+                      : (lang === 'de' ? 'E-Mail-Konto' : 'Account email')}
+                  </Text>
+                </View>
+                <View style={accountStyles.syncBadge}>
+                  <MaterialCommunityIcons name="cloud-check-outline" size={14} color="#2E7D52" />
+                  <Text style={accountStyles.syncText}>{lang === 'de' ? 'Synchronisiert' : 'Sincronizzato'}</Text>
+                </View>
+              </View>
+              <TouchableOpacity
+                style={accountStyles.logoutBtn}
+                onPress={() => {
+                  Alert.alert(
+                    lang === 'de' ? 'Abmelden' : 'Disconnetti',
+                    lang === 'de' ? 'Moechtest du dich wirklich abmelden?' : 'Vuoi veramente disconnetterti?',
+                    [
+                      { text: lang === 'de' ? 'Abbrechen' : 'Annulla', style: 'cancel' },
+                      { text: lang === 'de' ? 'Abmelden' : 'Disconnetti', style: 'destructive', onPress: logout },
+                    ]
+                  );
+                }}
+                data-testid="logout-button"
+              >
+                <MaterialCommunityIcons name="logout" size={18} color="#EF4444" />
+                <Text style={accountStyles.logoutText}>{lang === 'de' ? 'Abmelden' : 'Disconnetti'}</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <TouchableOpacity
+              style={accountStyles.loginCard}
+              onPress={() => router.push('/login' as any)}
+              data-testid="goto-login-button"
+            >
+              <MaterialCommunityIcons name="account-plus-outline" size={24} color="#2E7D52" />
+              <View style={{ flex: 1 }}>
+                <Text style={accountStyles.loginTitle}>
+                  {lang === 'de' ? 'Konto erstellen oder anmelden' : 'Crea account o accedi'}
+                </Text>
+                <Text style={accountStyles.loginSubtitle}>
+                  {lang === 'de'
+                    ? 'Sichere deine Daten und nutze sie auf allen Geraeten'
+                    : 'Proteggi i tuoi dati e usali su tutti i dispositivi'}
+                </Text>
+              </View>
+              <MaterialCommunityIcons name="chevron-right" size={24} color="#9CA3AF" />
+            </TouchableOpacity>
+          )}
+        </View>
+
         {/* Disclaimer */}
         <Text style={styles.disclaimerText}>
           {lang === 'de'
@@ -563,4 +633,21 @@ const ctaStyles = StyleSheet.create({
     backgroundColor: '#FFF', borderWidth: 1.5,
   },
   secondaryBtnText: { fontSize: 13, fontWeight: '600' },
+});
+
+const accountStyles = StyleSheet.create({
+  section: { marginTop: 16, paddingHorizontal: 4 },
+  sectionTitle: { fontSize: 16, fontWeight: '700', color: '#1A2D26', marginBottom: 10 },
+  card: { backgroundColor: '#FFF', borderRadius: 14, padding: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 4, elevation: 2 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  iconWrap: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#F3F4F6', justifyContent: 'center', alignItems: 'center' },
+  email: { fontSize: 14, fontWeight: '600', color: '#1F2937' },
+  provider: { fontSize: 12, color: '#6B7280', marginTop: 1 },
+  syncBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#F0FDF4', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
+  syncText: { fontSize: 11, color: '#2E7D52', fontWeight: '500' },
+  logoutBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 14, paddingVertical: 10, borderTopWidth: 1, borderTopColor: '#F3F4F6' },
+  logoutText: { fontSize: 14, color: '#EF4444', fontWeight: '500' },
+  loginCard: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#FFF', borderRadius: 14, padding: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 4, elevation: 2 },
+  loginTitle: { fontSize: 14, fontWeight: '600', color: '#1F2937' },
+  loginSubtitle: { fontSize: 12, color: '#6B7280', marginTop: 2 },
 });

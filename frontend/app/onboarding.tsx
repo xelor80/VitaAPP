@@ -142,6 +142,22 @@ export default function OnboardingScreen() {
       setProfileId(data.profile_id);
       setAssessment(data.assessment);
       setStep(STEPS.length); // Show assessment
+
+      // Link profile to user account if logged in
+      try {
+        const authToken = await AsyncStorage.getItem('auth_token');
+        if (authToken) {
+          await fetch(`${API_URL}/api/auth/link-profile`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${authToken}`,
+            },
+            body: JSON.stringify({ profile_id: data.profile_id }),
+          });
+        }
+      } catch {}
+
       // Notify home screen about profile update
       const { eventBus } = require('../src/eventBus');
       eventBus.emit('profileUpdated');
