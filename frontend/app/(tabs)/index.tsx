@@ -10,6 +10,7 @@ import { useRouter } from 'expo-router';
 import { useLang } from '../../src/LangContext';
 import { tx } from '../../src/i18n';
 import { useGuide } from '../../src/GuideContext';
+import { useAuth } from '../../src/AuthContext';
 import { eventBus } from '../../src/eventBus';
 import { setCurrentAnalysis } from '../../src/store';
 import { DisclaimerScreen } from '../../components/home/DisclaimerScreen';
@@ -33,6 +34,7 @@ export default function DashboardHome() {
   const router = useRouter();
   const { lang, setLang } = useLang();
   const guide = useGuide();
+  const { user } = useAuth();
   const [disclaimerAccepted, setDisclaimerAccepted] = useState<boolean | null>(null);
   const [firstName, setFirstName] = useState<string | null>(null);
   const [hasProfile, setHasProfile] = useState(false);
@@ -284,6 +286,31 @@ export default function DashboardHome() {
               )}
               <MaterialCommunityIcons name="chevron-right" size={20} color="#9CA3AF" />
             </View>
+          </TouchableOpacity>
+        )}
+
+        {/* Account Registration Banner (when not logged in) */}
+        {!user && (
+          <TouchableOpacity
+            style={s.accountBanner}
+            activeOpacity={0.85}
+            onPress={() => router.push('/login' as any)}
+            data-testid="dashboard-register-banner"
+          >
+            <LinearGradient colors={['#1B5E3B', '#2E7D52']} style={s.accountBannerGradient}>
+              <View style={s.accountBannerIcon}>
+                <MaterialCommunityIcons name="shield-account-outline" size={28} color="#fff" />
+              </View>
+              <View style={s.accountBannerText}>
+                <Text style={s.accountBannerTitle}>
+                  {tx(lang, { de: 'Daten sichern & synchronisieren', it: 'Proteggi e sincronizza i dati', en: 'Secure & sync your data' })}
+                </Text>
+                <Text style={s.accountBannerSub}>
+                  {tx(lang, { de: 'Erstelle ein Konto, um deine Daten auf allen Geraeten verfuegbar zu haben', it: 'Crea un account per avere i tuoi dati su tutti i dispositivi', en: 'Create an account to access your data on all devices' })}
+                </Text>
+              </View>
+              <MaterialCommunityIcons name="chevron-right" size={24} color="rgba(255,255,255,0.6)" />
+            </LinearGradient>
           </TouchableOpacity>
         )}
 
@@ -834,5 +861,44 @@ const s = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     color: '#fff',
+  },
+  accountBanner: {
+    marginHorizontal: SIDE_PAD,
+    marginTop: 12,
+    borderRadius: 14,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  accountBannerGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    gap: 12,
+  },
+  accountBannerIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  accountBannerText: {
+    flex: 1,
+  },
+  accountBannerTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#fff',
+    marginBottom: 3,
+  },
+  accountBannerSub: {
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.8)',
+    lineHeight: 16,
   },
 });
