@@ -518,6 +518,48 @@ export const GUIDE_SCREENS: Record<string, GuideScreenData> = {
     pose: 'hallo',
     quickActions: [],
   },
+
+  '/rewards': {
+    greeting: {
+      de: 'Willkommen im Praemiensystem! Hier siehst du deine gesammelten Punkte und verfuegbaren Praemien.',
+      it: 'Benvenuto nel sistema premi! Qui vedi i tuoi punti raccolti e i premi disponibili.',
+    },
+    explanation: {
+      de: 'Das Praemiensystem belohnt dich fuer deine taeglichen Gesundheitsaktivitaeten. Du sammelst Punkte durch Wasser trinken, Supplements einnehmen, Medikamente checken und den taeglichen Check-in. Je laenger deine Streak, desto mehr Bonuspunkte bekommst du!',
+      it: 'Il sistema premi ti ricompensa per le tue attivita sanitarie quotidiane. Raccogli punti bevendo acqua, assumendo integratori, controllando i farmaci e facendo il check-in giornaliero. Piu lunga e la tua streak, piu punti bonus ricevi!',
+    },
+    nextStep: {
+      de: 'Sammle weiter Punkte, um deine naechste Praemie freizuschalten. Vergiss nicht den taeglichen Check-in!',
+      it: 'Continua a raccogliere punti per sbloccare il tuo prossimo premio. Non dimenticare il check-in giornaliero!',
+    },
+    pose: 'super',
+    quickActions: [
+      {
+        id: 'how_points',
+        label: { de: 'Wie sammle ich Punkte?', it: 'Come raccolgo punti?' },
+        response: {
+          de: 'Du erhaeltst Punkte fuer verschiedene Aktivitaeten: Wasser trinken (5 Punkte pro Eintrag), Tagesziel erreichen (10 Punkte), Supplements einnehmen (8 Punkte), Medikamente checken (8 Punkte), Tagebuch fuehren (12 Punkte) und den taeglichen Check-in (5 Punkte). Wenn du einen kompletten Tag schaffst, gibt es sogar 25 Bonuspunkte!',
+          it: 'Ricevi punti per diverse attivita: bere acqua (5 punti per voce), raggiungere l\'obiettivo giornaliero (10 punti), assumere integratori (8 punti), controllare i farmaci (8 punti), tenere il diario (12 punti) e il check-in giornaliero (5 punti). Se completi un giorno intero, ricevi anche 25 punti bonus!',
+        },
+      },
+      {
+        id: 'what_streaks',
+        label: { de: 'Was sind Streaks?', it: 'Cosa sono le streak?' },
+        response: {
+          de: 'Eine Streak zeigt, wie viele Tage in Folge du aktiv warst. Nach 7 Tagen bekommst du 50 Bonuspunkte, nach 14 Tagen sogar 100 Bonuspunkte! Je laenger deine Streak, desto mehr profitierst du.',
+          it: 'Una streak mostra quanti giorni consecutivi sei stato attivo. Dopo 7 giorni ricevi 50 punti bonus, dopo 14 giorni addirittura 100 punti bonus! Piu lunga e la tua streak, piu ne benefici.',
+        },
+      },
+      {
+        id: 'how_redeem',
+        label: { de: 'Wie loesche ich Praemien ein?', it: 'Come riscatto i premi?' },
+        response: {
+          de: 'Sobald du genug Punkte gesammelt hast, wird die Praemie freigeschaltet. Tippe einfach auf "Einloesen" und du erhaeltst einen persoenlichen Code. Die Punkte werden von deinem Guthaben abgezogen.',
+          it: 'Quando hai raccolto abbastanza punti, il premio viene sbloccato. Tocca semplicemente "Riscatta" e riceverai un codice personale. I punti verranno detratti dal tuo saldo.',
+        },
+      },
+    ],
+  },
 };
 
 // Personalized context tips based on user data
