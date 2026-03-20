@@ -282,7 +282,18 @@ async def check_in_supplement(profile_id: str, entry: SupplementCheckIn):
         "timing": entry.timing,
         "taken_at": datetime.now(timezone.utc).isoformat(),
     })
-    return {"checked": True}
+
+    # Grant reward points for supplement check-in
+    reward_result = None
+    try:
+        from routes.rewards import grant_points_internal
+        reward_result = await grant_points_internal(
+            profile_id, "supplement", context=f"{entry.supplement_id}_{entry.timing}"
+        )
+    except Exception:
+        pass
+
+    return {"checked": True, "reward": reward_result}
 
 @router.post("/{profile_id}/{medication_id}/check-in")
 async def check_in_medication(profile_id: str, medication_id: str, entry: MedicationLogEntry):
@@ -306,7 +317,18 @@ async def check_in_medication(profile_id: str, medication_id: str, entry: Medica
         "taken_at": datetime.now(timezone.utc).isoformat(),
     }
     await db.medication_logs.insert_one({**log})
-    return {"checked": True}
+
+    # Grant reward points for medication check-in
+    reward_result = None
+    try:
+        from routes.rewards import grant_points_internal
+        reward_result = await grant_points_internal(
+            profile_id, "medication", context=f"{medication_id}_{entry.timing}"
+        )
+    except Exception:
+        pass
+
+    return {"checked": True, "reward": reward_result}
 
 # ── Statistics ──
 

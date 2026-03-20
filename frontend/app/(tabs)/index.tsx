@@ -47,6 +47,8 @@ export default function DashboardHome() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [waterData, setWaterData] = useState<any>(null);
   const [profileId, setProfileId] = useState<string | null>(null);
+  const [rewardBalance, setRewardBalance] = useState<number>(0);
+  const [rewardStreak, setRewardStreak] = useState<number>(0);
 
   // Disclaimer check
   useEffect(() => {
@@ -87,6 +89,15 @@ export default function DashboardHome() {
         try {
           const waterRes = await fetch(`${API_URL}/api/water-tracking/${profileId}/today?lang=${lang}`);
           if (waterRes.ok) setWaterData(await waterRes.json());
+        } catch {}
+        // Load reward balance
+        try {
+          const rewardRes = await fetch(`${API_URL}/api/rewards/${profileId}/today?lang=${lang}`);
+          if (rewardRes.ok) {
+            const rd = await rewardRes.json();
+            setRewardBalance(rd.current_balance ?? 0);
+            setRewardStreak(rd.current_streak ?? 0);
+          }
         } catch {}
       }
     } catch {}
@@ -237,6 +248,33 @@ export default function DashboardHome() {
           </TouchableOpacity>
         </View>
         </View>
+
+        {/* Rewards Points Card */}
+        {hasProfile && (
+          <TouchableOpacity
+            style={s.rewardsCard}
+            activeOpacity={0.85}
+            onPress={() => router.push('/rewards' as any)}
+            data-testid="rewards-dashboard-card"
+          >
+            <View style={s.rewardsLeft}>
+              <MaterialCommunityIcons name="star-four-points" size={24} color="#F59E0B" />
+              <View style={s.rewardsInfo}>
+                <Text style={s.rewardsLabel}>{tx(lang, { de: 'Deine Punkte', it: 'I tuoi punti', en: 'Your Points' })}</Text>
+                <Text style={s.rewardsValue} data-testid="dashboard-points-value">{rewardBalance}</Text>
+              </View>
+            </View>
+            <View style={s.rewardsRight}>
+              {rewardStreak > 0 && (
+                <View style={s.rewardsStreakBadge}>
+                  <MaterialCommunityIcons name="fire" size={14} color="#F59E0B" />
+                  <Text style={s.rewardsStreakText}>{rewardStreak}</Text>
+                </View>
+              )}
+              <MaterialCommunityIcons name="chevron-right" size={20} color="#9CA3AF" />
+            </View>
+          </TouchableOpacity>
+        )}
 
         {/* Symptom Analysis Section */}
         <TouchableOpacity
@@ -664,5 +702,58 @@ const s = StyleSheet.create({
   },
   langBtnTextActive: {
     color: '#1B6B45',
+  },
+  // Rewards card styles
+  rewardsCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginHorizontal: SIDE_PAD,
+    marginTop: 12,
+    backgroundColor: '#fff',
+    borderRadius: 14,
+    padding: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: '#F3F4F6',
+  },
+  rewardsLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  rewardsInfo: {},
+  rewardsLabel: {
+    fontSize: 12,
+    color: '#6B7280',
+    fontWeight: '500',
+  },
+  rewardsValue: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#1F2937',
+  },
+  rewardsRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  rewardsStreakBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFBEB',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
+    gap: 3,
+  },
+  rewardsStreakText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#F59E0B',
   },
 });

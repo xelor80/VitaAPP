@@ -26,7 +26,22 @@ async def save_diary_entry(data: DiaryEntryInput, request: Request):
     await db.diary_entries.update_one(
         {"date": data.date}, {"$set": entry}, upsert=True
     )
-    return {"status": "saved", "date": data.date}
+
+    # Grant reward points for diary entry
+    reward_result = None
+    try:
+        from routes.rewards import grant_points_internal
+        # Use profile_id from request if available, otherwise use a default
+        profile_id = getattr(data, 'profile_id', None)
+        if not profile_id:
+            # Try to get profile_id from header or use first available
+            profile_id = request.headers.get('x-profile-id', '')
+        if profile_id:
+            reward_result = await grant_points_internal(profile_id, "diary")
+    except Exception:
+        pass
+
+    return {"status": "saved", "date": data.date, "reward": reward_result}
 
 
 @router.get("/diary")

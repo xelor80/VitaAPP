@@ -14,7 +14,7 @@ from core.middleware import (
     RateLimitMiddleware, create_admin_token, verify_admin_token,
     cleanup_expired_tokens
 )
-from routes import analysis, products, tracking, diary, admin, settings, health_profile, supplement_plan, progress, videos, label_analysis, health_score, admin_health_stats, supplement_interactions, correlation_analysis, shop_import, email_export, tts, daily_tasks, achievements, trust_stats, price_alerts, water_tracking, medications
+from routes import analysis, products, tracking, diary, admin, settings, health_profile, supplement_plan, progress, videos, label_analysis, health_score, admin_health_stats, supplement_interactions, correlation_analysis, shop_import, email_export, tts, daily_tasks, achievements, trust_stats, price_alerts, water_tracking, medications, rewards
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
@@ -88,6 +88,7 @@ api_router.include_router(trust_stats.router)
 api_router.include_router(price_alerts.router)
 api_router.include_router(water_tracking.router)
 api_router.include_router(medications.router)
+api_router.include_router(rewards.router)
 
 # Serve uploaded files (labels)
 @api_router.get("/uploads/labels/{filename}")
