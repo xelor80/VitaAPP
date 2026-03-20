@@ -84,34 +84,21 @@ export default function PlanScreen() {
     return combined;
   };
 
-  const [rewardToast, setRewardToast] = useState<string | null>(null);
-
   const toggleItem = async (item: any) => {
     if (!profileId) return;
     try {
-      let res;
       if (item.type === 'medication') {
-        res = await fetch(`${API_URL}/api/medications/${profileId}/${item.id}/check-in`, {
+        await fetch(`${API_URL}/api/medications/${profileId}/${item.id}/check-in`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ timing: item.timing }),
         });
       } else {
-        res = await fetch(`${API_URL}/api/medications/${profileId}/supplement-check-in`, {
+        await fetch(`${API_URL}/api/medications/${profileId}/supplement-check-in`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ supplement_id: item.id, timing: item.timing }),
         });
-      }
-      if (res && res.ok) {
-        const data = await res.json();
-        if (data.reward?.granted) {
-          const label = item.type === 'medication'
-            ? tx(lang, { de: 'Medikament', it: 'Farmaco', en: 'Medication' })
-            : tx(lang, { de: 'Supplement', it: 'Integratore', en: 'Supplement' });
-          setRewardToast(`+${data.reward.points} ${tx(lang, { de: 'Punkte', it: 'punti', en: 'points' })} - ${label}`);
-          setTimeout(() => setRewardToast(null), 2500);
-        }
       }
       loadPlan(profileId);
     } catch (e) {
@@ -172,13 +159,6 @@ export default function PlanScreen() {
 
   return (
     <ScrollView style={s.container} contentContainerStyle={s.content}>
-      {/* Reward Toast */}
-      {rewardToast && (
-        <Animated.View entering={FadeInDown.duration(300)} style={s.rewardToast}>
-          <MaterialCommunityIcons name="star-four-points" size={16} color="#F59E0B" />
-          <Text style={s.rewardToastText}>{rewardToast}</Text>
-        </Animated.View>
-      )}
       {/* Header */}
       <LinearGradient colors={['#1B6B45', '#2E9E6B']} style={s.header}>
         <View style={{ flex: 1 }}>

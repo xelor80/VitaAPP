@@ -202,16 +202,14 @@ async def add_water(profile_id: str, req: AddWaterRequest, lang: str = "de"):
     hour = datetime.now(timezone.utc).hour
     vero = get_vero_message(total, daily_goal, lang, hour)
 
-    # Grant reward points for water confirmation
+    # Grant reward points in background (non-blocking)
     reward_result = None
     try:
+        import asyncio
         from routes.rewards import grant_points_internal
-        reward_result = await grant_points_internal(profile_id, "water_confirm")
-        # Bonus: check if water goal just reached
+        asyncio.create_task(grant_points_internal(profile_id, "water_confirm"))
         if pct >= 100:
-            goal_reward = await grant_points_internal(profile_id, "water_goal")
-            if goal_reward.get("granted"):
-                reward_result = goal_reward
+            asyncio.create_task(grant_points_internal(profile_id, "water_goal"))
     except Exception:
         pass
 
@@ -219,7 +217,6 @@ async def add_water(profile_id: str, req: AddWaterRequest, lang: str = "de"):
         "total_ml": total, "daily_goal_ml": daily_goal, "percentage": pct,
         "remaining_ml": remaining, "added_ml": req.amount_ml,
         "feedback": feedback, "goal_reached": pct >= 100, "vero_message": vero,
-        "reward": reward_result,
     }
 
 @router.get("/{profile_id}/history")

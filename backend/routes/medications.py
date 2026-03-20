@@ -283,17 +283,17 @@ async def check_in_supplement(profile_id: str, entry: SupplementCheckIn):
         "taken_at": datetime.now(timezone.utc).isoformat(),
     })
 
-    # Grant reward points for supplement check-in
-    reward_result = None
+    # Grant reward points in background (non-blocking)
+    import asyncio
     try:
         from routes.rewards import grant_points_internal
-        reward_result = await grant_points_internal(
+        asyncio.create_task(grant_points_internal(
             profile_id, "supplement", context=f"{entry.supplement_id}_{entry.timing}"
-        )
+        ))
     except Exception:
         pass
 
-    return {"checked": True, "reward": reward_result}
+    return {"checked": True}
 
 @router.post("/{profile_id}/{medication_id}/check-in")
 async def check_in_medication(profile_id: str, medication_id: str, entry: MedicationLogEntry):
@@ -318,17 +318,17 @@ async def check_in_medication(profile_id: str, medication_id: str, entry: Medica
     }
     await db.medication_logs.insert_one({**log})
 
-    # Grant reward points for medication check-in
-    reward_result = None
+    # Grant reward points in background (non-blocking)
+    import asyncio
     try:
         from routes.rewards import grant_points_internal
-        reward_result = await grant_points_internal(
+        asyncio.create_task(grant_points_internal(
             profile_id, "medication", context=f"{medication_id}_{entry.timing}"
-        )
+        ))
     except Exception:
         pass
 
-    return {"checked": True, "reward": reward_result}
+    return {"checked": True}
 
 # ── Statistics ──
 
