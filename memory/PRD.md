@@ -9,7 +9,7 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - **Database**: MongoDB Atlas (cloud) - DB_NAME=test_database
 - **AI**: OpenAI GPT-4o via Emergent LLM Key
 - **3rd Party**: Shopify (products), SMTP (emails), Unsplash (images)
-- **Deploy Note**: Use CUSTOM_MONGO_URL/CUSTOM_DB_NAME env vars to prevent Emergent from overwriting Atlas connection
+- **Deploy Note**: Use CUSTOM_MONGO_URL/CUSTOM_DB_NAME env vars to prevent Emergent overwrite
 
 ## What's Been Implemented
 
@@ -24,25 +24,38 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - Recipe Catalog with Personalized + All tabs
 - Progress Dashboard, Admin Panel, Product Selection
 
+### Rewards System (2026-03-20) - COMPLETED
+**Backend (Phase 1):**
+- New route: `/app/backend/routes/rewards.py`
+- 6 new MongoDB collections: reward_settings, reward_events, user_points, rewards_catalog, reward_redemptions, user_streaks
+- User endpoints: grant, balance, today, history, streaks, catalog, redeem, redemptions
+- Admin endpoints: settings CRUD, catalog CRUD, analytics
+- Anti-abuse: unique actions once/day, per-context dedup, daily limits
+- Streak tracking with 7/14-day bonuses
+- Integration into water_tracking.py, medications.py, diary.py
+- 22/26 tests passed (4 = rate-limiting, not bugs)
+
+**Frontend (Phase 2):**
+- New page: `/app/frontend/app/rewards.tsx` - Full rewards page with balance, catalog, tabs
+- Dashboard integration: Points badge card with balance + streak in index.tsx
+- Localized: DE + IT
+
+**Admin Briefing:** `/app/memory/REWARDS_SYSTEM_BRIEFING.md`
+
 ### Database Migration to MongoDB Atlas (2026-03-19) - COMPLETED
-- 36 collections, 1688 documents migrated
-- CUSTOM_MONGO_URL/CUSTOM_DB_NAME prevents Emergent overwrite
-
 ### Enriched Product Matching (2026-03-19) - COMPLETED
-- DB query now searches tags, name, inhaltsstoffe, auswirkungen_studien, beschreibung, zutaten
-- Scoring uses all 6 data sources with weighted points (name:20, inhaltsstoffe:15, auswirkungen:12, desc:8, beschreibung:6, tags:5, zutaten:4)
-- Combined DE+IT tags for search (DB has mixed-language tags)
-- Smart deduplication: prefers enriched product versions over empty ones
-- Result: 12/12 core nutrients find products (was 0/12 before)
-- pricing-summary also uses enriched fields
-
-### UI Changes (2026-03-19)
-- Removed "Alle Videos auf YouTube ansehen" button from Gesundheits-Tipps page
+### Personalized Recipes (2026-03-17) - COMPLETED
 
 ## Key API Endpoints
-- `GET /api/products/by-nutrient/{nutrient}?lang=X` - Products for nutrient (uses enriched fields)
-- `GET /api/products/pricing-summary?nutrients=X&lang=X` - Price estimates
-- `GET /api/recipes/personalized/{profile_id}?lang=X` - Personalized recipes
+### Rewards System
+- `POST /api/rewards/grant` - Grant points (server-validated)
+- `GET /api/rewards/{profile_id}/balance` - Point balance
+- `GET /api/rewards/{profile_id}/today?lang=X` - Today summary
+- `GET /api/rewards/catalog/list?lang=X&profile_id=X` - Catalog with status
+- `POST /api/rewards/{profile_id}/redeem` - Redeem reward
+- `GET/PUT /api/rewards/admin/settings` - Admin config
+- `CRUD /api/rewards/admin/catalog` - Admin catalog
+- `GET /api/rewards/admin/analytics` - Admin analytics
 
 ## Prioritized Backlog
 ### P1 - Upcoming
@@ -53,5 +66,5 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - Historical Data Visualization (water intake graphs)
 
 ### Future
-- Admin Web Dashboard enhancements
+- Admin Web Dashboard enhancements (rewards system admin pages)
 - Reactivate TR, FR, ES, RU languages
