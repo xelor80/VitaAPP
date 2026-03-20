@@ -11,7 +11,7 @@ import { useLang } from '../src/LangContext';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
-const VERO_IMG = { uri: 'https://cdn-icons-png.flaticon.com/512/4712/4712139.png' };
+const VERO_IMG = require('../assets/images/vero-herz.png');
 
 const CATEGORY_ICONS: Record<string, string> = {
   coupon: 'ticket-percent',
