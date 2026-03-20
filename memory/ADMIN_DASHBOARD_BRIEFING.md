@@ -1,225 +1,524 @@
-# VitaGuide Admin Web-Dashboard – Briefing fuer neuen Agenten
+# VitaGuide Admin Dashboard – Komplettes Briefing fuer Kundenverwaltung
 
-## Aufgabe
-Baue ein **Admin Web-Dashboard** (React + FastAPI) fuer die VitaGuide Health Coach App.
-Das Dashboard laeuft als eigenstaendige Web-App und verbindet sich mit der gleichen MongoDB wie die mobile App.
-
-## Technologie
-- **Frontend**: React (Vite), TailwindCSS, Recharts (fuer Diagramme)
-- **Backend**: FastAPI (Python), MongoDB (Atlas)
-- **Auth**: Passwort-basiert → Token → alle Admin-Requests mit `Authorization: Bearer <token>`
+## Ueberblick
+Das Admin Dashboard soll eine vollstaendige Verwaltung aller Kundendaten ermoeglichen. Die Daten liegen in einer MongoDB Atlas Instanz (DB: `test_database`). Das Backend (FastAPI) stellt bereits einige Admin-Endpoints bereit, weitere muessen ergaenzt werden.
 
 ---
 
-## Authentifizierung
+## 1. BESTEHENDE Admin API Endpoints (bereits vorhanden)
 
-**Login-Endpunkt (bereits vorhanden):**
-```
-POST /api/admin/auth
-Body: {"password": "ADMIN_PASSWORD_FROM_ENV"}
-Response: {"success": true, "token": "xxxxx"}
-```
-Alle weiteren Admin-Requests brauchen: `Authorization: Bearer <token>`
+Alle Endpoints haben Prefix `/api/admin/` und erfordern den Header `X-Admin-Password: Wk220480xel!`
+
+### Allgemein
+- `GET /api/admin/health` – Systemstatus
+- `GET /api/admin/stats` – Uebersichtsstatistiken (Anzahl Profile, Analysen, Produkte, Rezepte)
+- `GET /api/admin/user-stats` – Detaillierte Nutzerstatistiken
+
+### Produkte
+- `GET /api/admin/products?lang=de&search=&skip=0&limit=50` – Produktliste
+- `POST /api/admin/products` – Produkt erstellen
+- `PUT /api/admin/products/{product_id}` – Produkt bearbeiten
+- `DELETE /api/admin/products/{product_id}` – Produkt loeschen
+
+### Rezepte
+- `GET /api/admin/recipes?search=&category=&active_only=&skip=0&limit=50`
+- `POST /api/admin/recipes` – Rezept erstellen
+- `PUT /api/admin/recipes/{recipe_id}` – Rezept bearbeiten
+- `DELETE /api/admin/recipes/{recipe_id}` – Rezept loeschen
+- `PATCH /api/admin/recipes/{recipe_id}/toggle` – Rezept aktivieren/deaktivieren
+- `POST /api/admin/recipes/generate` – KI-Rezeptgenerierung
+
+### Klick-Tracking
+- `GET /api/admin/clicks?days=7&skip=0&limit=100`
+
+### LLM Logs
+- `GET /api/admin/llm-logs?limit=20&endpoint=`
+
+### Rewards System (bereits vorhanden, siehe REWARDS_SYSTEM_BRIEFING.md)
+- `GET /api/rewards/admin/settings` – Punkteregeln lesen
+- `PUT /api/rewards/admin/settings` – Punkteregeln aendern
+- `GET /api/rewards/admin/catalog` – Praemienkatalog verwalten
+- `POST /api/rewards/admin/catalog` – Praemie erstellen
+- `PUT /api/rewards/admin/catalog/{item_id}` – Praemie bearbeiten
+- `DELETE /api/rewards/admin/catalog/{item_id}` – Praemie loeschen
+- `GET /api/rewards/admin/analytics` – Rewards-Analytik
 
 ---
 
-## Seiten & Funktionen
+## 2. NEUE Endpoints (muessen im Backend erstellt werden)
 
-### 1. Dashboard (Startseite)
-**Endpunkt:** `GET /api/admin/stats`
+### 2.1 Kundenverwaltung (Users)
+
+```
+GET /api/admin/users?search=&skip=0&limit=50
+```
+Liefert alle registrierten Nutzer mit Pagination und Suchfunktion (nach Email, Name).
+
+```
+GET /api/admin/users/{user_id}
+```
+Detailansicht eines Nutzers inkl. verlinktem Gesundheitsprofil.
+
+```
+DELETE /api/admin/users/{user_id}
+```
+Nutzer loeschen (und Verknuepfung zum Profil aufheben).
+
+### 2.2 Gesundheitsprofile
+
+```
+GET /api/admin/profiles?search=&skip=0&limit=50
+```
+Alle Gesundheitsprofile mit Pagination. Zeigt Basis-Daten (Name, Alter, Geschlecht, Beschwerden).
+
+```
+GET /api/admin/profiles/{profile_id}
+```
+Komplettes Profil mit allen Details.
+
+```
+GET /api/admin/profiles/{profile_id}/activity
+```
+Aktivitaets-Uebersicht: Letzte Wasser-Eintraege, Supplement-Check-ins, Symptom-Tracking, Punkte.
+
+### 2.3 Nutzer-Aktivitaet & Analytics
+
+```
+GET /api/admin/analytics/overview
+```
+Dashboard-Uebersicht: Aktive Nutzer (7/30 Tage), Registrierungen pro Woche, beliebteste Supplements, durchschnittliche Punkte.
+
+```
+GET /api/admin/analytics/engagement
+```
+Engagement-Daten: Durchschnittliche Streak-Laenge, taegliche Wassererfuellung, Supplement-Compliance-Rate.
+
+---
+
+## 3. DATENBANK-COLLECTIONS & SCHEMA
+
+### 3.1 `users` (Registrierte Nutzer)
 ```json
 {
-  "products_de": 110,
-  "products_it": 109,
-  "recipes": 37,
-  "analyses": 282,
-  "affiliate_clicks": 32,
-  "profiles": 77,
-  "diary_entries": 2
+  "user_id": "user_70071c56d754",
+  "email": "nutzer@email.de",
+  "password_hash": "...",
+  "first_name": "Max",
+  "picture": "https://...",
+  "profile_id": "f97fdefb-...",
+  "auth_provider": "email",
+  "google_id": "...",
+  "created_at": "2026-03-20T10:17:27",
+  "last_login": "2026-03-20T10:17:29"
+}
+```
+**Wichtig**: `password_hash` NIEMALS im Admin Dashboard anzeigen oder exportieren!
+
+### 3.2 `health_profiles` (Gesundheitsprofile)
+```json
+{
+  "id": "f97fdefb-c81f-4d01-8d02-e38dd2132e74",
+  "age": 45,
+  "gender": "male",
+  "height": "180",
+  "weight": "85",
+  "diet": "omnivore",
+  "activity_level": "moderate",
+  "sleep_quality": "moderate",
+  "sleep_duration": "6-7",
+  "sleep_issues": [],
+  "stress_level": "moderate",
+  "stress_type": [],
+  "energy_level": "moderate",
+  "conditions": [],
+  "medications": [],
+  "allergies": [],
+  "intolerances": [],
+  "goals": [],
+  "symptoms": [],
+  "first_name": "Max",
+  "last_name": "Muster",
+  "user_id": "user_70071c56d754",
+  "lang": "de",
+  "created_at": "2026-03-19T...",
+  "updated_at": "2026-03-20T..."
 }
 ```
 
-**Endpunkt:** `GET /api/admin/user-stats`
+### 3.3 `supplement_plans` (Supplement-Plaene)
 ```json
 {
-  "total_profiles": 77,
-  "new_profiles_7d": 3,
-  "active_users_7d": 5,
-  "active_users_30d": 12,
-  "compliance_rate_7d": 75.3,
-  "total_analyses": 282,
-  "registration_timeline": [{"month": "2025-12", "count": 5}],
-  "work_types": [{"label": "buero", "count": 30}],
-  "top_symptoms": [{"label": "Kopfschmerzen", "count": 45, "avg_intensity": 3.2}]
+  "profile_id": "f97fdefb-...",
+  "id": "plan_abc123",
+  "lang": "de",
+  "plan": [
+    {
+      "id": "supp_1",
+      "name_de": "Vitamin D3",
+      "name_it": "Vitamina D3",
+      "dosage": "2000 IU",
+      "timing": "morgens",
+      "reason_de": "Unterstuetzt das Immunsystem",
+      "reason_it": "Supporta il sistema immunitario",
+      "duration_weeks": 8,
+      "priority": "high",
+      "category": "vitamin"
+    }
+  ],
+  "reminders": true,
+  "created_at": "...",
+  "updated_at": "..."
 }
 ```
 
-### 2. Rezepte verwalten
-**CRUD Endpunkte:**
-- `GET /api/admin/recipes?search=&category=&active_only=true&skip=0&limit=50`
-  → `{"total": 37, "recipes": [...]}`
-- `POST /api/admin/recipes` → Rezept erstellen
-- `PUT /api/admin/recipes/{recipe_id}` → Rezept aktualisieren
-- `DELETE /api/admin/recipes/{recipe_id}` → Rezept loeschen
-- `PATCH /api/admin/recipes/{recipe_id}/toggle` → Aktiv/Inaktiv umschalten
-- `GET /api/admin/recipes/categories` → Alle Kategorien
-- `POST /api/admin/recipes/generate` → AI-generierte Rezepte (Body: `{"category":"smoothie","count":3,"focus":"proteinreich"}`)
-
-**Rezept-Schema:**
+### 3.4 `medications` (Medikamente)
 ```json
 {
-  "id": "gruener-power-smoothie",
-  "de": {
-    "title": "Gruener Power-Smoothie",
-    "ingredients": ["200g Spinat", "1 Banane"],
-    "steps": ["Alles in den Mixer geben.", "2 Minuten mixen."],
-    "tags": ["glutenfrei", "vegan"]
-  },
-  "it": {
-    "title": "Frullato Verde Energetico",
-    "ingredients": ["200g di spinaci", "1 banana"],
-    "steps": ["Mettere tutto nel frullatore.", "Frullare 2 minuti."],
-    "tags": ["senza glutine", "vegano"]
-  },
-  "en": {
-    "title": "Green Power Smoothie",
-    "ingredients": ["200g spinach", "1 banana"],
-    "steps": ["Add everything to blender.", "Blend for 2 minutes."],
-    "tags": ["gluten-free", "vegan"]
-  },
-  "time_min": 10,
-  "symptom_tags": ["energie", "immunsystem"],
-  "image_url": "https://images.unsplash.com/...",
-  "category": "smoothie",
-  "active": true
+  "id": "med_abc123",
+  "profile_id": "f97fdefb-...",
+  "name": "Ibuprofen",
+  "dosage": "400",
+  "unit": "mg",
+  "timings": ["morgens", "abends"],
+  "frequency": "daily",
+  "specific_days": [],
+  "notes": "Nach dem Essen einnehmen",
+  "active": true,
+  "created_at": "..."
 }
 ```
 
-**UI-Anforderungen:**
-- Tabelle mit allen Rezepten (Titel DE/IT/EN, Kategorie, Status aktiv/inaktiv)
-- Such- und Filterfunktion
-- Bearbeitungs-Modal mit Tabs fuer DE/IT/EN Uebersetzungen
-- Zutaten und Schritte als editierbare Liste
-- Button "AI Rezepte generieren" mit Kategorie-Auswahl
-
-### 3. Produkte & Affiliate-Links verwalten
-**CRUD Endpunkte:**
-- `GET /api/admin/products?lang=de&search=&skip=0&limit=50`
-  → `{"total": 110, "products": [...]}`
-- `POST /api/admin/products?lang=de` → Produkt erstellen
-- `PUT /api/admin/products/{product_id}?lang=de` → Produkt aktualisieren
-- `DELETE /api/admin/products/{product_id}?lang=de` → Produkt loeschen
-
-**Produkt-Schema (DE):**
+### 3.5 `medication_logs` (Medikamenten-Einnahme-Protokoll)
 ```json
 {
-  "product_id": "vitamin-d3-k2",
-  "name": "Vitamin D3+K2 Tropfen",
-  "description": "Hochdosiertes Vitamin D3 mit K2 MK7",
-  "affiliate_url": "https://shop.example.com/vitamin-d3?ref=vitaguide",
-  "tags": ["vitamin_d", "vitamin_k2", "immunsystem"],
-  "price": "24.90",
-  "rating": "4.8",
+  "profile_id": "f97fdefb-...",
+  "medication_id": "med_abc123",
+  "date": "2026-03-20",
+  "timing": "morgens",
+  "taken_at": "2026-03-20T08:30:00"
+}
+```
+
+### 3.6 `water_tracking` (Wasseraufnahme)
+```json
+{
+  "date": "2026-03-20",
+  "profile_id": "f97fdefb-...",
+  "entries": [
+    { "ml": 250, "time": "08:30", "type": "Wasser" },
+    { "ml": 300, "time": "12:00", "type": "Tee" }
+  ],
+  "total_ml": 550
+}
+```
+
+### 3.7 `water_goals` (Wasserziel)
+```json
+{
+  "profile_id": "f97fdefb-...",
+  "auto_calculated": true,
+  "daily_goal_ml": 2500
+}
+```
+
+### 3.8 `compliance_tracking` (Supplement-Compliance)
+```json
+{
+  "date": "2026-03-20",
+  "profile_id": "f97fdefb-...",
+  "supplements": {
+    "supp_1": { "taken": true, "timing": "morgens" },
+    "supp_2": { "taken": false }
+  },
+  "updated_at": "..."
+}
+```
+
+### 3.9 `supplement_check_ins` (Supplement Check-ins)
+```json
+{
+  "profile_id": "f97fdefb-...",
+  "date": "2026-03-20",
+  "supplement_ids": ["supp_1", "supp_2"],
+  "timing": "morgens",
+  "taken_at": "2026-03-20T08:15:00"
+}
+```
+
+### 3.10 `symptom_tracking` (Symptom-Verlauf)
+```json
+{
+  "date": "2026-03-20",
+  "profile_id": "f97fdefb-...",
+  "notes": "Kopfschmerzen besser",
+  "overall": 7,
+  "ratings": {
+    "Schlaf": 8,
+    "Energie": 6,
+    "Verdauung": 7
+  },
+  "updated_at": "..."
+}
+```
+
+### 3.11 `health_assessments` (KI-Gesundheitsbewertungen)
+```json
+{
+  "id": "assess_abc123",
+  "profile_id": "f97fdefb-...",
+  "assessment": "...",
+  "risk_scores": {},
+  "created_at": "..."
+}
+```
+
+### 3.12 `health_score_history` (Gesundheitsscore-Verlauf)
+```json
+{
+  "date": "2026-03-20",
+  "profile_id": "f97fdefb-...",
+  "score": 72,
+  "categories": {
+    "Ernaehrung": 75,
+    "Schlaf": 60,
+    "Bewegung": 80,
+    "Stress": 65
+  },
+  "timestamp": "..."
+}
+```
+
+### 3.13 `user_points` (Punkte-Guthaben)
+```json
+{
+  "profile_id": "f97fdefb-...",
+  "current_balance": 25,
+  "lifetime_points": 75,
+  "redeemed_points": 50,
+  "last_updated": "2026-03-20T09:00:49"
+}
+```
+
+### 3.14 `user_streaks` (Streaks)
+```json
+{
+  "profile_id": "f97fdefb-...",
+  "current_streak": 3,
+  "longest_streak": 14,
+  "last_activity_date": "2026-03-20"
+}
+```
+
+### 3.15 `reward_events` (Punkte-Transaktionslog)
+```json
+{
+  "id": "evt_abc123",
+  "profile_id": "f97fdefb-...",
+  "action": "water_confirm",
+  "points": 5,
+  "date": "2026-03-20",
+  "timestamp": "2026-03-20T09:00:49",
+  "context": {}
+}
+```
+
+### 3.16 `reward_redemptions` (Eingeloeste Praemien)
+```json
+{
+  "id": "red_abc123",
+  "profile_id": "f97fdefb-...",
+  "reward_id": "6df1e49a-...",
+  "reward_title": "10 Euro Gutschein",
+  "points_spent": 500,
+  "redeemed_at": "2026-03-20T...",
+  "status": "active",
+  "code": "VITA-ABC123"
+}
+```
+
+### 3.17 `rewards_catalog` (Praemienkatalog)
+```json
+{
+  "id": "6df1e49a-...",
+  "title_de": "10 Euro Gutschein",
+  "title_it": "Buono da 10 Euro",
+  "title_en": "10 Euro Voucher",
+  "description_de": "...",
+  "description_it": "...",
+  "description_en": "...",
   "image_url": "https://...",
-  "application_instructions": "Taeglich 1 Tropfen mit Fett einnehmen"
+  "points_required": 500,
+  "status": "active",
+  "code_template": "VITA-{RANDOM}",
+  "start_date": "2026-02-01",
+  "end_date": "2026-12-31",
+  "created_at": "...",
+  "updated_at": "..."
 }
 ```
 
-**Produkt-Schema (IT):**
+### 3.18 `reward_settings` (Belohnungsregeln – Singleton)
 ```json
 {
-  "product_id": "vitamina-d3-k2",
-  "name": "Vitamina D3+K2 Gocce",
-  "description": "Vitamina D3 ad alto dosaggio con K2 MK7",
-  "affiliate_url": "https://shop.example.it/vitamina-d3?ref=vitaguide",
-  "video_url": "https://youtube.com/...",
-  "tags": ["vitamin_d", "vitamin_k2"],
-  "price": "28.90",
-  "image_url": "https://..."
+  "action_points": {
+    "water_confirm": 5,
+    "water_goal": 10,
+    "supplement": 8,
+    "medication": 8,
+    "diary": 12,
+    "daily_checkin": 5,
+    "complete_day": 25,
+    "streak_7": 50,
+    "streak_14": 100
+  },
+  "daily_limits": {
+    "max_total": 200,
+    "max_water_confirm": 30,
+    "max_supplement": 40,
+    "max_medication": 40
+  },
+  "enabled": true,
+  "created_at": "...",
+  "updated_at": "..."
 }
 ```
 
-**UI-Anforderungen:**
-- Zwei Tabs: Produkte DE / Produkte IT
-- Tabelle mit Name, Preis, Affiliate-Link (klickbar), Tags
-- Bearbeitungs-Modal mit allen Feldern
-- Affiliate-URL prominent anzeigen und editierbar
-
-### 4. Affiliate-Klick Statistiken
-**Endpunkt:** `GET /api/admin/clicks?days=7`
+### 3.19 `products_de` / `products_it` (Produktkatalog)
 ```json
 {
-  "total_clicks": 32,
-  "by_product": [{"_id": "vitamin-d3", "product_name": "Vitamin D3", "clicks": 15}],
-  "by_country": [{"_id": "DE", "clicks": 20}],
-  "by_day": [{"_id": "2026-03-15", "clicks": 5}],
-  "by_hour": [{"_id": 14, "clicks": 8}]
+  "product_id": "prod_abc",
+  "name": "Vitamin D3 2000 IU",
+  "description": "...",
+  "affiliate_url": "https://...",
+  "tags": ["vitamin-d", "immunsystem"],
+  "price": 19.90,
+  "rating": 4.5,
+  "image_url": "https://...",
+  "beschreibung": "...",
+  "inhaltsstoffe": "...",
+  "zutaten": "...",
+  "hinweise": "..."
 }
 ```
 
-**UI:** Diagramme (Line-Chart fuer Trend, Bar-Chart fuer Produkte, Pie-Chart fuer Laender)
+### 3.20 `analyses` (KI-Analysen) – 283 Dokumente
+### 3.21 `click_events` / `clicks` (Affiliate-Klicks) – 57 Dokumente
+### 3.22 `llm_responses` (LLM-Audit-Log) – 201 Dokumente
+### 3.23 `diary` / `diary_entries` (Tagebuch) – 6 Dokumente
+### 3.24 `recipes` (Rezepte) – 40 Dokumente
 
-### 5. Einstellungen
-**Uebersetzungen:**
-- `GET /api/settings/translations` → Alle UI-Texte
-- `PUT /api/settings/translations/{key}` → Text aktualisieren (Body: `{"de":"Text","it":"Testo"}`)
+---
 
-**Symptom-Chips:**
-- `GET /api/settings/symptom-chips` → `[{"id":"kopfschmerzen","de":"Kopfschmerzen","it":"Mal di testa","icon":"head"}]`
-- `POST/PUT/DELETE /api/settings/symptom-chips/{chip_id}`
+## 4. ADMIN DASHBOARD SEITEN (zu erstellen)
 
-**Disclaimer:**
-- `GET /api/settings/disclaimer` → Disclaimer-Texte DE/IT
-- `PUT /api/settings/disclaimer/{lang}` → Disclaimer aktualisieren
+### 4.1 Dashboard / Uebersicht
+- **Statistiken**: Registrierte Nutzer, aktive Nutzer (7/30 Tage), Gesamtpunkte vergeben, Praemien eingeloest
+- **Schnellzugriff-Karten**: Letzte Registrierungen, Top-Nutzer nach Punkten, Durchschnittlicher Health-Score
+- **Charts**: Registrierungen pro Woche, Aktive Nutzer pro Tag, Punkte-Vergabe Trend
 
-**AI-Konfiguration:**
-- `GET /api/settings/ai-config` → `{"provider":"openai","model":"gpt-4o","enabled":true}`
-- `PUT /api/settings/ai-config`
+### 4.2 Kundenverwaltung
+- **Tabelle**: user_id, Email, Name, Auth-Provider, Profil-ID, Registriert am, Letzter Login
+- **Suche**: Nach Email oder Name
+- **Filter**: Nach Auth-Provider (email/google), nach Zeitraum
+- **Detail-Ansicht** (Klick auf Nutzer):
+  - Account-Daten (Email, Provider, Erstellt, Letzter Login)
+  - Gesundheitsprofil (Alter, Geschlecht, Beschwerden, Ziele, Diaet)
+  - Supplement-Plan (aktuelle Empfehlungen)
+  - Medikamente (aktive Medikamente mit Dosierung)
+  - Wasser-Tracking (heutiger Stand, Wochenverlauf)
+  - Punkte & Rewards (Balance, Streak, letzte Aktivitaeten)
+  - Symptom-Verlauf (letzte 7 Eintraege)
+  - Health-Score (aktueller Score + Verlauf)
 
-### 6. LLM-Logs
-**Endpunkt:** `GET /api/admin/llm-logs?limit=20`
-```json
-{
-  "stats": {"total_calls": 196, "success_rate": "98.5%", "avg_latency_ms": 2300},
-  "logs": [{"endpoint":"/analyze","model":"gpt-4o","success":true,"latency_ms":1850}]
-}
+### 4.3 Gesundheitsprofile (ohne Account)
+- Zeigt Profile, die noch keinem User-Account zugeordnet sind
+- Nuetzlich um zu sehen, wie viele Nutzer die App ohne Registrierung nutzen
+
+### 4.4 Rewards-Verwaltung
+- Praemienkatalog CRUD
+- Punkteregeln bearbeiten
+- Analytics (Punkte vergeben/eingeloest, beliebteste Aktionen)
+
+### 4.5 Produkte & Rezepte
+- Produktkatalog verwalten (DE + IT)
+- Rezepte verwalten (CRUD + KI-Generierung)
+
+### 4.6 Analytics & Reports
+- Engagement: Streak-Laenge, aktive Nutzer, Compliance-Rate, Wasser-Ziel-Erreichung
+- Punkte-Analytics: Vergabe pro Tag, beliebteste Aktionen, Einloese-Rate
+- LLM-Nutzung: API-Kosten, meistgenutzte Endpoints
+
+---
+
+## 5. VERKNUEPFUNGEN ZWISCHEN COLLECTIONS
+
+```
+users.profile_id ──> health_profiles.id
+health_profiles.id ──> supplement_plans.profile_id
+health_profiles.id ──> medications.profile_id
+health_profiles.id ──> medication_logs.profile_id
+health_profiles.id ──> water_tracking.profile_id
+health_profiles.id ──> water_goals.profile_id
+health_profiles.id ──> compliance_tracking.profile_id
+health_profiles.id ──> supplement_check_ins.profile_id
+health_profiles.id ──> symptom_tracking.profile_id
+health_profiles.id ──> health_assessments.profile_id
+health_profiles.id ──> health_score_history.profile_id
+health_profiles.id ──> user_points.profile_id
+health_profiles.id ──> user_streaks.profile_id
+health_profiles.id ──> reward_events.profile_id
+health_profiles.id ──> reward_redemptions.profile_id
+health_profiles.id ──> product_selections.profile_id
+```
+
+**WICHTIG**: Das Verbindungsfeld in `health_profiles` heisst `id` (nicht `profile_id`!). Alle anderen Collections verwenden `profile_id` als Fremdschluessel.
+
+---
+
+## 6. AUTHENTIFIZIERUNG
+
+Alle Admin-Endpoints nutzen den Header:
+```
+X-Admin-Password: Wk220480xel!
 ```
 
 ---
 
-## Datenbank-Collections (MongoDB)
+## 7. TECHNISCHE HINWEISE
 
-| Collection | Docs | Wichtige Felder |
-|---|---|---|
-| recipes | 37 | id, de, it, en, symptom_tags, image_url, time_min, category, active |
-| products_de | 110 | product_id, name, price, affiliate_url, tags, image_url, rating |
-| products_it | 109 | product_id, name, price, affiliate_url, tags, video_url |
-| health_profiles | 77 | id, age, gender, complaints, known_deficiencies, lang |
-| analyses | 282 | id, summary, supplements, created_at |
-| clicks | 32 | product_id, affiliate_url, timestamp, country |
-| supplement_plans | 36 | profile_id, plan, reminders |
-| compliance_tracking | 93 | date, profile_id, supplements |
-| symptom_tracking | 97 | date, profile_id, symptoms, overall |
-| translations | 12 | key, de, it |
-| symptom_chips | 10 | id, de, it, icon, order |
-| disclaimer | 2 | lang, title, items, accept_button |
-| ai_config | 1 | provider, model, enabled |
-| llm_responses | 196 | endpoint, model, success, latency_ms |
-| water_tracking | 4 | date, profile_id, entries, total_ml |
-| medications | 3 | id, profile_id, name, dosage, timings |
+- **MongoDB Atlas**: Connection via `CUSTOM_MONGO_URL` in Backend `.env`
+- **Datenbank**: `test_database`
+- **Backend**: FastAPI (Python 3.11)
+- **Admin Dashboard**: Separates React-Webprojekt
+- **Sprachen**: Daten existieren in DE und IT
+- **ObjectId**: Alle API-Responses muessen `_id` excluden (`{"_id": 0}`)
+- **Datumsformat**: ISO 8601
 
 ---
 
-## Wichtige Hinweise
+## 8. AKTUELLE DATENMENGEN (Stand: Maerz 2026)
 
-1. **Gleiche Datenbank**: Die Web-App MUSS die gleiche MongoDB nutzen (ueber `MONGO_URL` Umgebungsvariable). Alle Aenderungen sind sofort in der mobilen App sichtbar.
-
-2. **CORS**: Das Backend muss CORS fuer die Web-Dashboard-Domain erlauben.
-
-3. **Sprachen**: Die App unterstuetzt DE, IT, EN. Rezepte haben Uebersetzungen in je einem Objekt pro Sprache.
-
-4. **Admin-Auth**: `POST /api/admin/auth` mit Passwort → Token. Token als `Authorization: Bearer <token>` Header.
-
-5. **Keine Aenderungen an der bestehenden API noetig** – alle Endpunkte existieren bereits.
-
-6. **Design**: Professionelles, modernes Dashboard. Farben: Primaer #1B6B45 (Gruen), Sekundaer #2E9E6B, Akzent #F59E0B.
+| Collection | Anzahl |
+|---|---|
+| users | 10 |
+| health_profiles | 80 |
+| supplement_plans | 39 |
+| medications | 3 |
+| medication_logs | 5 |
+| water_tracking | 9 |
+| water_goals | 8 |
+| compliance_tracking | 94 |
+| supplement_check_ins | 17 |
+| symptom_tracking | 98 |
+| health_assessments | 82 |
+| health_score_history | 41 |
+| user_points | 12 |
+| user_streaks | 11 |
+| reward_events | 69 |
+| reward_redemptions | 4 |
+| rewards_catalog | 3 |
+| products_de | 118 |
+| products_it | 128 |
+| recipes | 40 |
+| analyses | 283 |
+| llm_responses | 201 |
