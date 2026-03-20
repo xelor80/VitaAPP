@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
-  Dimensions, ActivityIndicator, Alert, RefreshControl,
+  Dimensions, ActivityIndicator, Alert, RefreshControl, Image,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -11,6 +11,7 @@ import { useLang } from '../src/LangContext';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+const VERO_IMG = { uri: 'https://cdn-icons-png.flaticon.com/512/4712/4712139.png' };
 
 const CATEGORY_ICONS: Record<string, string> = {
   coupon: 'ticket-percent',

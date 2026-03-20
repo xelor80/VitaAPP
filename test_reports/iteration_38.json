@@ -62,7 +62,7 @@
   },
   "test_credentials": {
     "test_profile_id": "2416f8aa-09aa-47f1-b600-2c9ada87124d",
-    "app_url": "https://water-health-hub.preview.emergentagent.com"
+    "app_url": "https://vero-rewards.preview.emergentagent.com"
   },
   "seed_data_creation": "Used existing test profile with supplement plan",
   "retest_needed": false,

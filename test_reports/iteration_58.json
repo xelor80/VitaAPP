@@ -75,7 +75,7 @@
   },
   "test_credentials": {
     "test_profile_id": "c454e95d-7033-4207-ba7e-553fe477a234",
-    "preview_url": "https://water-health-hub.preview.emergentagent.com"
+    "preview_url": "https://vero-rewards.preview.emergentagent.com"
   },
   "seed_data_creation": "Test created TEST_ prefixed supplements in compliance_tracking for profile c454e95d-7033-4207-ba7e-553fe477a234",
   "retest_needed": false,

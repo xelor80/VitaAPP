@@ -88,7 +88,7 @@ class TestCORS:
     def test_cors_allows_own_domain(self):
         """API should respond correctly with CORS headers for allowed origin"""
         headers = {
-            "Origin": "https://water-health-hub.preview.emergentagent.com"
+            "Origin": "https://vero-rewards.preview.emergentagent.com"
         }
         response = requests.get(f"{BASE_URL}/api/recipes?lang=de", headers=headers)
         
@@ -102,7 +102,7 @@ class TestCORS:
     def test_cors_preflight_request(self):
         """OPTIONS request should return CORS headers for allowed origins"""
         headers = {
-            "Origin": "https://water-health-hub.preview.emergentagent.com",
+            "Origin": "https://vero-rewards.preview.emergentagent.com",
             "Access-Control-Request-Method": "GET",
             "Access-Control-Request-Headers": "Content-Type"
         }

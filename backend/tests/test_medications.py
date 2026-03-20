@@ -10,7 +10,7 @@ import os
 from datetime import datetime, timedelta
 
 # Use public URL from environment
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://water-health-hub.preview.emergentagent.com').rstrip('/')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://vero-rewards.preview.emergentagent.com').rstrip('/')
 
 # Real test profile ID 
 PROFILE_ID = "5ae69ad6-6bbd-4bbc-ae59-f3e1fba4782b"

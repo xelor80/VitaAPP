@@ -66,7 +66,7 @@
     "frontend": "43% (3/7 tests passing, critical flow failing)"
   },
   "test_credentials": {
-    "app_url": "https://water-health-hub.preview.emergentagent.com"
+    "app_url": "https://vero-rewards.preview.emergentagent.com"
   },
   "seed_data_creation": "Created test analyses with various symptoms",
   "retest_needed": true,

@@ -58,7 +58,7 @@
     "frontend": "Skipped (React Native Expo app)"
   },
   "test_credentials": {
-    "api_url": "https://water-health-hub.preview.emergentagent.com",
+    "api_url": "https://vero-rewards.preview.emergentagent.com",
     "test_profile_id": "5ae69ad6-6bbd-4bbc-ae59-f3e1fba4782b"
   },
   "seed_data_creation": "Water entries added during testing (150ml, 100ml increments) to test profile",

@@ -99,7 +99,7 @@
     "frontend": "N/A (React Native/Expo - no web frontend to test)"
   },
   "test_credentials": {
-    "api_url": "https://water-health-hub.preview.emergentagent.com",
+    "api_url": "https://vero-rewards.preview.emergentagent.com",
     "test_profile_id": "5ae69ad6-6bbd-4bbc-ae59-f3e1fba4782b",
     "admin_password": "Wk220480xel!",
     "existing_catalog_reward_id": "1e7ace51-e09c-43af-bef8-804cbc84de04"

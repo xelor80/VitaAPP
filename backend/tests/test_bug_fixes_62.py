@@ -10,7 +10,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://water-health-hub.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://vero-rewards.preview.emergentagent.com')
 
 # Test profile IDs
 TEST_PROFILE_ID_1 = "5ae69ad6-6bbd-4bbc-ae59-f3e1fba4782b"  # 1 complaint

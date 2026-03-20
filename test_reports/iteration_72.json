@@ -99,7 +99,7 @@
     "frontend": "Skipped per request"
   },
   "test_credentials": {
-    "api_url": "https://water-health-hub.preview.emergentagent.com",
+    "api_url": "https://vero-rewards.preview.emergentagent.com",
     "test_profile_id": "test-water-123"
   },
   "seed_data_creation": "None - uses test profile IDs created during testing",
