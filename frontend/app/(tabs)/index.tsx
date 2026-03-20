@@ -505,15 +505,6 @@ export default function DashboardHome() {
           </View>
         </View>
 
-        {/* Version link to admin */}
-        <TouchableOpacity
-          onPress={() => router.push('/admin' as any)}
-          style={s.versionLink}
-          data-testid="version-link"
-        >
-          <Text style={s.versionText}>V. 1.0</Text>
-        </TouchableOpacity>
-
         <View style={{ height: 12 }} />
       </ScrollView>
     </View>
