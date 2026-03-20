@@ -85,25 +85,38 @@ export default function PlanScreen() {
   };
 
   const toggleItem = async (item: any) => {
-    if (!profileId) return;
+    if (!profileId || !plan) return;
+
+    // Optimistic UI: Update local state immediately
+    const updatedPlan = {
+      ...plan,
+      plan: plan.plan.map((group: any) => ({
+        ...group,
+        items: group.items.map((it: any) =>
+          it.id === item.id && it.timing === item.timing
+            ? { ...it, taken: !it.taken }
+            : it
+        ),
+      })),
+    };
+    setPlan(updatedPlan);
+
+    // Fire API call in background (don't await)
     try {
       if (item.type === 'medication') {
-        await fetch(`${API_URL}/api/medications/${profileId}/${item.id}/check-in`, {
+        fetch(`${API_URL}/api/medications/${profileId}/${item.id}/check-in`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ timing: item.timing }),
-        });
+        }).catch(() => {});
       } else {
-        await fetch(`${API_URL}/api/medications/${profileId}/supplement-check-in`, {
+        fetch(`${API_URL}/api/medications/${profileId}/supplement-check-in`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ supplement_id: item.id, timing: item.timing }),
-        });
+        }).catch(() => {});
       }
-      loadPlan(profileId);
-    } catch (e) {
-      console.error('Toggle error:', e);
-    }
+    } catch {}
   };
 
   const saveReminders = async () => {
