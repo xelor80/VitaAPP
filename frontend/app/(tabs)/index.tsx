@@ -289,31 +289,6 @@ export default function DashboardHome() {
           </TouchableOpacity>
         )}
 
-        {/* Account Registration Banner (when not logged in) */}
-        {!user && (
-          <TouchableOpacity
-            style={s.accountBanner}
-            activeOpacity={0.85}
-            onPress={() => router.push('/login' as any)}
-            data-testid="dashboard-register-banner"
-          >
-            <LinearGradient colors={['#1B5E3B', '#2E7D52']} style={s.accountBannerGradient}>
-              <View style={s.accountBannerIcon}>
-                <MaterialCommunityIcons name="shield-account-outline" size={28} color="#fff" />
-              </View>
-              <View style={s.accountBannerText}>
-                <Text style={s.accountBannerTitle}>
-                  {tx(lang, { de: 'Daten sichern & synchronisieren', it: 'Proteggi e sincronizza i dati', en: 'Secure & sync your data' })}
-                </Text>
-                <Text style={s.accountBannerSub}>
-                  {tx(lang, { de: 'Erstelle ein Konto, um deine Daten auf allen Geraeten verfuegbar zu haben', it: 'Crea un account per avere i tuoi dati su tutti i dispositivi', en: 'Create an account to access your data on all devices' })}
-                </Text>
-              </View>
-              <MaterialCommunityIcons name="chevron-right" size={24} color="rgba(255,255,255,0.6)" />
-            </LinearGradient>
-          </TouchableOpacity>
-        )}
-
         {/* VERO Reward Tip */}
         {showVeroRewardTip && hasProfile && (
           <View style={s.veroTipCard} data-testid="vero-reward-tip">
@@ -504,6 +479,49 @@ export default function DashboardHome() {
             ))}
           </View>
         </View>
+
+        {/* VERO Account Recommendation + Registration (when not logged in) */}
+        {!user && (
+          <View style={s.accountSection} data-testid="dashboard-account-section">
+            {/* VERO explains why to register */}
+            <View style={s.veroAccountTip}>
+              <Image source={VERO_HALLO} style={s.veroAccountAvatar} resizeMode="contain" />
+              <View style={s.veroAccountContent}>
+                <Text style={s.veroAccountTitle}>{tx(lang, { de: 'VERO empfiehlt', it: 'VERO consiglia', en: 'VERO recommends' })}</Text>
+                <Text style={s.veroAccountText}>
+                  {tx(lang, {
+                    de: 'Erstelle ein kostenloses Konto, damit deine Gesundheitsdaten, Punkte und Fortschritte sicher gespeichert werden. So kannst du auch bei einem Geraetewechsel nahtlos weitermachen!',
+                    it: 'Crea un account gratuito per salvare in sicurezza i tuoi dati sanitari, punti e progressi. Cosi puoi continuare senza interruzioni anche cambiando dispositivo!',
+                    en: 'Create a free account to securely save your health data, points and progress. This way you can seamlessly continue even when switching devices!',
+                  })}
+                </Text>
+              </View>
+            </View>
+
+            {/* Register Button */}
+            <TouchableOpacity
+              style={s.accountBanner}
+              activeOpacity={0.85}
+              onPress={() => router.push('/login' as any)}
+              data-testid="dashboard-register-banner"
+            >
+              <LinearGradient colors={['#1B5E3B', '#2E7D52']} style={s.accountBannerGradient}>
+                <View style={s.accountBannerIcon}>
+                  <MaterialCommunityIcons name="shield-account-outline" size={28} color="#fff" />
+                </View>
+                <View style={s.accountBannerText}>
+                  <Text style={s.accountBannerTitle}>
+                    {tx(lang, { de: 'Konto erstellen oder anmelden', it: 'Crea account o accedi', en: 'Create account or sign in' })}
+                  </Text>
+                  <Text style={s.accountBannerSub}>
+                    {tx(lang, { de: 'Daten sichern, synchronisieren & auf allen Geraeten nutzen', it: 'Proteggi, sincronizza e usa i dati su tutti i dispositivi', en: 'Secure, sync & use your data on all devices' })}
+                  </Text>
+                </View>
+                <MaterialCommunityIcons name="chevron-right" size={24} color="rgba(255,255,255,0.6)" />
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+        )}
 
         <View style={{ height: 12 }} />
       </ScrollView>
@@ -854,15 +872,8 @@ const s = StyleSheet.create({
     color: '#fff',
   },
   accountBanner: {
-    marginHorizontal: SIDE_PAD,
-    marginTop: 12,
     borderRadius: 14,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 3,
   },
   accountBannerGradient: {
     flexDirection: 'row',
@@ -891,5 +902,39 @@ const s = StyleSheet.create({
     fontSize: 12,
     color: 'rgba(255,255,255,0.8)',
     lineHeight: 16,
+  },
+  accountSection: {
+    marginHorizontal: SIDE_PAD,
+    marginTop: 20,
+    gap: 12,
+  },
+  veroAccountTip: {
+    flexDirection: 'row',
+    backgroundColor: '#F0FDF4',
+    borderRadius: 14,
+    padding: 14,
+    gap: 12,
+    alignItems: 'flex-start',
+    borderWidth: 1,
+    borderColor: '#D1FAE5',
+  },
+  veroAccountAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+  },
+  veroAccountContent: {
+    flex: 1,
+  },
+  veroAccountTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#065F46',
+    marginBottom: 4,
+  },
+  veroAccountText: {
+    fontSize: 12,
+    color: '#047857',
+    lineHeight: 18,
   },
 });
