@@ -24,20 +24,21 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - Recipe Catalog with Personalized + All tabs
 - Progress Dashboard, Admin Panel, Product Selection
 
-### Rewards System (2026-03-20) - COMPLETED
-**Backend (Phase 1):**
-- New route: `/app/backend/routes/rewards.py`
+### Rewards System (2026-03-20) - COMPLETED (Phase 1 + 2)
+**Backend:**
 - 6 new MongoDB collections: reward_settings, reward_events, user_points, rewards_catalog, reward_redemptions, user_streaks
 - User endpoints: grant, balance, today, history, streaks, catalog, redeem, redemptions
 - Admin endpoints: settings CRUD, catalog CRUD, analytics
 - Anti-abuse: unique actions once/day, per-context dedup, daily limits
 - Streak tracking with 7/14-day bonuses
 - Integration into water_tracking.py, medications.py, diary.py
-- 22/26 tests passed (4 = rate-limiting, not bugs)
 
-**Frontend (Phase 2):**
-- New page: `/app/frontend/app/rewards.tsx` - Full rewards page with balance, catalog, tabs
-- Dashboard integration: Points badge card with balance + streak in index.tsx
+**Frontend:**
+- `rewards.tsx` – Full rewards page with balance, tabs, catalog, redeem
+- Dashboard: Points badge card + streak (index.tsx)
+- Daily check-in: auto-grant on dashboard load
+- Water tracking: "+X Punkte" in feedback toast
+- Plan screen (supplements/medications): reward toast notification with FadeInDown animation
 - Localized: DE + IT
 
 **Admin Briefing:** `/app/memory/REWARDS_SYSTEM_BRIEFING.md`
@@ -45,17 +46,6 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 ### Database Migration to MongoDB Atlas (2026-03-19) - COMPLETED
 ### Enriched Product Matching (2026-03-19) - COMPLETED
 ### Personalized Recipes (2026-03-17) - COMPLETED
-
-## Key API Endpoints
-### Rewards System
-- `POST /api/rewards/grant` - Grant points (server-validated)
-- `GET /api/rewards/{profile_id}/balance` - Point balance
-- `GET /api/rewards/{profile_id}/today?lang=X` - Today summary
-- `GET /api/rewards/catalog/list?lang=X&profile_id=X` - Catalog with status
-- `POST /api/rewards/{profile_id}/redeem` - Redeem reward
-- `GET/PUT /api/rewards/admin/settings` - Admin config
-- `CRUD /api/rewards/admin/catalog` - Admin catalog
-- `GET /api/rewards/admin/analytics` - Admin analytics
 
 ## Prioritized Backlog
 ### P1 - Upcoming
@@ -66,5 +56,5 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - Historical Data Visualization (water intake graphs)
 
 ### Future
-- Admin Web Dashboard enhancements (rewards system admin pages)
+- Admin Web Dashboard: Rewards admin pages (briefing ready)
 - Reactivate TR, FR, ES, RU languages

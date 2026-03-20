@@ -90,8 +90,14 @@ export default function DashboardHome() {
           const waterRes = await fetch(`${API_URL}/api/water-tracking/${profileId}/today?lang=${lang}`);
           if (waterRes.ok) setWaterData(await waterRes.json());
         } catch {}
-        // Load reward balance
+        // Load reward balance and grant daily checkin
         try {
+          // Grant daily check-in points (anti-abuse: only once/day)
+          await fetch(`${API_URL}/api/rewards/grant`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ profile_id: profileId, action: 'daily_checkin' }),
+          });
           const rewardRes = await fetch(`${API_URL}/api/rewards/${profileId}/today?lang=${lang}`);
           if (rewardRes.ok) {
             const rd = await rewardRes.json();

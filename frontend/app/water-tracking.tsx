@@ -192,7 +192,11 @@ export default function WaterTrackingScreen() {
         daily_goal_ml: d.daily_goal_ml,
         vero_message: d.vero_message,
       }));
-      setFeedback(`+${amount} ml — ${d.feedback}`);
+      // Show reward points in feedback if granted
+      const rewardText = d.reward?.granted
+        ? ` | +${d.reward.points} ${lang === 'it' ? 'punti' : 'Punkte'}`
+        : '';
+      setFeedback(`+${amount} ml — ${d.feedback}${rewardText}`);
       setShowFeedback(true);
       setTimeout(() => setShowFeedback(false), 2500);
       loadHistory();

@@ -84,21 +84,34 @@ export default function PlanScreen() {
     return combined;
   };
 
+  const [rewardToast, setRewardToast] = useState<string | null>(null);
+
   const toggleItem = async (item: any) => {
     if (!profileId) return;
     try {
+      let res;
       if (item.type === 'medication') {
-        await fetch(`${API_URL}/api/medications/${profileId}/${item.id}/check-in`, {
+        res = await fetch(`${API_URL}/api/medications/${profileId}/${item.id}/check-in`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ timing: item.timing }),
         });
       } else {
-        await fetch(`${API_URL}/api/medications/${profileId}/supplement-check-in`, {
+        res = await fetch(`${API_URL}/api/medications/${profileId}/supplement-check-in`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ supplement_id: item.id, timing: item.timing }),
         });
+      }
+      if (res && res.ok) {
+        const data = await res.json();
+        if (data.reward?.granted) {
+          const label = item.type === 'medication'
+            ? tx(lang, { de: 'Medikament', it: 'Farmaco', en: 'Medication' })
+            : tx(lang, { de: 'Supplement', it: 'Integratore', en: 'Supplement' });
+          setRewardToast(`+${data.reward.points} ${tx(lang, { de: 'Punkte', it: 'punti', en: 'points' })} - ${label}`);
+          setTimeout(() => setRewardToast(null), 2500);
+        }
       }
       loadPlan(profileId);
     } catch (e) {
@@ -159,6 +172,13 @@ export default function PlanScreen() {
 
   return (
     <ScrollView style={s.container} contentContainerStyle={s.content}>
+      {/* Reward Toast */}
+      {rewardToast && (
+        <Animated.View entering={FadeInDown.duration(300)} style={s.rewardToast}>
+          <MaterialCommunityIcons name="star-four-points" size={16} color="#F59E0B" />
+          <Text style={s.rewardToastText}>{rewardToast}</Text>
+        </Animated.View>
+      )}
       {/* Header */}
       <LinearGradient colors={['#1B6B45', '#2E9E6B']} style={s.header}>
         <View style={{ flex: 1 }}>
@@ -462,4 +482,12 @@ const s = StyleSheet.create({
 
   disclaimer: { flexDirection: 'row', gap: 6, margin: 16, marginTop: 4, padding: 12, backgroundColor: '#FFF', borderRadius: 12, alignItems: 'flex-start' },
   disclaimerText: { flex: 1, fontSize: 11, color: '#8FA39B', lineHeight: 16 },
+
+  rewardToast: {
+    position: 'absolute', top: 50, left: 20, right: 20, zIndex: 999,
+    flexDirection: 'row', alignItems: 'center', gap: 8,
+    backgroundColor: '#1F2937', borderRadius: 12, paddingVertical: 10, paddingHorizontal: 16,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 6,
+  },
+  rewardToastText: { fontSize: 14, fontWeight: '600', color: '#F59E0B' },
 });
