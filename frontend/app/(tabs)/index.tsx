@@ -49,6 +49,7 @@ export default function DashboardHome() {
   const [profileId, setProfileId] = useState<string | null>(null);
   const [rewardBalance, setRewardBalance] = useState<number>(0);
   const [rewardStreak, setRewardStreak] = useState<number>(0);
+  const [showVeroRewardTip, setShowVeroRewardTip] = useState<boolean>(false);
 
   // Disclaimer check
   useEffect(() => {
@@ -93,11 +94,15 @@ export default function DashboardHome() {
         // Load reward balance and grant daily checkin
         try {
           // Grant daily check-in points (anti-abuse: only once/day)
-          await fetch(`${API_URL}/api/rewards/grant`, {
+          const checkinRes = await fetch(`${API_URL}/api/rewards/grant`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ profile_id: profileId, action: 'daily_checkin' }),
           });
+          const checkinData = checkinRes.ok ? await checkinRes.json() : null;
+          // Show VERO tip if check-in was granted (= first visit today)
+          if (checkinData?.granted) setShowVeroRewardTip(true);
+
           const rewardRes = await fetch(`${API_URL}/api/rewards/${profileId}/today?lang=${lang}`);
           if (rewardRes.ok) {
             const rd = await rewardRes.json();
@@ -280,6 +285,30 @@ export default function DashboardHome() {
               <MaterialCommunityIcons name="chevron-right" size={20} color="#9CA3AF" />
             </View>
           </TouchableOpacity>
+        )}
+
+        {/* VERO Reward Tip */}
+        {showVeroRewardTip && hasProfile && (
+          <View style={s.veroTipCard} data-testid="vero-reward-tip">
+            <Image source={VERO_HALLO} style={s.veroTipAvatar} resizeMode="contain" />
+            <View style={s.veroTipContent}>
+              <Text style={s.veroTipTitle}>{tx(lang, { de: 'VERO Tipp', it: 'Consiglio VERO', en: 'VERO Tip' })}</Text>
+              <Text style={s.veroTipText}>
+                {tx(lang, {
+                  de: 'Sammle Punkte fuer deine Gesundheit! Du erhaeltst Punkte fuer: Wasser trinken, Supplements einnehmen, Medikamente bestaetigen, Tagebuch fuehren und deinen taeglichen Check-in. Loesche deine Punkte gegen tolle Praemien ein!',
+                  it: 'Raccogli punti per la tua salute! Guadagni punti per: bere acqua, assumere integratori, confermare farmaci, compilare il diario e il check-in giornaliero. Riscatta i tuoi punti per fantastici premi!',
+                  en: 'Earn points for your health! You get points for: drinking water, taking supplements, confirming medications, journaling and your daily check-in. Redeem your points for great rewards!',
+                })}
+              </Text>
+              <TouchableOpacity
+                style={s.veroTipClose}
+                onPress={() => setShowVeroRewardTip(false)}
+                data-testid="vero-tip-close"
+              >
+                <Text style={s.veroTipCloseText}>{tx(lang, { de: 'Verstanden', it: 'Capito', en: 'Got it' })}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         )}
 
         {/* Symptom Analysis Section */}
@@ -761,5 +790,49 @@ const s = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
     color: '#F59E0B',
+  },
+  // VERO Reward Tip
+  veroTipCard: {
+    flexDirection: 'row',
+    marginHorizontal: SIDE_PAD,
+    marginTop: 12,
+    backgroundColor: '#F0FDF4',
+    borderRadius: 14,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#BBF7D0',
+    gap: 10,
+  },
+  veroTipAvatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+  },
+  veroTipContent: {
+    flex: 1,
+  },
+  veroTipTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#166534',
+    marginBottom: 4,
+  },
+  veroTipText: {
+    fontSize: 12,
+    color: '#374151',
+    lineHeight: 17,
+  },
+  veroTipClose: {
+    marginTop: 8,
+    alignSelf: 'flex-start',
+    backgroundColor: '#2E7D52',
+    borderRadius: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 5,
+  },
+  veroTipCloseText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#fff',
   },
 });
