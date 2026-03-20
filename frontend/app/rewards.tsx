@@ -313,6 +313,21 @@ export default function RewardsPage() {
             </Text>
           </View>
         )}
+
+        {/* VERO Mascot Tip */}
+        <View style={styles.veroCard} data-testid="rewards-vero-tip">
+          <Image source={VERO_IMG} style={styles.veroImage} />
+          <View style={styles.veroTextWrap}>
+            <Text style={styles.veroTitle}>{t('Tipp von VERO', 'Consiglio di VERO')}</Text>
+            <Text style={styles.veroDesc}>
+              {t(
+                'Sammle taeglich Punkte durch Wasser trinken, Supplements einnehmen und den taeglichen Check-in. Je laenger deine Streak, desto mehr Bonuspunkte bekommst du!',
+                'Raccogli punti ogni giorno bevendo acqua, assumendo integratori e facendo il check-in giornaliero. Piu lunga e la tua streak, piu punti bonus ricevi!'
+              )}
+            </Text>
+          </View>
+        </View>
+
         <View style={{ height: 32 }} />
       </ScrollView>
     </View>
@@ -370,4 +385,9 @@ const styles = StyleSheet.create({
   redeemedText: { fontSize: 13, color: '#6366F1', fontWeight: '500' },
   emptyState: { alignItems: 'center', paddingVertical: 40, gap: 12 },
   emptyText: { fontSize: 14, color: '#9CA3AF' },
+  veroCard: { flexDirection: 'row', backgroundColor: '#ECFDF5', borderRadius: 14, padding: 14, marginTop: 16, gap: 12, alignItems: 'flex-start' },
+  veroImage: { width: 44, height: 44, borderRadius: 22 },
+  veroTextWrap: { flex: 1 },
+  veroTitle: { fontSize: 14, fontWeight: '700', color: '#065F46', marginBottom: 4 },
+  veroDesc: { fontSize: 12, color: '#047857', lineHeight: 18 },
 });

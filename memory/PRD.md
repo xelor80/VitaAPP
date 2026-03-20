@@ -32,9 +32,12 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - Anti-abuse: unique actions once/day, per-context dedup, daily limits
 - Streak tracking with 7/14-day bonuses
 - Integration into water_tracking.py, medications.py, diary.py
+- Bug fix: next_reward hint now works for new users with 0 balance
 
 **Frontend:**
 - `rewards.tsx` – Full rewards page with balance, tabs, catalog, redeem
+- VERO mascot tip card at bottom of rewards page
+- Locked rewards with progress bar and "noch X Punkte" message
 - Dashboard: Points badge card + streak (index.tsx)
 - Daily check-in: auto-grant on dashboard load
 - Water tracking: "+X Punkte" in feedback toast

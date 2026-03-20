@@ -308,19 +308,19 @@ async def get_today_summary(profile_id: str, lang: str = "de"):
 
     # Next reward hint
     next_reward = None
-    if balance:
-        current = balance.get("current_balance", 0)
-        catalog_item = await db.rewards_catalog.find_one(
-            {"status": "active", "points_required": {"$gt": current}},
-            {"_id": 0, "title_de": 1, "title_it": 1, "title_en": 1, "points_required": 1}
-        )
-        if catalog_item:
-            title_field = f"title_{lang}" if f"title_{lang}" in catalog_item else "title_de"
-            next_reward = {
-                "title": catalog_item.get(title_field, catalog_item.get("title_de", "")),
-                "points_required": catalog_item["points_required"],
-                "points_remaining": catalog_item["points_required"] - current,
-            }
+    current = balance.get("current_balance", 0) if balance else 0
+    catalog_item = await db.rewards_catalog.find_one(
+        {"status": "active", "points_required": {"$gt": current}},
+        {"_id": 0, "title_de": 1, "title_it": 1, "title_en": 1, "points_required": 1},
+        sort=[("points_required", 1)]
+    )
+    if catalog_item:
+        title_field = f"title_{lang}" if f"title_{lang}" in catalog_item else "title_de"
+        next_reward = {
+            "title": catalog_item.get(title_field, catalog_item.get("title_de", "")),
+            "points_required": catalog_item["points_required"],
+            "points_remaining": catalog_item["points_required"] - current,
+        }
 
     action_labels = {
         "de": {
