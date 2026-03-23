@@ -107,6 +107,9 @@ export function WaterTrackerCard({ profileId, lang, waterData, onDataUpdate, onW
       withSpring(1, { damping: 8 })
     );
 
+    // Save timestamp for smart reminder suppression
+    AsyncStorage.setItem('last_water_time', Date.now().toString()).catch(() => {});
+
     // Optimistic UI: Update local waterData immediately
     if (waterData) {
       const newTotal = (waterData.total_ml || 0) + amount;

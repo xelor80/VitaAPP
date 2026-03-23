@@ -4,13 +4,36 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Configure notification handling
 Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
+  handleNotification: async (notification) => {
+    // Smart suppression: Skip water reminders if user recently logged water
+    const data = notification.request.content.data;
+    if (data?.type === 'water_reminder') {
+      try {
+        const lastWater = await AsyncStorage.getItem('last_water_time');
+        if (lastWater) {
+          const elapsed = Date.now() - parseInt(lastWater, 10);
+          const thirtyMin = 30 * 60 * 1000;
+          if (elapsed < thirtyMin) {
+            // User drank water within last 30 minutes – suppress
+            return {
+              shouldShowAlert: false,
+              shouldPlaySound: false,
+              shouldSetBadge: false,
+              shouldShowBanner: false,
+              shouldShowList: false,
+            };
+          }
+        }
+      } catch {}
+    }
+    return {
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: true,
+      shouldShowBanner: true,
+      shouldShowList: true,
+    };
+  },
 });
 
 export interface ReminderSettings {

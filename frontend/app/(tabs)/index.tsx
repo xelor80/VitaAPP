@@ -62,75 +62,91 @@ export default function DashboardHome() {
 
   // Load data
   const loadData = useCallback(async () => {
-    try {
-      const profileId = await AsyncStorage.getItem('health_profile_id');
-      setHasProfile(!!profileId);
-      setProfileId(profileId);
-      if (profileId) {
-        // Load profile name
-        const profileRes = await fetch(`${API_URL}/api/health-profile/${profileId}`);
-        if (profileRes.ok) {
-          const d = await profileRes.json();
-          setFirstName(d.profile?.first_name || null);
-        }
-        // Load health score
-        const scoreRes = await fetch(`${API_URL}/api/health-score/${profileId}?lang=${lang}`);
-        if (scoreRes.ok) {
-          const d = await scoreRes.json();
-          setHealthScore(d.score ?? null);
-        }
-        // Check supplement plan
-        const planRes = await fetch(`${API_URL}/api/supplement-plan/${profileId}`);
-        setHasPlan(planRes.ok);
-        // Load achievements
-        const achRes = await fetch(`${API_URL}/api/achievements/${profileId}?lang=${lang}`);
-        if (achRes.ok) {
-          const d = await achRes.json();
-          setAchievements(d);
-        }
-        // Load water tracking
-        try {
-          const waterRes = await fetch(`${API_URL}/api/water-tracking/${profileId}/today?lang=${lang}`);
-          if (waterRes.ok) setWaterData(await waterRes.json());
-        } catch {}
-        // Load reward balance and grant daily checkin
-        try {
-          // Grant daily check-in points (anti-abuse: only once/day)
-          const checkinRes = await fetch(`${API_URL}/api/rewards/grant`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ profile_id: profileId, action: 'daily_checkin' }),
-          });
-          const checkinData = checkinRes.ok ? await checkinRes.json() : null;
-          // Show VERO tip if check-in was granted (= first visit today)
-          if (checkinData?.granted) setShowVeroRewardTip(true);
+    const pid = await AsyncStorage.getItem('health_profile_id');
+    setHasProfile(!!pid);
+    setProfileId(pid);
+    if (!pid) return;
 
-          const rewardRes = await fetch(`${API_URL}/api/rewards/${profileId}/today?lang=${lang}`);
-          if (rewardRes.ok) {
-            const rd = await rewardRes.json();
-            setRewardBalance(rd.current_balance ?? 0);
-            setRewardStreak(rd.current_streak ?? 0);
-          }
-        } catch {}
+    // 1. Show cached data instantly
+    try {
+      const cached = await AsyncStorage.getItem('dashboard_cache');
+      if (cached) {
+        const c = JSON.parse(cached);
+        if (c.firstName) setFirstName(c.firstName);
+        if (c.healthScore !== undefined) setHealthScore(c.healthScore);
+        if (c.hasPlan !== undefined) setHasPlan(c.hasPlan);
+        if (c.waterData) setWaterData(c.waterData);
+        if (c.achievements) setAchievements(c.achievements);
+        if (c.rewardBalance !== undefined) setRewardBalance(c.rewardBalance);
+        if (c.rewardStreak !== undefined) setRewardStreak(c.rewardStreak);
+        if (c.recipes) { setRecipes(c.recipes); setLoadingRecipes(false); }
       }
     } catch {}
-    // Load recipes (personalized if profile exists)
-    // Note: use local profileId variable (fetched above), not state variable
-    const localProfileId = await AsyncStorage.getItem('health_profile_id');
+
+    // 2. Fetch all data in parallel
     try {
-      setLoadingRecipes(true);
-      const recipeUrl = localProfileId
-        ? `${API_URL}/api/recipes/personalized/${localProfileId}?lang=${lang}`
-        : `${API_URL}/api/recipes?lang=${lang}&limit=4`;
-      const res = await fetch(recipeUrl);
-      if (res.ok) {
-        const d = await res.json();
-        const list = d.recipes || (Array.isArray(d) ? d : []);
-        setRecipes(list.slice(0, 4));
+      const [profileRes, scoreRes, planRes, achRes, waterRes, checkinRes, recipeRes] = await Promise.all([
+        fetch(`${API_URL}/api/health-profile/${pid}`).catch(() => null),
+        fetch(`${API_URL}/api/health-score/${pid}?lang=${lang}`).catch(() => null),
+        fetch(`${API_URL}/api/supplement-plan/${pid}`).catch(() => null),
+        fetch(`${API_URL}/api/achievements/${pid}?lang=${lang}`).catch(() => null),
+        fetch(`${API_URL}/api/water-tracking/${pid}/today?lang=${lang}`).catch(() => null),
+        fetch(`${API_URL}/api/rewards/grant`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ profile_id: pid, action: 'daily_checkin' }),
+        }).catch(() => null),
+        fetch(`${API_URL}/api/recipes/personalized/${pid}?lang=${lang}`).catch(() => null),
+      ]);
+
+      let cFirstName = null, cScore = null, cHasPlan = false;
+      let cWater = null, cAch = null, cBalance = 0, cStreak = 0, cRecipes: any = null;
+
+      if (profileRes?.ok) {
+        const d = await profileRes.json();
+        cFirstName = d.profile?.first_name || null;
+        setFirstName(cFirstName);
       }
-    } catch {} finally {
+      if (scoreRes?.ok) {
+        const d = await scoreRes.json();
+        cScore = d.score ?? null;
+        setHealthScore(cScore);
+      }
+      if (planRes) { cHasPlan = planRes.ok; setHasPlan(cHasPlan); }
+      if (achRes?.ok) { cAch = await achRes.json(); setAchievements(cAch); }
+      if (waterRes?.ok) { cWater = await waterRes.json(); setWaterData(cWater); }
+
+      if (checkinRes?.ok) {
+        const cd = await checkinRes.json();
+        if (cd?.granted) setShowVeroRewardTip(true);
+      }
+
+      // Rewards (after checkin so balance is up to date)
+      try {
+        const rewardRes = await fetch(`${API_URL}/api/rewards/${pid}/today?lang=${lang}`);
+        if (rewardRes.ok) {
+          const rd = await rewardRes.json();
+          cBalance = rd.current_balance ?? 0; setRewardBalance(cBalance);
+          cStreak = rd.current_streak ?? 0; setRewardStreak(cStreak);
+        }
+      } catch {}
+
+      if (recipeRes?.ok) {
+        const d = await recipeRes.json();
+        const list = d.recipes || (Array.isArray(d) ? d : []);
+        cRecipes = list.slice(0, 4);
+        setRecipes(cRecipes);
+      }
       setLoadingRecipes(false);
-    }
+
+      // 3. Cache for next cold start
+      AsyncStorage.setItem('dashboard_cache', JSON.stringify({
+        firstName: cFirstName, healthScore: cScore, hasPlan: cHasPlan,
+        waterData: cWater, achievements: cAch, rewardBalance: cBalance,
+        rewardStreak: cStreak, recipes: cRecipes, cachedAt: Date.now(),
+      })).catch(() => {});
+
+    } catch {}
   }, [lang]);
 
   useEffect(() => { loadData(); }, [loadData]);
