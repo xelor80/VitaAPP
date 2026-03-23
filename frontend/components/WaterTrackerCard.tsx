@@ -70,10 +70,11 @@ interface WaterTrackerCardProps {
   lang: string;
   waterData: any;
   onDataUpdate: () => void;
+  onWaterUpdate?: (data: any) => void;
   onNavigate: () => void;
 }
 
-export function WaterTrackerCard({ profileId, lang, waterData, onDataUpdate, onNavigate }: WaterTrackerCardProps) {
+export function WaterTrackerCard({ profileId, lang, waterData, onDataUpdate, onWaterUpdate, onNavigate }: WaterTrackerCardProps) {
   const [adding, setAdding] = useState(false);
 
   // Wave animation
@@ -99,23 +100,44 @@ export function WaterTrackerCard({ profileId, lang, waterData, onDataUpdate, onN
   const addWater = async (amount: number) => {
     if (!profileId || amount <= 0 || adding) return;
     setAdding(true);
+
     // Splash animation
     splashScale.value = withSequence(
       withSpring(1.12, { damping: 4 }),
       withSpring(1, { damping: 8 })
     );
-    try {
-      const res = await fetch(`${API_URL}/api/water-tracking/${profileId}/add?lang=${lang}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount_ml: amount }),
-      });
+
+    // Optimistic UI: Update local waterData immediately
+    if (waterData) {
+      const newTotal = (waterData.total_ml || 0) + amount;
+      const goal = waterData.daily_goal_ml || 2400;
+      const newPct = Math.min(100, Math.round((newTotal / goal) * 100));
+      const newRemain = Math.max(0, goal - newTotal);
+      // Create optimistic waterData copy
+      const optimistic = {
+        ...waterData,
+        total_ml: newTotal,
+        percentage: newPct,
+        remaining_ml: newRemain,
+      };
+      // Directly update parent state via onWaterUpdate
+      if (onWaterUpdate) onWaterUpdate(optimistic);
+    }
+
+    // Release UI immediately
+    setTimeout(() => setAdding(false), 300);
+
+    // Fire API call in background
+    fetch(`${API_URL}/api/water-tracking/${profileId}/add?lang=${lang}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount_ml: amount }),
+    }).then(res => {
       if (res.ok) {
+        // Silently refresh real data in background
         onDataUpdate();
       }
-    } catch {} finally {
-      setAdding(false);
-    }
+    }).catch(() => {});
   };
 
   if (!profileId) return null;

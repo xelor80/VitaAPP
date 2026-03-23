@@ -344,6 +344,7 @@ export default function DashboardHome() {
             lang={lang}
             waterData={waterData}
             onDataUpdate={loadData}
+            onWaterUpdate={setWaterData}
             onNavigate={() => router.push('/water-tracking' as any)}
           />
         )}
