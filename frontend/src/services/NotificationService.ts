@@ -156,18 +156,18 @@ export async function scheduleCombinedReminders(
     const suppCount = items.filter(i => i.type === 'supplement').length;
     const medCount = items.filter(i => i.type === 'medication').length;
 
-    const title = `VitaGuide - ${timing.label}`;
+    const title = `VERO - ${timing.label}`;
     let body: string;
     if (lang === 'de') {
       const parts: string[] = [];
       if (suppCount > 0) parts.push(`${suppCount} Supplement${suppCount > 1 ? 's' : ''}`);
       if (medCount > 0) parts.push(`${medCount} Medikament${medCount > 1 ? 'e' : ''}`);
-      body = `Zeit fuer: ${names} (${parts.join(' + ')})`;
+      body = `Hey! Vergiss nicht: ${names} (${parts.join(' + ')})`;
     } else {
       const parts: string[] = [];
       if (suppCount > 0) parts.push(`${suppCount} supplementi`);
       if (medCount > 0) parts.push(`${medCount} farmaci`);
-      body = `Ora di: ${names} (${parts.join(' + ')})`;
+      body = `Ehi! Non dimenticare: ${names} (${parts.join(' + ')})`;
     }
 
     if (Platform.OS === 'web') {
@@ -237,10 +237,10 @@ export async function scheduleSupplementReminders(
     const { hour, minute } = parseTime(timing.time);
     const names = items.map(i => i.name).join(', ');
 
-    const title = `VitaGuide - ${timing.label}`;
+    const title = `VERO - ${timing.label}`;
     const body = lang === 'de' 
-      ? `Zeit für Ihre Supplements: ${names}` 
-      : `Ora dei tuoi integratori: ${names}`;
+      ? `Hey! Vergiss nicht deine Supplements: ${names}` 
+      : `Ehi! Non dimenticare i tuoi integratori: ${names}`;
 
     if (Platform.OS === 'web') {
       // Web: Schedule using setTimeout (for demo/testing)
@@ -380,24 +380,24 @@ const WATER_REMINDER_KEY = 'water_reminder_ids';
 const VERO_MESSAGES: Record<string, string[]> = {
   de: [
     'Hey! Zeit fuer ein Glas Wasser!',
-    'VERO erinnert dich: Trink etwas Wasser!',
+    'Denk dran: Ein Schluck Wasser tut gut!',
     'Dein Koerper braucht Fluessigkeit - trink ein Glas!',
     'Kurze Pause? Perfekt fuer ein Glas Wasser!',
-    'Bleib hydriert! VERO passt auf dich auf.',
+    'Bleib hydriert! Ich pass auf dich auf.',
   ],
   it: [
     'Ehi! E ora di bere un bicchiere d\'acqua!',
-    'VERO ti ricorda: bevi un po\' d\'acqua!',
+    'Ricordati: Un sorso d\'acqua fa bene!',
     'Il tuo corpo ha bisogno di liquidi - bevi un bicchiere!',
     'Pausa breve? Perfetta per un bicchiere d\'acqua!',
-    'Resta idratato! VERO si prende cura di te.',
+    'Resta idratato! Mi prendo cura di te.',
   ],
   en: [
     'Hey! Time for a glass of water!',
-    'VERO reminds you: Drink some water!',
+    'Remember: A sip of water does you good!',
     'Your body needs fluids - have a glass!',
     'Quick break? Perfect for a glass of water!',
-    'Stay hydrated! VERO is looking out for you.',
+    'Stay hydrated! I\'m looking out for you.',
   ],
 };
 
