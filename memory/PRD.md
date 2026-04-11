@@ -120,6 +120,37 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - Weekly overview: 7-day dots (green=full, yellow=partial)
 - 27/27 backend tests passed, 19/19 frontend flows verified
 
+### Level System (2026-04-11) - COMPLETED
+**Backend (`/app/backend/routes/level.py`):**
+- GET `/api/level/{profile_id}` - Detailed level info with level-up detection
+- GET `/api/level/config` - Full 12-tier configuration
+- POST `/api/level/{profile_id}/acknowledge-levelup` - Mark level-up as seen
+- 12 configurable tiers (Start → Gesundheits-Held, 0 → 7000 pts)
+- Level-up detection via `user_levels` collection
+- Bilingual (German/Italian)
+
+**Frontend:**
+- Rewards page: Level card with icon, progress bar, points to next level
+- Daily Plan header: Level badge (already present)
+- Weekly Report: Level section with progress
+
+### Weekly Health Report (2026-04-11) - COMPLETED
+**Backend (`/app/backend/routes/weekly_report.py`):**
+- GET `/api/weekly-report/{profile_id}` - Comprehensive 7-day health summary
+- Sections: overview, supplements %, medications %, water, stress, diary
+- VERO recommendation targeting weakest health area
+- Daily task completion breakdown for each day
+
+**Frontend (`/app/frontend/app/weekly-report.tsx`):**
+- Full report screen with gradient header
+- Overview ring (completion %)
+- Area cards with percentage badges and progress bars
+- Stress improvement badge
+- 7-day dot overview
+- VERO recommendation card
+- Accessible via "Wochenbericht ansehen" button on Mein Tag tab
+- 24/24 backend tests + 18/18 frontend flows verified
+
 ## Prioritized Backlog
 ### P1 - Upcoming
 - Medication Reminders (push notifications) - COMPLETED
