@@ -10,7 +10,7 @@ import time
 import os
 
 # Use external URL from environment
-BASE_URL = os.environ.get("EXPO_PUBLIC_BACKEND_URL", "https://vero-rewards.preview.emergentagent.com").rstrip("/")
+BASE_URL = os.environ.get("EXPO_PUBLIC_BACKEND_URL", "https://stress-relief-app-11.preview.emergentagent.com").rstrip("/")
 
 # Test data
 TEST_PROFILE_ID = "f97fdefb-c81f-4d01-8d02-e38dd2132e74"

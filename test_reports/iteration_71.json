@@ -108,7 +108,7 @@
     "frontend": "Skipped per request"
   },
   "test_credentials": {
-    "api_url": "https://vero-rewards.preview.emergentagent.com"
+    "api_url": "https://stress-relief-app-11.preview.emergentagent.com"
   },
   "seed_data_creation": "None - using existing seeded recipes",
   "retest_needed": false,

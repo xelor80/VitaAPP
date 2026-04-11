@@ -105,7 +105,7 @@
     "frontend": "100% (All 15 features verified)"
   },
   "test_credentials": {
-    "app_url": "https://vero-rewards.preview.emergentagent.com"
+    "app_url": "https://stress-relief-app-11.preview.emergentagent.com"
   },
   "seed_data_creation": "None - frontend-only feature with AsyncStorage for state",
   "retest_needed": false,

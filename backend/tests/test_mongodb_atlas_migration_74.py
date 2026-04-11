@@ -21,7 +21,7 @@ import requests
 import os
 
 # Use the external API URL for testing
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://vero-rewards.preview.emergentagent.com').rstrip('/')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://stress-relief-app-11.preview.emergentagent.com').rstrip('/')
 
 # Test credentials from the testing request
 TEST_PROFILE_ID = "5ae69ad6-6bbd-4bbc-ae59-f3e1fba4782b"

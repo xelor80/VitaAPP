@@ -15,7 +15,7 @@ import uuid
 import time
 from datetime import datetime
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://vero-rewards.preview.emergentagent.com').rstrip('/')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://stress-relief-app-11.preview.emergentagent.com').rstrip('/')
 ADMIN_PASSWORD = "Wk220480xel!"
 EXISTING_CATALOG_REWARD_ID = "1e7ace51-e09c-43af-bef8-804cbc84de04"  # 100 points reward
 

@@ -13,7 +13,7 @@ BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "").rstrip("/") or os.environ
 ADMIN_PASSWORD = "Wk220480xel!"
 
 if not BASE_URL:
-    BASE_URL = "https://vero-rewards.preview.emergentagent.com"
+    BASE_URL = "https://stress-relief-app-11.preview.emergentagent.com"
 
 
 class TestAdminAuth:
