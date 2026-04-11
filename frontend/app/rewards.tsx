@@ -37,6 +37,8 @@ interface RewardItem {
   reward_type: string;
   status: string;
   points_remaining: number;
+  min_level: number;
+  user_level: number;
 }
 
 interface TodaySummary {
@@ -272,7 +274,7 @@ export default function RewardsPage() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2E7D52" />}
       >
         {(activeTab === 'available' ? availableItems : redeemedItems).map(item => (
-          <View key={item.id} style={[styles.rewardCard, item.status === 'locked' && styles.rewardCardLocked]} data-testid={`reward-card-${item.id}`}>
+          <View key={item.id} style={[styles.rewardCard, (item.status === 'locked' || item.status === 'level_locked') && styles.rewardCardLocked]} data-testid={`reward-card-${item.id}`}>
             {/* Reward Image */}
             {item.image_url ? (
               <Image
@@ -284,15 +286,15 @@ export default function RewardsPage() {
 
             <View style={styles.rewardCardBody}>
               <View style={styles.rewardHeader}>
-                <View style={[styles.categoryBadge, { backgroundColor: STATUS_COLORS[item.status] + '18' }]}>
+                <View style={[styles.categoryBadge, { backgroundColor: (item.status === 'level_locked' ? '#7C3AED' : STATUS_COLORS[item.status] || '#9CA3AF') + '18' }]}>
                   <MaterialCommunityIcons
-                    name={(CATEGORY_ICONS[item.category] || 'gift') as any}
+                    name={(item.status === 'level_locked' ? 'lock' : CATEGORY_ICONS[item.category] || 'gift') as any}
                     size={20}
-                    color={STATUS_COLORS[item.status]}
+                    color={item.status === 'level_locked' ? '#7C3AED' : STATUS_COLORS[item.status]}
                   />
                 </View>
                 <View style={styles.rewardInfo}>
-                  <Text style={[styles.rewardTitle, item.status === 'locked' && styles.rewardTitleLocked]}>
+                  <Text style={[styles.rewardTitle, (item.status === 'locked' || item.status === 'level_locked') && styles.rewardTitleLocked]}>
                     {item.title}
                   </Text>
                   <Text style={styles.rewardDesc} numberOfLines={2}>{item.description}</Text>
@@ -302,6 +304,18 @@ export default function RewardsPage() {
                   <Text style={styles.pointsText}>{item.points_required}</Text>
                 </View>
               </View>
+
+            {item.status === 'level_locked' && (
+              <View style={styles.levelLockBadge}>
+                <MaterialCommunityIcons name="shield-lock-outline" size={16} color="#7C3AED" />
+                <Text style={styles.levelLockText}>
+                  {t(`Ab Level ${item.min_level}`, `Dal livello ${item.min_level}`)}
+                </Text>
+                <Text style={styles.levelLockCurrent}>
+                  {t(`(Dein Level: ${item.user_level})`, `(Il tuo: ${item.user_level})`)}
+                </Text>
+              </View>
+            )}
 
             {item.status === 'locked' && (
               <View style={styles.progressBar}>
@@ -443,4 +457,12 @@ const styles = StyleSheet.create({
   levelBarTrack: { height: 6, backgroundColor: '#E5E7EB', borderRadius: 3, marginTop: 6, overflow: 'hidden' },
   levelBarFill: { height: 6, backgroundColor: '#2E7D52', borderRadius: 3 },
   levelSub: { fontSize: 12, color: '#6B7280', marginTop: 4 },
+  // Level lock badge
+  levelLockBadge: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    marginTop: 12, backgroundColor: '#F5F3FF', borderRadius: 10, padding: 10,
+    borderWidth: 1, borderColor: '#EDE9FE',
+  },
+  levelLockText: { fontSize: 13, fontWeight: '700', color: '#7C3AED' },
+  levelLockCurrent: { fontSize: 12, color: '#A78BFA' },
 });

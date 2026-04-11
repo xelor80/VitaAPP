@@ -39,6 +39,7 @@ class AdminCatalogItem(BaseModel):
     start_date: Optional[str] = None
     end_date: Optional[str] = None
     code_template: Optional[str] = None  # e.g. "VITA-{random}" for coupon generation
+    min_level: int = 0  # 0 = no level requirement
 
 # ── Default Settings ──
 
@@ -381,6 +382,8 @@ async def get_streaks(profile_id: str):
 @router.get("/catalog/list")
 async def get_catalog(lang: str = "de", profile_id: str = None):
     """Get available rewards catalog for users."""
+    from routes.level import calc_level
+
     now = datetime.now(timezone.utc).isoformat()
     query = {"status": "active"}
     items = await db.rewards_catalog.find(query, {"_id": 0}).sort("points_required", 1).to_list(100)
@@ -396,12 +399,15 @@ async def get_catalog(lang: str = "de", profile_id: str = None):
             continue
         valid_items.append(item)
 
-    # Get user balance for status calculation
+    # Get user balance + level for status calculation
     user_balance = 0
+    user_level = 1
     redeemed_ids = set()
     if profile_id:
         balance = await db.user_points.find_one({"profile_id": profile_id}, {"_id": 0})
         user_balance = balance.get("current_balance", 0) if balance else 0
+        total_pts = balance.get("lifetime_points", 0) if balance else 0
+        user_level = calc_level(total_pts, lang).get("level", 1)
         redemptions = await db.reward_redemptions.find(
             {"profile_id": profile_id}, {"_id": 0, "reward_id": 1}
         ).to_list(100)
@@ -412,10 +418,13 @@ async def get_catalog(lang: str = "de", profile_id: str = None):
     for item in valid_items:
         title_field = f"title_{lang}" if f"title_{lang}" in item else "title_de"
         desc_field = f"description_{lang}" if f"description_{lang}" in item else "description_de"
+        min_level = item.get("min_level", 0)
 
         status = "locked"
         if item["id"] in redeemed_ids:
             status = "redeemed"
+        elif min_level > 0 and user_level < min_level:
+            status = "level_locked"
         elif user_balance >= item["points_required"]:
             status = "available"
 
@@ -429,6 +438,8 @@ async def get_catalog(lang: str = "de", profile_id: str = None):
             "reward_type": item.get("reward_type", "coupon"),
             "status": status,
             "points_remaining": max(0, item["points_required"] - user_balance) if status == "locked" else 0,
+            "min_level": min_level,
+            "user_level": user_level,
         })
 
     return catalog
@@ -437,6 +448,8 @@ async def get_catalog(lang: str = "de", profile_id: str = None):
 @router.post("/{profile_id}/redeem")
 async def redeem_reward(profile_id: str, req: RedeemRequest):
     """Redeem a reward from the catalog."""
+    from routes.level import calc_level
+
     # Get reward
     reward = await db.rewards_catalog.find_one({"id": req.reward_id, "status": "active"}, {"_id": 0})
     if not reward:
@@ -446,8 +459,18 @@ async def redeem_reward(profile_id: str, req: RedeemRequest):
     if reward.get("stock") is not None and reward["stock"] <= 0:
         raise HTTPException(status_code=400, detail="Reward out of stock")
 
-    # Check balance
+    # Get user balance first (needed for both level and points checks)
     balance = await db.user_points.find_one({"profile_id": profile_id}, {"_id": 0})
+    
+    # Check level requirement FIRST (more fundamental restriction)
+    min_level = reward.get("min_level", 0)
+    if min_level > 0:
+        total_pts = balance.get("lifetime_points", 0) if balance else 0
+        user_level = calc_level(total_pts).get("level", 1)
+        if user_level < min_level:
+            raise HTTPException(status_code=400, detail=f"Level {min_level} required (current: {user_level})")
+
+    # Check balance
     current = balance.get("current_balance", 0) if balance else 0
     if current < reward["points_required"]:
         raise HTTPException(status_code=400, detail="Not enough points")
