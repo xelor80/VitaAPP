@@ -57,6 +57,21 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - `health_profiles`: id (UUID), age, gender, height, weight, diet, conditions, etc.
 - `reward_settings`, `reward_events`, `user_points`, `rewards_catalog`, `reward_redemptions`, `user_streaks`
 
+### Stress Management Module (2026-04-11) - COMPLETED
+**Backend (`/app/backend/routes/stress.py`):**
+- 15 exercises across 5 categories (breathing, mini, sleep, focus, movement)
+- 6 API endpoints: exercises list, recommendation, session start/complete, stats, history
+- Personalized recommendations based on profile stress level, sleep quality, energy, time of day
+- Automatic reward points (10 pts) on exercise completion via `grant_points_internal`
+- Seeded exercises with German + Italian content
+
+**Frontend:**
+- `/app/frontend/app/stress.tsx` - Main screen: SOS button, VERO recommendation, category filters, quick exercises, full list
+- `/app/frontend/app/stress-player.tsx` - Player: pre-phase (stress slider 1-10), active-phase (breathing animation or guided steps with timer), post-phase (completion + improvement badge)
+- `/app/frontend/app/(tabs)/index.tsx` - Dashboard stress card (data-testid='stress-dashboard-card')
+- Full pre/post stress tracking with visual improvement feedback
+- 17/17 backend tests passed, all frontend E2E flows verified
+
 ## Prioritized Backlog
 ### P1 - Upcoming
 - Medication Reminders (push notifications)
