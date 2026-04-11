@@ -7,7 +7,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeInDown, ZoomIn, FadeInUp, SlideInUp } from 'react-native-reanimated';
 import { useLang } from '../../src/LangContext';
 import { eventBus } from '../../src/eventBus';
 
@@ -41,6 +41,7 @@ export default function MyDayScreen() {
   const [weekly, setWeekly] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [completing, setCompleting] = useState<string | null>(null);
+  const [levelUp, setLevelUp] = useState<any>(null);
 
   const loadPlan = useCallback(async () => {
     const pid = await AsyncStorage.getItem('health_profile_id');
@@ -53,8 +54,38 @@ export default function MyDayScreen() {
       ]);
       if (planRes.ok) setPlan(await planRes.json());
       if (weeklyRes.ok) setWeekly(await weeklyRes.json());
+      // Check level-up
+      try {
+        const lvlRes = await fetch(`${API_URL}/api/level/${pid}?lang=${lang}`);
+        if (lvlRes.ok) {
+          const lvlData = await lvlRes.json();
+          if (lvlData.leveled_up) setLevelUp(lvlData);
+        }
+      } catch {}
     } catch {} finally { setLoading(false); }
   }, [lang]);
+
+  // Check for level-up after task completion
+  const checkLevelUp = useCallback(async (pid: string) => {
+    try {
+      const res = await fetch(`${API_URL}/api/level/${pid}?lang=${lang}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.leveled_up) {
+          setLevelUp(data);
+          return;
+        }
+      }
+    } catch {}
+  }, [lang]);
+
+  const dismissLevelUp = useCallback(async () => {
+    if (!profileId) return;
+    setLevelUp(null);
+    try {
+      await fetch(`${API_URL}/api/level/${profileId}/acknowledge-levelup`, { method: 'POST' });
+    } catch {}
+  }, [profileId]);
 
   useEffect(() => { loadPlan(); }, [loadPlan]);
   useEffect(() => {
@@ -93,6 +124,7 @@ export default function MyDayScreen() {
         return;
       }
       await loadPlan();
+      if (profileId) await checkLevelUp(profileId);
     } catch {}
     setCompleting(null);
   };
@@ -247,6 +279,41 @@ export default function MyDayScreen() {
 
         <View style={{ height: 24 }} />
       </ScrollView>
+
+      {/* Level-Up Overlay */}
+      {levelUp && (
+        <View style={s.modalOverlay}>
+          <Animated.View entering={ZoomIn.duration(500).springify()} style={s.modalCard}>
+            <LinearGradient colors={['#1A2D26', '#2E4A3E', '#3D6B56']} style={s.modalGradient}>
+              <View style={s.starsRow}>
+                <MaterialCommunityIcons name="star" size={20} color="#FFD700" style={{ opacity: 0.4 }} />
+                <MaterialCommunityIcons name="star" size={28} color="#FFD700" style={{ opacity: 0.7 }} />
+                <MaterialCommunityIcons name="star" size={20} color="#FFD700" style={{ opacity: 0.4 }} />
+              </View>
+              <Text style={s.modalLabel}>LEVEL UP!</Text>
+              <Animated.View entering={ZoomIn.delay(200).duration(600).springify()} style={s.modalIconCircle}>
+                <MaterialCommunityIcons name={(levelUp?.icon || 'star') as any} size={48} color="#2E7D52" />
+              </Animated.View>
+              <Animated.Text entering={FadeInUp.delay(350).duration(400)} style={s.modalLevel}>
+                Level {levelUp?.level}
+              </Animated.Text>
+              <Animated.Text entering={FadeInUp.delay(450).duration(400)} style={s.modalTitle}>
+                {levelUp?.title}
+              </Animated.Text>
+              {levelUp?.previous_level && (
+                <Animated.Text entering={FadeInUp.delay(550).duration(400)} style={s.modalFrom}>
+                  {t(`Level ${levelUp.previous_level} → Level ${levelUp.level}`, `Livello ${levelUp.previous_level} → Livello ${levelUp.level}`)}
+                </Animated.Text>
+              )}
+              <Animated.View entering={FadeInUp.delay(650).duration(400)}>
+                <TouchableOpacity style={s.modalBtn} onPress={dismissLevelUp} activeOpacity={0.8}>
+                  <Text style={s.modalBtnText}>{t('Weiter', 'Continua')}</Text>
+                </TouchableOpacity>
+              </Animated.View>
+            </LinearGradient>
+          </Animated.View>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
@@ -347,4 +414,33 @@ const s = StyleSheet.create({
     backgroundColor: '#F0FDF4', borderWidth: 1, borderColor: '#D1FAE5',
   },
   weekReportBtnText: { fontSize: 13, fontWeight: '600', color: '#2E7D52' },
+
+  // Level-Up Modal
+  modalOverlay: {
+    flex: 1, backgroundColor: 'rgba(0,0,0,0.65)',
+    justifyContent: 'center', alignItems: 'center', padding: 32,
+  },
+  modalCard: {
+    width: '100%', maxWidth: 340, borderRadius: 24, overflow: 'hidden',
+    shadowColor: '#000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 24, elevation: 10,
+  },
+  modalGradient: {
+    paddingVertical: 36, paddingHorizontal: 24, alignItems: 'center',
+  },
+  starsRow: { flexDirection: 'row', gap: 8, marginBottom: 8 },
+  modalLabel: { fontSize: 14, fontWeight: '800', color: '#4ADE80', letterSpacing: 3, marginBottom: 20 },
+  modalIconCircle: {
+    width: 96, height: 96, borderRadius: 48,
+    backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center',
+    shadowColor: '#4ADE80', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.4, shadowRadius: 20,
+    marginBottom: 16,
+  },
+  modalLevel: { fontSize: 32, fontWeight: '900', color: '#fff', letterSpacing: -1 },
+  modalTitle: { fontSize: 18, fontWeight: '600', color: '#A7F3D0', marginTop: 4 },
+  modalFrom: { fontSize: 13, color: 'rgba(255,255,255,0.45)', marginTop: 8 },
+  modalBtn: {
+    backgroundColor: '#4ADE80', paddingHorizontal: 40, paddingVertical: 14,
+    borderRadius: 30, marginTop: 28,
+  },
+  modalBtnText: { fontSize: 16, fontWeight: '700', color: '#1A2D26' },
 });

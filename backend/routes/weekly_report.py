@@ -179,7 +179,7 @@ async def get_weekly_report(profile_id: str, lang: str = "de"):
 
     # ── Level info ──
     points_doc = await db.user_points.find_one({"profile_id": profile_id}, {"_id": 0})
-    total_points = points_doc.get("total_earned", 0) if points_doc else 0
+    total_points = points_doc.get("lifetime_points", points_doc.get("total_earned", 0)) if points_doc else 0
     level_info = calc_level(total_points, lang)
 
     # ── VERO recommendation (find weakest area) ──

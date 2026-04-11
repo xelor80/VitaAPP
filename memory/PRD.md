@@ -151,6 +151,15 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - Accessible via "Wochenbericht ansehen" button on Mein Tag tab
 - 24/24 backend tests + 18/18 frontend flows verified
 
+### Level-Up Animation/Modal (2026-04-11) - COMPLETED
+**Frontend (`/app/frontend/app/(tabs)/my-day.tsx`):**
+- Level-Up overlay with ZoomIn animation (stars, level icon, title, transition text)
+- Triggers automatically when user's points cross a level threshold
+- "Weiter" button dismisses and acknowledges via POST `/api/level/{profile_id}/acknowledge-levelup`
+- Level check integrated into loadPlan flow (runs on every page load and after task completion)
+
+**Backend bug fix:** Changed `total_earned` → `lifetime_points` in level.py, daily_plan.py, weekly_report.py to match rewards system's actual field name
+
 ## Prioritized Backlog
 ### P1 - Upcoming
 - Medication Reminders (push notifications) - COMPLETED

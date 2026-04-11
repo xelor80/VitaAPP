@@ -257,7 +257,7 @@ async def get_daily_plan(profile_id: str, lang: str = "de"):
 
     # ── Level ──
     points_doc = await db.user_points.find_one({"profile_id": profile_id}, {"_id": 0})
-    total_points = points_doc.get("total_earned", 0) if points_doc else 0
+    total_points = points_doc.get("lifetime_points", points_doc.get("total_earned", 0)) if points_doc else 0
     level_info = get_level_info(total_points)
 
     # ── VERO ──
