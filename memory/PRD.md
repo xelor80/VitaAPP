@@ -72,13 +72,41 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - Full pre/post stress tracking with visual improvement feedback
 - 17/17 backend tests passed, all frontend E2E flows verified
 
+### Medication Reminders with Push Notifications (2026-04-11) - COMPLETED
+**Backend (`/app/backend/routes/medications.py`):**
+- GET/PUT `/api/medications/{profile_id}/reminders` - CRUD for reminder settings
+- Settings: enabled, morning_time, noon_time, evening_time
+- Route ordering fixed: reminder routes placed before /{medication_id} routes
+
+**Frontend (`/app/frontend/app/medications.tsx`):**
+- VERO Erinnerungen section with toggle switch
+- Per-timing time inputs (only shows timings that have medications assigned)
+- Shows which medications are assigned to each timing
+- Save & Test buttons for notifications
+- Uses existing `scheduleCombinedReminders` from NotificationService
+
+### Medication Progress Tracking in Progress Screen (2026-04-11) - COMPLETED
+**Backend:** Uses existing `GET /api/medications/{profile_id}/stats?days=7`
+**Frontend (`/app/frontend/app/progress.tsx`):**
+- Medication Adherence card in overview tab
+- Shows adherence percentage + taken/expected count
+- 7-day daily bar chart (color-coded: green=100%, blue=50%+, yellow=<50%)
+
+### Water History Visualization in Progress Screen (2026-04-11) - COMPLETED
+**Backend:** Uses existing `GET /api/water-tracking/{profile_id}/history?period=week`
+**Frontend (`/app/frontend/app/progress.tsx`):**
+- Water intake history card in overview tab
+- Shows average daily intake + days goal reached
+- 7-day daily bar chart (green=goal reached, blue=below goal)
+- Already had detailed chart in `/app/frontend/app/water-tracking.tsx` (bar chart with week/month toggle)
+
 ## Prioritized Backlog
 ### P1 - Upcoming
-- Medication Reminders (push notifications)
+- Medication Reminders (push notifications) - COMPLETED
 
 ### P2 - Upcoming
-- Medication Progress Tracking
-- Historical Data Visualization (water intake graphs)
+- Medication Progress Tracking - COMPLETED
+- Historical Data Visualization (water intake graphs) - COMPLETED
 
 ### Future
 - Admin Web Dashboard: Rewards admin pages (briefing ready in `/app/memory/REWARDS_SYSTEM_BRIEFING.md`)
