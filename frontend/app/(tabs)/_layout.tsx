@@ -29,7 +29,7 @@ export default function TabLayout() {
           shadowRadius: 8,
         },
         tabBarLabelStyle: {
-          fontSize: 11,
+          fontSize: 10,
           fontWeight: '600',
           marginTop: 2,
         },
@@ -45,9 +45,18 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="my-day"
+        options={{
+          title: lang === 'de' ? 'Mein Tag' : 'La mia giornata',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="calendar-check" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="profile"
         options={{
-          title: lang === 'de' ? 'Gesundheitsprofil' : 'Profilo salute',
+          title: lang === 'de' ? 'Profil' : 'Profilo',
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="account-heart" size={size} color={color} />
           ),
@@ -56,7 +65,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="plan"
         options={{
-          title: lang === 'de' ? 'Supplement Plan' : 'Piano integratori',
+          title: lang === 'de' ? 'Plan' : 'Piano',
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="pill" size={size} color={color} />
           ),
@@ -65,7 +74,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="recipes"
         options={{
-          title: lang === 'de' ? 'Deine Rezepte' : 'Le tue ricette',
+          title: lang === 'de' ? 'Rezepte' : 'Ricette',
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="silverware-fork-knife" size={size} color={color} />
           ),
