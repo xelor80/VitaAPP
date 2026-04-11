@@ -151,6 +151,19 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - Accessible via "Wochenbericht ansehen" button on Mein Tag tab
 - 24/24 backend tests + 18/18 frontend flows verified
 
+### Level-basierte Praemien-Freischaltung (2026-04-11) - COMPLETED
+**Backend (`/app/backend/routes/rewards.py`):**
+- `min_level` Feld im AdminCatalogItem Model (default 0 = kein Level noetig)
+- Catalog endpoint: `level_locked` Status wenn `min_level > user_level`, inkl. `min_level` + `user_level` in Response
+- Redeem endpoint: Level-Check VOR Punkte-Check, blockiert mit 400 wenn Level zu niedrig
+- 3 Seed-Praemien: Premium Meditationsguide (Lv.5), VIP Ernaehrungsberatung (Lv.8), Exklusives Wellness-Paket (Lv.10)
+
+**Frontend (`/app/frontend/app/rewards.tsx`):**
+- Level-locked Items: Violettes Schloss-Icon statt Kategorie-Icon
+- "Ab Level X (Dein Level: Y)" Badge in Violett mit shield-lock Icon
+- Visuell klar unterscheidbar von normalen locked Items (Violett vs Grau)
+- 11/11 Backend + 12/12 Frontend Tests bestanden
+
 ### Level-Up Animation/Modal (2026-04-11) - COMPLETED
 **Frontend (`/app/frontend/app/(tabs)/my-day.tsx`):**
 - Level-Up overlay with ZoomIn animation (stars, level icon, title, transition text)
