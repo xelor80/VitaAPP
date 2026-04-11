@@ -66,6 +66,7 @@ export default function RewardsPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [redeeming, setRedeeming] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'available' | 'redeemed'>('available');
+  const [levelInfo, setLevelInfo] = useState<any>(null);
 
   const t = useCallback((de: string, it: string) => lang === 'it' ? it : de, [lang]);
 
@@ -75,14 +76,16 @@ export default function RewardsPage() {
     setProfileId(pid);
 
     try {
-      const [balRes, todayRes, catRes] = await Promise.all([
+      const [balRes, todayRes, catRes, levelRes] = await Promise.all([
         fetch(`${API_URL}/api/rewards/${pid}/balance`),
         fetch(`${API_URL}/api/rewards/${pid}/today?lang=${lang}`),
         fetch(`${API_URL}/api/rewards/catalog/list?lang=${lang}&profile_id=${pid}`),
+        fetch(`${API_URL}/api/level/${pid}?lang=${lang}`),
       ]);
       if (balRes.ok) setBalance(await balRes.json());
       if (todayRes.ok) setToday(await todayRes.json());
       if (catRes.ok) setCatalog(await catRes.json());
+      if (levelRes.ok) setLevelInfo(await levelRes.json());
     } catch {}
     setLoading(false);
   }, [lang]);
@@ -190,6 +193,28 @@ export default function RewardsPage() {
           </View>
         </View>
       </LinearGradient>
+
+      {/* Level Card */}
+      {levelInfo && (
+        <View style={styles.levelCard} data-testid="rewards-level-card">
+          <View style={styles.levelRow}>
+            <View style={styles.levelIconWrap}>
+              <MaterialCommunityIcons name={(levelInfo.icon || 'seed-outline') as any} size={24} color="#2E7D52" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.levelTitle}>Level {levelInfo.level} - {levelInfo.title}</Text>
+              <View style={styles.levelBarTrack}>
+                <View style={[styles.levelBarFill, { width: `${levelInfo.progress_pct}%` }]} />
+              </View>
+              <Text style={styles.levelSub}>
+                {levelInfo.points_to_next > 0
+                  ? t(`${levelInfo.points_to_next} Punkte bis Level ${levelInfo.level + 1}`, `${levelInfo.points_to_next} punti per il Level ${levelInfo.level + 1}`)
+                  : t('Max Level!', 'Livello massimo!')}
+              </Text>
+            </View>
+          </View>
+        </View>
+      )}
 
       {/* Today's Breakdown */}
       {today && today.events_count > 0 && (
@@ -403,4 +428,19 @@ const styles = StyleSheet.create({
   veroTextWrap: { flex: 1 },
   veroTitle: { fontSize: 14, fontWeight: '700', color: '#065F46', marginBottom: 4 },
   veroDesc: { fontSize: 12, color: '#047857', lineHeight: 18 },
+  // Level card
+  levelCard: {
+    margin: 16, marginBottom: 0, backgroundColor: '#fff', borderRadius: 14, padding: 14,
+    borderLeftWidth: 4, borderLeftColor: '#2E7D52',
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2,
+  },
+  levelRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  levelIconWrap: {
+    width: 44, height: 44, borderRadius: 22, backgroundColor: '#F0FDF4',
+    justifyContent: 'center', alignItems: 'center',
+  },
+  levelTitle: { fontSize: 15, fontWeight: '700', color: '#1A2D26' },
+  levelBarTrack: { height: 6, backgroundColor: '#E5E7EB', borderRadius: 3, marginTop: 6, overflow: 'hidden' },
+  levelBarFill: { height: 6, backgroundColor: '#2E7D52', borderRadius: 3 },
+  levelSub: { fontSize: 12, color: '#6B7280', marginTop: 4 },
 });

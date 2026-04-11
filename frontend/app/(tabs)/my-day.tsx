@@ -233,6 +233,15 @@ export default function MyDayScreen() {
                 );
               })}
             </View>
+            <TouchableOpacity
+              style={s.weekReportBtn}
+              activeOpacity={0.7}
+              onPress={() => router.push('/weekly-report' as any)}
+            >
+              <MaterialCommunityIcons name="chart-bar" size={16} color="#2E7D52" />
+              <Text style={s.weekReportBtnText}>{t('Wochenbericht ansehen', 'Vedi report settimanale')}</Text>
+              <MaterialCommunityIcons name="chevron-right" size={16} color="#2E7D52" />
+            </TouchableOpacity>
           </Animated.View>
         )}
 
@@ -332,4 +341,10 @@ const s = StyleSheet.create({
   weekDotToday: { borderColor: '#2E7D52', borderWidth: 2.5 },
   weekDayLabel: { fontSize: 11, fontWeight: '600', color: '#9CA3AF' },
   weekDayLabelToday: { color: '#2E7D52', fontWeight: '700' },
+  weekReportBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+    marginTop: 14, paddingVertical: 10, borderRadius: 10,
+    backgroundColor: '#F0FDF4', borderWidth: 1, borderColor: '#D1FAE5',
+  },
+  weekReportBtnText: { fontSize: 13, fontWeight: '600', color: '#2E7D52' },
 });

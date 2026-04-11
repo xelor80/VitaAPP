@@ -79,6 +79,10 @@ export default function RootLayout() {
                   <Stack.Screen name="medications" />
                   <Stack.Screen name="daily-plan" />
                   <Stack.Screen name="rewards" />
+                  <Stack.Screen name="weekly-report" />
+                  <Stack.Screen name="water-tracking" />
+                  <Stack.Screen name="stress" />
+                  <Stack.Screen name="stress-player" />
                 </Stack>
                 <GuideOverlay />
               </View>
