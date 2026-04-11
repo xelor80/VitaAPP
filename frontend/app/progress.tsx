@@ -46,6 +46,8 @@ export default function ProgressScreen() {
   const [todayOverall, setTodayOverall] = useState(5);
   const [todayCompliance, setTodayCompliance] = useState<Record<string, boolean>>({});
   const [saving, setSaving] = useState(false);
+  const [medStats, setMedStats] = useState<any>(null);
+  const [waterHistory, setWaterHistory] = useState<any>(null);
 
   useEffect(() => { init(); }, []);
 
@@ -55,13 +57,17 @@ export default function ProgressScreen() {
     setProfileId(pid);
 
     try {
-      const [dashRes, planRes, profRes] = await Promise.all([
+      const [dashRes, planRes, profRes, medStatsRes, waterHistRes] = await Promise.all([
         fetch(`${API_URL}/api/tracking/dashboard/${pid}?lang=${lang}`),
         fetch(`${API_URL}/api/supplement-plan/${pid}`),
         fetch(`${API_URL}/api/health-profile/${pid}`),
+        fetch(`${API_URL}/api/medications/${pid}/stats?days=7`),
+        fetch(`${API_URL}/api/water-tracking/${pid}/history?period=week`),
       ]);
 
       if (dashRes.ok) setDashboard(await dashRes.json());
+      if (medStatsRes.ok) setMedStats(await medStatsRes.json());
+      if (waterHistRes.ok) setWaterHistory(await waterHistRes.json());
       if (planRes.ok) {
         const planData = await planRes.json();
         const stack = planData.plan?.stack || [];
@@ -255,6 +261,76 @@ export default function ProgressScreen() {
                 </View>
               );
             })}
+
+            {/* Medication Adherence */}
+            {medStats && medStats.total_expected > 0 && (
+              <View style={styles.chartCard} data-testid="medication-adherence-card">
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                  <MaterialCommunityIcons name="pill" size={20} color="#3B82F6" />
+                  <Text style={styles.chartTitle}>{lang === 'de' ? 'Medikamenten-Einnahme (7 Tage)' : 'Assunzione farmaci (7 giorni)'}</Text>
+                </View>
+                <View style={{ flexDirection: 'row', gap: 12, marginBottom: 12 }}>
+                  <View style={{ flex: 1, backgroundColor: '#EFF6FF', borderRadius: 10, padding: 10, alignItems: 'center' }}>
+                    <Text style={{ fontSize: 22, fontWeight: '800', color: '#1E40AF' }}>{medStats.adherence_pct}%</Text>
+                    <Text style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>{lang === 'de' ? 'Einnahmetreue' : 'Aderenza'}</Text>
+                  </View>
+                  <View style={{ flex: 1, backgroundColor: '#F0FDF4', borderRadius: 10, padding: 10, alignItems: 'center' }}>
+                    <Text style={{ fontSize: 22, fontWeight: '800', color: '#166534' }}>{medStats.total_taken}/{medStats.total_expected}</Text>
+                    <Text style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>{lang === 'de' ? 'Eingenommen' : 'Assunti'}</Text>
+                  </View>
+                </View>
+                {/* Medication daily bars */}
+                <View style={{ flexDirection: 'row', gap: 4, alignItems: 'flex-end', height: 80 }}>
+                  {(medStats.daily || []).map((d: any, i: number) => {
+                    const pct = d.expected > 0 ? Math.round((d.taken / d.expected) * 100) : 0;
+                    const barH = Math.max(4, (pct / 100) * 64);
+                    return (
+                      <View key={i} style={{ flex: 1, alignItems: 'center' }}>
+                        <View style={{ width: '80%', height: 64, backgroundColor: '#F1F5F9', borderRadius: 4, overflow: 'hidden', justifyContent: 'flex-end' }}>
+                          <View style={{ width: '100%', height: barH, backgroundColor: pct >= 100 ? '#22C55E' : pct >= 50 ? '#3B82F6' : '#F59E0B', borderRadius: 4 }} />
+                        </View>
+                        <Text style={{ fontSize: 9, color: '#9CA3AF', marginTop: 3 }}>{d.date.slice(5)}</Text>
+                      </View>
+                    );
+                  })}
+                </View>
+              </View>
+            )}
+
+            {/* Water Intake History */}
+            {waterHistory && waterHistory.days_with_data > 0 && (
+              <View style={styles.chartCard} data-testid="water-history-card">
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                  <MaterialCommunityIcons name="water" size={20} color="#3A86FF" />
+                  <Text style={styles.chartTitle}>{lang === 'de' ? 'Wasseraufnahme (7 Tage)' : 'Idratazione (7 giorni)'}</Text>
+                </View>
+                <View style={{ flexDirection: 'row', gap: 12, marginBottom: 12 }}>
+                  <View style={{ flex: 1, backgroundColor: '#EFF6FF', borderRadius: 10, padding: 10, alignItems: 'center' }}>
+                    <Text style={{ fontSize: 22, fontWeight: '800', color: '#1E40AF' }}>{(waterHistory.average_ml / 1000).toFixed(1)} L</Text>
+                    <Text style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>{lang === 'de' ? 'Durchschnitt' : 'Media'}</Text>
+                  </View>
+                  <View style={{ flex: 1, backgroundColor: '#F0FDF4', borderRadius: 10, padding: 10, alignItems: 'center' }}>
+                    <Text style={{ fontSize: 22, fontWeight: '800', color: '#166534' }}>{waterHistory.days_goal_reached}/{waterHistory.days_with_data}</Text>
+                    <Text style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>{lang === 'de' ? 'Ziel erreicht' : 'Obiettivo'}</Text>
+                  </View>
+                </View>
+                {/* Water daily bars */}
+                <View style={{ flexDirection: 'row', gap: 4, alignItems: 'flex-end', height: 80 }}>
+                  {(waterHistory.days || []).map((d: any, i: number) => {
+                    const pct = waterHistory.daily_goal_ml > 0 ? Math.min((d.total_ml / waterHistory.daily_goal_ml) * 100, 100) : 0;
+                    const barH = Math.max(4, (pct / 100) * 64);
+                    return (
+                      <View key={i} style={{ flex: 1, alignItems: 'center' }}>
+                        <View style={{ width: '80%', height: 64, backgroundColor: '#F1F5F9', borderRadius: 4, overflow: 'hidden', justifyContent: 'flex-end' }}>
+                          <View style={{ width: '100%', height: barH, backgroundColor: pct >= 100 ? '#22C55E' : '#5BC0EB', borderRadius: 4 }} />
+                        </View>
+                        <Text style={{ fontSize: 9, color: '#9CA3AF', marginTop: 3 }}>{d.date.slice(5)}</Text>
+                      </View>
+                    );
+                  })}
+                </View>
+              </View>
+            )}
           </>
         )}
 

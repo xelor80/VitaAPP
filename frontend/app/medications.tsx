@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet, TextInput,
-  SafeAreaView, Platform, Alert, ActivityIndicator, Modal, Dimensions,
+  SafeAreaView, Platform, Alert, ActivityIndicator, Modal, Dimensions, Switch,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -10,6 +10,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { useLang } from '../src/LangContext';
 import { tx } from '../src/i18n';
+import { scheduleCombinedReminders, sendTestNotification, cancelAllReminders } from '../src/services/NotificationService';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 const { width: SW } = Dimensions.get('window');
@@ -55,6 +56,14 @@ export default function MedicationsScreen() {
   const [note, setNote] = useState('');
   const [saving, setSaving] = useState(false);
 
+  // Reminder state
+  const [reminderEnabled, setReminderEnabled] = useState(false);
+  const [morningTime, setMorningTime] = useState('08:00');
+  const [noonTime, setNoonTime] = useState('12:00');
+  const [eveningTime, setEveningTime] = useState('20:00');
+  const [reminderSaving, setReminderSaving] = useState(false);
+  const [reminderDirty, setReminderDirty] = useState(false);
+
   const loadMeds = useCallback(async () => {
     const pid = await AsyncStorage.getItem('health_profile_id');
     setProfileId(pid);
@@ -69,6 +78,56 @@ export default function MedicationsScreen() {
   }, []);
 
   useEffect(() => { loadMeds(); }, [loadMeds]);
+
+  // Load reminder settings
+  useEffect(() => {
+    if (!profileId) return;
+    (async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/medications/${profileId}/reminders`);
+        if (res.ok) {
+          const d = await res.json();
+          setReminderEnabled(d.enabled || false);
+          setMorningTime(d.morning_time || '08:00');
+          setNoonTime(d.noon_time || '12:00');
+          setEveningTime(d.evening_time || '20:00');
+        }
+      } catch {}
+    })();
+  }, [profileId]);
+
+  const saveReminders = async () => {
+    if (!profileId) return;
+    setReminderSaving(true);
+    try {
+      const settings = { enabled: reminderEnabled, morning_time: morningTime, noon_time: noonTime, evening_time: eveningTime };
+      await fetch(`${API_URL}/api/medications/${profileId}/reminders`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(settings),
+      });
+      if (reminderEnabled) {
+        // Build combined schedule from medications
+        const combined: { morning: any[]; noon: any[]; evening: any[] } = { morning: [], noon: [], evening: [] };
+        for (const med of medications) {
+          for (const timing of med.timings || []) {
+            if (combined[timing as keyof typeof combined]) {
+              combined[timing as keyof typeof combined].push({ name: `${med.name} (${med.dosage} ${med.unit})`, type: 'medication' as const });
+            }
+          }
+        }
+        await scheduleCombinedReminders(
+          { enabled: true, morning_time: morningTime, noon_time: noonTime, evening_time: eveningTime },
+          combined,
+          lang
+        );
+      } else {
+        await cancelAllReminders();
+      }
+      setReminderDirty(false);
+    } catch {}
+    setReminderSaving(false);
+  };
 
   const resetForm = () => {
     setName(''); setDosage(''); setUnit('mg'); setSelectedTimings([]);
@@ -218,6 +277,86 @@ export default function MedicationsScreen() {
             </Animated.View>
           ))
         )}
+
+        {/* VERO Medication Reminders */}
+        {medications.length > 0 && (
+          <View style={s.reminderWrap} data-testid="medication-reminder-section">
+            <View style={s.reminderHeader}>
+              <View style={s.reminderIconWrap}>
+                <MaterialCommunityIcons name="bell-ring-outline" size={20} color="#3B82F6" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={s.reminderTitle}>
+                  {tx(lang, { de: 'VERO Erinnerungen', it: 'Promemoria VERO', en: 'VERO Reminders' })}
+                </Text>
+                <Text style={s.reminderSub}>
+                  {tx(lang, { de: 'Nie wieder eine Einnahme vergessen', it: 'Non dimenticare mai una dose', en: 'Never miss a dose' })}
+                </Text>
+              </View>
+              <Switch
+                value={reminderEnabled}
+                onValueChange={(v) => { setReminderEnabled(v); setReminderDirty(true); }}
+                trackColor={{ false: '#D1D5DB', true: '#93C5FD' }}
+                thumbColor={reminderEnabled ? '#3B82F6' : '#9CA3AF'}
+                data-testid="medication-reminder-toggle"
+              />
+            </View>
+
+            {reminderEnabled && (
+              <Animated.View entering={FadeIn.duration(300)}>
+                {[
+                  { key: 'morning', label: tx(lang, { de: 'Morgens', it: 'Mattina', en: 'Morning' }), icon: 'weather-sunny' as const, color: '#F59E0B', value: morningTime, setter: setMorningTime },
+                  { key: 'noon', label: tx(lang, { de: 'Mittags', it: 'Mezzogiorno', en: 'Noon' }), icon: 'weather-partly-cloudy' as const, color: '#F97316', value: noonTime, setter: setNoonTime },
+                  { key: 'evening', label: tx(lang, { de: 'Abends', it: 'Sera', en: 'Evening' }), icon: 'weather-night' as const, color: '#6366F1', value: eveningTime, setter: setEveningTime },
+                ].filter(t => medications.some(m => (m.timings || []).includes(t.key))).map(t => (
+                  <View key={t.key} style={s.timeRow}>
+                    <MaterialCommunityIcons name={t.icon} size={18} color={t.color} />
+                    <Text style={s.timeLabel}>{t.label}</Text>
+                    <TextInput
+                      style={s.timeInput}
+                      value={t.value}
+                      onChangeText={(v) => { t.setter(v); setReminderDirty(true); }}
+                      placeholder="HH:MM"
+                      maxLength={5}
+                      data-testid={`reminder-time-${t.key}`}
+                    />
+                    <Text style={s.timeMeds}>
+                      {medications.filter(m => (m.timings || []).includes(t.key)).map(m => m.name).join(', ')}
+                    </Text>
+                  </View>
+                ))}
+
+                <View style={s.reminderActions}>
+                  <TouchableOpacity
+                    style={[s.saveReminderBtn, !reminderDirty && { opacity: 0.5 }]}
+                    onPress={saveReminders}
+                    disabled={reminderSaving}
+                    data-testid="save-medication-reminders-btn"
+                  >
+                    {reminderSaving ? <ActivityIndicator size="small" color="#FFF" /> : (
+                      <>
+                        <MaterialCommunityIcons name="content-save-outline" size={16} color="#FFF" />
+                        <Text style={s.saveReminderBtnText}>
+                          {tx(lang, { de: 'Speichern', it: 'Salva', en: 'Save' })}
+                        </Text>
+                      </>
+                    )}
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={s.testReminderBtn}
+                    onPress={() => sendTestNotification(lang)}
+                    data-testid="test-medication-reminder-btn"
+                  >
+                    <MaterialCommunityIcons name="bell-ring" size={16} color="#3B82F6" />
+                    <Text style={s.testReminderBtnText}>
+                      {tx(lang, { de: 'Testen', it: 'Test', en: 'Test' })}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </Animated.View>
+            )}
+          </View>
+        )}
       </ScrollView>
 
       {/* Add/Edit Modal */}
@@ -363,4 +502,38 @@ const s = StyleSheet.create({
   dayChipActive: { backgroundColor: '#3B82F6', borderColor: '#3B82F6' },
   dayChipText: { fontSize: 12, fontWeight: '600', color: '#64748B' },
   dayChipTextActive: { color: '#FFF' },
+  // Reminders
+  reminderWrap: {
+    backgroundColor: '#FFF', borderRadius: 16, padding: 16, marginBottom: 12,
+    borderLeftWidth: 4, borderLeftColor: '#6366F1',
+    elevation: 2, shadowColor: '#1E40AF', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 8,
+  },
+  reminderHeader: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  reminderIconWrap: {
+    width: 36, height: 36, borderRadius: 18, backgroundColor: '#EFF6FF',
+    justifyContent: 'center', alignItems: 'center',
+  },
+  reminderTitle: { fontSize: 15, fontWeight: '700', color: '#1E293B' },
+  reminderSub: { fontSize: 12, color: '#64748B', marginTop: 1 },
+  timeRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+    backgroundColor: '#F8FAFC', borderRadius: 10, padding: 10, marginTop: 12,
+  },
+  timeLabel: { fontSize: 13, fontWeight: '600', color: '#374151', width: 60 },
+  timeInput: {
+    backgroundColor: '#FFF', borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 8,
+    paddingHorizontal: 10, paddingVertical: 6, fontSize: 14, fontWeight: '600', width: 60, textAlign: 'center',
+  },
+  timeMeds: { flex: 1, fontSize: 11, color: '#94A3B8', fontStyle: 'italic' },
+  reminderActions: { flexDirection: 'row', gap: 10, marginTop: 16 },
+  saveReminderBtn: {
+    flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+    backgroundColor: '#3B82F6', borderRadius: 12, paddingVertical: 12,
+  },
+  saveReminderBtnText: { fontSize: 14, fontWeight: '700', color: '#FFF' },
+  testReminderBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+    borderWidth: 1.5, borderColor: '#3B82F6', borderRadius: 12, paddingVertical: 12, paddingHorizontal: 16,
+  },
+  testReminderBtnText: { fontSize: 14, fontWeight: '600', color: '#3B82F6' },
 });

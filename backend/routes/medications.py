@@ -38,6 +38,12 @@ class MedicationUpdate(BaseModel):
 class MedicationLogEntry(BaseModel):
     timing: str  # morning, noon, evening
 
+class MedicationReminderSettings(BaseModel):
+    enabled: bool = False
+    morning_time: str = "08:00"
+    noon_time: str = "12:00"
+    evening_time: str = "20:00"
+
 # ── Helpers ──
 
 def today_str():
@@ -67,6 +73,39 @@ def is_medication_due_today(med: dict) -> bool:
     return True
 
 TIMING_ORDER = {"morning": 0, "noon": 1, "evening": 2}
+
+# ── Medication Reminders (MUST be before /{medication_id} routes) ──
+
+@router.get("/{profile_id}/reminders")
+async def get_medication_reminders(profile_id: str):
+    """Get medication reminder settings for a user."""
+    doc = await db.medication_reminders.find_one({"profile_id": profile_id}, {"_id": 0})
+    if not doc:
+        return {"enabled": False, "morning_time": "08:00", "noon_time": "12:00", "evening_time": "20:00"}
+    return {
+        "enabled": doc.get("enabled", False),
+        "morning_time": doc.get("morning_time", "08:00"),
+        "noon_time": doc.get("noon_time", "12:00"),
+        "evening_time": doc.get("evening_time", "20:00"),
+    }
+
+@router.put("/{profile_id}/reminders")
+async def update_medication_reminders(profile_id: str, settings: MedicationReminderSettings):
+    """Update medication reminder settings."""
+    data = {
+        "profile_id": profile_id,
+        "enabled": settings.enabled,
+        "morning_time": settings.morning_time,
+        "noon_time": settings.noon_time,
+        "evening_time": settings.evening_time,
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.medication_reminders.update_one(
+        {"profile_id": profile_id},
+        {"$set": data},
+        upsert=True,
+    )
+    return data
 
 # ── CRUD ──
 
