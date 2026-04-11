@@ -365,6 +365,32 @@ export default function DashboardHome() {
           />
         )}
 
+        {/* Stress Management Card */}
+        {hasProfile && (
+          <TouchableOpacity
+            style={s.stressCard}
+            activeOpacity={0.85}
+            onPress={() => router.push('/stress' as any)}
+            data-testid="stress-dashboard-card"
+          >
+            <LinearGradient colors={['#1A2D26', '#2E4A3E']} style={s.stressGradient}>
+              <View style={s.stressLeft}>
+                <View style={s.stressIconWrap}>
+                  <MaterialCommunityIcons name="weather-windy" size={22} color="#A7F3D0" />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={s.stressTitle}>{tx(lang, { de: 'Stress & Entspannung', it: 'Stress & Rilassamento', en: 'Stress & Relaxation' })}</Text>
+                  <Text style={s.stressSub}>{tx(lang, { de: 'Atemuebungen, Mini-Pausen & mehr', it: 'Esercizi di respirazione, mini-pause e altro', en: 'Breathing exercises, mini-breaks & more' })}</Text>
+                </View>
+              </View>
+              <View style={s.stressCta}>
+                <Text style={s.stressCtaText}>{tx(lang, { de: 'Starten', it: 'Inizia', en: 'Start' })}</Text>
+                <MaterialCommunityIcons name="chevron-right" size={16} color="#A7F3D0" />
+              </View>
+            </LinearGradient>
+          </TouchableOpacity>
+        )}
+
         {/* Recipes Section */}
         <View style={s.sectionHeader}>
           <View>
@@ -887,6 +913,56 @@ const s = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     color: '#fff',
+  },
+  // Stress Card
+  stressCard: {
+    marginHorizontal: SIDE_PAD,
+    marginBottom: 20,
+    borderRadius: 16,
+    overflow: 'hidden',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+  },
+  stressGradient: {
+    padding: 16,
+  },
+  stressLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  stressIconWrap: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: 'rgba(167,243,208,0.12)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  stressTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#E8F5E9',
+  },
+  stressSub: {
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.55)',
+    marginTop: 2,
+  },
+  stressCta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-end',
+    gap: 4,
+    marginTop: 8,
+  },
+  stressCtaText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#A7F3D0',
   },
   accountBanner: {
     borderRadius: 14,
