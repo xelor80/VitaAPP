@@ -40,7 +40,7 @@ export default function MyDayScreen() {
   const [plan, setPlan] = useState<any>(null);
   const [weekly, setWeekly] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [completing, setCompleting] = useState<string | null>(null);
+  const [completing, setCompleting] = useState<string | null>(null); // kept for water/stress/diary nav
   const [levelUp, setLevelUp] = useState<any>(null);
 
   const loadPlan = useCallback(async () => {
@@ -91,42 +91,53 @@ export default function MyDayScreen() {
   useEffect(() => {
     eventBus.on('waterUpdated', loadPlan);
     eventBus.on('profileUpdated', loadPlan);
-    return () => { eventBus.off('waterUpdated', loadPlan); eventBus.off('profileUpdated', loadPlan); };
+    eventBus.on('planCheckInChanged', loadPlan);
+    return () => {
+      eventBus.off('waterUpdated', loadPlan);
+      eventBus.off('profileUpdated', loadPlan);
+      eventBus.off('planCheckInChanged', loadPlan);
+    };
   }, [loadPlan]);
 
   const toggleTask = async (task: any) => {
     if (!profileId || task.done || completing) return;
-    setCompleting(task.id);
-    try {
-      if (task.type === 'supplement') {
-        await fetch(`${API_URL}/api/medications/${profileId}/supplement-check-in`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ supplement_id: task.related_id, timing: task.timing }),
-        });
-      } else if (task.type === 'medication') {
-        await fetch(`${API_URL}/api/medications/${profileId}/${task.related_id}/check-in`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ timing: task.timing }),
-        });
-      } else if (task.type === 'water') {
-        router.push('/water-tracking' as any);
-        setCompleting(null);
-        return;
-      } else if (task.type === 'stress') {
-        router.push('/stress' as any);
-        setCompleting(null);
-        return;
-      } else if (task.type === 'diary') {
-        router.push('/tracking' as any);
-        setCompleting(null);
-        return;
-      }
-      await loadPlan();
-      if (profileId) await checkLevelUp(profileId);
-    } catch {}
-    setCompleting(null);
+
+    // Optimistic UI: mark as done immediately
+    setPlan((prev: any) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        sections: prev.sections.map((sec: any) => ({
+          ...sec,
+          tasks: sec.tasks.map((t: any) => t.id === task.id ? { ...t, done: true } : t),
+        })),
+        completed_tasks: prev.completed_tasks + 1,
+        completion_pct: Math.round(((prev.completed_tasks + 1) / prev.total_tasks) * 100),
+      };
+    });
+
+    // Navigate for non-inline tasks
+    if (task.type === 'water') { router.push('/water-tracking' as any); return; }
+    if (task.type === 'stress') { router.push('/stress' as any); return; }
+    if (task.type === 'diary') { router.push('/tracking' as any); return; }
+
+    // Fire API in background (don't await)
+    if (task.type === 'supplement') {
+      fetch(`${API_URL}/api/medications/${profileId}/supplement-check-in`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ supplement_id: task.related_id, timing: task.timing }),
+      }).catch(() => {});
+    } else if (task.type === 'medication') {
+      fetch(`${API_URL}/api/medications/${profileId}/${task.related_id}/check-in`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ timing: task.timing }),
+      }).catch(() => {});
+    }
+
+    // Notify Plan tab to refresh
+    eventBus.emit('planCheckInChanged');
   };
 
   if (loading) return (
@@ -213,7 +224,6 @@ export default function MyDayScreen() {
                   {/* Checkbox */}
                   <View style={[s.checkbox, task.done && s.checkboxDone, { borderColor: TYPE_COLORS[task.type] || '#9CA3AF' }]}>
                     {task.done && <MaterialCommunityIcons name="check" size={14} color="#fff" />}
-                    {completing === task.id && <ActivityIndicator size="small" color={TYPE_COLORS[task.type]} />}
                   </View>
 
                   {/* Icon */}

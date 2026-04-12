@@ -7,6 +7,7 @@ import { useRouter } from 'expo-router';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useLang } from '../../src/LangContext';
 import { tx } from '../../src/i18n';
+import { eventBus } from '../../src/eventBus';
 import {
   scheduleCombinedReminders,
   sendTestNotification,
@@ -44,6 +45,13 @@ export default function PlanScreen() {
       }
     })();
   }, []);
+
+  // Listen for check-in changes from "Mein Tag" tab
+  useEffect(() => {
+    const refresh = () => { if (profileId) loadPlan(profileId); };
+    eventBus.on('planCheckInChanged', refresh);
+    return () => { eventBus.off('planCheckInChanged', refresh); };
+  }, [profileId]);
 
   const loadPlan = async (pid: string) => {
     try {
@@ -128,6 +136,9 @@ export default function PlanScreen() {
         body: JSON.stringify({ supplement_id: item.id, timing: item.timing }),
       }).catch(() => {});
     }
+
+    // Notify "Mein Tag" tab to refresh
+    eventBus.emit('planCheckInChanged');
   };
 
   const saveReminders = async () => {
