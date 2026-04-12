@@ -8,6 +8,7 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useLang } from '../../src/LangContext';
 import { tx } from '../../src/i18n';
 import { eventBus } from '../../src/eventBus';
+import { showActionToast } from '../../components/ActionToast';
 import {
   scheduleCombinedReminders,
   sendTestNotification,
@@ -139,6 +140,13 @@ export default function PlanScreen() {
 
     // Notify "Mein Tag" tab to refresh
     eventBus.emit('planCheckInChanged');
+    // Show toast
+    showActionToast(
+      item.name || (item.type === 'medication' ? 'Medikament' : 'Supplement'),
+      5,
+      item.type === 'medication' ? 'medical-bag' : 'pill',
+      item.type === 'medication' ? '#3B82F6' : '#2E7D52'
+    );
   };
 
   const saveReminders = async () => {

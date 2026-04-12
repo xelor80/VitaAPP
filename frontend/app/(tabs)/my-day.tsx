@@ -10,6 +10,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeIn, FadeInDown, ZoomIn, FadeInUp, SlideInUp } from 'react-native-reanimated';
 import { useLang } from '../../src/LangContext';
 import { eventBus } from '../../src/eventBus';
+import { showActionToast } from '../../components/ActionToast';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 const VERO = require('../../assets/images/vero-dashboard.png');
@@ -128,12 +129,14 @@ export default function MyDayScreen() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ supplement_id: task.related_id, timing: task.timing }),
       }).catch(() => {});
+      showActionToast(task.name, 5, 'pill', '#2E7D52');
     } else if (task.type === 'medication') {
       fetch(`${API_URL}/api/medications/${profileId}/${task.related_id}/check-in`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ timing: task.timing }),
       }).catch(() => {});
+      showActionToast(task.name, 5, 'medical-bag', '#3B82F6');
     }
 
     // Notify Plan tab to refresh

@@ -9,6 +9,7 @@ import { GuideProvider, useGuide } from '../src/GuideContext';
 import { AuthProvider, useAuth } from '../src/AuthContext';
 import { useSwipeBack } from '../src/useSwipeBack';
 import { GuideMascot } from '../components/GuideMascot';
+import { ActionToast } from '../components/ActionToast';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -85,6 +86,7 @@ export default function RootLayout() {
                   <Stack.Screen name="stress-player" />
                 </Stack>
                 <GuideOverlay />
+                <ActionToast />
               </View>
             </SwipeWrapper>
           </GuideProvider>

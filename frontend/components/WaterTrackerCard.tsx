@@ -10,6 +10,7 @@ import Animated, {
   withSequence, withSpring, Easing, FadeIn,
 } from 'react-native-reanimated';
 import Svg, { Path, Defs, LinearGradient as SvgGrad, Stop, Rect, ClipPath, Ellipse } from 'react-native-svg';
+import { showActionToast } from './ActionToast';
 
 const { width: SW } = Dimensions.get('window');
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
@@ -116,15 +117,15 @@ export function WaterTrackerCard({ profileId, lang, waterData, onDataUpdate, onW
       const goal = waterData.daily_goal_ml || 2400;
       const newPct = Math.min(100, Math.round((newTotal / goal) * 100));
       const newRemain = Math.max(0, goal - newTotal);
-      // Create optimistic waterData copy
       const optimistic = {
         ...waterData,
         total_ml: newTotal,
         percentage: newPct,
         remaining_ml: newRemain,
       };
-      // Directly update parent state via onWaterUpdate
       if (onWaterUpdate) onWaterUpdate(optimistic);
+      // Show action toast
+      showActionToast(`+${amount} ml`, 2, 'water', '#0EA5E9');
     }
 
     // Release UI immediately
