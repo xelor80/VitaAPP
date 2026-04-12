@@ -73,15 +73,19 @@ export default function StressPlayerScreen() {
     setLoading(false);
   };
 
-  // Show voice guidance text overlay
+  // Show voice guidance text overlay + play TTS
   const showVoice = useCallback((text: string, duration: number = 3000) => {
     if (!audioSettings.voiceEnabled || !text) return;
     setVoiceText(text);
     setVoiceVisible(true);
+    // Play TTS audio
+    if (audioSettings.soundEnabled) {
+      stressAudio.playVoice(text, lang);
+    }
     if (duration > 0) {
       setTimeout(() => setVoiceVisible(false), duration);
     }
-  }, [audioSettings.voiceEnabled]);
+  }, [audioSettings.voiceEnabled, audioSettings.soundEnabled, lang]);
 
   const hideVoice = useCallback(() => {
     setVoiceVisible(false);
@@ -338,7 +342,7 @@ export default function StressPlayerScreen() {
           <Animated.View entering={FadeInDown.duration(300)} style={st.settingsPanel}>
             <Text style={st.settingsTitle}>{t('Uebungseinstellungen', 'Impostazioni esercizio')}</Text>
             <View style={st.settingRow}>
-              <MaterialCommunityIcons name="text-to-speech" size={18} color="#6B7280" />
+              <MaterialCommunityIcons name="account-voice" size={18} color="#6B7280" />
               <Text style={st.settingLabel}>{t('Sprachanleitung', 'Guida vocale')}</Text>
               <Switch
                 value={audioSettings.voiceEnabled}
@@ -533,7 +537,7 @@ export default function StressPlayerScreen() {
           <Text style={st.exerciseNameBottom}>{exercise.name}</Text>
           {audioSettings.voiceEnabled && (
             <View style={st.voiceBadge}>
-              <MaterialCommunityIcons name="text-to-speech" size={12} color="#A7F3D0" />
+              <MaterialCommunityIcons name="account-voice" size={12} color="#A7F3D0" />
             </View>
           )}
         </View>

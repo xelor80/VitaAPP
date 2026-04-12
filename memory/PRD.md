@@ -190,6 +190,20 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - Pause-Funktion mit Voice-Feedback
 - Visuell verifiziert: Intro, Active mit Voice, Timer, Fortschrittsbalken
 
+### ElevenLabs TTS Voice Guidance (2026-04-12) - COMPLETED
+**Backend (`/app/backend/routes/tts_elevenlabs.py`):**
+- POST `/api/tts/generate` - Generiert TTS-Audio via ElevenLabs, cached in MongoDB
+- GET `/api/tts/audio/{cache_key}` - Streamt gecachtes Audio als MP3
+- POST `/api/tts/pregenerate-stress?lang=de|it` - Pre-generiert alle 17 Voice-Clips pro Sprache
+- ElevenLabs multilingual_v2 Model, Lily Voice, calm settings (stability=0.75, style=0.15)
+- 34 Voice-Clips generiert und gecacht (17 DE + 17 IT)
+
+**Frontend:**
+- `StressAudioService.ts`: Spielt TTS-Audio via HTML5 Audio API ab, synchron mit Text-Overlays
+- `stress-player.tsx`: Intro/Outro Sequenzen mit TTS, Atem-Phasen mit Sprachanleitung, Midpoint-Ermutigung
+- Settings: Voice On/Off + Sound On/Off getrennt steuerbar
+- 5-Phasen Flow: Pre → Intro (TTS) → Active (TTS + Animation) → Outro (TTS) → Post
+
 ## Prioritized Backlog
 ### P1 - Upcoming
 - Medication Reminders (push notifications) - COMPLETED

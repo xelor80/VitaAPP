@@ -1,14 +1,15 @@
-import { Audio } from 'expo-audio';
+import { useAudioPlayer } from 'expo-audio';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 const STORAGE_KEY = 'vitaguide_audio_settings';
 
 export interface AudioSettings {
   soundEnabled: boolean;
   voiceEnabled: boolean;
-  ambientVolume: number;   // 0-1
-  voiceVolume: number;     // 0-1 (for future TTS)
-  uiVolume: number;        // 0-1
+  ambientVolume: number;
+  voiceVolume: number;
+  uiVolume: number;
 }
 
 const DEFAULT_SETTINGS: AudioSettings = {
@@ -85,7 +86,6 @@ export const VOICE_TEXTS: Record<string, Record<string, { text: string; duration
   },
 };
 
-// Guided step voice texts
 export const GUIDED_VOICE: Record<string, Record<string, string>> = {
   de: {
     begin: 'Lass uns beginnen.',
@@ -107,8 +107,7 @@ export const GUIDED_VOICE: Record<string, Record<string, string>> = {
 
 class StressAudioService {
   private settings: AudioSettings = DEFAULT_SETTINGS;
-  private ambientSound: any = null;
-  private loaded = false;
+  private audioElement: HTMLAudioElement | null = null;
 
   async loadSettings(): Promise<AudioSettings> {
     try {
@@ -132,7 +131,6 @@ class StressAudioService {
     return this.settings;
   }
 
-  // Get a random voice text for a phase
   getVoiceText(lang: string, phase: string, index?: number): string {
     const l = lang === 'it' ? 'it' : 'de';
     const texts = VOICE_TEXTS[l]?.[phase];
@@ -156,13 +154,44 @@ class StressAudioService {
     return GUIDED_VOICE[l]?.[key] || '';
   }
 
-  async cleanup() {
+  // Play TTS audio for a text via the backend
+  async playVoice(text: string, lang: string): Promise<void> {
+    if (!this.settings.soundEnabled || !this.settings.voiceEnabled) return;
     try {
-      if (this.ambientSound) {
-        await this.ambientSound.unloadAsync?.();
-        this.ambientSound = null;
+      this.stopCurrentAudio();
+      const res = await fetch(`${API_URL}/api/tts/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, lang }),
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (!data.audio_base64 && !data.audio_b64) return;
+      const b64 = data.audio_base64 || data.audio_b64;
+      const audioUri = `data:audio/mpeg;base64,${b64}`;
+      // Use HTML5 Audio for web playback
+      if (typeof window !== 'undefined' && typeof Audio !== 'undefined') {
+        this.audioElement = new Audio(audioUri);
+        this.audioElement.volume = this.settings.voiceVolume;
+        await this.audioElement.play();
+      }
+    } catch (e) {
+      // Silent fail - voice is optional
+    }
+  }
+
+  stopCurrentAudio(): void {
+    try {
+      if (this.audioElement) {
+        this.audioElement.pause();
+        this.audioElement.currentTime = 0;
+        this.audioElement = null;
       }
     } catch {}
+  }
+
+  async cleanup(): Promise<void> {
+    this.stopCurrentAudio();
   }
 }
 
