@@ -3,6 +3,7 @@ from pydantic import BaseModel, EmailStr
 from typing import Optional
 from datetime import datetime, timezone, timedelta
 import uuid
+import os
 import bcrypt
 import httpx
 
