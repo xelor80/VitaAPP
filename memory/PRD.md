@@ -215,6 +215,19 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - UI Start Sound: 440→523 Hz sanfter Glissando
 - Alle Sounds ueber Web Audio API generiert (keine externen Dateien noetig)
 
+### Engagement & Retention Enhancement Phase 1 (2026-04-12) - COMPLETED
+**Backend (`/app/backend/routes/daily_plan.py`):**
+- GET `/api/daily-plan/{profile_id}/focus` - Lightweight endpoint fuer "Dein heutiger Fokus"
+- Berechnet offene Supplements, Medikamente, Wasserziel, Stress, Tagebuch
+- Smart Stress Trigger basierend auf Schlaf/Energie/Stresslevel
+- VERO kontextbasierte Nachrichten (morgens/abends/nach Fortschritt)
+
+**Frontend (`/app/frontend/app/(tabs)/index.tsx`):**
+- "Dein heutiger Fokus" Card: VERO Avatar + Nachricht + Top-3 offene Aufgaben (klickbar → Navigation)
+- Stress Smart Trigger Banner: Violetter Banner "Du brauchst eine Pause" bei hohem Stress
+- Floating Reset Button: Violetter FAB unten rechts → startet sofort 2-Min Atemuebung
+- VERO Active Coach: Kontextbasierte Nachrichten integriert in Focus Card
+
 ## Prioritized Backlog
 ### P1 - Upcoming
 - Medication Reminders (push notifications) - COMPLETED

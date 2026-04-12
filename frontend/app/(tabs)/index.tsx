@@ -52,6 +52,7 @@ export default function DashboardHome() {
   const [rewardBalance, setRewardBalance] = useState<number>(0);
   const [rewardStreak, setRewardStreak] = useState<number>(0);
   const [showVeroRewardTip, setShowVeroRewardTip] = useState<boolean>(false);
+  const [focusData, setFocusData] = useState<any>(null);
 
   // Disclaimer check
   useEffect(() => {
@@ -123,12 +124,16 @@ export default function DashboardHome() {
 
       // Rewards (after checkin so balance is up to date)
       try {
-        const rewardRes = await fetch(`${API_URL}/api/rewards/${pid}/today?lang=${lang}`);
+        const [rewardRes, focusRes] = await Promise.all([
+          fetch(`${API_URL}/api/rewards/${pid}/today?lang=${lang}`),
+          fetch(`${API_URL}/api/daily-plan/${pid}/focus?lang=${lang}`),
+        ]);
         if (rewardRes.ok) {
           const rd = await rewardRes.json();
           cBalance = rd.current_balance ?? 0; setRewardBalance(cBalance);
           cStreak = rd.current_streak ?? 0; setRewardStreak(cStreak);
         }
+        if (focusRes.ok) setFocusData(await focusRes.json());
       } catch {}
 
       if (recipeRes?.ok) {
@@ -280,6 +285,64 @@ export default function DashboardHome() {
 
         {/* Rewards Points Card */}
         {hasProfile && (
+
+          <>
+          {/* DEIN HEUTIGER FOKUS */}
+          {focusData && focusData.items?.length > 0 && (
+            <View style={s.focusCard} data-testid="daily-focus-card">
+              {/* VERO Coach Message */}
+              {focusData.vero_message && (
+                <View style={s.focusVeroRow}>
+                  <Image source={VERO_HALLO} style={s.focusVeroImg} resizeMode="contain" />
+                  <Text style={s.focusVeroText}>{focusData.vero_message}</Text>
+                </View>
+              )}
+              <Text style={s.focusTitle}>{tx(lang, { de: 'Dein heutiger Fokus', it: 'Il tuo focus di oggi', en: 'Your daily focus' })}</Text>
+              {focusData.items.slice(0, 3).map((item: any, i: number) => (
+                <TouchableOpacity
+                  key={i}
+                  style={s.focusItem}
+                  activeOpacity={0.7}
+                  onPress={() => {
+                    if (item.action === 'plan') router.push('/(tabs)/plan' as any);
+                    else if (item.action === 'medications') router.push('/medications' as any);
+                    else if (item.action === 'water-tracking') router.push('/water-tracking' as any);
+                    else if (item.action === 'stress') router.push('/stress' as any);
+                    else if (item.action === 'tracking') router.push('/tracking' as any);
+                  }}
+                  data-testid={`focus-item-${item.type}`}
+                >
+                  <View style={[s.focusIconWrap, { backgroundColor: item.color + '14' }]}>
+                    <MaterialCommunityIcons name={item.icon as any} size={18} color={item.color} />
+                  </View>
+                  <Text style={s.focusItemText}>{item.text}</Text>
+                  <MaterialCommunityIcons name="chevron-right" size={18} color="#D1D5DB" />
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+
+          {/* STRESS SMART TRIGGER BANNER */}
+          {focusData?.stress_trigger && (
+            <TouchableOpacity
+              style={s.stressTrigger}
+              activeOpacity={0.8}
+              onPress={() => router.push('/stress' as any)}
+              data-testid="stress-trigger-banner"
+            >
+              <LinearGradient colors={['#4C1D95', '#6D28D9']} style={s.stressTriggerGradient}>
+                <MaterialCommunityIcons name="meditation" size={28} color="#E9D5FF" />
+                <View style={{ flex: 1 }}>
+                  <Text style={s.stressTriggerTitle}>{tx(lang, { de: 'Du brauchst gerade eine Pause', it: 'Hai bisogno di una pausa', en: 'You need a break' })}</Text>
+                  <Text style={s.stressTriggerSub}>{focusData.trigger_reason}</Text>
+                </View>
+                <View style={s.stressTriggerCta}>
+                  <Text style={s.stressTriggerCtaText}>{tx(lang, { de: '2 Min Reset', it: '2 min reset', en: '2 min reset' })}</Text>
+                </View>
+              </LinearGradient>
+            </TouchableOpacity>
+          )}
+
           <TouchableOpacity
             style={s.rewardsCard}
             activeOpacity={0.85}
@@ -303,6 +366,7 @@ export default function DashboardHome() {
               <MaterialCommunityIcons name="chevron-right" size={20} color="#9CA3AF" />
             </View>
           </TouchableOpacity>
+          </>
         )}
 
         {/* VERO Reward Tip */}
@@ -568,6 +632,20 @@ export default function DashboardHome() {
 
         <View style={{ height: 12 }} />
       </ScrollView>
+
+      {/* Floating Reset Button */}
+      {hasProfile && (
+        <TouchableOpacity
+          style={s.floatingBtn}
+          activeOpacity={0.85}
+          onPress={() => router.push('/stress-player?exerciseId=breath_calm' as any)}
+          data-testid="floating-reset-btn"
+        >
+          <LinearGradient colors={['#6D28D9', '#8B5CF6']} style={s.floatingBtnGradient}>
+            <MaterialCommunityIcons name="meditation" size={22} color="#fff" />
+          </LinearGradient>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
@@ -964,6 +1042,37 @@ const s = StyleSheet.create({
     fontWeight: '600',
     color: '#A7F3D0',
   },
+  // Focus Card
+  focusCard: {
+    marginHorizontal: SIDE_PAD, marginBottom: 12, backgroundColor: '#fff',
+    borderRadius: 16, padding: 14, borderLeftWidth: 4, borderLeftColor: '#2E7D52',
+    elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 6,
+  },
+  focusVeroRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10, backgroundColor: '#F0FDF4', borderRadius: 10, padding: 8 },
+  focusVeroImg: { width: 32, height: 38 },
+  focusVeroText: { flex: 1, fontSize: 13, color: '#065F46', fontWeight: '500', lineHeight: 17 },
+  focusTitle: { fontSize: 15, fontWeight: '700', color: '#1A2D26', marginBottom: 8 },
+  focusItem: {
+    flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8,
+    borderTopWidth: 1, borderTopColor: '#F3F4F6',
+  },
+  focusIconWrap: { width: 32, height: 32, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
+  focusItemText: { flex: 1, fontSize: 14, fontWeight: '500', color: '#374151' },
+  // Stress Trigger Banner
+  stressTrigger: { marginHorizontal: SIDE_PAD, marginBottom: 12, borderRadius: 14, overflow: 'hidden' },
+  stressTriggerGradient: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 },
+  stressTriggerTitle: { fontSize: 14, fontWeight: '700', color: '#F3E8FF' },
+  stressTriggerSub: { fontSize: 12, color: 'rgba(243,232,255,0.7)', marginTop: 2 },
+  stressTriggerCta: { backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20 },
+  stressTriggerCtaText: { fontSize: 12, fontWeight: '700', color: '#fff' },
+  // Floating Reset Button
+  floatingBtn: {
+    position: 'absolute', bottom: Platform.OS === 'ios' ? 100 : 76, right: 16,
+    width: 52, height: 52, borderRadius: 26, overflow: 'hidden',
+    elevation: 8, shadowColor: '#6D28D9', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8,
+    zIndex: 100,
+  },
+  floatingBtnGradient: { width: 52, height: 52, borderRadius: 26, justifyContent: 'center', alignItems: 'center' },
   accountBanner: {
     borderRadius: 14,
     overflow: 'hidden',

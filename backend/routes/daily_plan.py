@@ -96,6 +96,137 @@ def get_vero_message(completion_pct: int, hour: int, lang: str) -> dict:
         return {"text": "Hai ancora compiti aperti. Passo dopo passo.", "mood": "encourage"}
 
 
+# ── Focus endpoint (lightweight) ──
+
+@router.get("/{profile_id}/focus")
+async def get_daily_focus(profile_id: str, lang: str = "de"):
+    """Lightweight endpoint for the 'Dein heutiger Fokus' card on Home."""
+    today = today_str()
+    hour = current_hour()
+    t = lambda de, it: it if lang == "it" else de
+    focus_items = []
+
+    # Open supplements
+    plan_doc = await db.supplement_plans.find_one({"profile_id": profile_id}, {"_id": 0})
+    if plan_doc:
+        schedule = plan_doc.get("plan", {}).get("weekly_schedule", {})
+        supp_logs = await db.supplement_check_ins.find(
+            {"profile_id": profile_id, "date": today}, {"_id": 0}
+        ).to_list(500)
+        done = set()
+        for sl in supp_logs:
+            for sid in sl.get("supplement_ids", []):
+                done.add((sid, sl.get("timing", "")))
+        total_supps = 0
+        open_supps = 0
+        for timing in ["morning", "noon", "evening"]:
+            section = schedule.get(timing, {})
+            items = section.get("items", []) if isinstance(section, dict) else (section if isinstance(section, list) else [])
+            for item in items:
+                total_supps += 1
+                if (item.get("id", ""), timing) not in done:
+                    open_supps += 1
+        if open_supps > 0:
+            focus_items.append({
+                "type": "supplement", "icon": "pill", "color": "#2E7D52",
+                "text": t(f"{open_supps} Einnahmen offen", f"{open_supps} assunzioni aperte"),
+                "action": "plan", "priority": 1,
+            })
+
+    # Open medications
+    meds = await db.medications.find({"profile_id": profile_id, "active": {"$ne": False}}, {"_id": 0}).to_list(50)
+    if meds:
+        med_logs = await db.medication_logs.find({"profile_id": profile_id, "date": today}, {"_id": 0}).to_list(200)
+        med_done = {(l["medication_id"], l["timing"]) for l in med_logs}
+        open_meds = 0
+        for med in meds:
+            for timing in med.get("timings", []):
+                if (med["id"], timing) not in med_done:
+                    open_meds += 1
+        if open_meds > 0:
+            focus_items.append({
+                "type": "medication", "icon": "medical-bag", "color": "#3B82F6",
+                "text": t(f"{open_meds} Medikamente offen", f"{open_meds} farmaci aperti"),
+                "action": "medications", "priority": 1,
+            })
+
+    # Water progress
+    water_doc = await db.water_tracking.find_one({"profile_id": profile_id, "date": today}, {"_id": 0})
+    goal_doc = await db.water_goals.find_one({"profile_id": profile_id}, {"_id": 0})
+    water_ml = water_doc["total_ml"] if water_doc else 0
+    goal_ml = goal_doc["daily_goal_ml"] if goal_doc else 2400
+    remaining_l = max(0, (goal_ml - water_ml)) / 1000
+    if remaining_l > 0:
+        focus_items.append({
+            "type": "water", "icon": "water", "color": "#0EA5E9",
+            "text": t(f"{remaining_l:.1f} L Wasser fehlen", f"{remaining_l:.1f} L d'acqua mancanti"),
+            "action": "water-tracking", "priority": 2,
+        })
+
+    # Stress recommendation
+    stress_today = await db.user_stress_sessions.find_one(
+        {"profile_id": profile_id, "started_at": {"$gte": today}, "completion_status": "completed"}, {"_id": 0}
+    )
+    if not stress_today:
+        focus_items.append({
+            "type": "stress", "icon": "weather-windy", "color": "#8B5CF6",
+            "text": t("2 Min Entspannung empfohlen", "2 min di relax consigliati"),
+            "action": "stress", "priority": 3,
+        })
+
+    # Diary check-in
+    diary = await db.diary_entries.find_one({"date": today}, {"_id": 0})
+    symptom = await db.symptom_tracking.find_one({"profile_id": profile_id, "date": today}, {"_id": 0})
+    if not diary and not symptom:
+        focus_items.append({
+            "type": "diary", "icon": "notebook-outline", "color": "#F59E0B",
+            "text": t("Tages-Check-in offen", "Check-in giornaliero aperto"),
+            "action": "tracking", "priority": 4,
+        })
+
+    focus_items.sort(key=lambda x: x["priority"])
+
+    # Smart Stress trigger
+    profile = await db.health_profiles.find_one({"id": profile_id}, {"_id": 0})
+    stress_trigger = False
+    trigger_reason = ""
+    if profile:
+        p = profile.get("profile", profile)
+        sleep = p.get("sleep_quality", 5)
+        energy = p.get("energy_level", 5)
+        stress_val = p.get("stress_level", 5)
+        if sleep <= 3 or energy <= 3 or stress_val >= 8:
+            stress_trigger = True
+            if stress_val >= 8:
+                trigger_reason = t("Dein Stresslevel ist hoch", "Il tuo livello di stress e alto")
+            elif sleep <= 3:
+                trigger_reason = t("Du hast schlecht geschlafen", "Hai dormito male")
+            else:
+                trigger_reason = t("Dein Energielevel ist niedrig", "Il tuo livello di energia e basso")
+
+    # VERO contextual message
+    vero_msg = ""
+    if hour < 10:
+        vero_msg = t("Guten Morgen! Bereit fuer deinen Plan?", "Buongiorno! Pronto per il tuo piano?")
+    elif hour >= 20:
+        if len(focus_items) <= 1:
+            vero_msg = t("Sehr gut gemacht heute!", "Ottimo lavoro oggi!")
+        else:
+            vero_msg = t(f"Noch {len(focus_items)} Aufgaben heute!", f"Ancora {len(focus_items)} compiti oggi!")
+    elif len(focus_items) == 0:
+        vero_msg = t("Alles erledigt! Toller Tag.", "Tutto fatto! Gran giornata.")
+    else:
+        vero_msg = t(f"{len(focus_items)} Dinge fuer heute.", f"{len(focus_items)} cose per oggi.")
+
+    return {
+        "items": focus_items[:5],
+        "total_open": len(focus_items),
+        "stress_trigger": stress_trigger,
+        "trigger_reason": trigger_reason,
+        "vero_message": vero_msg,
+    }
+
+
 # ── Main endpoint ──
 
 @router.get("/{profile_id}")
