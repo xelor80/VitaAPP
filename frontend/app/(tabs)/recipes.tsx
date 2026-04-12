@@ -149,7 +149,8 @@ export default function RecipesTab() {
               </View>
               {activeTab === 'personal' && r.relevance_score > 0 && (
                 <View style={s.scoreBadge}>
-                  <MaterialCommunityIcons name="star" size={10} color="#FFF" />
+                  <MaterialCommunityIcons name="heart" size={10} color="#FFF" />
+                  <Text style={s.scoreBadgeText}>{tx(lang, { de: 'Fuer dich', it: 'Per te', en: 'For you' })}</Text>
                 </View>
               )}
             </TouchableOpacity>
@@ -248,11 +249,13 @@ const s = StyleSheet.create({
     right: 8,
     backgroundColor: '#2E9E6B',
     borderRadius: 10,
-    width: 20,
-    height: 20,
-    justifyContent: 'center',
+    flexDirection: 'row',
     alignItems: 'center',
+    gap: 3,
+    paddingHorizontal: 6,
+    paddingVertical: 3,
   },
+  scoreBadgeText: { fontSize: 9, fontWeight: '700', color: '#fff' },
   emptyState: { width: '100%', alignItems: 'center', paddingTop: 60 },
   emptyText: { fontSize: 15, color: '#9CA3AF', marginTop: 12, textAlign: 'center', paddingHorizontal: 40 },
 });

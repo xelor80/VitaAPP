@@ -54,6 +54,7 @@ export default function DashboardHome() {
   const [showVeroRewardTip, setShowVeroRewardTip] = useState<boolean>(false);
   const [focusData, setFocusData] = useState<any>(null);
   const [levelData, setLevelData] = useState<any>(null);
+  const [coachData, setCoachData] = useState<any>(null);
 
   // Disclaimer check
   useEffect(() => {
@@ -137,6 +138,12 @@ export default function DashboardHome() {
         }
         if (focusRes.ok) setFocusData(await focusRes.json());
         if (levelRes.ok) setLevelData(await levelRes.json());
+      } catch {}
+
+      // Coach insights (lower priority, separate call)
+      try {
+        const coachRes = await fetch(`${API_URL}/api/coach/${pid}?lang=${lang}`);
+        if (coachRes.ok) setCoachData(await coachRes.json());
       } catch {}
 
       if (recipeRes?.ok) {
@@ -470,6 +477,35 @@ export default function DashboardHome() {
               </View>
             </LinearGradient>
           </TouchableOpacity>
+        )}
+
+
+        {/* VERO Smart Coach Insights */}
+        {coachData?.insights?.length > 0 && hasProfile && (
+          <View style={s.coachSection}>
+            <Text style={s.coachSectionTitle}>{tx(lang, { de: 'VERO empfiehlt', it: 'VERO consiglia', en: 'VERO recommends' })}</Text>
+            {coachData.insights.slice(0, 2).map((insight: any, i: number) => (
+              <TouchableOpacity
+                key={i}
+                style={[s.coachCard, { borderLeftColor: insight.color }]}
+                activeOpacity={0.8}
+                onPress={() => insight.action && router.push(
+                  (insight.action === 'plan' ? '/(tabs)/plan' :
+                  insight.action === 'water-tracking' ? '/water-tracking' :
+                  insight.action === 'stress' ? '/stress' : '/tracking') as any
+                )}
+              >
+                <View style={[s.coachIconWrap, { backgroundColor: insight.color + '14' }]}>
+                  <MaterialCommunityIcons name={insight.icon as any} size={18} color={insight.color} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={s.coachTitle}>{insight.title}</Text>
+                  <Text style={s.coachText} numberOfLines={2}>{insight.text}</Text>
+                </View>
+                {insight.action && <MaterialCommunityIcons name="chevron-right" size={16} color="#D1D5DB" />}
+              </TouchableOpacity>
+            ))}
+          </View>
         )}
 
         {/* Recipes Section */}
@@ -1090,6 +1126,18 @@ const s = StyleSheet.create({
     zIndex: 100,
   },
   floatingBtnGradient: { width: 52, height: 52, borderRadius: 26, justifyContent: 'center', alignItems: 'center' },
+  // Smart Coach
+  coachSection: { marginHorizontal: SIDE_PAD, marginBottom: 12 },
+  coachSectionTitle: { fontSize: 14, fontWeight: '700', color: '#1A2D26', marginBottom: 8 },
+  coachCard: {
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+    backgroundColor: '#fff', borderRadius: 12, padding: 12, marginBottom: 6,
+    borderLeftWidth: 3,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.03, shadowRadius: 3, elevation: 1,
+  },
+  coachIconWrap: { width: 34, height: 34, borderRadius: 17, justifyContent: 'center', alignItems: 'center' },
+  coachTitle: { fontSize: 13, fontWeight: '700', color: '#1F2937' },
+  coachText: { fontSize: 12, color: '#6B7280', marginTop: 2, lineHeight: 16 },
   // Rewards streak - bigger
   rewardsStreakBig: {
     flexDirection: 'row', alignItems: 'center', gap: 4,

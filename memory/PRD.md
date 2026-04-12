@@ -253,6 +253,24 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - Bigger streak badge: flame icon + "X Tage" in amber badge
 - More prominent display in Rewards card
 
+### Smart Coach Engine + Rezepte-Personalisierung (2026-04-12) - COMPLETED
+**Backend (`/app/backend/routes/coach.py`):**
+- GET `/api/coach/{profile_id}` - Zentrale KI-Logik analysiert 7-Tage Trends
+- Inputs: Schlaf, Energie, Stress, Wasser, Supplement-Adherence, Stress-Sessions
+- Outputs: Priorisierte Insights (critical/warning/suggestion/praise)
+- Beispiele: "Stress & Schlaf" Warnung, "Mehr trinken" Tipp, "Tolle Woche!" Lob
+- Jeder Insight hat Action (navigiert zu passendem Screen)
+
+**Frontend (Home Screen `index.tsx`):**
+- "VERO empfiehlt" Sektion mit Coach-Insight-Cards (farbcodiert nach Typ)
+- Klickbar: navigiert direkt zur empfohlenen Aktion
+- Level Progress Bar unter Rewards Card (Lv. X Title + Fortschrittsbalken)
+- Groessere Streak-Anzeige ("X Tage" mit Flammen-Icon)
+
+**Rezepte-Personalisierung (`recipes.tsx`):**
+- "Fuer dich" Badge auf personalisierten Rezepten (Herz-Icon + Text)
+- recommendation_reason und relevance_tags bereits vorhanden und angezeigt
+
 ## Prioritized Backlog
 ### P1 - Upcoming
 - Medication Reminders (push notifications) - COMPLETED

@@ -10,6 +10,7 @@ import Animated, {
   withSequence, withSpring, Easing, FadeIn,
 } from 'react-native-reanimated';
 import Svg, { Path, Defs, LinearGradient as SvgGrad, Stop, Rect, ClipPath, Ellipse } from 'react-native-svg';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { showActionToast } from './ActionToast';
 
 const { width: SW } = Dimensions.get('window');
