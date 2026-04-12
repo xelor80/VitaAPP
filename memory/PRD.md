@@ -204,6 +204,17 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - Settings: Voice On/Off + Sound On/Off getrennt steuerbar
 - 5-Phasen Flow: Pre → Intro (TTS) → Active (TTS + Animation) → Outro (TTS) → Post
 
+### Ambient Sound Layer (2026-04-12) - COMPLETED
+**Frontend (`/app/frontend/src/services/StressAudioService.ts`):**
+- Web Audio API Ambient Engine: 3 Layer (Pink Noise + Drone Pad + LFO Modulation)
+- Pink Noise: Vester-Algorithmus, Tiefpass 400Hz, ocean-like warmth
+- Drone Pad: C2-G2-C3 Sinus-Harmonie (65/98/131 Hz) bei 4% Volume
+- LFO: 0.08 Hz Modulation auf Noise-Filter fuer natuerliche Bewegung
+- 2s Fade-In beim Start, 2s Fade-Out beim Ende
+- Completion Chime: C5-E5-G5 Major-Akkord mit sanftem Decay (3s)
+- UI Start Sound: 440→523 Hz sanfter Glissando
+- Alle Sounds ueber Web Audio API generiert (keine externen Dateien noetig)
+
 ## Prioritized Backlog
 ### P1 - Upcoming
 - Medication Reminders (push notifications) - COMPLETED

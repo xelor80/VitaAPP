@@ -110,6 +110,9 @@ export default function StressPlayerScreen() {
   // Outro sequence
   const playOutro = async () => {
     setPhase('outro');
+    if (audioSettings.soundEnabled) {
+      stressAudio.playCompletionChime();
+    }
     const outroTexts = stressAudio.getOutroTexts(lang);
     for (const item of outroTexts) {
       if (!runningRef.current) return;
@@ -117,6 +120,9 @@ export default function StressPlayerScreen() {
       await new Promise(r => setTimeout(r, item.duration + 500));
     }
     hideVoice();
+    if (audioSettings.soundEnabled) {
+      stressAudio.stopAmbient();
+    }
     setPhase('post');
   };
 
@@ -136,9 +142,15 @@ export default function StressPlayerScreen() {
     } catch {}
     runningRef.current = true;
     if (audioSettings.voiceEnabled) {
+      // Start sound + ambient
+      if (audioSettings.soundEnabled) {
+        stressAudio.playStartSound();
+        stressAudio.startAmbient();
+      }
       playIntro();
     } else {
       setPhase('active');
+      if (audioSettings.soundEnabled) stressAudio.startAmbient();
       startTimer();
       if (exercise?.content_json?.type === 'breathing') startBreathAnimation();
     }
@@ -154,6 +166,10 @@ export default function StressPlayerScreen() {
           if (audioSettings.voiceEnabled) {
             playOutro();
           } else {
+            if (audioSettings.soundEnabled) {
+              stressAudio.playCompletionChime();
+              stressAudio.stopAmbient();
+            }
             setPhase('post');
           }
         }
