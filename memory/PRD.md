@@ -271,6 +271,24 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - "Fuer dich" Badge auf personalisierten Rezepten (Herz-Icon + Text)
 - recommendation_reason und relevance_tags bereits vorhanden und angezeigt
 
+### Plan Swipe-Gesten + Smart Coach + Rezepte (2026-04-12) - COMPLETED
+**Plan Swipe-Gesten (`/app/frontend/app/(tabs)/plan.tsx`):**
+- Swipeable (react-native-gesture-handler) um jedes Plan-Item
+- Swipe rechts → gruenes "Erledigt" Panel → markiert als erledigt + Toast
+- Swipe links → graues "Skip" Panel
+- Swipe-Hint Icon (gesture-swipe-right) auf unerledigten Items
+- Nur auf unerledigten Items aktiv, erledigte haben kein Swipe
+
+**Smart Coach Engine (`/app/backend/routes/coach.py`):**
+- GET `/api/coach/{profile_id}` - Analysiert 7-Tage Trends
+- Insights: critical, warning, suggestion, praise - jeweils mit Icon, Farbe, Action
+- Integriert als "VERO empfiehlt" Cards auf Home Screen
+- Beispiele: "Stress & Schlaf" Warnung, "Mehr trinken", "Tolle Woche!" Lob
+
+**Rezepte-Personalisierung (`recipes.tsx`):**
+- "Fuer dich" Badge mit Herz-Icon auf personalisierten Rezepten
+- recommendation_reason + relevance_tags prominent angezeigt
+
 ## Prioritized Backlog
 ### P1 - Upcoming
 - Medication Reminders (push notifications) - COMPLETED

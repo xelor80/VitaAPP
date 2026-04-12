@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, ActivityIndicator, Alert, TextInput } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import { Swipeable } from 'react-native-gesture-handler';
 import { useLang } from '../../src/LangContext';
 import { tx } from '../../src/i18n';
 import { eventBus } from '../../src/eventBus';
@@ -384,9 +385,31 @@ export default function PlanScreen() {
               </Text>
             </View>
 
-            {group.items.map((item: any) => (
-              <TouchableOpacity
+            {group.items.map((item: any) => {
+              const renderRightActions = () => (
+                <View style={s.swipeRight}>
+                  <MaterialCommunityIcons name="check" size={22} color="#fff" />
+                  <Text style={s.swipeRightText}>{tx(lang, { de: 'Erledigt', it: 'Fatto', en: 'Done' })}</Text>
+                </View>
+              );
+              const renderLeftActions = () => (
+                <View style={s.swipeLeft}>
+                  <MaterialCommunityIcons name="close" size={22} color="#fff" />
+                  <Text style={s.swipeLeftText}>{tx(lang, { de: 'Skip', it: 'Salta', en: 'Skip' })}</Text>
+                </View>
+              );
+              return (
+              <Swipeable
                 key={`${item.id}-${item.timing}`}
+                renderRightActions={item.checked ? undefined : renderRightActions}
+                renderLeftActions={item.checked ? undefined : renderLeftActions}
+                onSwipeableOpen={(direction) => {
+                  if (!item.checked && direction === 'right') toggleItem(item);
+                }}
+                overshootRight={false}
+                overshootLeft={false}
+              >
+              <TouchableOpacity
                 style={[s.itemRow, item.checked && s.itemChecked]}
                 onPress={() => toggleItem(item)}
                 data-testid={`plan-item-${item.id}-${item.timing}`}
@@ -408,11 +431,16 @@ export default function PlanScreen() {
                   </View>
                   <Text style={s.itemDose}>{item.dosage}{item.meal_note ? ` - ${item.meal_note}` : ''}</Text>
                 </View>
+                {!item.checked && (
+                  <MaterialCommunityIcons name="gesture-swipe-right" size={16} color="#D1D5DB" />
+                )}
                 {item.checked && (
                   <MaterialCommunityIcons name="check-circle" size={22} color="#22C55E" />
                 )}
               </TouchableOpacity>
-            ))}
+              </Swipeable>
+              );
+            })}
           </Animated.View>
         ))
       ) : (
@@ -513,4 +541,15 @@ const s = StyleSheet.create({
     shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 6,
   },
   rewardToastText: { fontSize: 14, fontWeight: '600', color: '#F59E0B' },
+  // Swipe actions
+  swipeRight: {
+    backgroundColor: '#22C55E', justifyContent: 'center', alignItems: 'center',
+    width: 80, flexDirection: 'column', gap: 2,
+  },
+  swipeRightText: { fontSize: 11, fontWeight: '700', color: '#fff' },
+  swipeLeft: {
+    backgroundColor: '#9CA3AF', justifyContent: 'center', alignItems: 'center',
+    width: 80, flexDirection: 'column', gap: 2,
+  },
+  swipeLeftText: { fontSize: 11, fontWeight: '700', color: '#fff' },
 });
