@@ -13,12 +13,12 @@ from core.config import db, logger
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 # JWT config
-JWT_SECRET = "vitaguide_jwt_secret_2026_xK9mP2vL"
+JWT_SECRET = os.environ.get("JWT_SECRET", "vitaguide_jwt_secret_2026_xK9mP2vL")
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRY_DAYS = 30
 
 # Emergent Google Auth
-EMERGENT_AUTH_SESSION_URL = "https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data"
+EMERGENT_AUTH_SESSION_URL = os.environ.get("EMERGENT_AUTH_SESSION_URL", "https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data")
 
 
 # ── Models ──

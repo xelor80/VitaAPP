@@ -172,28 +172,27 @@ class StressAudioService {
       });
       if (!res.ok) return;
       const data = await res.json();
-      const b64 = data.audio_b64 || data.audio_base64;
-      if (!b64 || b64.length < 100) return;
+      const cacheKey = data.cache_key;
+      if (!cacheKey) return;
 
-      // Try native playback first (expo-audio + file system)
+      // Use streaming URL - works on both native (expo-audio) and web
+      const audioUrl = `${API_URL}/api/voice/audio/${cacheKey}`;
+
+      // Try native expo-audio first
       try {
-        const FileSystem = require('expo-file-system');
-        const { createAudioPlayer } = require('expo-audio');
-        if (FileSystem?.cacheDirectory && createAudioPlayer) {
-          const uri = `${FileSystem.cacheDirectory}tts_${Date.now()}.mp3`;
-          await FileSystem.writeAsStringAsync(uri, b64, { encoding: FileSystem.EncodingType.Base64 });
+        const { createAudioPlayer, AudioSource } = require('expo-audio');
+        if (createAudioPlayer) {
           if (this.nativePlayer) { try { this.nativePlayer.release(); } catch {} }
-          this.nativePlayer = createAudioPlayer(uri);
+          this.nativePlayer = createAudioPlayer({ uri: audioUrl });
           this.nativePlayer.volume = this.settings.voiceVolume;
           this.nativePlayer.play();
           return;
         }
       } catch {}
 
-      // Web fallback: HTML5 Audio
+      // Web fallback: HTML5 Audio with streaming URL
       if (typeof window !== 'undefined') {
-        const audioUri = `data:audio/mpeg;base64,${b64}`;
-        this.audioElement = new Audio(audioUri);
+        this.audioElement = new Audio(audioUrl);
         this.audioElement.volume = this.settings.voiceVolume;
         await this.audioElement.play().catch(() => {});
       }
