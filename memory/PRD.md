@@ -241,6 +241,18 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - Mein Tag Tab: Toast bei Supplement/Medikament Check-in (+5 Punkte)
 - Plan Tab: Toast bei Check-in mit EventBus-Sync (+5 Punkte)
 
+### Engagement Phase 2 Continued (2026-04-12) - COMPLETED
+**Water Animation Enhancement:**
+- Bigger bounce on water add (3-stage spring: 1.18 → 0.95 → 1.0)
+
+**Level Progress + Daily Goal on Home:**
+- Level card below Rewards: "Lv. X Title" + progress bar + "X bis Lv. Y"
+- Level data fetched via `/api/level/{pid}` in parallel with other Home data
+
+**Streak Visual Enhancement:**
+- Bigger streak badge: flame icon + "X Tage" in amber badge
+- More prominent display in Rewards card
+
 ## Prioritized Backlog
 ### P1 - Upcoming
 - Medication Reminders (push notifications) - COMPLETED

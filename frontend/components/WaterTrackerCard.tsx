@@ -102,10 +102,11 @@ export function WaterTrackerCard({ profileId, lang, waterData, onDataUpdate, onW
     if (!profileId || amount <= 0 || adding) return;
     setAdding(true);
 
-    // Splash animation
+    // Splash animation - bigger bounce
     splashScale.value = withSequence(
-      withSpring(1.12, { damping: 4 }),
-      withSpring(1, { damping: 8 })
+      withSpring(1.18, { damping: 3, stiffness: 200 }),
+      withSpring(0.95, { damping: 6 }),
+      withSpring(1, { damping: 10 })
     );
 
     // Save timestamp for smart reminder suppression

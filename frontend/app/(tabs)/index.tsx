@@ -53,6 +53,7 @@ export default function DashboardHome() {
   const [rewardStreak, setRewardStreak] = useState<number>(0);
   const [showVeroRewardTip, setShowVeroRewardTip] = useState<boolean>(false);
   const [focusData, setFocusData] = useState<any>(null);
+  const [levelData, setLevelData] = useState<any>(null);
 
   // Disclaimer check
   useEffect(() => {
@@ -124,9 +125,10 @@ export default function DashboardHome() {
 
       // Rewards (after checkin so balance is up to date)
       try {
-        const [rewardRes, focusRes] = await Promise.all([
+        const [rewardRes, focusRes, levelRes] = await Promise.all([
           fetch(`${API_URL}/api/rewards/${pid}/today?lang=${lang}`),
           fetch(`${API_URL}/api/daily-plan/${pid}/focus?lang=${lang}`),
+          fetch(`${API_URL}/api/level/${pid}?lang=${lang}`),
         ]);
         if (rewardRes.ok) {
           const rd = await rewardRes.json();
@@ -134,6 +136,7 @@ export default function DashboardHome() {
           cStreak = rd.current_streak ?? 0; setRewardStreak(cStreak);
         }
         if (focusRes.ok) setFocusData(await focusRes.json());
+        if (levelRes.ok) setLevelData(await levelRes.json());
       } catch {}
 
       if (recipeRes?.ok) {
@@ -358,14 +361,28 @@ export default function DashboardHome() {
             </View>
             <View style={s.rewardsRight}>
               {rewardStreak > 0 && (
-                <View style={s.rewardsStreakBadge}>
-                  <MaterialCommunityIcons name="fire" size={14} color="#F59E0B" />
-                  <Text style={s.rewardsStreakText}>{rewardStreak}</Text>
+                <View style={s.rewardsStreakBig}>
+                  <MaterialCommunityIcons name="fire" size={22} color="#F59E0B" />
+                  <Text style={s.rewardsStreakBigText}>{rewardStreak} {tx(lang, { de: 'Tage', it: 'giorni', en: 'days' })}</Text>
                 </View>
               )}
               <MaterialCommunityIcons name="chevron-right" size={20} color="#9CA3AF" />
             </View>
           </TouchableOpacity>
+
+          {/* Level Progress + Daily Goal */}
+          {levelData && (
+            <View style={s.levelHomeCard}>
+              <View style={s.levelHomeRow}>
+                <MaterialCommunityIcons name={(levelData.icon || 'seed-outline') as any} size={18} color="#2E7D52" />
+                <Text style={s.levelHomeTitle}>Lv. {levelData.level} {levelData.title}</Text>
+                <Text style={s.levelHomePts}>{levelData.points_to_next > 0 ? `${levelData.points_to_next} ${tx(lang, { de: 'bis Lv.', it: 'per Lv.', en: 'to Lv.' })} ${levelData.level + 1}` : 'MAX'}</Text>
+              </View>
+              <View style={s.levelHomeBar}>
+                <View style={[s.levelHomeFill, { width: `${levelData.progress_pct}%` }]} />
+              </View>
+            </View>
+          )}
           </>
         )}
 
@@ -1073,6 +1090,23 @@ const s = StyleSheet.create({
     zIndex: 100,
   },
   floatingBtnGradient: { width: 52, height: 52, borderRadius: 26, justifyContent: 'center', alignItems: 'center' },
+  // Rewards streak - bigger
+  rewardsStreakBig: {
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    backgroundColor: '#FEF3C7', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10,
+  },
+  rewardsStreakBigText: { fontSize: 12, fontWeight: '700', color: '#D97706' },
+  // Level Home Card
+  levelHomeCard: {
+    marginHorizontal: SIDE_PAD, marginTop: -4, marginBottom: 12,
+    backgroundColor: '#fff', borderRadius: 12, padding: 10, paddingHorizontal: 14,
+    elevation: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.03, shadowRadius: 3,
+  },
+  levelHomeRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  levelHomeTitle: { fontSize: 13, fontWeight: '700', color: '#1A2D26', flex: 1 },
+  levelHomePts: { fontSize: 11, color: '#6B7280' },
+  levelHomeBar: { height: 4, backgroundColor: '#E5E7EB', borderRadius: 2, marginTop: 6, overflow: 'hidden' },
+  levelHomeFill: { height: 4, backgroundColor: '#2E7D52', borderRadius: 2 },
   accountBanner: {
     borderRadius: 14,
     overflow: 'hidden',
