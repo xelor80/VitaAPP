@@ -685,20 +685,6 @@ export default function DashboardHome() {
 
         <View style={{ height: 12 }} />
       </ScrollView>
-
-      {/* Floating Reset Button */}
-      {hasProfile && (
-        <TouchableOpacity
-          style={s.floatingBtn}
-          activeOpacity={0.85}
-          onPress={() => router.push('/stress-player?exerciseId=breath_calm' as any)}
-          data-testid="floating-reset-btn"
-        >
-          <LinearGradient colors={['#6D28D9', '#8B5CF6']} style={s.floatingBtnGradient}>
-            <MaterialCommunityIcons name="meditation" size={22} color="#fff" />
-          </LinearGradient>
-        </TouchableOpacity>
-      )}
     </View>
   );
 }

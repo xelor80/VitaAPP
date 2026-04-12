@@ -108,6 +108,7 @@ export const GUIDED_VOICE: Record<string, Record<string, string>> = {
 class StressAudioService {
   private settings: AudioSettings = DEFAULT_SETTINGS;
   private audioElement: HTMLAudioElement | null = null;
+  private nativePlayer: any = null;
   // Web Audio API ambient
   private audioCtx: AudioContext | null = null;
   private ambientNodes: AudioNode[] = [];
@@ -173,15 +174,30 @@ class StressAudioService {
       const data = await res.json();
       const b64 = data.audio_b64 || data.audio_base64;
       if (!b64 || b64.length < 100) return;
-      const audioUri = `data:audio/mpeg;base64,${b64}`;
+
+      // Try native playback first (expo-audio + file system)
+      try {
+        const FileSystem = require('expo-file-system');
+        const { createAudioPlayer } = require('expo-audio');
+        if (FileSystem?.cacheDirectory && createAudioPlayer) {
+          const uri = `${FileSystem.cacheDirectory}tts_${Date.now()}.mp3`;
+          await FileSystem.writeAsStringAsync(uri, b64, { encoding: FileSystem.EncodingType.Base64 });
+          if (this.nativePlayer) { try { this.nativePlayer.release(); } catch {} }
+          this.nativePlayer = createAudioPlayer(uri);
+          this.nativePlayer.volume = this.settings.voiceVolume;
+          this.nativePlayer.play();
+          return;
+        }
+      } catch {}
+
+      // Web fallback: HTML5 Audio
       if (typeof window !== 'undefined') {
+        const audioUri = `data:audio/mpeg;base64,${b64}`;
         this.audioElement = new Audio(audioUri);
         this.audioElement.volume = this.settings.voiceVolume;
         await this.audioElement.play().catch(() => {});
       }
-    } catch {
-      // Silent fail - voice is optional
-    }
+    } catch {}
   }
 
   stopCurrentAudio(): void {
@@ -190,6 +206,10 @@ class StressAudioService {
         this.audioElement.pause();
         this.audioElement.currentTime = 0;
         this.audioElement = null;
+      }
+      if (this.nativePlayer) {
+        try { this.nativePlayer.release(); } catch {}
+        this.nativePlayer = null;
       }
     } catch {}
   }

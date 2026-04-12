@@ -4,6 +4,8 @@ import {
   Dimensions, Modal, ScrollView, Platform, Image, Easing,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useGuide } from '../src/GuideContext';
 import { useLang } from '../src/LangContext';
 import { GUIDE_SCREENS, ONBOARDING_TOUR, t, MascotPose } from '../src/guideData';
@@ -35,6 +37,7 @@ interface Props {
 export function GuideMascot({ currentRoute, firstName }: Props) {
   const { lang } = useLang();
   const guide = useGuide();
+  const router = useRouter();
 
   // Hide VERO on stress-player (fullscreen meditation)
   const hiddenRoutes = ['/stress-player'];
@@ -45,6 +48,7 @@ export function GuideMascot({ currentRoute, firstName }: Props) {
   const [mascotState, setMascotState] = useState<MascotState>('idle');
   const [activeResponse, setActiveResponse] = useState<string | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [stressTriggerActive, setStressTriggerActive] = useState(false);
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const bounceAnim = useRef(new Animated.Value(0)).current;
@@ -68,6 +72,24 @@ export function GuideMascot({ currentRoute, firstName }: Props) {
   const screenData = getScreenData(currentRoute);
   const currentPose = screenData.pose || 'default';
   const currentImage = getVeroImage(currentPose);
+
+  // Check stress trigger - show meditation icon instead of VERO when stress is high
+  useEffect(() => {
+    (async () => {
+      try {
+        const AsyncStorageModule = require('@react-native-async-storage/async-storage').default;
+        const pid = await AsyncStorageModule.getItem('health_profile_id');
+        if (!pid) return;
+        const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+        const res = await fetch(`${API_URL}/api/daily-plan/${pid}/focus?lang=${lang}`);
+        if (res.ok) {
+          const d = await res.json();
+          setStressTriggerActive(d.stress_trigger === true);
+        }
+      } catch {}
+    })();
+  }, [currentRoute]);
+
 
   // Start onboarding tour for new users
   useEffect(() => {
@@ -149,16 +171,27 @@ export function GuideMascot({ currentRoute, firstName }: Props) {
 
   return (
     <>
-      {/* Floating VERO Mascot Bubble */}
+      {/* Floating VERO Mascot Bubble / Stress Meditation Shortcut */}
       <Animated.View style={[s.bubbleContainer, { opacity: fadeAnim, transform: [{ scale: Animated.multiply(pulseAnim, bounceAnim) }] }]}>
-        <TouchableOpacity
-          style={[s.bubble, { borderColor: bubbleBorderColor }]}
-          onPress={handleOpen}
-          activeOpacity={0.85}
-          data-testid="guide-mascot-bubble"
-        >
-          <Image source={currentImage} style={s.bubbleImage} resizeMode="cover" />
-        </TouchableOpacity>
+        {stressTriggerActive ? (
+          <TouchableOpacity
+            style={[s.bubble, { borderColor: '#8B5CF6', backgroundColor: '#6D28D9' }]}
+            onPress={() => router.push('/stress' as any)}
+            activeOpacity={0.85}
+            data-testid="stress-meditation-bubble"
+          >
+            <MaterialCommunityIcons name="meditation" size={28} color="#E9D5FF" />
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={[s.bubble, { borderColor: bubbleBorderColor }]}
+            onPress={handleOpen}
+            activeOpacity={0.85}
+            data-testid="guide-mascot-bubble"
+          >
+            <Image source={currentImage} style={s.bubbleImage} resizeMode="cover" />
+          </TouchableOpacity>
+        )}
         {mascotState === 'highlight' && (
           <View style={s.badge}>
             <View style={s.badgeDot} />
