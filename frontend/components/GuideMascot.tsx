@@ -35,6 +35,12 @@ interface Props {
 export function GuideMascot({ currentRoute, firstName }: Props) {
   const { lang } = useLang();
   const guide = useGuide();
+
+  // Hide VERO on stress-player (fullscreen meditation)
+  const hiddenRoutes = ['/stress-player'];
+  const isHidden = hiddenRoutes.some(r => currentRoute.includes(r));
+  if (isHidden) return null;
+
   const [panelOpen, setPanelOpen] = useState(false);
   const [mascotState, setMascotState] = useState<MascotState>('idle');
   const [activeResponse, setActiveResponse] = useState<string | null>(null);

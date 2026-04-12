@@ -9,7 +9,7 @@ import os
 
 from core.config import db, logger
 
-router = APIRouter(prefix="/tts", tags=["tts-elevenlabs"])
+router = APIRouter(prefix="/voice", tags=["voice-tts"])
 
 ELEVENLABS_API_KEY = os.environ.get("ELEVENLABS_API_KEY", "")
 

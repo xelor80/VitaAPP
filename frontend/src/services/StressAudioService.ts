@@ -164,23 +164,22 @@ class StressAudioService {
     if (!this.settings.soundEnabled || !this.settings.voiceEnabled) return;
     try {
       this.stopCurrentAudio();
-      const res = await fetch(`${API_URL}/api/tts/generate`, {
+      const res = await fetch(`${API_URL}/api/voice/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text, lang }),
       });
       if (!res.ok) return;
       const data = await res.json();
-      if (!data.audio_base64 && !data.audio_b64) return;
-      const b64 = data.audio_base64 || data.audio_b64;
+      const b64 = data.audio_b64 || data.audio_base64;
+      if (!b64 || b64.length < 100) return;
       const audioUri = `data:audio/mpeg;base64,${b64}`;
-      // Use HTML5 Audio for web playback
-      if (typeof window !== 'undefined' && typeof Audio !== 'undefined') {
+      if (typeof window !== 'undefined') {
         this.audioElement = new Audio(audioUri);
         this.audioElement.volume = this.settings.voiceVolume;
-        await this.audioElement.play();
+        await this.audioElement.play().catch(() => {});
       }
-    } catch (e) {
+    } catch {
       // Silent fail - voice is optional
     }
   }

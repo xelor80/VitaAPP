@@ -12,6 +12,7 @@ import Animated, {
   FadeIn, FadeOut, FadeInDown,
 } from 'react-native-reanimated';
 import { useLang } from '../src/LangContext';
+import { eventBus } from '../src/eventBus';
 import { stressAudio, AudioSettings } from '../src/services/StressAudioService';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
@@ -19,6 +20,19 @@ const { width } = Dimensions.get('window');
 const CIRCLE_SIZE = Math.min(width * 0.55, 280);
 
 export default function StressPlayerScreen() {
+  // Prevent screen from sleeping (Web Wake Lock API with safe fallback)
+  const wakeLockRef = useRef<any>(null);
+  useEffect(() => {
+    const acquire = async () => {
+      try {
+        if ('wakeLock' in navigator) {
+          wakeLockRef.current = await (navigator as any).wakeLock.request('screen');
+        }
+      } catch {}
+    };
+    acquire();
+    return () => { try { wakeLockRef.current?.release(); } catch {} };
+  }, []);
   const router = useRouter();
   const { exerciseId } = useLocalSearchParams<{ exerciseId: string }>();
   const { lang } = useLang();
