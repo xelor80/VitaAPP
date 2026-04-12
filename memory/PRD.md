@@ -173,6 +173,23 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 
 **Backend bug fix:** Changed `total_earned` → `lifetime_points` in level.py, daily_plan.py, weekly_report.py to match rewards system's actual field name
 
+### Audio-System fuer Stressuebungen (2026-04-12) - COMPLETED
+**AudioService (`/app/frontend/src/services/StressAudioService.ts`):**
+- Multi-Layer Audio Architecture (Ambient, Voice, UI) vorbereitet fuer native App
+- Voice Guidance Texte DE/IT: Intro (3 Saetze), Atem-Phasen (3 Varianten je), Midpoint-Ermutigung, Outro (3 Saetze)
+- Guided Steps Voice Texte (begin, focus, breathe, relax, almost, done)
+- Persistente AudioSettings via AsyncStorage (Sound/Voice an/aus, Lautstaerke-Level)
+
+**Stress Player (`/app/frontend/app/stress-player.tsx`) - Komplett ueberarbeitet:**
+- 5 Phasen: pre → intro → active → outro → post
+- Intro-Sequenz: Ruhiger dunkler Screen mit sequenziellen Voice-Texten ("Finde eine bequeme Position...")
+- Active Phase: Synchronisierte Voice-Overlays mit Atem-Animation
+- Midpoint-Ermutigung alle 3 Zyklen ("Du machst das gut.")
+- Outro-Sequenz: Sanfter Abschluss ("Gut gemacht. Komm langsam zurueck.")
+- Settings Panel: Voice On/Off, Sound On/Off Toggles
+- Pause-Funktion mit Voice-Feedback
+- Visuell verifiziert: Intro, Active mit Voice, Timer, Fortschrittsbalken
+
 ## Prioritized Backlog
 ### P1 - Upcoming
 - Medication Reminders (push notifications) - COMPLETED
