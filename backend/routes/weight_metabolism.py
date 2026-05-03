@@ -413,11 +413,19 @@ async def fasting_state(profile_id: str):
 async def fasting_start(profile_id: str, req: FastingStartRequest):
     if req.target_hours < 4 or req.target_hours > 48:
         raise HTTPException(400, "target_hours must be 4-48")
-    # Stop any active session
-    await db.fasting_sessions.update_many(
-        {"profile_id": profile_id, "ended_at": None},
-        {"$set": {"ended_at": now_iso(), "auto_closed": True}},
-    )
+    # Stop any active session (compute actual_hours so analytics stay accurate)
+    now_dt = datetime.now(timezone.utc)
+    auto_closed_iso = now_dt.isoformat()
+    async for prev in db.fasting_sessions.find({"profile_id": profile_id, "ended_at": None}):
+        try:
+            started_dt = datetime.fromisoformat(prev["started_at"].replace("Z", "+00:00"))
+            actual = round((now_dt - started_dt).total_seconds() / 3600, 2)
+        except Exception:
+            actual = 0
+        await db.fasting_sessions.update_one(
+            {"id": prev["id"]},
+            {"$set": {"ended_at": auto_closed_iso, "actual_hours": actual, "auto_closed": True}},
+        )
     started = req.started_at or now_iso()
     session = {
         "id": str(uuid.uuid4()),

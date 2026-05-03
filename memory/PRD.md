@@ -289,6 +289,39 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - "Fuer dich" Badge mit Herz-Icon auf personalisierten Rezepten
 - recommendation_reason + relevance_tags prominent angezeigt
 
+### Gewicht & Stoffwechsel-Modul (2026-05-03) - COMPLETED
+**Backend (`/app/backend/routes/weight_metabolism.py`):**
+- 14 Endpoints: Goals (auto Mifflin-St Jeor), Mahlzeiten (CRUD), Gewichtslog mit Tagesreplace, Intervallfasten (start/state/stop, frei konfigurierbar 4-48h), Settings, History, kompakte Summary
+- Auto-Goals aus Health-Profile (BMR + Aktivitaetsmultiplikator), Protein 1.2-1.6 g/kg
+- Validation: Kalorien 800-6000, Protein 20-400g, Gewicht 30-300 kg, Fastenstunden 4-48
+- 97.7% Backend-Tests bestanden (42/43)
+
+**Frontend (`/app/frontend/app/weight-metabolism.tsx`):**
+- Zwei SVG-Ringe: Kalorien + Protein mit Live-Werten und Zielen
+- Mahlzeit-Modal mit Typ-Auswahl (Fruehstueck/Mittag/Abend/Snack), Name, Kalorien, Protein
+- Fasten-Timer: SVG-Ring mit Live-Countdown (Sekunden-Tick), 4 Presets (14/16/18/20h) + Freitext
+- Gewichtskurve (SVG-Polyline) mit aktuell/30-Tage-Delta/Ziel-Stats
+- Goal-Modal zum Anpassen aller Tagesziele
+
+**Integration:**
+- `WeightMetabolismCard` Component im Dashboard und Mein-Tag Tab
+- Live-Fortschritts-Bars + aktiver Fasten-Banner (mit Zeitanzeige)
+- EventBus `weight_metabolism_changed` synct Karten cross-tab
+- Stack.Screen registriert in `_layout.tsx`
+
+### Smart Product Integration / Affiliate (2026-05-03) - COMPLETED
+**Backend (`/app/backend/routes/smart_products.py`):**
+- 6 Endpoints: Recommendations (kontext-bewusst), Click-Tracking, Catalog, Upsert (Admin), Delete, Stats
+- 7 Platzhalter-Produkte auto-seeded (Magnesium, D3+K2, Omega-3, Elektrolyt, Protein, Ashwagandha, B12)
+- Scoring: Profilsymptome + Supplement-Plan-Defizite (z.B. Magnesium-Eintrag → Score-Boost)
+- `affiliate_url`-Feld zum spaeteren Befuellen via Admin
+
+**Frontend (`/app/frontend/components/SmartProductBlock.tsx`):**
+- Dezente, "Anzeige"-gekennzeichnete Karten (max 1-2 pro Block)
+- Kontextbasierte Platzierung: Dashboard, Stress-Screen, Gewicht-Screen, Fasten-Sektion
+- Click-Tracking via `/api/smart-products/click` + `Linking.openURL` fuer affiliate_url
+- Mehrsprachig (de/it/en)
+
 ## Prioritized Backlog
 ### P1 - Upcoming
 - Medication Reminders (push notifications) - COMPLETED
@@ -299,4 +332,7 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 
 ### Future
 - Admin Web Dashboard: Rewards admin pages (briefing ready in `/app/memory/REWARDS_SYSTEM_BRIEFING.md`)
+- Admin: UI zum Befuellen der Smart-Product `affiliate_url` und neue Produkte anlegen
+- Push-Reminder fuer Fasten-Start/-Ende und Wiegeerinnerung
 - Reactivate TR, FR, ES, RU languages
+- Refactor `/app/frontend/app/(tabs)/index.tsx` (>1200 Zeilen) in kleinere Komponenten
