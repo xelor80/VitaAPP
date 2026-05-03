@@ -75,6 +75,11 @@ class PhotoAnalyzeRequest(BaseModel):
     hint: Optional[str] = None  # optional text hint from user
 
 
+class ProfileTimezoneRequest(BaseModel):
+    timezone: str  # IANA tz, e.g. "Europe/Berlin"
+    offset_minutes: Optional[int] = None  # UTC offset at time of capture
+
+
 # ── Helpers ──
 
 def today_str():
@@ -798,6 +803,123 @@ async def analyze_meal_photo(profile_id: str, req: PhotoAnalyzeRequest):
         "confidence": str(data.get("confidence", "medium"))[:20],
         "note": str(data.get("note", ""))[:160],
     }
+
+
+# ── Profile timezone (for accurate scheduling) ──
+
+@router.put("/{profile_id}/timezone")
+async def set_timezone(profile_id: str, req: ProfileTimezoneRequest):
+    """Store user's IANA timezone (e.g. Europe/Berlin) and UTC offset."""
+    tz = (req.timezone or "").strip()[:64]
+    if not tz:
+        raise HTTPException(400, "Invalid timezone")
+    data = {
+        "profile_id": profile_id,
+        "timezone": tz,
+        "offset_minutes": req.offset_minutes,
+        "updated_at": now_iso(),
+    }
+    await db.profile_timezone.update_one(
+        {"profile_id": profile_id},
+        {"$set": data},
+        upsert=True,
+    )
+    return {"profile_id": profile_id, "timezone": tz, "offset_minutes": req.offset_minutes}
+
+
+@router.get("/{profile_id}/timezone")
+async def get_timezone(profile_id: str):
+    doc = await db.profile_timezone.find_one({"profile_id": profile_id}, {"_id": 0})
+    return doc or {"profile_id": profile_id, "timezone": None, "offset_minutes": None}
+
+
+# ── VERO Post-Meal Coach Comment ──
+
+class CoachCommentRequest(BaseModel):
+    meal_id: Optional[str] = None
+    name: str
+    calories: int
+    protein_g: float
+    meal_type: Optional[str] = "snack"
+
+
+@router.post("/{profile_id}/coach-comment")
+async def meal_coach_comment(profile_id: str, req: CoachCommentRequest):
+    """Generate a short, friendly coach comment after a meal is logged.
+    Cached per (name|cal|protein) hash to save tokens.
+    Only fires when there's something meaningful to say."""
+    cache_key = f"{req.name.lower().strip()}|{req.calories}|{round(req.protein_g)}"[:160]
+
+    cached = await db.meal_coach_cache.find_one({"key": cache_key}, {"_id": 0})
+    if cached:
+        return {"comment": cached["comment"], "cached": True, "tone": cached.get("tone", "neutral")}
+
+    # Pull today's state for context
+    today = await get_today(profile_id)
+    goals = today.get("goals", {})
+    totals = today.get("totals", {})
+    remaining_pro = max(0, goals.get("daily_protein", 90) - totals.get("protein_g", 0))
+    remaining_cal = max(0, goals.get("daily_calories", 2000) - totals.get("calories", 0))
+    pro_ratio_this = (req.protein_g / max(1, req.calories)) * 100  # g per 100 kcal
+
+    # Tone classifier (quick rules) - skip LLM call if trivial
+    tone = "neutral"
+    if req.calories >= 150 and pro_ratio_this >= 6:
+        tone = "positive"
+    elif req.calories >= 300 and pro_ratio_this < 2:
+        tone = "suggestive"
+    elif req.calories >= 600:
+        tone = "caution"
+
+    if tone == "neutral" and req.calories < 150:
+        # Tiny snack - no comment needed
+        return {"comment": None, "cached": False, "tone": "neutral"}
+
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+    except Exception:
+        return {"comment": None, "cached": False, "tone": tone}
+
+    system_msg = (
+        "Du bist VERO, ein freundlicher Health-Coach. Antworte IMMER auf Deutsch. "
+        "Gib einen SEHR kurzen Kommentar (max 1 Satz, 10-16 Woerter) zur gerade gegessenen Mahlzeit. "
+        "Tonalitaet: motivierend, nie belehrend, nie Kalorien-zaehlend. "
+        "Wenn die Mahlzeit proteinreich ist: lobe kurz und nenne Prozent zum Tagesziel. "
+        "Wenn protein-arm und kalorienreich: sanft einen Shake/Protein-Snack als Ergaenzung vorschlagen. "
+        "Wenn kalorienreich: sanft erwaehnen, nie verurteilen. "
+        "KEIN Emoji. KEINE Anrede. Nur der Satz."
+    )
+    user_prompt = (
+        f"Mahlzeit: {req.name} ({req.meal_type}). "
+        f"Kalorien: {req.calories} kcal, Protein: {req.protein_g}g. "
+        f"Tagesziel: {goals.get('daily_calories', 2000)} kcal / {goals.get('daily_protein', 90)}g Protein. "
+        f"Bereits gegessen: {totals.get('calories', 0)} kcal / {totals.get('protein_g', 0)}g. "
+        f"Noch offen: {remaining_cal} kcal / {round(remaining_pro)}g Protein. "
+        f"Tonalitaet-Hinweis: {tone}."
+    )
+
+    try:
+        chat = LlmChat(
+            api_key=os.environ.get('EMERGENT_LLM_KEY', ''),
+            session_id=f"meal-coach-{uuid.uuid4()}",
+            system_message=system_msg,
+        ).with_model("openai", "gpt-4o-mini")
+        response = await chat.send_message(UserMessage(text=user_prompt))
+        comment = str(response).strip().strip('"').strip("'")[:180]
+    except Exception as e:
+        logger.warning(f"coach comment LLM error: {e}")
+        return {"comment": None, "cached": False, "tone": tone}
+
+    # Cache
+    try:
+        await db.meal_coach_cache.insert_one({
+            "key": cache_key, "comment": comment, "tone": tone,
+            "created_at": now_iso(),
+        })
+    except Exception:
+        pass  # duplicate race is fine
+
+    return {"comment": comment, "cached": False, "tone": tone}
 
 
 # ── Dashboard summary (lightweight) ──

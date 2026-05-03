@@ -1,0 +1,36 @@
+{
+  "summary": "Validated VERO coach-comment + profile timezone endpoints in Weight & Metabolism. 9/9 backend tests passed (8.71s). Tone classifier (positive/suggestive/caution/neutral), cache behavior (2nd call cached + faster + identical text), German/<=180/no-emoji/no-markdown comment constraints, timezone PUT/GET (incl. empty + whitespace -> 400, upsert overwrite), and no _id leak — all verified with real gpt-4o-mini (3 LLM calls total).",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_weight_metabolism_coach_timezone.py",
+    "/app/test_reports/pytest/coach_timezone_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "coach-comment endpoint correctly skips LLM for tiny-snack (cal<150 + neutral tone) — saves tokens, verified <3s round-trip.",
+    "Cache key is {name|cal|round(protein)} truncated to 160 chars — adequate but case is lower()'d only for name; numeric rounding means protein 20.0 vs 20.4 collide (acceptable trade-off).",
+    "Cache layer has no TTL/index — meal_coach_cache will grow unbounded over time. Consider a TTL index on created_at (e.g. 90 days) or a unique index on `key` to make insert idempotent (currently insert_one inside try/except for races — works but noisy).",
+    "Comment is post-processed only via .strip().strip('\"').strip(\"'\")[:180]; LLM could still return markdown headers/bullets. In all 3 sampled outputs none did, but consider an explicit markdown-strip (re.sub for **,*,`,#,>,-) for safety.",
+    "ProfileTimezoneRequest doesn't validate offset_minutes range (could accept absurd values like 99999). Low priority.",
+    "Timezone string is whitelisted only by length (<=64) — any non-IANA string is accepted (e.g. 'Foo/Bar' returns 200). Consider zoneinfo.ZoneInfo(tz) validation for robustness.",
+    "weight_metabolism.py is now 968 lines — approaching the 700-line guideline; consider splitting (coach-comment + timezone could go to a sub-router)."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_weight_metabolism_coach_timezone.py (new)"
+  ],
+  "success_rate": {"backend": "100%", "frontend": "not tested (per request)"},
+  "test_credentials": "n/a — endpoints are unauthenticated; profile_id strings prefixed TEST_",
+  "seed_data_creation": "Created cache rows under meal_coach_cache for hashes derived from TEST_huettenkaese_*, TEST_pommes_*, TEST_doener_* (each unique per run via uuid suffix, so no collisions). Timezone docs created under TEST_tz_* profiles.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Tests live at /app/backend/tests/test_weight_metabolism_coach_timezone.py — uses uuid-suffixed meal names so cache reuse from prior runs is avoided. Endpoint paths confirmed: POST /api/weight-metabolism/{pid}/coach-comment, PUT/GET /api/weight-metabolism/{pid}/timezone. Tone thresholds verified: positive(cal>=150 & ratio>=6), suggestive(cal>=300 & ratio<2), caution(cal>=600), else neutral with comment=null when cal<150. Cache stored in meal_coach_cache with key=lower(name)|cal|round(protein) truncated to 160 chars.",
+  "rca of the issue": "n/a — no issues found"
+}

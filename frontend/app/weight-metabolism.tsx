@@ -13,6 +13,8 @@ import { useLang } from '../src/LangContext';
 import { tx } from '../src/i18n';
 import { eventBus } from '../src/eventBus';
 import { SmartProductBlock } from '../components/SmartProductBlock';
+import { scheduleFastingReminders, cancelFastingReminders, getDeviceTimezone } from '../src/services/FastingReminderService';
+import { showActionToast } from '../components/ActionToast';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 const { width: SCREEN_W } = Dimensions.get('window');
@@ -170,15 +172,57 @@ export default function WeightMetabolismScreen() {
     setLoading(false);
   }, []);
 
+  // Re-schedule local reminders if schedule is active (keeps device in sync after app restart)
+  const lastScheduledKey = useRef<string | null>(null);
   useEffect(() => {
-    AsyncStorage.getItem('health_profile_id').then(pid => {
+    if (!schedule?.active) return;
+    const key = `${schedule.eating_window_start}|${schedule.eating_window_hours}|${schedule.reminders_enabled}`;
+    if (lastScheduledKey.current === key) return;
+    lastScheduledKey.current = key;
+    scheduleFastingReminders({
+      eating_window_start: schedule.eating_window_start,
+      eating_window_hours: schedule.eating_window_hours,
+      reminders_enabled: !!schedule.reminders_enabled,
+    }, lang).catch(() => {});
+  }, [schedule?.active, schedule?.eating_window_start, schedule?.eating_window_hours, schedule?.reminders_enabled, lang]);
+
+  useEffect(() => {
+    AsyncStorage.getItem('health_profile_id').then(async pid => {
       if (!pid) { setLoading(false); return; }
       setProfileId(pid);
       loadAll(pid);
+      // Send device timezone to backend (best-effort)
+      try {
+        const { tz, offset } = await getDeviceTimezone();
+        fetch(`${API_URL}/api/weight-metabolism/${pid}/timezone`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ timezone: tz, offset_minutes: offset }),
+        }).catch(() => {});
+      } catch {}
     });
   }, [loadAll]);
 
   const reload = () => { if (profileId) loadAll(profileId); };
+
+  // ── VERO post-meal coach comment (gpt-4o-mini, cached on backend) ──
+  const showCoachComment = async (meal: { name: string; calories: number; protein_g: number; meal_type?: string }) => {
+    if (!profileId) return;
+    try {
+      const res = await fetch(`${API_URL}/api/weight-metabolism/${profileId}/coach-comment`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: meal.name, calories: meal.calories, protein_g: meal.protein_g, meal_type: meal.meal_type || 'snack',
+        }),
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data?.comment) {
+        try { showActionToast(`VERO: ${data.comment}`, data.tone === 'positive' ? 'success' : 'info'); } catch {}
+      }
+    } catch {}
+  };
 
   // ── Meal source picker ──
   const openMealPicker = () => setMealPicker(true);
@@ -279,6 +323,7 @@ export default function WeightMetabolismScreen() {
       closePhotoModal();
       reload();
       eventBus.emit('weight_metabolism_changed');
+      showCoachComment({ name: mealName.trim(), calories: kcal, protein_g: prot, meal_type: mealType });
     } catch (e) { console.warn(e); }
   };
 
@@ -312,16 +357,21 @@ export default function WeightMetabolismScreen() {
       setManualModal(false); setMealName(''); setMealKcal(''); setMealProt(''); setSaveAsFavorite(false);
       reload();
       eventBus.emit('weight_metabolism_changed');
+      showCoachComment({ name: mealName.trim(), calories: kcal, protein_g: prot, meal_type: mealType });
     } catch (e) { console.warn(e); }
   };
 
   const useFavorite = async (favId: string) => {
     if (!profileId) return;
     try {
-      await fetch(`${API_URL}/api/weight-metabolism/${profileId}/favorites/${favId}/use`, { method: 'POST' });
+      const res = await fetch(`${API_URL}/api/weight-metabolism/${profileId}/favorites/${favId}/use`, { method: 'POST' });
       setFavModal(false);
       reload();
       eventBus.emit('weight_metabolism_changed');
+      if (res.ok) {
+        const meal = await res.json();
+        showCoachComment({ name: meal.name, calories: meal.calories, protein_g: meal.protein_g, meal_type: meal.meal_type });
+      }
     } catch {}
   };
 
@@ -397,6 +447,17 @@ export default function WeightMetabolismScreen() {
         }),
       });
       setScheduleModal(false);
+      // Schedule local push reminders (native only)
+      try {
+        const ok = await scheduleFastingReminders({
+          eating_window_start: winStart,
+          eating_window_hours: hours,
+          reminders_enabled: true,
+        }, lang);
+        if (ok) {
+          try { showActionToast('VERO erinnert dich automatisch', 'success'); } catch {}
+        }
+      } catch (e) { console.warn('fasting reminder schedule', e); }
       reload();
       eventBus.emit('weight_metabolism_changed');
     } catch (e) { console.warn(e); }
@@ -412,6 +473,7 @@ export default function WeightMetabolismScreen() {
         {
           text: 'Entfernen', style: 'destructive', onPress: async () => {
             await fetch(`${API_URL}/api/weight-metabolism/${profileId}/schedule`, { method: 'DELETE' });
+            try { await cancelFastingReminders(); } catch {}
             reload();
           }
         },
