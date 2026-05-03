@@ -1117,10 +1117,46 @@ export default function WeightMetabolismScreen() {
                       <View style={st.aiResultBox}>
                         <Text style={st.aiResultLabel}>kcal</Text>
                         <Text style={st.aiResultValue}>{aiSuggestion.daily_calories}</Text>
+                        {(() => {
+                          const cur = goals?.daily_calories || 0;
+                          const diff = aiSuggestion.daily_calories - cur;
+                          if (!cur || diff === 0) return null;
+                          const up = diff > 0;
+                          return (
+                            <View style={[st.deltaBadge, { backgroundColor: up ? '#DCFCE7' : '#FEF3C7' }]} data-testid="wm-ai-delta-cal">
+                              <MaterialCommunityIcons
+                                name={up ? 'trending-up' : 'trending-down'}
+                                size={11}
+                                color={up ? '#15803D' : '#B45309'}
+                              />
+                              <Text style={[st.deltaText, { color: up ? '#15803D' : '#B45309' }]}>
+                                {up ? '+' : ''}{diff} ggü. bisher
+                              </Text>
+                            </View>
+                          );
+                        })()}
                       </View>
                       <View style={st.aiResultBox}>
                         <Text style={st.aiResultLabel}>Protein</Text>
                         <Text style={st.aiResultValue}>{aiSuggestion.daily_protein}g</Text>
+                        {(() => {
+                          const cur = goals?.daily_protein || 0;
+                          const diff = aiSuggestion.daily_protein - cur;
+                          if (!cur || diff === 0) return null;
+                          const up = diff > 0;
+                          return (
+                            <View style={[st.deltaBadge, { backgroundColor: up ? '#DCFCE7' : '#FEF3C7' }]} data-testid="wm-ai-delta-prot">
+                              <MaterialCommunityIcons
+                                name={up ? 'trending-up' : 'trending-down'}
+                                size={11}
+                                color={up ? '#15803D' : '#B45309'}
+                              />
+                              <Text style={[st.deltaText, { color: up ? '#15803D' : '#B45309' }]}>
+                                {up ? '+' : ''}{diff}g ggü. bisher
+                              </Text>
+                            </View>
+                          );
+                        })()}
                       </View>
                     </View>
                     {aiSuggestion.note ? (
@@ -1348,4 +1384,10 @@ const st = StyleSheet.create({
   aiResultLabel: { fontSize: 11, color: '#9CA3AF', fontWeight: '600' },
   aiResultValue: { fontSize: 20, fontWeight: '800', color: '#6D28D9', marginTop: 2 },
   aiNote: { fontSize: 12, color: '#4C1D95', marginTop: 8, fontStyle: 'italic', textAlign: 'center', lineHeight: 18 },
+  deltaBadge: {
+    flexDirection: 'row', alignItems: 'center', gap: 3,
+    paddingHorizontal: 6, paddingVertical: 2,
+    borderRadius: 10, marginTop: 6,
+  },
+  deltaText: { fontSize: 10, fontWeight: '700' },
 });
