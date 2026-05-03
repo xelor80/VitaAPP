@@ -342,6 +342,24 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - VERO-Hinweis-Card oben (nur wenn relevant), groessere Touch-Targets ueberall
 - Abhaengigkeit: `expo-image-picker@17`
 
+### Weight & Metabolism v2.1 (2026-05-03) - COMPLETED
+**VERO Post-Meal Coach Comments + Timezone + Push-Reminder:**
+- Backend: `POST /api/weight-metabolism/{pid}/coach-comment` via gpt-4o-mini
+  - Tone-Klassifikator (positive/suggestive/caution/neutral) spart LLM-Calls bei trivialen Snacks
+  - Cache per `(name|cal|protein)`-Hash in `meal_coach_cache` Collection
+  - Kurzer deutscher Coach-Satz (<=180 Zeichen, kein Emoji, kein Markdown)
+- Backend: `GET/PUT /timezone` speichert IANA-Timezone + UTC-Offset per Profil
+- Frontend: `FastingReminderService.ts` – plant 4 tägliche lokale Notifications via expo-notifications
+  - 15min vor Essensfenster-Start ("Essensfenster startet bald")
+  - Bei Fenster-Start ("Essensfenster geoeffnet")
+  - 15min vor Fenster-Ende ("Fasten beginnt bald")
+  - Bei Fenster-Ende ("Fasten beginnt jetzt")
+  - Auto-Reschedule beim Öffnen des Screens (Idempotenz via lastScheduledKey-ref)
+  - Cancel-All beim Löschen des Plans
+- Frontend: Device-Timezone wird beim Screen-Mount automatisch ans Backend gemeldet
+- Frontend: Nach Mahlzeit-Save (Foto/Manuell/Favorit) wird Coach-Kommentar als Action-Toast angezeigt
+- Tests: 9/9 bestanden (iteration_84) inkl. Tone-Logik, Cache-Verhalten, Validierung, No-`_id`-Leak
+
 ## Prioritized Backlog
 ### P1 - Upcoming
 - Medication Reminders (push notifications) - COMPLETED
