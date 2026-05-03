@@ -212,6 +212,120 @@ async def recalculate_goals(profile_id: str):
     return doc
 
 
+class AIGoalRequest(BaseModel):
+    gender: Optional[str] = None  # "male" | "female" | other
+    current_weight_kg: Optional[float] = None
+    height_cm: Optional[float] = None
+    age: Optional[int] = None
+    activity_level: Optional[str] = None  # sedentary | light | moderate | active | very_active
+    goal: Optional[str] = None  # "maintain" | "lose" | "gain" | "build_muscle"
+
+
+@router.post("/{profile_id}/ai-calculate-goals")
+async def ai_calculate_goals(profile_id: str, req: AIGoalRequest):
+    """AI-powered personalized daily calories + protein based on gender, current weight,
+    and optional profile/health context. Uses GPT-4o-mini + a deterministic formula check."""
+    profile = await db.health_profiles.find_one({"id": profile_id}, {"_id": 0}) or {}
+
+    # Resolve current weight (priority: request → latest weight_log → profile)
+    current_kg = req.current_weight_kg
+    if not current_kg:
+        last = await db.weight_log.find_one(
+            {"profile_id": profile_id},
+            {"_id": 0, "weight_kg": 1},
+            sort=[("measured_at", -1)],
+        )
+        if last:
+            current_kg = last.get("weight_kg")
+    if not current_kg:
+        try:
+            current_kg = float(profile.get("weight") or 0) or None
+        except Exception:
+            current_kg = None
+
+    gender = (req.gender or profile.get("gender") or "").lower() or None
+    height = req.height_cm or (float(profile.get("height") or 0) or None)
+    age = req.age or (int(profile.get("age") or 0) or None)
+    activity = (req.activity_level or profile.get("activity_level") or "moderate").lower()
+    goal = (req.goal or profile.get("goal") or "maintain").lower()
+
+    if not current_kg or not gender:
+        raise HTTPException(400, "Geschlecht und aktuelles Gewicht werden benötigt.")
+
+    # Deterministic baseline (Mifflin-St Jeor) as anchor for the AI
+    h = height or 170
+    a = age or 35
+    if gender == "male":
+        bmr = 10 * current_kg + 6.25 * h - 5 * a + 5
+    else:
+        bmr = 10 * current_kg + 6.25 * h - 5 * a - 161
+    mult = {"sedentary": 1.2, "light": 1.375, "moderate": 1.55,
+            "active": 1.725, "very_active": 1.9}.get(activity, 1.4)
+    tdee = bmr * mult
+    protein_factor = 1.6 if activity in ("active", "very_active") or goal in ("build_muscle", "lose") else 1.2
+    baseline_cal = round(tdee / 50) * 50
+    baseline_pro = round(current_kg * protein_factor / 5) * 5
+
+    # Adjust for goal
+    goal_adj = {"lose": -300, "gain": 300, "build_muscle": 200, "maintain": 0}.get(goal, 0)
+    anchor_cal = max(1200, baseline_cal + goal_adj)
+
+    # AI reasoning step (short, German, respects anchor)
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+        system_msg = (
+            "Du bist VitaGuide Coach. Berechne gesunde Tagesziele fuer Kalorien + Protein. "
+            "Antworte AUSSCHLIESSLICH mit JSON in diesem Format:\n"
+            "{\"daily_calories\": INT, \"daily_protein\": INT, \"note\": \"kurze deutsche Begruendung (1 Satz, max 22 Woerter)\"}\n"
+            "Runde Kalorien auf 50er, Protein auf 5er. Keine Extremdiaeten. Keine Markdown-Blocks."
+        )
+        prompt = (
+            f"Geschlecht: {gender}. Aktuelles Gewicht: {current_kg} kg. "
+            f"Groesse: {h} cm. Alter: {a}. Aktivitaet: {activity}. Ziel: {goal}.\n"
+            f"Wissenschaftlicher Anker (TDEE): {anchor_cal} kcal, Protein ~{baseline_pro}g. "
+            "Weiche nur begruendet innerhalb +/-10% vom Anker ab."
+        )
+        chat = LlmChat(
+            api_key=os.environ.get('EMERGENT_LLM_KEY', ''),
+            session_id=f"ai-goals-{uuid.uuid4()}",
+            system_message=system_msg,
+        ).with_model("openai", "gpt-4o-mini")
+        response = await chat.send_message(UserMessage(text=prompt))
+        raw = str(response).strip()
+        if raw.startswith("```"):
+            raw = raw.strip("`")
+            if raw.lower().startswith("json"):
+                raw = raw[4:].strip()
+        data = json_mod.loads(raw)
+        ai_cal = int(data.get("daily_calories") or anchor_cal)
+        ai_pro = int(data.get("daily_protein") or baseline_pro)
+        note = str(data.get("note") or "")[:200]
+    except Exception as e:
+        logger.warning(f"ai-goals LLM fallback: {e}")
+        ai_cal = anchor_cal
+        ai_pro = baseline_pro
+        note = f"Berechnung basierend auf Mifflin-St Jeor Formel ({activity}, Ziel: {goal})."
+
+    # Safety clamps
+    ai_cal = max(1200, min(5000, round(ai_cal / 50) * 50))
+    ai_pro = max(40, min(300, round(ai_pro / 5) * 5))
+
+    return {
+        "daily_calories": ai_cal,
+        "daily_protein": ai_pro,
+        "note": note,
+        "inputs": {
+            "gender": gender,
+            "current_weight_kg": current_kg,
+            "height_cm": h,
+            "age": a,
+            "activity_level": activity,
+            "goal": goal,
+        },
+        "anchor": {"tdee": anchor_cal, "protein": baseline_pro},
+    }
+
+
 # ── Meals (Calorie/Protein log) ──
 
 @router.post("/{profile_id}/meal")

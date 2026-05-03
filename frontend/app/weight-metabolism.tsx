@@ -482,11 +482,51 @@ export default function WeightMetabolismScreen() {
   };
 
   // Goals
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiSuggestion, setAiSuggestion] = useState<any>(null);
+  const [aiGender, setAiGender] = useState<'male' | 'female'>('male');
+  const [aiGoal, setAiGoal] = useState<'maintain' | 'lose' | 'gain' | 'build_muscle'>('maintain');
+  const [aiActivity, setAiActivity] = useState<'sedentary' | 'light' | 'moderate' | 'active' | 'very_active'>('moderate');
+
   const openGoalModal = () => {
     setGoalCal(String(goals?.daily_calories ?? ''));
     setGoalProt(String(goals?.daily_protein ?? ''));
     setGoalWeight(String(goals?.target_weight_kg ?? ''));
+    setAiSuggestion(null);
     setGoalModal(true);
+  };
+
+  const runAiCalculation = async () => {
+    if (!profileId) return;
+    setAiLoading(true);
+    setAiSuggestion(null);
+    try {
+      // Pull current weight from state (already loaded)
+      const curKg = weight?.current_kg || null;
+      const res = await fetch(`${API_URL}/api/weight-metabolism/${profileId}/ai-calculate-goals`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          gender: aiGender,
+          current_weight_kg: curKg || undefined,
+          activity_level: aiActivity,
+          goal: aiGoal,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ detail: 'Fehler' }));
+        Alert.alert('KI-Berechnung', err.detail || 'Bitte aktuelles Gewicht eintragen.');
+        setAiLoading(false);
+        return;
+      }
+      const data = await res.json();
+      setAiSuggestion(data);
+      setGoalCal(String(data.daily_calories));
+      setGoalProt(String(data.daily_protein));
+    } catch {
+      Alert.alert('KI-Berechnung', 'Netzwerkfehler');
+    }
+    setAiLoading(false);
   };
   const saveGoals = async () => {
     if (!profileId) return;
@@ -999,22 +1039,112 @@ export default function WeightMetabolismScreen() {
       {/* Goals modal */}
       <Modal visible={goalModal} transparent animationType="slide" onRequestClose={() => setGoalModal(false)}>
         <View style={st.modalBg}>
-          <View style={st.modalCard} data-testid="wm-goal-modal">
-            <Text style={st.modalTitle}>{tx(lang, { de: 'Ziele anpassen', it: 'Imposta obiettivi', en: 'Goals' })}</Text>
-            <Text style={st.modalLabel}>{tx(lang, { de: 'Kalorien', it: 'Calorie', en: 'Calories' })}</Text>
-            <TextInput style={st.input} keyboardType="numeric" value={goalCal} onChangeText={setGoalCal} placeholderTextColor="#9CA3AF" />
-            <Text style={st.modalLabel}>{tx(lang, { de: 'Protein (g)', it: 'Proteine (g)', en: 'Protein (g)' })}</Text>
-            <TextInput style={st.input} keyboardType="numeric" value={goalProt} onChangeText={setGoalProt} placeholderTextColor="#9CA3AF" />
-            <Text style={st.modalLabel}>{tx(lang, { de: 'Zielgewicht (kg)', it: 'Peso target', en: 'Target weight' })}</Text>
-            <TextInput style={st.input} keyboardType="numeric" value={goalWeight} onChangeText={setGoalWeight} placeholderTextColor="#9CA3AF" />
-            <View style={st.modalRow}>
-              <TouchableOpacity style={st.modalCancel} onPress={() => setGoalModal(false)}>
-                <Text style={st.modalCancelText}>{tx(lang, { de: 'Abbrechen', it: 'Annulla', en: 'Cancel' })}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={st.modalConfirm} onPress={saveGoals}>
-                <Text style={st.modalConfirmText}>{tx(lang, { de: 'Speichern', it: 'Salva', en: 'Save' })}</Text>
-              </TouchableOpacity>
-            </View>
+          <View style={[st.modalCard, { maxHeight: '90%' }]} data-testid="wm-goal-modal">
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <Text style={st.modalTitle}>{tx(lang, { de: 'Ziele anpassen', it: 'Imposta obiettivi', en: 'Goals' })}</Text>
+
+              {/* AI Calculator Section */}
+              <View style={st.aiSection} data-testid="wm-ai-section">
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                  <MaterialCommunityIcons name="creation" size={16} color="#6D28D9" />
+                  <Text style={st.aiSectionTitle}>
+                    {tx(lang, { de: 'KI-Berechnung', it: 'Calcolo IA', en: 'AI calculation' })}
+                  </Text>
+                </View>
+                <Text style={st.aiSectionSub}>
+                  {tx(lang, {
+                    de: 'Basierend auf Geschlecht, aktuellem Gewicht und Ziel.',
+                    it: 'Basato su genere, peso e obiettivo.',
+                    en: 'Based on gender, weight & goal.',
+                  })}
+                </Text>
+                {/* Gender */}
+                <View style={st.aiRow}>
+                  <TouchableOpacity style={[st.aiChip, aiGender === 'male' && st.aiChipActive]} onPress={() => setAiGender('male')} data-testid="wm-ai-gender-male">
+                    <MaterialCommunityIcons name="gender-male" size={14} color={aiGender === 'male' ? '#FFFFFF' : '#6B7280'} />
+                    <Text style={[st.aiChipText, aiGender === 'male' && { color: '#FFFFFF' }]}>{tx(lang, { de: 'Mann', it: 'Uomo', en: 'Male' })}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={[st.aiChip, aiGender === 'female' && st.aiChipActive]} onPress={() => setAiGender('female')} data-testid="wm-ai-gender-female">
+                    <MaterialCommunityIcons name="gender-female" size={14} color={aiGender === 'female' ? '#FFFFFF' : '#6B7280'} />
+                    <Text style={[st.aiChipText, aiGender === 'female' && { color: '#FFFFFF' }]}>{tx(lang, { de: 'Frau', it: 'Donna', en: 'Female' })}</Text>
+                  </TouchableOpacity>
+                </View>
+                {/* Activity */}
+                <Text style={st.aiMiniLabel}>{tx(lang, { de: 'Aktivitaet', it: 'Attivita', en: 'Activity' })}</Text>
+                <View style={st.aiRow}>
+                  {(['sedentary', 'moderate', 'active', 'very_active'] as const).map(a => (
+                    <TouchableOpacity key={a} style={[st.aiChipSmall, aiActivity === a && st.aiChipActive]} onPress={() => setAiActivity(a)} data-testid={`wm-ai-activity-${a}`}>
+                      <Text style={[st.aiChipTextSmall, aiActivity === a && { color: '#FFFFFF' }]}>
+                        {a === 'sedentary' ? tx(lang, { de: 'Ruhig', it: 'Bassa', en: 'Low' })
+                          : a === 'moderate' ? tx(lang, { de: 'Mittel', it: 'Media', en: 'Med' })
+                          : a === 'active' ? tx(lang, { de: 'Aktiv', it: 'Alta', en: 'High' })
+                          : tx(lang, { de: 'Sport+', it: 'Sport+', en: 'Sport+' })}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+                {/* Goal */}
+                <Text style={st.aiMiniLabel}>{tx(lang, { de: 'Ziel', it: 'Obiettivo', en: 'Goal' })}</Text>
+                <View style={st.aiRow}>
+                  {(['lose', 'maintain', 'gain', 'build_muscle'] as const).map(g => (
+                    <TouchableOpacity key={g} style={[st.aiChipSmall, aiGoal === g && st.aiChipActive]} onPress={() => setAiGoal(g)} data-testid={`wm-ai-goal-${g}`}>
+                      <Text style={[st.aiChipTextSmall, aiGoal === g && { color: '#FFFFFF' }]}>
+                        {g === 'lose' ? tx(lang, { de: 'Abnehmen', it: 'Dimagrire', en: 'Lose' })
+                          : g === 'maintain' ? tx(lang, { de: 'Halten', it: 'Mantenere', en: 'Keep' })
+                          : g === 'gain' ? tx(lang, { de: 'Zunehmen', it: 'Aumentare', en: 'Gain' })
+                          : tx(lang, { de: 'Muskeln', it: 'Muscoli', en: 'Muscle' })}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+
+                <TouchableOpacity style={st.aiBtn} onPress={runAiCalculation} disabled={aiLoading} data-testid="wm-ai-run-btn">
+                  {aiLoading ? (
+                    <ActivityIndicator color="#FFFFFF" size="small" />
+                  ) : (
+                    <>
+                      <MaterialCommunityIcons name="auto-fix" size={16} color="#FFFFFF" />
+                      <Text style={st.aiBtnText}>
+                        {tx(lang, { de: 'KI berechnen', it: 'Calcola con IA', en: 'Calculate with AI' })}
+                      </Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+
+                {aiSuggestion && (
+                  <View style={st.aiResult} data-testid="wm-ai-result">
+                    <View style={st.aiResultRow}>
+                      <View style={st.aiResultBox}>
+                        <Text style={st.aiResultLabel}>kcal</Text>
+                        <Text style={st.aiResultValue}>{aiSuggestion.daily_calories}</Text>
+                      </View>
+                      <View style={st.aiResultBox}>
+                        <Text style={st.aiResultLabel}>Protein</Text>
+                        <Text style={st.aiResultValue}>{aiSuggestion.daily_protein}g</Text>
+                      </View>
+                    </View>
+                    {aiSuggestion.note ? (
+                      <Text style={st.aiNote}>{aiSuggestion.note}</Text>
+                    ) : null}
+                  </View>
+                )}
+              </View>
+
+              <Text style={st.modalLabel}>{tx(lang, { de: 'Kalorien', it: 'Calorie', en: 'Calories' })}</Text>
+              <TextInput style={st.input} keyboardType="numeric" value={goalCal} onChangeText={setGoalCal} placeholderTextColor="#9CA3AF" data-testid="wm-goal-cal" />
+              <Text style={st.modalLabel}>{tx(lang, { de: 'Protein (g)', it: 'Proteine (g)', en: 'Protein (g)' })}</Text>
+              <TextInput style={st.input} keyboardType="numeric" value={goalProt} onChangeText={setGoalProt} placeholderTextColor="#9CA3AF" data-testid="wm-goal-prot" />
+              <Text style={st.modalLabel}>{tx(lang, { de: 'Zielgewicht (kg)', it: 'Peso target', en: 'Target weight' })}</Text>
+              <TextInput style={st.input} keyboardType="numeric" value={goalWeight} onChangeText={setGoalWeight} placeholderTextColor="#9CA3AF" data-testid="wm-goal-weight" />
+              <View style={st.modalRow}>
+                <TouchableOpacity style={st.modalCancel} onPress={() => setGoalModal(false)}>
+                  <Text style={st.modalCancelText}>{tx(lang, { de: 'Abbrechen', it: 'Annulla', en: 'Cancel' })}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={st.modalConfirm} onPress={saveGoals} data-testid="wm-goal-save">
+                  <Text style={st.modalConfirmText}>{tx(lang, { de: 'Speichern', it: 'Salva', en: 'Save' })}</Text>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
           </View>
         </View>
       </Modal>
@@ -1178,4 +1308,44 @@ const st = StyleSheet.create({
   favUseBtn: { padding: 4 },
   emptyFav: { alignItems: 'center', padding: 40 },
   emptyFavText: { fontSize: 13, color: '#9CA3AF', textAlign: 'center', marginTop: 10, lineHeight: 20 },
+
+  // AI goals calculator section
+  aiSection: {
+    backgroundColor: '#F3E8FF',
+    borderRadius: 14,
+    padding: 14,
+    marginVertical: 10,
+    borderWidth: 1,
+    borderColor: '#E9D5FF',
+  },
+  aiSectionTitle: { fontSize: 14, fontWeight: '800', color: '#6D28D9' },
+  aiSectionSub: { fontSize: 12, color: '#6B7280', marginBottom: 10 },
+  aiMiniLabel: { fontSize: 11, color: '#6B7280', fontWeight: '600', marginTop: 8, marginBottom: 4 },
+  aiRow: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
+  aiChip: {
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    paddingHorizontal: 12, paddingVertical: 8, borderRadius: 14, backgroundColor: '#FFFFFF',
+    borderWidth: 1, borderColor: '#E5E7EB',
+  },
+  aiChipSmall: {
+    paddingHorizontal: 10, paddingVertical: 6, borderRadius: 12, backgroundColor: '#FFFFFF',
+    borderWidth: 1, borderColor: '#E5E7EB',
+  },
+  aiChipActive: { backgroundColor: '#6D28D9', borderColor: '#6D28D9' },
+  aiChipText: { fontSize: 12, fontWeight: '600', color: '#6B7280' },
+  aiChipTextSmall: { fontSize: 11, fontWeight: '600', color: '#6B7280' },
+  aiBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+    backgroundColor: '#6D28D9', paddingVertical: 12, borderRadius: 12, marginTop: 12,
+  },
+  aiBtnText: { color: '#FFFFFF', fontWeight: '700', fontSize: 13 },
+  aiResult: {
+    marginTop: 12, padding: 12, backgroundColor: '#FFFFFF', borderRadius: 10,
+    borderWidth: 1, borderColor: '#E9D5FF',
+  },
+  aiResultRow: { flexDirection: 'row', gap: 10 },
+  aiResultBox: { flex: 1, alignItems: 'center', paddingVertical: 6 },
+  aiResultLabel: { fontSize: 11, color: '#9CA3AF', fontWeight: '600' },
+  aiResultValue: { fontSize: 20, fontWeight: '800', color: '#6D28D9', marginTop: 2 },
+  aiNote: { fontSize: 12, color: '#4C1D95', marginTop: 8, fontStyle: 'italic', textAlign: 'center', lineHeight: 18 },
 });

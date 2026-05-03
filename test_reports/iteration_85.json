@@ -1,0 +1,35 @@
+{
+  "summary": "Tested new AI-powered calorie+protein calculator endpoint POST /api/weight-metabolism/{pid}/ai-calculate-goals. 5/5 tests passed covering male/female scenarios, missing-data 400 German error, weight_log fallback, response shape, bounds, multiples-of-50/5, ±15% TDEE sanity clamp, and no _id leak.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_weight_metabolism_ai_goals.py",
+    "/app/test_reports/pytest/ai_goals_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Endpoint is well-structured: resolves weight priority (req → weight_log → profile) correctly.",
+    "Deterministic Mifflin-St Jeor anchor + ±10% LLM guidance + safety clamps (1200-5000 kcal, 40-300g protein, multiples of 50/5) are robust.",
+    "LLM fallback path produces a deterministic German note mentioning Mifflin-St Jeor, and the baseline is still returned — good resilience.",
+    "Minor: AIGoalRequest.current_weight_kg/height_cm/age lack numeric range validation (Pydantic Field constraints). Invalid (e.g., negative) values would silently propagate to TDEE calc. Not blocking.",
+    "Minor: height stored as float in request, but response echoes as int when age is int(profile.get('age') or 0) — types acceptable.",
+    "No _id leak anywhere — confirmed via response text scan."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_weight_metabolism_ai_goals.py (new)"
+  ],
+  "success_rate": {"backend": "100%", "frontend": "N/A"},
+  "test_credentials": "None (random TEST_{uuid} profile_id)",
+  "seed_data_creation": "Created weight_log entry (72.5kg) for test_uses_latest_weight_log under throwaway TEST_ profile_id.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "AI goal calc endpoint is fully green. Male 85kg active build → ~3000kcal/130g; female 65kg moderate lose → lower than male (verified). Tests live at /app/backend/tests/test_weight_metabolism_ai_goals.py. Uses real gpt-4o-mini (~5 LLM calls per full run).",
+  "rca of the issue": "N/A — no issues found."
+}
