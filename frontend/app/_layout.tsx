@@ -84,6 +84,7 @@ export default function RootLayout() {
                   <Stack.Screen name="water-tracking" />
                   <Stack.Screen name="stress" />
                   <Stack.Screen name="stress-player" />
+                  <Stack.Screen name="weight-metabolism" />
                 </Stack>
                 <GuideOverlay />
                 <ActionToast />

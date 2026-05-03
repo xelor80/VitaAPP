@@ -8,6 +8,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLang } from '../src/LangContext';
+import { SmartProductBlock } from '../components/SmartProductBlock';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 const VERO = require('../assets/images/vero-hallo.png');
@@ -32,11 +33,13 @@ export default function StressScreen() {
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [selectedCat, setSelectedCat] = useState<string | null>(null);
+  const [profileId, setProfileId] = useState<string | null>(null);
 
   useEffect(() => { loadData(); }, []);
 
   const loadData = async () => {
     const pid = await AsyncStorage.getItem('health_profile_id');
+    setProfileId(pid);
     try {
       const [exRes, recRes, stRes] = await Promise.all([
         fetch(`${API_URL}/api/stress/exercises?lang=${lang}`),
@@ -217,6 +220,9 @@ export default function StressScreen() {
             <MaterialCommunityIcons name="chevron-right" size={22} color="#D1D5DB" />
           </TouchableOpacity>
         ))}
+
+        {/* Smart product suggestion (stress context) */}
+        <SmartProductBlock context="stress" profileId={profileId} limit={1} testIdPrefix="stress-smart-prod" />
 
         <View style={{ height: 40 }} />
       </ScrollView>

@@ -18,6 +18,8 @@ import { SymptomInput } from '../../components/home/SymptomInput';
 import { SymptomChips } from '../../components/home/SymptomChips';
 import { AnalyzeButton } from '../../components/home/AnalyzeButton';
 import { WaterTrackerCard } from '../../components/WaterTrackerCard';
+import { WeightMetabolismCard } from '../../components/WeightMetabolismCard';
+import { SmartProductBlock } from '../../components/SmartProductBlock';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_GAP = 12;
@@ -477,6 +479,16 @@ export default function DashboardHome() {
               </View>
             </LinearGradient>
           </TouchableOpacity>
+        )}
+
+        {/* Weight & Metabolism Card */}
+        {hasProfile && profileId && (
+          <WeightMetabolismCard profileId={profileId} />
+        )}
+
+        {/* Smart Product Suggestion (dashboard context) */}
+        {hasProfile && profileId && (
+          <SmartProductBlock context="dashboard" profileId={profileId} limit={1} testIdPrefix="dashboard-smart-prod" />
         )}
 
 

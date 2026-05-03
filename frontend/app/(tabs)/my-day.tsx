@@ -11,6 +11,8 @@ import Animated, { FadeIn, FadeInDown, ZoomIn, FadeInUp, SlideInUp } from 'react
 import { useLang } from '../../src/LangContext';
 import { eventBus } from '../../src/eventBus';
 import { showActionToast } from '../../components/ActionToast';
+import { WeightMetabolismCard } from '../../components/WeightMetabolismCard';
+import { SmartProductBlock } from '../../components/SmartProductBlock';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 const VERO = require('../../assets/images/vero-dashboard.png');
@@ -255,6 +257,13 @@ export default function MyDayScreen() {
             </Animated.View>
           );
         })}
+
+        {/* Weight & Metabolism Card */}
+        {profileId && (
+          <View style={{ marginHorizontal: -16 }}>
+            <WeightMetabolismCard profileId={profileId} />
+          </View>
+        )}
 
         {/* Weekly overview */}
         {weekly && (
