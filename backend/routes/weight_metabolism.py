@@ -6,8 +6,10 @@ Neutral, health-oriented (no crash-diet mechanics).
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Optional, List
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone, timedelta, time as dtime
 import uuid
+import os
+import json as json_mod
 
 from core.config import db, logger
 
@@ -45,10 +47,32 @@ class FastingStartRequest(BaseModel):
     started_at: Optional[str] = None  # ISO; default = now
 
 
+class FastingScheduleRequest(BaseModel):
+    """Time-of-day based eating window, recurring daily."""
+    eating_window_start: str  # "HH:MM" (24h) - when eating window opens
+    eating_window_hours: float  # duration of eating window (1-14)
+    daily_recurring: bool = True
+    reminders_enabled: bool = True
+
+
 class FastingSettingsRequest(BaseModel):
     default_target_hours: float = 16.0
     eating_window_hours: Optional[float] = 8.0
     reminders_enabled: bool = False
+
+
+class FavoriteMealRequest(BaseModel):
+    name: str
+    calories: int
+    protein_g: float = 0
+    carbs_g: float = 0
+    fat_g: float = 0
+    category: str = "snack"  # breakfast, lunch, dinner, snack, shake
+
+
+class PhotoAnalyzeRequest(BaseModel):
+    image_base64: str
+    hint: Optional[str] = None  # optional text hint from user
 
 
 # ── Helpers ──
@@ -489,6 +513,293 @@ async def fasting_settings_update(profile_id: str, req: FastingSettingsRequest):
     return data
 
 
+# ── Fasting Schedule (time-of-day based, recurring) ──
+
+def _parse_hhmm(s: str) -> dtime:
+    parts = s.strip().split(":")
+    if len(parts) != 2:
+        raise HTTPException(400, "Invalid time format (HH:MM)")
+    try:
+        h, m = int(parts[0]), int(parts[1])
+        if not (0 <= h < 24 and 0 <= m < 60):
+            raise ValueError()
+        return dtime(h, m)
+    except ValueError:
+        raise HTTPException(400, "Invalid time format (HH:MM)")
+
+
+def _minutes_since_midnight(t: dtime) -> int:
+    return t.hour * 60 + t.minute
+
+
+def _format_hhmm(t: dtime) -> str:
+    return f"{t.hour:02d}:{t.minute:02d}"
+
+
+@router.get("/{profile_id}/schedule")
+async def get_schedule(profile_id: str):
+    """Return time-of-day based eating window schedule and current live phase."""
+    doc = await db.fasting_schedule.find_one({"profile_id": profile_id}, {"_id": 0})
+    if not doc:
+        return {"active": False}
+
+    start_t = _parse_hhmm(doc["eating_window_start"])
+    window_h = float(doc.get("eating_window_hours", 8))
+    start_m = _minutes_since_midnight(start_t)
+    end_m = (start_m + int(window_h * 60)) % (24 * 60)
+
+    now = datetime.now(timezone.utc)
+    # Convert UTC to user's local "clock" — we store HH:MM as-is.
+    # For simplicity use server UTC clock. Client can display localized timings.
+    now_m = now.hour * 60 + now.minute
+
+    def in_window(cur: int, s: int, e: int) -> bool:
+        if s == e:
+            return False
+        if s < e:
+            return s <= cur < e
+        return cur >= s or cur < e  # wrap past midnight
+
+    is_eating = in_window(now_m, start_m, end_m)
+
+    # Compute time until next transition
+    def mins_until(cur: int, target: int) -> int:
+        diff = (target - cur) % (24 * 60)
+        return diff if diff != 0 else 24 * 60
+
+    if is_eating:
+        remaining_m = mins_until(now_m, end_m)
+        phase = "eating"
+        next_change_label = "fasting_starts"
+    else:
+        remaining_m = mins_until(now_m, start_m)
+        phase = "fasting"
+        next_change_label = "eating_starts"
+
+    # Progress within current phase
+    total_phase_m = int(window_h * 60) if is_eating else (24 * 60 - int(window_h * 60))
+    elapsed_in_phase = total_phase_m - remaining_m
+    progress_pct = min(100, max(0, round(elapsed_in_phase / total_phase_m * 100))) if total_phase_m else 0
+
+    end_t = dtime((start_m + int(window_h * 60)) // 60 % 24, (start_m + int(window_h * 60)) % 60)
+    fasting_hours = round(24 - window_h, 1)
+
+    return {
+        "active": True,
+        "eating_window_start": doc["eating_window_start"],
+        "eating_window_end": _format_hhmm(end_t),
+        "eating_window_hours": window_h,
+        "fasting_hours": fasting_hours,
+        "daily_recurring": bool(doc.get("daily_recurring", True)),
+        "reminders_enabled": bool(doc.get("reminders_enabled", True)),
+        "phase": phase,  # "eating" | "fasting"
+        "is_eating": is_eating,
+        "remaining_seconds": remaining_m * 60,
+        "remaining_minutes": remaining_m,
+        "progress_pct": progress_pct,
+        "next_change": next_change_label,
+    }
+
+
+@router.put("/{profile_id}/schedule")
+async def update_schedule(profile_id: str, req: FastingScheduleRequest):
+    _parse_hhmm(req.eating_window_start)  # validate
+    if req.eating_window_hours < 1 or req.eating_window_hours > 14:
+        raise HTTPException(400, "eating_window_hours must be 1-14")
+    data = {
+        "profile_id": profile_id,
+        "eating_window_start": req.eating_window_start,
+        "eating_window_hours": float(req.eating_window_hours),
+        "daily_recurring": bool(req.daily_recurring),
+        "reminders_enabled": bool(req.reminders_enabled),
+        "updated_at": now_iso(),
+    }
+    await db.fasting_schedule.update_one(
+        {"profile_id": profile_id},
+        {"$set": data},
+        upsert=True,
+    )
+    return await get_schedule(profile_id)
+
+
+@router.delete("/{profile_id}/schedule")
+async def delete_schedule(profile_id: str):
+    await db.fasting_schedule.delete_one({"profile_id": profile_id})
+    return {"deleted": True}
+
+
+# ── Favorite Meals ──
+
+@router.get("/{profile_id}/favorites")
+async def list_favorites(profile_id: str, category: Optional[str] = None):
+    query = {"profile_id": profile_id}
+    if category:
+        query["category"] = category
+    cursor = db.meal_favorites.find(query, {"_id": 0}).sort("used_count", -1)
+    items = await cursor.to_list(length=200)
+    return {"items": items, "count": len(items)}
+
+
+@router.post("/{profile_id}/favorites")
+async def add_favorite(profile_id: str, req: FavoriteMealRequest):
+    if req.calories < 0 or req.calories > 5000:
+        raise HTTPException(400, "Calories out of range")
+    fav = {
+        "id": str(uuid.uuid4()),
+        "profile_id": profile_id,
+        "name": req.name.strip()[:80],
+        "calories": int(req.calories),
+        "protein_g": float(req.protein_g),
+        "carbs_g": float(req.carbs_g),
+        "fat_g": float(req.fat_g),
+        "category": req.category,
+        "used_count": 0,
+        "created_at": now_iso(),
+    }
+    await db.meal_favorites.insert_one(fav)
+    fav.pop("_id", None)
+    return fav
+
+
+@router.delete("/{profile_id}/favorites/{fav_id}")
+async def delete_favorite(profile_id: str, fav_id: str):
+    res = await db.meal_favorites.delete_one({"id": fav_id, "profile_id": profile_id})
+    if res.deleted_count == 0:
+        raise HTTPException(404, "Favorite not found")
+    return {"deleted": True}
+
+
+@router.post("/{profile_id}/favorites/{fav_id}/use")
+async def use_favorite(profile_id: str, fav_id: str):
+    """Log a favorite as a meal for today and bump used_count."""
+    fav = await db.meal_favorites.find_one({"id": fav_id, "profile_id": profile_id}, {"_id": 0})
+    if not fav:
+        raise HTTPException(404, "Favorite not found")
+    # Create meal from favorite
+    meal_id = str(uuid.uuid4())
+    consumed = now_iso()
+    meal = {
+        "id": meal_id,
+        "profile_id": profile_id,
+        "date": consumed[:10],
+        "name": fav["name"],
+        "calories": fav["calories"],
+        "protein_g": fav["protein_g"],
+        "carbs_g": fav.get("carbs_g", 0),
+        "fat_g": fav.get("fat_g", 0),
+        "meal_type": fav.get("category", "snack"),
+        "recipe_id": None,
+        "consumed_at": consumed,
+        "from_favorite_id": fav_id,
+    }
+    await db.meal_log.insert_one(meal)
+    await db.meal_favorites.update_one(
+        {"id": fav_id},
+        {"$inc": {"used_count": 1}, "$set": {"last_used_at": consumed}},
+    )
+    meal.pop("_id", None)
+    return meal
+
+
+# ── Photo AI Analysis ──
+
+@router.post("/{profile_id}/analyze-meal-photo")
+async def analyze_meal_photo(profile_id: str, req: PhotoAnalyzeRequest):
+    """Analyze a meal photo and estimate calories + protein using GPT-4o vision."""
+    if not req.image_base64 or len(req.image_base64) < 200:
+        raise HTTPException(400, "Invalid image")
+    # Strip data-url prefix if present
+    img_b64 = req.image_base64.split(",", 1)[-1] if "," in req.image_base64 else req.image_base64
+
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage, ImageContent
+    except Exception as e:
+        logger.error(f"emergentintegrations import failed: {e}")
+        raise HTTPException(500, "LLM client not available")
+
+    system_msg = (
+        "Du bist ein Ernaehrungsexperte. Der Nutzer sendet ein Foto einer Mahlzeit. "
+        "Erkenne die wichtigsten Lebensmittel auf dem Teller und schaetze die gesamten Kalorien (kcal) und Protein (g). "
+        "Antworte AUSSCHLIESSLICH mit einem JSON-Objekt in diesem exakten Format:\n"
+        "{\n"
+        '  "name": "Kurze Beschreibung der Mahlzeit (z.B. Haehnchen mit Reis und Brokkoli)",\n'
+        '  "items": ["Haehnchenbrust", "Reis", "Brokkoli"],\n'
+        '  "calories": 650,\n'
+        '  "protein_g": 45,\n'
+        '  "carbs_g": 55,\n'
+        '  "fat_g": 15,\n'
+        '  "confidence": "high | medium | low",\n'
+        '  "note": "Kurzer Hinweis zur Schaetzung in DEUTSCH, max 1 Satz"\n'
+        "}\n"
+        "KEINE Markdown-Code-Blocks, KEIN Text davor oder danach, nur das JSON."
+    )
+
+    prompt = "Analysiere bitte diese Mahlzeit."
+    if req.hint:
+        prompt += f" Hinweis des Nutzers: {req.hint[:150]}"
+
+    try:
+        chat = LlmChat(
+            api_key=os.environ.get('EMERGENT_LLM_KEY', ''),
+            session_id=f"meal-photo-{uuid.uuid4()}",
+            system_message=system_msg,
+        ).with_model("openai", "gpt-4o")
+
+        image_content = ImageContent(image_base64=img_b64)
+        response = await chat.send_message(UserMessage(
+            text=prompt,
+            file_contents=[image_content],
+        ))
+    except Exception as e:
+        logger.error(f"GPT-4o vision error: {e}")
+        raise HTTPException(500, "Bilderkennung fehlgeschlagen")
+
+    raw = str(response).strip()
+    # Try to strip code-fencing if model wraps JSON
+    if raw.startswith("```"):
+        raw = raw.strip("`")
+        if raw.lower().startswith("json"):
+            raw = raw[4:].strip()
+    try:
+        data = json_mod.loads(raw)
+    except Exception:
+        logger.warning(f"Model returned non-JSON: {raw[:200]}")
+        # Fallback - user must enter manually
+        return {
+            "success": False,
+            "name": "Unbekannte Mahlzeit",
+            "items": [],
+            "calories": 0,
+            "protein_g": 0,
+            "carbs_g": 0,
+            "fat_g": 0,
+            "confidence": "low",
+            "note": "Konnte nicht erkannt werden. Bitte manuell anpassen.",
+            "raw": raw[:300],
+        }
+
+    # Sanitize fields
+    try:
+        cal = max(0, min(5000, int(float(data.get("calories", 0) or 0))))
+        pro = max(0.0, min(500.0, float(data.get("protein_g", 0) or 0)))
+        carbs = max(0.0, min(800.0, float(data.get("carbs_g", 0) or 0)))
+        fat = max(0.0, min(500.0, float(data.get("fat_g", 0) or 0)))
+    except Exception:
+        cal, pro, carbs, fat = 0, 0.0, 0.0, 0.0
+
+    return {
+        "success": True,
+        "name": str(data.get("name", "Mahlzeit"))[:80],
+        "items": [str(x)[:40] for x in (data.get("items") or [])][:6],
+        "calories": cal,
+        "protein_g": round(pro, 1),
+        "carbs_g": round(carbs, 1),
+        "fat_g": round(fat, 1),
+        "confidence": str(data.get("confidence", "medium"))[:20],
+        "note": str(data.get("note", ""))[:160],
+    }
+
+
 # ── Dashboard summary (lightweight) ──
 
 @router.get("/{profile_id}/summary")
@@ -497,6 +808,20 @@ async def summary(profile_id: str):
     today = await get_today(profile_id)
     state = await fasting_state(profile_id)
     weight = await weight_history(profile_id, 30)
+    schedule = await get_schedule(profile_id)
+
+    # VERO contextual hint
+    vero_hint = None
+    if schedule.get("active"):
+        remaining_min = schedule.get("remaining_minutes", 0)
+        if schedule["phase"] == "fasting" and remaining_min <= 30:
+            vero_hint = f"Essensfenster startet in {remaining_min} Min"
+        elif schedule["phase"] == "eating" and remaining_min <= 60:
+            vero_hint = f"Fasten beginnt in {remaining_min} Min"
+    remaining_pro = max(0, today["goals"]["daily_protein"] - today["totals"]["protein_g"])
+    if not vero_hint and remaining_pro > 20 and today["totals"]["calories"] > 0:
+        vero_hint = f"Noch {round(remaining_pro)}g Protein offen"
+
     return {
         "calories": today["totals"]["calories"],
         "calories_goal": today["goals"]["daily_calories"],
@@ -508,6 +833,13 @@ async def summary(profile_id: str):
         "fasting_progress_pct": state["progress"]["progress_pct"] if state.get("progress") else 0,
         "fasting_remaining_seconds": state["progress"]["remaining_seconds"] if state.get("progress") else 0,
         "fasting_target_hours": state["progress"]["target_hours"] if state.get("progress") else None,
+        "schedule_active": bool(schedule.get("active")),
+        "schedule_phase": schedule.get("phase"),
+        "schedule_progress_pct": schedule.get("progress_pct"),
+        "schedule_remaining_seconds": schedule.get("remaining_seconds"),
+        "schedule_eating_window_start": schedule.get("eating_window_start"),
+        "schedule_eating_window_end": schedule.get("eating_window_end"),
         "current_weight_kg": weight.get("current_kg"),
         "weight_delta_kg": weight.get("delta_kg"),
+        "vero_hint": vero_hint,
     }

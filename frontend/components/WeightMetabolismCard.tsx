@@ -85,16 +85,29 @@ export function WeightMetabolismCard({ profileId }: { profileId: string }) {
         </View>
       </View>
 
-      {data.fasting_active && (
+      {(data.schedule_active || data.fasting_active) && (
         <View style={st.fastBanner}>
-          <MaterialCommunityIcons name="timer-sand" size={14} color="#6D28D9" />
-          <Text style={st.fastText}>
-            {tx(lang, { de: 'Fasten aktiv', it: 'Digiuno attivo', en: 'Fasting' })} ·{' '}
-            {data.fasting_remaining_seconds > 0
-              ? `${fmtTime(data.fasting_remaining_seconds)} ${tx(lang, { de: 'verbleibend', it: 'rimanenti', en: 'left' })}`
-              : tx(lang, { de: 'Ziel erreicht', it: 'Obiettivo raggiunto', en: 'Goal reached' })}
-            {' '}({data.fasting_progress_pct}%)
+          <MaterialCommunityIcons
+            name={data.schedule_phase === 'eating' ? 'silverware-fork-knife' : 'timer-sand'}
+            size={14}
+            color={data.schedule_phase === 'eating' ? '#2E7D52' : '#6D28D9'}
+          />
+          <Text style={[st.fastText, { color: data.schedule_phase === 'eating' ? '#2E7D52' : '#6D28D9' }]}>
+            {data.schedule_active ? (
+              data.schedule_phase === 'eating'
+                ? `${tx(lang, { de: 'Essensfenster', it: 'Finestra', en: 'Eating' })} · ${fmtTime(data.schedule_remaining_seconds || 0)}`
+                : `${tx(lang, { de: 'Fasten', it: 'Digiuno', en: 'Fasting' })} · ${fmtTime(data.schedule_remaining_seconds || 0)}`
+            ) : (
+              `${tx(lang, { de: 'Fasten aktiv', it: 'Digiuno attivo', en: 'Fasting' })} · ${fmtTime(data.fasting_remaining_seconds || 0)}`
+            )}
           </Text>
+        </View>
+      )}
+
+      {data.vero_hint && (
+        <View style={st.hintRow}>
+          <MaterialCommunityIcons name="lightbulb-outline" size={12} color="#F59E0B" />
+          <Text style={st.hintText}>{data.vero_hint}</Text>
         </View>
       )}
     </TouchableOpacity>
@@ -134,6 +147,8 @@ const st = StyleSheet.create({
     marginTop: 12, paddingTop: 10, borderTopWidth: 1, borderTopColor: '#F1F5F2',
   },
   fastText: { fontSize: 12, color: '#6D28D9', fontWeight: '600' },
+  hintRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 6 },
+  hintText: { fontSize: 11, color: '#92400E', fontWeight: '600', fontStyle: 'italic' },
 });
 
 export default WeightMetabolismCard;
