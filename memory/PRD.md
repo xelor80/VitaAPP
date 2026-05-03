@@ -322,6 +322,26 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - Click-Tracking via `/api/smart-products/click` + `Linking.openURL` fuer affiliate_url
 - Mehrsprachig (de/it/en)
 
+### Weight & Metabolism UPGRADE v2 (2026-05-03) - COMPLETED
+**Backend (`/app/backend/routes/weight_metabolism.py`) - neue Endpoints:**
+- **Fasten-Schedule** (zeitbasiert, statt Einzel-Timer):
+  - `GET/PUT/DELETE /api/weight-metabolism/{pid}/schedule` mit eating_window_start (HH:MM) + eating_window_hours (1-14), daily_recurring
+  - Auto-Berechnung: aktuelle Phase (eating/fasting), remaining_seconds, progress_pct, Wrap-Around ueber Mitternacht
+- **Favorites CRUD**: `GET/POST/DELETE /favorites` + `POST /favorites/{id}/use` (loggt Meal + inkrementiert used_count)
+- **Photo AI Analysis**: `POST /analyze-meal-photo` mit base64-Image → GPT-4o Vision → strukturiertes JSON (name, items, kcal, protein_g, carbs_g, fat_g, confidence, note). Fallback: success=false mit manuell-Hinweis
+- **Summary erweitert**: schedule_* Felder + `vero_hint` (kontextbasiert: Fenster-Start in X Min / Fasten-Start in X Min / Rest-Protein)
+- 100% Backend-Tests (18/18 in iteration_83)
+
+**Frontend (`/app/frontend/app/weight-metabolism.tsx`) - komplett ueberarbeitet:**
+- Grosser Fasten-Kreis (200px) mit Phasen-Badge (eating/fasting), Live-Countdown
+- Preset-Chips fuer Startzeit (08:00/10:00/12:00/14:00) + Dauer (6/8/10/12h), freie Eingabe moeglich
+- 3-Kachel Mahlzeit-Picker (Foto / Manuell / Favoriten) in Bottom-Sheet
+- Foto-Flow: Kamera oder Galerie → Live-Analyse-Spinner → editierbare Schaetzung → optional als Favorit speichern
+- Unsicherheit-Banner bei confidence=low ("Nicht eindeutig erkannt")
+- Favoriten-Modal mit 1-Tap-Add, Used-Count, Inline-Erstellung
+- VERO-Hinweis-Card oben (nur wenn relevant), groessere Touch-Targets ueberall
+- Abhaengigkeit: `expo-image-picker@17`
+
 ## Prioritized Backlog
 ### P1 - Upcoming
 - Medication Reminders (push notifications) - COMPLETED
