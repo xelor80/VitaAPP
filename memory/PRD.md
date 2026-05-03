@@ -360,6 +360,19 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - Frontend: Nach Mahlzeit-Save (Foto/Manuell/Favorit) wird Coach-Kommentar als Action-Toast angezeigt
 - Tests: 9/9 bestanden (iteration_84) inkl. Tone-Logik, Cache-Verhalten, Validierung, No-`_id`-Leak
 
+### Weight & Metabolism v2.2 (2026-05-03) - COMPLETED
+**KI-Tagesziele-Berechnung in den Einstellungen:**
+- Backend: `POST /api/weight-metabolism/{pid}/ai-calculate-goals`
+  - Input: Geschlecht + aktuelles Gewicht (Fallback: latest weight_log → profile.weight), optional Groesse/Alter/Aktivitaet/Ziel
+  - Mifflin-St Jeor Anchor + Aktivitaets-Multiplikator + Ziel-Adjustment (±300 kcal)
+  - GPT-4o-mini verfeinert und liefert kurze deutsche Begruendung
+  - Safety Clamps: Kalorien 1200-5000 (multiples of 50), Protein 40-300g (multiples of 5)
+  - Fallback auf pure Formel wenn LLM fehlschlaegt
+- Frontend: Lila KI-Sektion im Goals-Modal mit Chips fuer Geschlecht/Aktivitaet/Ziel + Berechnen-Button
+  - Zeigt Vorschlag (kcal + Protein + Coach-Begruendung) inline
+  - Werte werden automatisch in die Input-Felder uebernommen, User kann anpassen
+- 5/5 Backend-Tests bestanden (iteration_85)
+
 ## Prioritized Backlog
 ### P1 - Upcoming
 - Medication Reminders (push notifications) - COMPLETED
