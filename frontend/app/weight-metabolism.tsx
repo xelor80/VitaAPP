@@ -136,6 +136,12 @@ export default function WeightMetabolismScreen() {
   const [weightModal, setWeightModal] = useState(false);
   const [weightInput, setWeightInput] = useState('');
 
+  // VERO info modal (Abnehm-Erklaerung)
+  const [veroInfoModal, setVeroInfoModal] = useState(false);
+
+  // Weight-history modal (Verlauf einsehen + einzeln loeschen + reset)
+  const [historyModal, setHistoryModal] = useState(false);
+
   // Schedule modal - now uses fast_start + duration (14/15/16h)
   const [scheduleModal, setScheduleModal] = useState(false);
   const [fastStart, setFastStart] = useState('20:00');
@@ -434,6 +440,51 @@ export default function WeightMetabolismScreen() {
     } catch {}
   };
 
+  const deleteWeightEntry = async (entryId: string) => {
+    if (!profileId) return;
+    Alert.alert(
+      tx(lang, { de: 'Eintrag loeschen?', it: 'Eliminare voce?', en: 'Delete entry?' }),
+      tx(lang, { de: 'Dieser Gewichtseintrag wird entfernt.', it: 'Questa voce verra rimossa.', en: 'This entry will be removed.' }),
+      [
+        { text: tx(lang, { de: 'Abbrechen', it: 'Annulla', en: 'Cancel' }), style: 'cancel' },
+        {
+          text: tx(lang, { de: 'Loeschen', it: 'Elimina', en: 'Delete' }), style: 'destructive', onPress: async () => {
+            try {
+              await fetch(`${API_URL}/api/weight-metabolism/${profileId}/weight/${entryId}`, { method: 'DELETE' });
+              try { showActionToast(tx(lang, { de: 'Eintrag entfernt', it: 'Voce rimossa', en: 'Entry removed' }), 'info'); } catch {}
+              reload();
+            } catch {}
+          }
+        },
+      ]
+    );
+  };
+
+  const resetWeightHistory = async () => {
+    if (!profileId) return;
+    Alert.alert(
+      tx(lang, { de: 'Verlauf zuruecksetzen?', it: 'Azzerare lo storico?', en: 'Reset history?' }),
+      tx(lang, {
+        de: 'Alle Gewichtseintraege werden geloescht. Diese Aktion kann nicht rueckgaengig gemacht werden.',
+        it: 'Tutte le voci di peso saranno eliminate. Questa azione non puo essere annullata.',
+        en: 'All weight entries will be deleted. This cannot be undone.',
+      }),
+      [
+        { text: tx(lang, { de: 'Abbrechen', it: 'Annulla', en: 'Cancel' }), style: 'cancel' },
+        {
+          text: tx(lang, { de: 'Alles loeschen', it: 'Elimina tutto', en: 'Delete all' }), style: 'destructive', onPress: async () => {
+            try {
+              await fetch(`${API_URL}/api/weight-metabolism/${profileId}/weight`, { method: 'DELETE' });
+              try { showActionToast(tx(lang, { de: 'Verlauf zurueckgesetzt', it: 'Storico azzerato', en: 'History reset' }), 'info'); } catch {}
+              setHistoryModal(false);
+              reload();
+            } catch {}
+          }
+        },
+      ]
+    );
+  };
+
   // Schedule
   const openScheduleModal = () => {
     setFastStart(schedule?.fast_start || '20:00');
@@ -664,7 +715,12 @@ export default function WeightMetabolismScreen() {
 
           {sched?.active ? (
             <View style={{ alignItems: 'center', marginTop: 8 }}>
-              <View style={st.fastTimerWrap}>
+              <TouchableOpacity
+                style={st.fastTimerWrap}
+                onPress={() => setVeroInfoModal(true)}
+                activeOpacity={0.85}
+                data-testid="wm-fast-circle-info"
+              >
                 <Svg width={200} height={200}>
                   <G rotation="-90" origin="100, 100">
                     <Circle cx="100" cy="100" r="88" stroke="#EEF1EF" strokeWidth={12} fill="none" />
@@ -697,7 +753,13 @@ export default function WeightMetabolismScreen() {
                       : tx(lang, { de: 'bis Routine-Start', it: "all'avvio routine", en: 'until start' })}
                   </Text>
                 </View>
-              </View>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setVeroInfoModal(true)} style={st.circleInfoHint} data-testid="wm-circle-info-hint">
+                <MaterialCommunityIcons name="information-outline" size={14} color="#6D28D9" />
+                <Text style={st.circleInfoHintText}>
+                  {tx(lang, { de: 'Tippe für VERO-Erklärung', it: 'Tocca per la guida VERO', en: 'Tap for VERO guide' })}
+                </Text>
+              </TouchableOpacity>
               <View style={st.scheduleInfo}>
                 <View style={st.scheduleRow}>
                   <Text style={st.scheduleLabel}>{tx(lang, { de: 'Proteinphase', it: 'Fase proteica', en: 'Protein phase' })}</Text>
@@ -905,10 +967,16 @@ export default function WeightMetabolismScreen() {
               <MaterialCommunityIcons name="scale-bathroom" size={20} color="#2E7D52" />
               <Text style={st.cardTitle}>{tx(lang, { de: 'Gewicht', it: 'Peso', en: 'Weight' })}</Text>
             </View>
-            <TouchableOpacity onPress={() => setWeightModal(true)} style={st.smallBtn} data-testid="wm-add-weight-btn">
-              <MaterialCommunityIcons name="plus" size={16} color="#2E7D52" />
-              <Text style={st.smallBtnText}>{tx(lang, { de: 'Eintrag', it: 'Voce', en: 'Entry' })}</Text>
-            </TouchableOpacity>
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <TouchableOpacity onPress={() => setHistoryModal(true)} style={st.smallBtnGhost} data-testid="wm-history-btn">
+                <MaterialCommunityIcons name="history" size={16} color="#6B7280" />
+                <Text style={st.smallBtnGhostText}>{tx(lang, { de: 'Verlauf', it: 'Storico', en: 'History' })}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setWeightModal(true)} style={st.smallBtn} data-testid="wm-add-weight-btn">
+                <MaterialCommunityIcons name="plus" size={16} color="#2E7D52" />
+                <Text style={st.smallBtnText}>{tx(lang, { de: 'Eintrag', it: 'Voce', en: 'Entry' })}</Text>
+              </TouchableOpacity>
+            </View>
           </View>
           <View style={st.weightStatsRow}>
             <View style={st.weightStat}>
@@ -1367,6 +1435,162 @@ export default function WeightMetabolismScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* VERO Info Modal: Abnehm-Erklaerung */}
+      <Modal visible={veroInfoModal} transparent animationType="fade" onRequestClose={() => setVeroInfoModal(false)}>
+        <View style={st.modalBg}>
+          <Animated.View entering={ZoomIn.duration(220)} style={st.modalCard} data-testid="wm-vero-info-modal">
+            <ScrollView style={{ maxHeight: 560 }} showsVerticalScrollIndicator={false}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+                <Image source={VERO_HALLO} style={{ width: 56, height: 56 }} resizeMode="contain" />
+                <View style={{ flex: 1 }}>
+                  <Text style={st.modalTitle}>
+                    {tx(lang, { de: 'So funktioniert dein Abnehm-Plan', it: 'Come funziona il tuo piano', en: 'How your weight-loss plan works' })}
+                  </Text>
+                  <Text style={st.modalSub}>
+                    {tx(lang, { de: 'VERO erklärt dir die Protein-Routine', it: 'VERO spiega la routine proteica', en: 'VERO explains the protein routine' })}
+                  </Text>
+                </View>
+              </View>
+
+              <View style={st.veroSection}>
+                <Text style={st.veroSectionTitle}>
+                  {tx(lang, { de: '1. Warum 4 feste Schritte?', it: '1. Perché 4 passi fissi?', en: '1. Why 4 fixed steps?' })}
+                </Text>
+                <Text style={st.veroSectionText}>
+                  {tx(lang, {
+                    de: 'Dein Tag besteht aus zwei Shakes und zwei Mahlzeiten. So bekommt dein Körper über den Tag verteilt genug Protein, dein Stoffwechsel bleibt stabil und du vermeidest Heißhunger.',
+                    it: 'La tua giornata ha due frullati e due pasti. Il corpo riceve proteine ben distribuite, il metabolismo resta stabile e niente attacchi di fame.',
+                    en: 'Your day has two shakes and two meals. Protein stays evenly spread, your metabolism stays stable, and cravings disappear.',
+                  })}
+                </Text>
+              </View>
+
+              <View style={st.veroSection}>
+                <Text style={st.veroSectionTitle}>
+                  {tx(lang, { de: '2. Warum Protein im Vordergrund?', it: '2. Perché proteine?', en: '2. Why protein first?' })}
+                </Text>
+                <Text style={st.veroSectionText}>
+                  {tx(lang, {
+                    de: 'Protein sättigt länger als Kohlenhydrate, schützt deine Muskeln und sorgt dafür, dass du Fett verlierst – nicht Muskelmasse. Genau das macht den Unterschied zu klassischen Diäten.',
+                    it: 'Le proteine saziano più dei carboidrati, proteggono i muscoli e ti aiutano a perdere grasso, non massa muscolare.',
+                    en: 'Protein keeps you fuller than carbs, protects your muscles and helps you lose fat — not muscle.',
+                  })}
+                </Text>
+              </View>
+
+              <View style={st.veroSection}>
+                <Text style={st.veroSectionTitle}>
+                  {tx(lang, { de: '3. Was bringt das Essensfenster?', it: '3. La finestra alimentare', en: '3. The eating window' })}
+                </Text>
+                <Text style={st.veroSectionText}>
+                  {tx(lang, {
+                    de: 'Zwischen deinen Mahlzeiten gönnst du dem Körper eine Pause (14–16 Stunden). In dieser Zeit greift er auf Fettreserven zu. Du musst nichts zählen – nur den Plan befolgen.',
+                    it: 'Tra i pasti il corpo riposa (14–16 ore) e attinge alle riserve di grasso. Niente conteggi: segui solo il piano.',
+                    en: 'Between meals your body rests (14–16h) and taps into fat reserves. No counting — just follow the plan.',
+                  })}
+                </Text>
+              </View>
+
+              <View style={st.veroSection}>
+                <Text style={st.veroSectionTitle}>
+                  {tx(lang, { de: '4. Wasser & Schritte', it: '4. Acqua e passi', en: '4. Water & steps' })}
+                </Text>
+                <Text style={st.veroSectionText}>
+                  {tx(lang, {
+                    de: 'Bei jedem abgehakten Schritt wird automatisch Wasser mitgezählt (300–400 ml). Trinken kurbelt deinen Stoffwechsel an und verstärkt das Sättigungsgefühl.',
+                    it: 'Ogni passo completato aggiunge acqua (300–400 ml). L\'idratazione accelera il metabolismo e aumenta il senso di sazietà.',
+                    en: 'Each completed step auto-logs water (300–400 ml). Hydration boosts your metabolism and satiety.',
+                  })}
+                </Text>
+              </View>
+
+              <View style={st.veroSection}>
+                <Text style={st.veroSectionTitle}>
+                  {tx(lang, { de: '5. Dein Tagesziel', it: '5. Il tuo obiettivo', en: '5. Your daily target' })}
+                </Text>
+                <Text style={st.veroSectionText}>
+                  {tx(lang, {
+                    de: 'Ich rechne deine Kalorien- und Proteinziele aus deinem Gewicht, Geschlecht und Aktivitätslevel aus. Du kannst sie jederzeit über das Zahnrad oben anpassen.',
+                    it: 'Calcolo calorie e proteine in base a peso, sesso e attività. Puoi modificare tutto con l\'icona ingranaggio.',
+                    en: 'I calculate calories and protein from your weight, gender and activity. Adjust anytime via the gear icon.',
+                  })}
+                </Text>
+              </View>
+
+              <View style={st.veroTipBox}>
+                <MaterialCommunityIcons name="lightbulb-on-outline" size={18} color="#92400E" />
+                <Text style={st.veroTipText}>
+                  {tx(lang, {
+                    de: 'Tipp: Bleib eine Woche dran, ohne dich zu wiegen. Erst dann zeigt sich, was die Routine wirklich kann.',
+                    it: 'Suggerimento: segui la routine una settimana senza pesarti. Solo dopo si vede l\'effetto reale.',
+                    en: 'Tip: Stick with it for a week without weighing yourself — then check the real result.',
+                  })}
+                </Text>
+              </View>
+            </ScrollView>
+            <TouchableOpacity style={[st.modalConfirm, { marginTop: 16 }]} onPress={() => setVeroInfoModal(false)} data-testid="wm-vero-info-close">
+              <Text style={st.modalConfirmText}>{tx(lang, { de: 'Verstanden', it: 'Ho capito', en: 'Got it' })}</Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </View>
+      </Modal>
+
+      {/* Weight History Modal */}
+      <Modal visible={historyModal} transparent animationType="slide" onRequestClose={() => setHistoryModal(false)}>
+        <View style={st.modalBg}>
+          <Animated.View entering={ZoomIn.duration(220)} style={st.modalCard} data-testid="wm-history-modal">
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+              <Text style={st.modalTitle}>{tx(lang, { de: 'Gewicht-Verlauf', it: 'Storico peso', en: 'Weight history' })}</Text>
+              <TouchableOpacity onPress={() => setHistoryModal(false)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                <MaterialCommunityIcons name="close" size={22} color="#6B7280" />
+              </TouchableOpacity>
+            </View>
+            <Text style={st.modalSub}>
+              {tx(lang, {
+                de: 'Tippe auf einen Eintrag, um ihn zu löschen.',
+                it: 'Tocca una voce per eliminarla.',
+                en: 'Tap an entry to delete it.',
+              })}
+            </Text>
+            <ScrollView style={{ maxHeight: 340 }} showsVerticalScrollIndicator={false}>
+              {(weight?.entries || []).length === 0 ? (
+                <View style={{ alignItems: 'center', paddingVertical: 24 }}>
+                  <MaterialCommunityIcons name="scale-bathroom" size={32} color="#D1D5DB" />
+                  <Text style={{ color: '#9CA3AF', fontSize: 13, marginTop: 8 }}>
+                    {tx(lang, { de: 'Noch keine Einträge', it: 'Nessuna voce', en: 'No entries yet' })}
+                  </Text>
+                </View>
+              ) : (
+                [...(weight?.entries || [])].reverse().map((e: any) => (
+                  <View key={e.id} style={st.historyRow} data-testid={`wm-history-entry-${e.id}`}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={st.historyDate}>{e.date}</Text>
+                      <Text style={st.historyKg}>{e.weight_kg.toFixed(1)} kg</Text>
+                    </View>
+                    <TouchableOpacity
+                      onPress={() => deleteWeightEntry(e.id)}
+                      style={st.historyDeleteBtn}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                      data-testid={`wm-history-delete-${e.id}`}
+                    >
+                      <MaterialCommunityIcons name="trash-can-outline" size={18} color="#DC2626" />
+                    </TouchableOpacity>
+                  </View>
+                ))
+              )}
+            </ScrollView>
+            {(weight?.entries || []).length > 0 && (
+              <TouchableOpacity onPress={resetWeightHistory} style={st.historyResetBtn} data-testid="wm-history-reset">
+                <MaterialCommunityIcons name="refresh" size={16} color="#DC2626" />
+                <Text style={st.historyResetText}>
+                  {tx(lang, { de: 'Verlauf komplett zurücksetzen', it: 'Azzera tutto lo storico', en: 'Reset entire history' })}
+                </Text>
+              </TouchableOpacity>
+            )}
+          </Animated.View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -1469,12 +1693,33 @@ const st = StyleSheet.create({
   weightCard: { backgroundColor: '#FFFFFF', borderRadius: 16, marginHorizontal: 16, marginVertical: 8, padding: 16 },
   smallBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#E8F5E9', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10 },
   smallBtnText: { color: '#2E7D52', fontWeight: '700', fontSize: 12 },
+  smallBtnGhost: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#F3F4F6', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10 },
+  smallBtnGhostText: { color: '#6B7280', fontWeight: '700', fontSize: 12 },
   weightStatsRow: { flexDirection: 'row', justifyContent: 'space-between', marginVertical: 10 },
   weightStat: { alignItems: 'center', flex: 1 },
   weightStatLabel: { fontSize: 11, color: '#9CA3AF', marginBottom: 2 },
   weightStatValue: { fontSize: 16, fontWeight: '800', color: '#1F2937' },
   chartEmpty: { backgroundColor: '#FAFBFA', borderRadius: 8, alignItems: 'center', justifyContent: 'center', padding: 16 },
   chartEmptyText: { fontSize: 12, color: '#9CA3AF', textAlign: 'center' },
+
+  // History modal rows
+  historyRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F3F4F6' },
+  historyDate: { fontSize: 12, color: '#9CA3AF', marginBottom: 2 },
+  historyKg: { fontSize: 16, fontWeight: '700', color: '#1F2937' },
+  historyDeleteBtn: { padding: 8, borderRadius: 10, backgroundColor: '#FEF2F2' },
+  historyResetBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 14, paddingVertical: 12, borderRadius: 12, borderWidth: 1, borderColor: '#FECACA', backgroundColor: '#FEF2F2' },
+  historyResetText: { color: '#DC2626', fontWeight: '700', fontSize: 13 },
+
+  // VERO info modal
+  veroSection: { marginTop: 12 },
+  veroSectionTitle: { fontSize: 14, fontWeight: '800', color: '#6D28D9', marginBottom: 4 },
+  veroSectionText: { fontSize: 13, color: '#374151', lineHeight: 19 },
+  veroTipBox: { flexDirection: 'row', gap: 8, alignItems: 'flex-start', backgroundColor: '#FFFBEB', borderRadius: 12, padding: 12, marginTop: 14, borderWidth: 1, borderColor: '#FDE68A' },
+  veroTipText: { flex: 1, fontSize: 12, color: '#92400E', lineHeight: 17, fontWeight: '600' },
+
+  // Circle info hint (under fasting timer)
+  circleInfoHint: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 6, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 999, backgroundColor: '#F3E8FF' },
+  circleInfoHintText: { fontSize: 11, color: '#6D28D9', fontWeight: '700' },
 
   // Bottom sheet meal source picker
   sheetBg: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },

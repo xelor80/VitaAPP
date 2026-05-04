@@ -428,3 +428,18 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - Push-Reminder fuer Fasten-Start/-Ende und Wiegeerinnerung
 - Reactivate TR, FR, ES, RU languages
 - Refactor `/app/frontend/app/(tabs)/index.tsx` (>1200 Zeilen) in kleinere Komponenten
+
+### Weight & Metabolism v3.1 — VERO Info Modal + Verlauf-Reset (2026-05-04) - COMPLETED
+**Frontend (`/app/frontend/app/weight-metabolism.tsx`):**
+- Klickbarer Fasten-Kreis: Tap auf den großen SVG-Timer öffnet das **VERO-Info-Modal** mit ausführlicher Erklärung der Protein-Routine (5 Sektionen: Warum 4 Schritte, Protein, Essensfenster, Wasser, Tagesziele) + Tipp-Box. Kleiner violetter Hint-Chip "Tippe für VERO-Erklärung" unter dem Kreis.
+- **History-Modal** im Weight-Card: neuer "Verlauf"-Button öffnet Liste aller Einträge (chronologisch absteigend), jeder Eintrag ist einzeln löschbar (Trash-Icon), zusätzlich roter "Verlauf komplett zurücksetzen"-Button am Ende.
+- Bestätigungsdialoge (Alert) für Löschen + Reset, ActionToast nach Aktion.
+
+**Backend (`/app/backend/routes/weight_metabolism.py`):**
+- Neuer Endpoint `DELETE /api/weight-metabolism/{profile_id}/weight` → löscht alle Gewichtseinträge eines Nutzers (Reset).
+- Bestehender Endpoint `DELETE /weight/{entry_id}` für Einzel-Löschung weiterverwendet.
+- Tests via curl: ✅ POST → 2 entries → DELETE all → 0 entries.
+
+**Marketing-Prompts erstellt:**
+- `/app/memory/ADMIN_AGENT_PROMPT.md` — vollständiger Prompt für den externen Admin-Web-Agenten (Smart-Products-Manager, Protein-Routine-Inspector, LLM-Cache-Übersicht).
+- `/app/memory/LANDING_PAGE_AGENT_PROMPT.md` — vollständiger Prompt für vitaguide.app Landing-Page-Agent (14 Sektionen, Hero-Feature Protein-Routine, Conversion-Optimierung, SEO, DSGVO).

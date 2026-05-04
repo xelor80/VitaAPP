@@ -518,6 +518,13 @@ async def delete_weight(profile_id: str, entry_id: str):
     return {"deleted": True}
 
 
+@router.delete("/{profile_id}/weight")
+async def reset_weight_history(profile_id: str):
+    """Reset entire weight history for a profile."""
+    res = await db.weight_log.delete_many({"profile_id": profile_id})
+    return {"deleted": res.deleted_count}
+
+
 # ── Intermittent Fasting ──
 
 @router.get("/{profile_id}/fasting/state")
