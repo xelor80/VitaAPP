@@ -1,6 +1,7 @@
 import { Stack, usePathname, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LangProvider } from '../src/LangContext';
@@ -50,49 +51,51 @@ function GuideOverlay() {
 
 export default function RootLayout() {
   return (
-    <LangProvider>
-      <SettingsProvider>
-        <AuthProvider>
-          <GuideProvider>
-            <StatusBar style="dark" />
-            <SwipeWrapper>
-              <View style={{ flex: 1 }}>
-                <Stack screenOptions={{
-                  headerShown: false,
-                  animation: 'slide_from_right',
-                  gestureEnabled: true,
-                  gestureDirection: 'horizontal',
-                }}>
-                  <Stack.Screen name="login" options={{ gestureEnabled: false }} />
-                  <Stack.Screen name="(tabs)" options={{ headerShown: false, gestureEnabled: false }} />
-                  <Stack.Screen name="results" />
-                  <Stack.Screen name="recipe" />
-                  <Stack.Screen name="diary" />
-                  <Stack.Screen name="onboarding" />
-                  <Stack.Screen name="supplement-plan" />
-                  <Stack.Screen name="health-profile" />
-                  <Stack.Screen name="progress" />
-                  <Stack.Screen name="recipes-catalog" />
-                  <Stack.Screen name="admin" />
-                  <Stack.Screen name="tracking" />
-                  <Stack.Screen name="product-comparison" />
-                  <Stack.Screen name="videos" />
-                  <Stack.Screen name="medications" />
-                  <Stack.Screen name="daily-plan" />
-                  <Stack.Screen name="rewards" />
-                  <Stack.Screen name="weekly-report" />
-                  <Stack.Screen name="water-tracking" />
-                  <Stack.Screen name="stress" />
-                  <Stack.Screen name="stress-player" />
-                  <Stack.Screen name="weight-metabolism" />
-                </Stack>
-                <GuideOverlay />
-                <ActionToast />
-              </View>
-            </SwipeWrapper>
-          </GuideProvider>
-        </AuthProvider>
-      </SettingsProvider>
-    </LangProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <LangProvider>
+        <SettingsProvider>
+          <AuthProvider>
+            <GuideProvider>
+              <StatusBar style="dark" />
+              <SwipeWrapper>
+                <View style={{ flex: 1 }}>
+                  <Stack screenOptions={{
+                    headerShown: false,
+                    animation: 'slide_from_right',
+                    gestureEnabled: true,
+                    gestureDirection: 'horizontal',
+                  }}>
+                    <Stack.Screen name="login" options={{ gestureEnabled: false }} />
+                    <Stack.Screen name="(tabs)" options={{ headerShown: false, gestureEnabled: false }} />
+                    <Stack.Screen name="results" />
+                    <Stack.Screen name="recipe" />
+                    <Stack.Screen name="diary" />
+                    <Stack.Screen name="onboarding" />
+                    <Stack.Screen name="supplement-plan" />
+                    <Stack.Screen name="health-profile" />
+                    <Stack.Screen name="progress" />
+                    <Stack.Screen name="recipes-catalog" />
+                    <Stack.Screen name="admin" />
+                    <Stack.Screen name="tracking" />
+                    <Stack.Screen name="product-comparison" />
+                    <Stack.Screen name="videos" />
+                    <Stack.Screen name="medications" />
+                    <Stack.Screen name="daily-plan" />
+                    <Stack.Screen name="rewards" />
+                    <Stack.Screen name="weekly-report" />
+                    <Stack.Screen name="water-tracking" />
+                    <Stack.Screen name="stress" />
+                    <Stack.Screen name="stress-player" />
+                    <Stack.Screen name="weight-metabolism" />
+                  </Stack>
+                  <GuideOverlay />
+                  <ActionToast />
+                </View>
+              </SwipeWrapper>
+            </GuideProvider>
+          </AuthProvider>
+        </SettingsProvider>
+      </LangProvider>
+    </GestureHandlerRootView>
   );
 }
