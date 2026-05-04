@@ -373,6 +373,47 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
   - Werte werden automatisch in die Input-Felder uebernommen, User kann anpassen
 - 5/5 Backend-Tests bestanden (iteration_85)
 
+### Weight & Metabolism v3.0 GUIDED COACHING (2026-05-04) - COMPLETED
+**Paradigmenwechsel: Von Tracker zu gefuehrtem Coach.**
+
+**Backend-Changes (`/app/backend/routes/weight_metabolism.py`):**
+- `PUT /schedule` akzeptiert jetzt BEIDE Formate (backwards compatible):
+  - NEU: `fast_start` (HH:MM) + `fast_duration_hours` (10-22)
+  - ALT: `eating_window_start` + `eating_window_hours`
+  - Beide Felder werden intern synchronisiert gespeichert
+- `fast_duration_hours` validiert auf 10-22 (Presets: 14/15/16)
+- `GET /day-plan` liefert auto-generierten Tagesplan mit 4 Events:
+  - **shake1** bei Essensfenster-Start (+300ml Wasser)
+  - **small_meal** +45 Min nach shake1 (+300ml Wasser)
+  - **shake2** bei Essens-Halbzeit (+300ml Wasser)
+  - **large_meal** 90 Min vor Fastenbeginn (+400ml Wasser)
+- Jedes Event hat `status` (now/upcoming/missed/done) berechnet aus aktueller Zeit
+- `POST /day-plan/check` toggled Event + auto-logged Wasser in `water_intake_logs`
+- 22/22 Backend-Tests bestanden (iteration_86)
+
+**Frontend (`weight-metabolism.tsx`):**
+- Schedule-Modal umgebaut: Fastenstart (Presets 18/19/20/21:00) + Dauer (14/15/16h)
+  - Live-Vorschau "Fasten 20:00-12:00 · Essen 12:00-20:00"
+- Fasten-Card zeigt jetzt die **Timeline als Hero**:
+  - Progress-Bar 0-100%
+  - 4 Event-Zeilen mit Icon, Zeit, Wasser-Hinweis
+  - Checkbox-Tap markiert als erledigt (optimistic UI)
+  - "Jetzt"-Badge bei aktivem Event (±30 Min)
+- **VERO-Hinweise** jetzt plan-aware:
+  - "Jetzt dran: Shake 1 · 12:00"
+  - "Du bist im Plan. Naechster: Shake 2 · 16:00"
+  - "Perfekt – du hast heute alles erledigt!"
+
+**FastingReminderService erweitert auf 6 tägliche Notifications:**
+- 15 Min vor Essensfenster-Start
+- Shake 1 (bei Fenster-Start)
+- Kleine Mahlzeit (+45 Min)
+- Shake 2 (Halbzeit)
+- Grosse Mahlzeit (-90 Min)
+- Fasten beginnt (bei Fenster-Ende)
+
+**Wasser-Integration:** Automatisches Logging bei jedem Check-in (300/300/300/400ml), shared mit bestehender Wasser-Tracking-Infrastruktur.
+
 ## Prioritized Backlog
 ### P1 - Upcoming
 - Medication Reminders (push notifications) - COMPLETED
