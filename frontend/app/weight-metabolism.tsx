@@ -506,8 +506,8 @@ export default function WeightMetabolismScreen() {
   const stopSchedule = async () => {
     if (!profileId) return;
     Alert.alert(
-      'Fasten-Plan beenden?',
-      'Dein taeglicher Fasten-Plan wird entfernt.',
+      'Protein-Routine beenden?',
+      'Dein taeglicher Plan wird entfernt.',
       [
         { text: 'Abbrechen', style: 'cancel' },
         {
@@ -655,7 +655,7 @@ export default function WeightMetabolismScreen() {
           <View style={st.cardHeader}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               <MaterialCommunityIcons name="clock-outline" size={22} color={sched?.active && sched.phase === 'eating' ? '#2E7D52' : '#6D28D9'} />
-              <Text style={st.cardTitle}>{tx(lang, { de: 'Fasten-Rhythmus', it: 'Ritmo digiuno', en: 'Fasting rhythm' })}</Text>
+              <Text style={st.cardTitle}>{tx(lang, { de: 'Protein-Routine', it: 'Routine proteica', en: 'Protein routine' })}</Text>
             </View>
             <TouchableOpacity onPress={openScheduleModal} data-testid="wm-schedule-edit-btn">
               <MaterialCommunityIcons name={sched?.active ? 'pencil-outline' : 'plus-circle-outline'} size={22} color="#2E7D52" />
@@ -687,24 +687,24 @@ export default function WeightMetabolismScreen() {
                     <Text style={[st.phaseBadgeText, { color: sched.phase === 'eating' ? '#2E7D52' : '#6D28D9' }]}>
                       {sched.phase === 'eating'
                         ? tx(lang, { de: 'Essensfenster', it: 'Finestra cibo', en: 'Eating window' })
-                        : tx(lang, { de: 'Fasten', it: 'Digiuno', en: 'Fasting' })}
+                        : tx(lang, { de: 'Proteinphase', it: 'Fase proteica', en: 'Protein phase' })}
                     </Text>
                   </View>
                   <Text style={st.fastTimerValue}>{fmtCountdown(sched.remaining_seconds || 0)}</Text>
                   <Text style={st.fastTimerSub}>
                     {sched.phase === 'eating'
-                      ? tx(lang, { de: 'bis Fasten startet', it: 'al digiuno', en: 'until fasting' })
-                      : tx(lang, { de: 'bis Fenster oeffnet', it: "all'apertura", en: 'until opens' })}
+                      ? tx(lang, { de: 'bis Tagesabschluss', it: 'fine giornata', en: 'until day end' })
+                      : tx(lang, { de: 'bis Routine-Start', it: "all'avvio routine", en: 'until start' })}
                   </Text>
                 </View>
               </View>
               <View style={st.scheduleInfo}>
                 <View style={st.scheduleRow}>
-                  <Text style={st.scheduleLabel}>{tx(lang, { de: 'Fasten', it: 'Digiuno', en: 'Fasting' })}</Text>
+                  <Text style={st.scheduleLabel}>{tx(lang, { de: 'Proteinphase', it: 'Fase proteica', en: 'Protein phase' })}</Text>
                   <Text style={st.scheduleValue}>{sched.fast_start || sched.eating_window_end} – {sched.eating_window_start}</Text>
                 </View>
                 <View style={st.scheduleRow}>
-                  <Text style={st.scheduleLabel}>{tx(lang, { de: 'Essen', it: 'Mangiare', en: 'Eating' })}</Text>
+                  <Text style={st.scheduleLabel}>{tx(lang, { de: 'Essensfenster', it: 'Finestra cibo', en: 'Eating window' })}</Text>
                   <Text style={st.scheduleValue}>{sched.eating_window_start} – {sched.eating_window_end}</Text>
                 </View>
               </View>
@@ -781,15 +781,22 @@ export default function WeightMetabolismScreen() {
             <View style={{ marginTop: 8 }}>
               <Text style={st.fastIdleText}>
                 {tx(lang, {
-                  de: 'Waehle Fastenstart + Dauer. Wir erstellen automatisch deinen Tagesplan mit Shakes und Mahlzeiten.',
-                  it: 'Scegli inizio + durata. Creiamo noi il tuo piano.',
-                  en: 'Choose start + duration. We build your plan.',
+                  de: 'Waehle deinen Routine-Start + Fastendauer (14/15/16h). Wir erstellen deinen Tagesplan mit Shakes und Mahlzeiten.',
+                  it: 'Scegli avvio routine + durata. Creiamo il piano.',
+                  en: 'Choose start + fasting hours. We build your plan.',
+                })}
+              </Text>
+              <Text style={st.medDisclaimer}>
+                {tx(lang, {
+                  de: 'Diese Funktion ersetzt keine medizinische Beratung.',
+                  it: 'Questa funzione non sostituisce un consulto medico.',
+                  en: 'This feature is not medical advice.',
                 })}
               </Text>
               <TouchableOpacity style={st.bigPrimaryBtn} onPress={openScheduleModal} data-testid="wm-schedule-create-btn">
                 <MaterialCommunityIcons name="clock-plus-outline" size={20} color="#FFFFFF" />
                 <Text style={st.bigPrimaryBtnText}>
-                  {tx(lang, { de: 'Tagesplan erstellen', it: 'Crea piano', en: 'Create plan' })}
+                  {tx(lang, { de: 'Protein-Routine starten', it: 'Avvia routine', en: 'Start routine' })}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -1096,7 +1103,7 @@ export default function WeightMetabolismScreen() {
       <Modal visible={scheduleModal} transparent animationType="slide" onRequestClose={() => setScheduleModal(false)}>
         <View style={st.modalBg}>
           <View style={st.modalCard} data-testid="wm-schedule-modal">
-            <Text style={st.modalTitle}>{tx(lang, { de: 'Dein Fasten-Rhythmus', it: 'Il tuo ritmo digiuno', en: 'Your fasting rhythm' })}</Text>
+            <Text style={st.modalTitle}>{tx(lang, { de: 'Deine Protein-Routine', it: 'La tua routine proteica', en: 'Your protein routine' })}</Text>
             <Text style={st.modalSub}>
               {tx(lang, {
                 de: 'Wir erstellen automatisch deinen Tagesplan mit Shakes und Mahlzeiten.',
@@ -1104,7 +1111,7 @@ export default function WeightMetabolismScreen() {
                 en: 'We auto-generate your daily plan with shakes and meals.',
               })}
             </Text>
-            <Text style={st.modalLabel}>{tx(lang, { de: 'Fastenstart (HH:MM)', it: 'Inizio digiuno', en: 'Fasting start' })}</Text>
+            <Text style={st.modalLabel}>{tx(lang, { de: 'Routine-Start (HH:MM)', it: 'Avvio routine', en: 'Routine start' })}</Text>
             <View style={st.presetRow}>
               {['18:00', '19:00', '20:00', '21:00'].map(t => (
                 <TouchableOpacity key={t} style={[st.presetChip, fastStart === t && st.presetChipActive]} onPress={() => setFastStart(t)} data-testid={`wm-fast-start-${t}`}>
@@ -1369,7 +1376,8 @@ const st = StyleSheet.create({
   },
   cardHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 },
   cardTitle: { fontSize: 15, fontWeight: '700', color: '#1F2937' },
-  fastIdleText: { fontSize: 13, color: '#6B7280', lineHeight: 20, marginBottom: 14 },
+  fastIdleText: { fontSize: 13, color: '#6B7280', lineHeight: 20, marginBottom: 8 },
+  medDisclaimer: { fontSize: 11, color: '#9CA3AF', fontStyle: 'italic', textAlign: 'center', marginBottom: 12 },
 
   fastTimerWrap: { width: 200, height: 200, alignItems: 'center', justifyContent: 'center' },
   fastTimerCenter: { position: 'absolute', alignItems: 'center', justifyContent: 'center' },

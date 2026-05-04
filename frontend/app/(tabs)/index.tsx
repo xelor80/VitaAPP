@@ -95,6 +95,7 @@ export default function DashboardHome() {
   const [focusData, setFocusData] = useState<any>(null);
   const [levelData, setLevelData] = useState<any>(null);
   const [coachData, setCoachData] = useState<any>(null);
+  const [todayCollapsed, setTodayCollapsed] = useState(true);
 
   // Disclaimer
   useEffect(() => {
@@ -161,6 +162,11 @@ export default function DashboardHome() {
   }, [lang]);
 
   useEffect(() => { loadData(); }, [loadData]);
+
+  // Auto-expand "Heute" card when there are many open tasks (urgent)
+  useEffect(() => {
+    if (focusData?.total_open >= 5) setTodayCollapsed(false);
+  }, [focusData?.total_open]);
   useEffect(() => {
     eventBus.on('profileUpdated', loadData);
     eventBus.on('waterUpdated', loadData);
@@ -257,44 +263,66 @@ export default function DashboardHome() {
           </View>
         </View>
 
-        {/* ────────────── 2) HEUTE FUER DICH ────────────── */}
+        {/* ────────────── 2) HEUTE FUER DICH (collapsible) ────────────── */}
         {hasProfile && totalOpen > 0 && (
           <Animated.View entering={FadeInDown.duration(300)} style={s.todayCard} data-testid="today-card">
-            <View style={s.todayHeader}>
-              <View>
+            <TouchableOpacity
+              onPress={() => setTodayCollapsed(c => !c)}
+              activeOpacity={0.7}
+              style={s.todayHeader}
+              data-testid="today-collapse-toggle"
+            >
+              <View style={{ flex: 1 }}>
                 <Text style={s.todayTitle}>{tx(lang, { de: 'Heute fuer dich', it: 'Oggi per te', en: 'For you today' })}</Text>
-                {veroMessage ? <Text style={s.todaySub}>{veroMessage}</Text> : null}
+                {todayCollapsed ? (
+                  <Text style={s.todaySub}>
+                    {totalOpen} {tx(lang, { de: 'Aufgaben offen', it: 'compiti aperti', en: 'tasks open' })}
+                  </Text>
+                ) : (
+                  veroMessage ? <Text style={s.todaySub}>{veroMessage}</Text> : null
+                )}
               </View>
               <View style={s.todayBadge}>
                 <Text style={s.todayBadgeText}>{totalOpen}</Text>
               </View>
-            </View>
-            <View style={s.todayList}>
-              {todayItems.map((item: any, i: number) => (
-                <TouchableOpacity
-                  key={i}
-                  style={s.todayRow}
-                  activeOpacity={0.7}
-                  onPress={() => handleItemTap(item.action)}
-                  data-testid={`today-item-${item.type}`}
-                >
-                  <View style={[s.todayDot, { backgroundColor: item.color + '22' }]}>
-                    <MaterialCommunityIcons name={item.icon as any} size={16} color={item.color} />
-                  </View>
-                  <Text style={s.todayItemText} numberOfLines={1}>{item.text}</Text>
-                  <MaterialCommunityIcons name="chevron-right" size={18} color="#D1D5DB" />
-                </TouchableOpacity>
-              ))}
-            </View>
-            <TouchableOpacity
-              style={s.todayCta}
-              activeOpacity={0.85}
-              onPress={handleQuickAction}
-              data-testid="today-cta-btn"
-            >
-              <Text style={s.todayCtaText}>{tx(lang, { de: 'Jetzt starten', it: 'Inizia ora', en: 'Start now' })}</Text>
-              <MaterialCommunityIcons name="arrow-right" size={18} color="#FFFFFF" />
+              <MaterialCommunityIcons name={todayCollapsed ? 'chevron-down' : 'chevron-up'} size={22} color="#9CA3AF" />
             </TouchableOpacity>
+
+            {/* Mini progress bar (always visible) */}
+            <View style={s.todayMiniBar}>
+              <View style={[s.todayMiniBarFill, { width: `${Math.min(100, ((focusData?.total_done || 0) / Math.max(1, (focusData?.total_done || 0) + totalOpen)) * 100)}%` }]} />
+            </View>
+
+            {!todayCollapsed && (
+              <>
+                <View style={s.todayList}>
+                  {todayItems.map((item: any, i: number) => (
+                    <TouchableOpacity
+                      key={i}
+                      style={s.todayRow}
+                      activeOpacity={0.7}
+                      onPress={() => handleItemTap(item.action)}
+                      data-testid={`today-item-${item.type}`}
+                    >
+                      <View style={[s.todayDot, { backgroundColor: item.color + '22' }]}>
+                        <MaterialCommunityIcons name={item.icon as any} size={16} color={item.color} />
+                      </View>
+                      <Text style={s.todayItemText} numberOfLines={1}>{item.text}</Text>
+                      <MaterialCommunityIcons name="chevron-right" size={18} color="#D1D5DB" />
+                    </TouchableOpacity>
+                  ))}
+                </View>
+                <TouchableOpacity
+                  style={s.todayCta}
+                  activeOpacity={0.85}
+                  onPress={handleQuickAction}
+                  data-testid="today-cta-btn"
+                >
+                  <Text style={s.todayCtaText}>{tx(lang, { de: 'Jetzt starten', it: 'Inizia ora', en: 'Start now' })}</Text>
+                  <MaterialCommunityIcons name="arrow-right" size={18} color="#FFFFFF" />
+                </TouchableOpacity>
+              </>
+            )}
           </Animated.View>
         )}
 
@@ -551,6 +579,11 @@ const s = StyleSheet.create({
     backgroundColor: '#2E7D52', paddingVertical: 13, borderRadius: 12,
   },
   todayCtaText: { fontSize: 15, fontWeight: '700', color: '#FFFFFF' },
+  todayMiniBar: {
+    height: 5, backgroundColor: '#F1F5F2', borderRadius: 3,
+    marginTop: 10, marginBottom: 4, overflow: 'hidden',
+  },
+  todayMiniBarFill: { height: '100%', backgroundColor: '#2E7D52', borderRadius: 3 },
 
   // 3. Kategorien
   sectionTitle: {
@@ -561,15 +594,15 @@ const s = StyleSheet.create({
   catGrid: {
     flexDirection: 'row', flexWrap: 'wrap',
     paddingHorizontal: SIDE_PAD,
-    gap: 12,
-    marginBottom: 24,
+    gap: 10,
+    marginBottom: 18,
   },
   catCard: {
-    width: (SCREEN_WIDTH - SIDE_PAD * 2 - 12) / 2,
+    width: (SCREEN_WIDTH - SIDE_PAD * 2 - 10) / 2,
     backgroundColor: '#FFFFFF',
-    borderRadius: 18,
-    padding: 16,
-    minHeight: 130,
+    borderRadius: 16,
+    padding: 14,
+    minHeight: 110,
     ...Platform.select({
       ios: { shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 6, shadowOffset: { width: 0, height: 1 } },
       android: { elevation: 2 },
@@ -577,9 +610,9 @@ const s = StyleSheet.create({
     }),
   },
   catIcon: {
-    width: 52, height: 52, borderRadius: 14,
+    width: 44, height: 44, borderRadius: 12,
     alignItems: 'center', justifyContent: 'center',
-    marginBottom: 12,
+    marginBottom: 10,
   },
   catLabel: { fontSize: 14, fontWeight: '800', color: '#1A2E35', lineHeight: 18 },
   catSub: { fontSize: 11, color: '#6B7280', marginTop: 4 },

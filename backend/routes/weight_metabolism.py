@@ -1092,36 +1092,40 @@ async def meal_coach_comment(profile_id: str, req: CoachCommentRequest):
 # ── Daily Nutrition Plan (Timeline with Shake + Meal events) ──
 
 DAY_PLAN_EVENTS = [
-    # key, label_de, label_it, label_en, icon, offset_description, water_ml
+    # key, label_de, label_it, label_en, icon, water_ml
     {"key": "shake1", "label_de": "Shake 1", "label_it": "Shake 1", "label_en": "Shake 1", "icon": "cup", "water_ml": 300},
-    {"key": "small_meal", "label_de": "Kleine Mahlzeit", "label_it": "Piccolo pasto", "label_en": "Small meal", "icon": "food-apple-outline", "water_ml": 300},
     {"key": "shake2", "label_de": "Shake 2", "label_it": "Shake 2", "label_en": "Shake 2", "icon": "cup", "water_ml": 300},
-    {"key": "large_meal", "label_de": "Grosse Mahlzeit", "label_it": "Grande pasto", "label_en": "Large meal", "icon": "food-turkey", "water_ml": 400},
+    {"key": "small_meal", "label_de": "Kleine Mahlzeit", "label_it": "Piccolo pasto", "label_en": "Small meal", "icon": "food-apple-outline", "water_ml": 300},
+    {"key": "large_meal", "label_de": "Grosse Mahlzeit", "label_it": "Grande pasto", "label_en": "Large meal", "icon": "food-turkey", "water_ml": 300},
 ]
 
 
 def _compute_plan_times(eating_start_hhmm: str, eating_hours: float) -> dict:
-    """Compute the 4 timeline events based on the eating window."""
+    """Compute the 4 timeline events based on the eating window.
+    Protein-Routine layout, dynamically scaled to the eating window length.
+    Order is always: shake1 → shake2 → small_meal → large_meal
+    """
     start_t = _parse_hhmm(eating_start_hhmm)
     start_m = _minutes_since_midnight(start_t)
     window_m = int(eating_hours * 60)
 
-    # Shake 1: at the very start of the eating window
     shake1_m = start_m
-    # Small meal: 45 min later (mid of 30-60 range)
-    small_m = (start_m + 45) % (24 * 60)
-    # Shake 2: middle of eating window
-    shake2_m = (start_m + window_m // 2) % (24 * 60)
-    # Large meal: 1.5h before eating window closes (between 1-2h)
+    # Large meal sits 1.5h before window closes
     large_m = (start_m + window_m - 90) % (24 * 60)
+    # Distribute shake2 and small_meal evenly between shake1 and large_meal
+    span_m = window_m - 90  # from shake1 to large_meal
+    if span_m < 60:  # tiny window – fallback
+        span_m = 60
+    shake2_m = (start_m + span_m // 3) % (24 * 60)
+    small_m = (start_m + (span_m * 2) // 3) % (24 * 60)
 
     def to_hhmm(mins: int) -> str:
         return f"{(mins // 60):02d}:{(mins % 60):02d}"
 
     return {
         "shake1": to_hhmm(shake1_m),
-        "small_meal": to_hhmm(small_m),
         "shake2": to_hhmm(shake2_m),
+        "small_meal": to_hhmm(small_m),
         "large_meal": to_hhmm(large_m),
     }
 
