@@ -81,56 +81,39 @@ export async function scheduleFastingReminders(schedule: Schedule, lang: string 
 
   const triggers = [
     {
-      key: 'fast_prestart',
-      hour: preStart.h,
-      minute: preStart.m,
-      title: L('Essensfenster startet bald', 'Finestra in arrivo', 'Eating window soon', lang),
-      body: L(
-        'In 15 Min oeffnet sich dein Essensfenster. Bereite dich in Ruhe vor.',
-        'Tra 15 min si apre la tua finestra.',
-        'Your eating window opens in 15 min.',
-        lang
-      ),
-    },
-    {
       key: 'shake1',
       hour: start.h,
       minute: start.m,
-      title: L('Perfekter Start – Zeit fuer Shake 1', 'Ora Shake 1', 'Time for Shake 1', lang),
-      body: L('Zeit fuer deinen Shake + 300ml Wasser.', 'Shake + 300ml acqua.', 'Shake + 300ml water.', lang),
-    },
-    {
-      key: 'small_meal',
-      hour: addMinutes(start.h, start.m, 45).h,
-      minute: addMinutes(start.h, start.m, 45).m,
-      title: L('Kleine Mahlzeit', 'Piccolo pasto', 'Small meal', lang),
-      body: L('Etwas Leichtes und proteinreich. + 300ml Wasser.', 'Qualcosa di leggero + 300ml acqua.', 'Light & protein-rich. +300ml water.', lang),
+      title: L('Zeit fuer Shake 1', 'Ora di Shake 1', 'Time for Shake 1', lang),
+      body: L('Starte ruhig in deinen Plan. + 300ml Wasser dazu.', 'Inizia con calma. + 300ml acqua.', 'Ease into your day. +300ml water.', lang),
     },
     {
       key: 'shake2',
-      hour: addMinutes(start.h, start.m, Math.round(windowMin / 2)).h,
-      minute: addMinutes(start.h, start.m, Math.round(windowMin / 2)).m,
-      title: L('Shake 2', 'Shake 2', 'Shake 2', lang),
-      body: L('Halbzeit – gib dir einen Energie-Schub. + 300ml Wasser.', 'Metá strada + 300ml acqua.', 'Halfway — energy boost. +300ml water.', lang),
+      hour: addMinutes(start.h, start.m, Math.round((windowMin - 90) / 3)).h,
+      minute: addMinutes(start.h, start.m, Math.round((windowMin - 90) / 3)).m,
+      title: L('Dein zweiter Shake ist dran', 'Secondo shake', 'Second shake', lang),
+      body: L('So bleibst du stabil bis zur kleinen Mahlzeit. + 300ml Wasser.', 'Resti stabile fino al prossimo pasto.', 'Stay stable until next meal.', lang),
+    },
+    {
+      key: 'small_meal',
+      hour: addMinutes(start.h, start.m, Math.round((windowMin - 90) * 2 / 3)).h,
+      minute: addMinutes(start.h, start.m, Math.round((windowMin - 90) * 2 / 3)).m,
+      title: L('Kleine Mahlzeit eintragen', 'Piccolo pasto', 'Small meal', lang),
+      body: L('Ab jetzt ist deine kleine Mahlzeit vorgesehen. + 300ml Wasser.', 'Tempo del piccolo pasto.', 'Time for your small meal.', lang),
     },
     {
       key: 'large_meal',
       hour: addMinutes(start.h, start.m, windowMin - 90).h,
       minute: addMinutes(start.h, start.m, windowMin - 90).m,
-      title: L('Grosse Mahlzeit', 'Grande pasto', 'Large meal', lang),
-      body: L('Noch eine ausgewogene Mahlzeit. + 400ml Wasser.', 'Un pasto bilanciato + 400ml acqua.', 'A balanced meal. +400ml water.', lang),
+      title: L('Plane jetzt deine grosse Mahlzeit', 'Pianifica il pasto principale', 'Plan your main meal', lang),
+      body: L('Bleib im Tagesziel. + 300ml Wasser dazu.', 'Resta nel target. +300ml acqua.', 'Stay on target. +300ml water.', lang),
     },
     {
       key: 'fast_end',
       hour: end.h,
       minute: end.m,
-      title: L('Fasten beginnt jetzt', 'Digiuno iniziato', 'Fasting started', lang),
-      body: L(
-        'Viel Wasser, Kraeutertee und etwas Bewegung helfen dir gut durch.',
-        'Acqua e tisane aiutano.',
-        'Water and herbal tea help you through.',
-        lang
-      ),
+      title: L('Tagesabschluss', 'Fine giornata', 'Day end', lang),
+      body: L('Heute hast du gut geliefert. Wasser und Tee helfen dir bis morgen.', 'Bel lavoro oggi.', 'Good work today.', lang),
     },
   ];
 

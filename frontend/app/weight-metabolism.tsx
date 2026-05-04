@@ -729,7 +729,14 @@ export default function WeightMetabolismScreen() {
                     <TouchableOpacity
                       key={ev.key}
                       style={[st.timelineEvent, ev.checked && st.timelineEventDone]}
-                      onPress={() => toggleEventCheck(ev.key, ev.checked)}
+                      onPress={() => {
+                        if (ev.kind === 'meal' && !ev.checked) {
+                          // Open meal picker for meals
+                          setMealPicker(true);
+                        } else {
+                          toggleEventCheck(ev.key, ev.checked);
+                        }
+                      }}
                       activeOpacity={0.7}
                       data-testid={`wm-timeline-event-${ev.key}`}
                     >
@@ -758,6 +765,21 @@ export default function WeightMetabolismScreen() {
                             {ev.time}
                           </Text>
                         </View>
+                        {/* Budget chips */}
+                        {!ev.checked && (
+                          <View style={st.budgetRow}>
+                            {ev.target_calories > 0 && (
+                              <View style={st.budgetChip}>
+                                <Text style={st.budgetChipText}>~{ev.target_calories} kcal</Text>
+                              </View>
+                            )}
+                            {ev.target_protein_g > 0 && (
+                              <View style={[st.budgetChip, { backgroundColor: '#FEF3C7' }]}>
+                                <Text style={[st.budgetChipText, { color: '#B45309' }]}>{ev.target_protein_g}g Protein</Text>
+                              </View>
+                            )}
+                          </View>
+                        )}
                         <View style={st.timelineMeta}>
                           <MaterialCommunityIcons name="cup-water" size={12} color="#0EA5E9" />
                           <Text style={st.timelineMetaText}>+{ev.water_ml}ml {tx(lang, { de: 'Wasser', it: 'acqua', en: 'water' })}</Text>
@@ -767,6 +789,30 @@ export default function WeightMetabolismScreen() {
                             </View>
                           )}
                         </View>
+                        {/* Step-specific action button */}
+                        {!ev.checked && ev.status !== 'upcoming' && (
+                          <View style={st.stepActionRow}>
+                            {ev.kind === 'drink' ? (
+                              <TouchableOpacity
+                                style={st.drinkBtn}
+                                onPress={(e) => { e.stopPropagation?.(); toggleEventCheck(ev.key, false); }}
+                                data-testid={`wm-drink-${ev.key}`}
+                              >
+                                <MaterialCommunityIcons name="check-circle-outline" size={14} color="#FFFFFF" />
+                                <Text style={st.drinkBtnText}>{tx(lang, { de: 'Getrunken', it: 'Bevuto', en: 'Drunk' })}</Text>
+                              </TouchableOpacity>
+                            ) : (
+                              <TouchableOpacity
+                                style={st.mealBtn}
+                                onPress={(e) => { e.stopPropagation?.(); setMealPicker(true); }}
+                                data-testid={`wm-meal-log-${ev.key}`}
+                              >
+                                <MaterialCommunityIcons name="plus-circle-outline" size={14} color="#FFFFFF" />
+                                <Text style={st.drinkBtnText}>{tx(lang, { de: 'Mahlzeit eintragen', it: 'Registra pasto', en: 'Log meal' })}</Text>
+                              </TouchableOpacity>
+                            )}
+                          </View>
+                        )}
                       </View>
                     </TouchableOpacity>
                   ))}
@@ -1558,5 +1604,25 @@ const st = StyleSheet.create({
     marginLeft: 'auto', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8, backgroundColor: '#6D28D9',
   },
   timelineNowText: { fontSize: 10, fontWeight: '800', color: '#FFFFFF' },
+
+  budgetRow: { flexDirection: 'row', gap: 6, marginTop: 6, flexWrap: 'wrap' },
+  budgetChip: {
+    paddingHorizontal: 8, paddingVertical: 2,
+    borderRadius: 8, backgroundColor: '#E8F5E9',
+  },
+  budgetChipText: { fontSize: 11, fontWeight: '700', color: '#15803D' },
+
+  stepActionRow: { flexDirection: 'row', marginTop: 8 },
+  drinkBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    backgroundColor: '#2E7D52', paddingHorizontal: 12, paddingVertical: 7,
+    borderRadius: 10,
+  },
+  mealBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    backgroundColor: '#0EA5E9', paddingHorizontal: 12, paddingVertical: 7,
+    borderRadius: 10,
+  },
+  drinkBtnText: { fontSize: 12, fontWeight: '700', color: '#FFFFFF' },
 
 });

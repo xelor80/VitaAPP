@@ -1092,11 +1092,19 @@ async def meal_coach_comment(profile_id: str, req: CoachCommentRequest):
 # ── Daily Nutrition Plan (Timeline with Shake + Meal events) ──
 
 DAY_PLAN_EVENTS = [
-    # key, label_de, label_it, label_en, icon, water_ml
-    {"key": "shake1", "label_de": "Shake 1", "label_it": "Shake 1", "label_en": "Shake 1", "icon": "cup", "water_ml": 300},
-    {"key": "shake2", "label_de": "Shake 2", "label_it": "Shake 2", "label_en": "Shake 2", "icon": "cup", "water_ml": 300},
-    {"key": "small_meal", "label_de": "Kleine Mahlzeit", "label_it": "Piccolo pasto", "label_en": "Small meal", "icon": "food-apple-outline", "water_ml": 300},
-    {"key": "large_meal", "label_de": "Grosse Mahlzeit", "label_it": "Grande pasto", "label_en": "Large meal", "icon": "food-turkey", "water_ml": 300},
+    # key, label_de, label_it, label_en, icon, water_ml, kind, cal_pct, pro_pct
+    {"key": "shake1", "label_de": "Shake 1", "label_it": "Shake 1", "label_en": "Shake 1",
+     "icon": "cup", "water_ml": 300, "kind": "drink",
+     "cal_pct": 0.20, "pro_pct": 0.25},
+    {"key": "shake2", "label_de": "Shake 2", "label_it": "Shake 2", "label_en": "Shake 2",
+     "icon": "cup", "water_ml": 300, "kind": "drink",
+     "cal_pct": 0.15, "pro_pct": 0.25},
+    {"key": "small_meal", "label_de": "Kleine Mahlzeit", "label_it": "Piccolo pasto", "label_en": "Small meal",
+     "icon": "food-apple-outline", "water_ml": 300, "kind": "meal",
+     "cal_pct": 0.25, "pro_pct": 0.20},
+    {"key": "large_meal", "label_de": "Grosse Mahlzeit", "label_it": "Grande pasto", "label_en": "Large meal",
+     "icon": "food-turkey", "water_ml": 300, "kind": "meal",
+     "cal_pct": 0.40, "pro_pct": 0.30},
 ]
 
 
@@ -1145,6 +1153,11 @@ async def get_day_plan(profile_id: str):
     ).to_list(length=20)
     checked_map = {c["event_key"]: c for c in checkins}
 
+    # Per-step budgets from daily goals
+    goals_doc = await db.weight_goals.find_one({"profile_id": profile_id}, {"_id": 0})
+    daily_cal = (goals_doc or {}).get("daily_calories", 2000)
+    daily_pro = (goals_doc or {}).get("daily_protein", 120)
+
     now = await get_user_local_now(profile_id)
     now_m = now.hour * 60 + now.minute
 
@@ -1155,14 +1168,19 @@ async def get_day_plan(profile_id: str):
         t_parts = t.split(":")
         event_m = int(t_parts[0]) * 60 + int(t_parts[1])
         status = "done" if key in checked_map else ("now" if abs(now_m - event_m) <= 30 else ("upcoming" if event_m >= now_m else "missed"))
+        target_cal = round(daily_cal * meta["cal_pct"] / 10) * 10
+        target_pro = round(daily_pro * meta["pro_pct"] / 5) * 5
         events.append({
             "key": key,
+            "kind": meta["kind"],  # drink | meal
             "time": t,
             "label_de": meta["label_de"],
             "label_it": meta["label_it"],
             "label_en": meta["label_en"],
             "icon": meta["icon"],
             "water_ml": meta["water_ml"],
+            "target_calories": target_cal,
+            "target_protein_g": target_pro,
             "checked": key in checked_map,
             "checked_at": checked_map.get(key, {}).get("checked_at"),
             "status": status,
