@@ -578,28 +578,57 @@ export default function WeightMetabolismScreen() {
   const [aiGender, setAiGender] = useState<'male' | 'female'>('male');
   const [aiGoal, setAiGoal] = useState<'maintain' | 'lose' | 'gain' | 'build_muscle'>('maintain');
   const [aiActivity, setAiActivity] = useState<'sedentary' | 'light' | 'moderate' | 'active' | 'very_active'>('moderate');
+  const [aiAge, setAiAge] = useState('');
+  const [aiHeight, setAiHeight] = useState('');
+  const [aiWeight, setAiWeight] = useState('');
 
   const openGoalModal = () => {
     setGoalCal(String(goals?.daily_calories ?? ''));
     setGoalProt(String(goals?.daily_protein ?? ''));
     setGoalWeight(String(goals?.target_weight_kg ?? ''));
+    // Pre-fill AI inputs from existing data so user just adjusts/clicks calculate
+    const profile = today?.profile || {};
+    if (profile.gender === 'male' || profile.gender === 'female') setAiGender(profile.gender);
+    if (profile.activity_level) {
+      const al = String(profile.activity_level).toLowerCase();
+      if (['sedentary', 'light', 'moderate', 'active', 'very_active'].includes(al)) setAiActivity(al as any);
+    }
+    setAiAge(profile.age ? String(profile.age) : '');
+    setAiHeight(profile.height ? String(profile.height) : '');
+    setAiWeight(weight?.current_kg ? String(weight.current_kg) : (profile.weight ? String(profile.weight) : ''));
     setAiSuggestion(null);
     setGoalModal(true);
   };
 
   const runAiCalculation = async () => {
     if (!profileId) return;
+    // Validate inputs
+    const ageNum = parseInt(aiAge, 10);
+    const heightNum = parseFloat(aiHeight.replace(',', '.'));
+    const weightNum = parseFloat(aiWeight.replace(',', '.'));
+    if (isNaN(ageNum) || ageNum < 14 || ageNum > 100) {
+      Alert.alert(tx(lang, { de: 'Alter', it: 'Età', en: 'Age' }), tx(lang, { de: 'Bitte Alter (14-100) eingeben.', it: 'Inserisci età (14-100).', en: 'Please enter age (14-100).' }));
+      return;
+    }
+    if (isNaN(heightNum) || heightNum < 120 || heightNum > 230) {
+      Alert.alert(tx(lang, { de: 'Größe', it: 'Altezza', en: 'Height' }), tx(lang, { de: 'Bitte Körpergröße in cm (120-230) eingeben.', it: 'Inserisci altezza in cm (120-230).', en: 'Please enter height in cm (120-230).' }));
+      return;
+    }
+    if (isNaN(weightNum) || weightNum < 30 || weightNum > 300) {
+      Alert.alert(tx(lang, { de: 'Gewicht', it: 'Peso', en: 'Weight' }), tx(lang, { de: 'Bitte aktuelles Gewicht in kg (30-300) eingeben.', it: 'Inserisci peso attuale in kg (30-300).', en: 'Please enter current weight in kg (30-300).' }));
+      return;
+    }
     setAiLoading(true);
     setAiSuggestion(null);
     try {
-      // Pull current weight from state (already loaded)
-      const curKg = weight?.current_kg || null;
       const res = await fetch(`${API_URL}/api/weight-metabolism/${profileId}/ai-calculate-goals`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           gender: aiGender,
-          current_weight_kg: curKg || undefined,
+          current_weight_kg: weightNum,
+          height_cm: heightNum,
+          age: ageNum,
           activity_level: aiActivity,
           goal: aiGoal,
         }),
@@ -614,6 +643,8 @@ export default function WeightMetabolismScreen() {
       setAiSuggestion(data);
       setGoalCal(String(data.daily_calories));
       setGoalProt(String(data.daily_protein));
+      // Refresh today/weight in background so deficit card updates
+      reload();
     } catch {
       Alert.alert('KI-Berechnung', 'Netzwerkfehler');
     }
@@ -929,6 +960,47 @@ export default function WeightMetabolismScreen() {
               sub={`/ ${today?.goals?.daily_protein || 0}g`}
             />
           </View>
+
+          {/* Daily Deficit / Surplus Indicator */}
+          {(() => {
+            const goal = today?.goals?.daily_calories || 0;
+            const consumed = today?.totals?.calories || 0;
+            if (!goal) return null;
+            const diff = goal - consumed; // positive = deficit (good for losing weight)
+            const inDeficit = diff > 0;
+            const inSurplus = diff < -50;
+            const color = inDeficit ? '#2E7D52' : inSurplus ? '#DC2626' : '#6B7280';
+            const bg = inDeficit ? '#E8F5E9' : inSurplus ? '#FEE2E2' : '#F3F4F6';
+            const label = inDeficit
+              ? tx(lang, { de: 'Tagesdefizit', it: 'Deficit giornaliero', en: 'Daily deficit' })
+              : inSurplus
+                ? tx(lang, { de: 'Überschuss', it: 'Surplus', en: 'Surplus' })
+                : tx(lang, { de: 'Im Ziel', it: 'In linea', en: 'On target' });
+            const sub = inDeficit
+              ? tx(lang, {
+                  de: `Abnehm-Tempo: ca. ${(diff / 7700 * 7).toFixed(2)} kg / Woche`,
+                  it: `Velocità: ca. ${(diff / 7700 * 7).toFixed(2)} kg / settimana`,
+                  en: `Loss rate: ~${(diff / 7700 * 7).toFixed(2)} kg / week`,
+                })
+              : inSurplus
+                ? tx(lang, { de: 'Du bist über deinem Tagesziel.', it: 'Sei sopra l\'obiettivo.', en: 'You are over your daily target.' })
+                : tx(lang, { de: 'Du bist genau im Ziel.', it: 'Sei in linea.', en: 'You are right on target.' });
+            return (
+              <View style={[st.deficitCard, { backgroundColor: bg }]} data-testid="wm-deficit-card">
+                <View style={{ flex: 1 }}>
+                  <Text style={[st.deficitLabel, { color }]}>{label}</Text>
+                  <Text style={st.deficitSub}>{sub}</Text>
+                </View>
+                <View style={{ alignItems: 'flex-end' }}>
+                  <Text style={[st.deficitValue, { color }]}>
+                    {inDeficit ? '−' : (inSurplus ? '+' : '')}{Math.abs(diff)}
+                  </Text>
+                  <Text style={st.deficitUnit}>kcal</Text>
+                </View>
+              </View>
+            );
+          })()}
+
           <TouchableOpacity style={st.bigPrimaryBtn} onPress={openMealPicker} data-testid="wm-add-meal-btn">
             <MaterialCommunityIcons name="plus-circle" size={22} color="#FFFFFF" />
             <Text style={st.bigPrimaryBtnText}>
@@ -1320,6 +1392,47 @@ export default function WeightMetabolismScreen() {
                     <Text style={[st.aiChipText, aiGender === 'female' && { color: '#FFFFFF' }]}>{tx(lang, { de: 'Frau', it: 'Donna', en: 'Female' })}</Text>
                   </TouchableOpacity>
                 </View>
+
+                {/* Age / Height / Weight inputs */}
+                <View style={st.aiInputRow}>
+                  <View style={st.aiInputCol}>
+                    <Text style={st.aiMiniLabel}>{tx(lang, { de: 'Alter', it: 'Età', en: 'Age' })}</Text>
+                    <TextInput
+                      value={aiAge}
+                      onChangeText={setAiAge}
+                      keyboardType="number-pad"
+                      placeholder="35"
+                      placeholderTextColor="#9CA3AF"
+                      style={st.aiInputField}
+                      data-testid="wm-ai-age-input"
+                    />
+                  </View>
+                  <View style={st.aiInputCol}>
+                    <Text style={st.aiMiniLabel}>{tx(lang, { de: 'Größe (cm)', it: 'Altezza (cm)', en: 'Height (cm)' })}</Text>
+                    <TextInput
+                      value={aiHeight}
+                      onChangeText={setAiHeight}
+                      keyboardType="numeric"
+                      placeholder="170"
+                      placeholderTextColor="#9CA3AF"
+                      style={st.aiInputField}
+                      data-testid="wm-ai-height-input"
+                    />
+                  </View>
+                  <View style={st.aiInputCol}>
+                    <Text style={st.aiMiniLabel}>{tx(lang, { de: 'Gewicht (kg)', it: 'Peso (kg)', en: 'Weight (kg)' })}</Text>
+                    <TextInput
+                      value={aiWeight}
+                      onChangeText={setAiWeight}
+                      keyboardType="numeric"
+                      placeholder="75"
+                      placeholderTextColor="#9CA3AF"
+                      style={st.aiInputField}
+                      data-testid="wm-ai-weight-input"
+                    />
+                  </View>
+                </View>
+
                 {/* Activity */}
                 <Text style={st.aiMiniLabel}>{tx(lang, { de: 'Aktivitaet', it: 'Attivita', en: 'Activity' })}</Text>
                 <View style={st.aiRow}>
@@ -1720,6 +1833,18 @@ const st = StyleSheet.create({
   // Circle info hint (under fasting timer)
   circleInfoHint: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 6, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 999, backgroundColor: '#F3E8FF' },
   circleInfoHintText: { fontSize: 11, color: '#6D28D9', fontWeight: '700' },
+
+  // Daily deficit / surplus card
+  deficitCard: { flexDirection: 'row', alignItems: 'center', borderRadius: 14, padding: 14, marginTop: 14, marginBottom: 6 },
+  deficitLabel: { fontSize: 13, fontWeight: '800', marginBottom: 2 },
+  deficitSub: { fontSize: 11, color: '#6B7280' },
+  deficitValue: { fontSize: 26, fontWeight: '900', lineHeight: 28 },
+  deficitUnit: { fontSize: 11, color: '#6B7280', marginTop: 2 },
+
+  // AI Goal Modal — Age/Height/Weight inputs
+  aiInputRow: { flexDirection: 'row', gap: 8, marginTop: 10 },
+  aiInputCol: { flex: 1 },
+  aiInputField: { borderWidth: 1, borderColor: '#DDD6FE', borderRadius: 10, paddingHorizontal: 10, paddingVertical: 10, fontSize: 14, color: '#1F2937', backgroundColor: '#FFFFFF', marginTop: 4 },
 
   // Bottom sheet meal source picker
   sheetBg: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },

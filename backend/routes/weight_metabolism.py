@@ -332,6 +332,40 @@ async def ai_calculate_goals(profile_id: str, req: AIGoalRequest):
     ai_cal = max(1200, min(5000, round(ai_cal / 50) * 50))
     ai_pro = max(40, min(300, round(ai_pro / 5) * 5))
 
+    # Persist age / height / current weight back to the profile so they are remembered
+    profile_updates = {}
+    if req.age:
+        profile_updates["age"] = int(req.age)
+    if req.height_cm:
+        profile_updates["height"] = float(req.height_cm)
+    if req.current_weight_kg:
+        profile_updates["weight"] = float(req.current_weight_kg)
+    if profile_updates:
+        try:
+            await db.health_profiles.update_one(
+                {"id": profile_id},
+                {"$set": profile_updates},
+                upsert=False,
+            )
+        except Exception as e:
+            logger.warning(f"profile update skipped: {e}")
+
+    # If a fresh weight was provided and differs from the latest log entry, also add it to weight_log
+    if req.current_weight_kg and 30 <= req.current_weight_kg <= 300:
+        try:
+            today = today_str()
+            await db.weight_log.delete_many({"profile_id": profile_id, "date": today})
+            await db.weight_log.insert_one({
+                "id": str(uuid.uuid4()),
+                "profile_id": profile_id,
+                "weight_kg": float(req.current_weight_kg),
+                "note": "ai-goals",
+                "date": today,
+                "measured_at": now_iso(),
+            })
+        except Exception as e:
+            logger.warning(f"weight log skipped: {e}")
+
     return {
         "daily_calories": ai_cal,
         "daily_protein": ai_pro,
@@ -407,6 +441,12 @@ async def get_today(profile_id: str):
     daily_cal = goals_doc.get("daily_calories", 2000)
     daily_pro = goals_doc.get("daily_protein", 90)
 
+    # Profile snapshot (used by frontend Goal-Modal to prefill age/height/weight/activity)
+    profile_doc = await db.health_profiles.find_one(
+        {"id": profile_id},
+        {"_id": 0, "age": 1, "gender": 1, "height": 1, "weight": 1, "activity_level": 1, "goal": 1},
+    ) or {}
+
     return {
         "date": date,
         "totals": {
@@ -428,6 +468,7 @@ async def get_today(profile_id: str):
             "protein_g": round(max(0, daily_pro - total_pro), 1),
         },
         "meals": meals,
+        "profile": profile_doc,
     }
 
 

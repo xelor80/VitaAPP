@@ -429,6 +429,17 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - Reactivate TR, FR, ES, RU languages
 - Refactor `/app/frontend/app/(tabs)/index.tsx` (>1200 Zeilen) in kleinere Komponenten
 
+### Weight & Metabolism v3.2 — Profil-Eingaben + Tagesdefizit (2026-05-04) - COMPLETED
+**Frontend (`/app/frontend/app/weight-metabolism.tsx`):**
+- **Goal-Modal AI-Sektion** erweitert um 3 Pflicht-Eingabefelder: `Alter`, `Größe (cm)`, `Gewicht (kg)`. Werte werden aus `today.profile` vorbefüllt.
+- **Tagesdefizit-Card** zwischen Kalorien-Ring und "Mahlzeit hinzufügen": zeigt live `Defizit (grün)` / `Überschuss (rot)` / `Im Ziel (grau)` mit kcal-Wert + Sub-Zeile mit geschätztem Abnehm-Tempo (`kg / Woche`, basierend auf 7700 kcal = 1 kg Fett).
+
+**Backend (`/app/backend/routes/weight_metabolism.py`):**
+- `POST /ai-calculate-goals` persistiert jetzt `age`, `height`, `weight` zurück ins `health_profiles`-Dokument und legt automatisch einen `weight_log`-Eintrag für den heutigen Tag an, falls neues Gewicht angegeben.
+- `GET /today` liefert zusätzlich `profile`-Snapshot (`age, gender, height, weight, activity_level, goal`) für Frontend-Vorbefüllung.
+- Validierungs-Reichweiten: Alter 14-100, Größe 120-230 cm, Gewicht 30-300 kg.
+- Tests via curl: ✅ AI-calc mit Alter/Größe/Gewicht → kcal=2100, protein=120g, profile persistiert.
+
 ### Weight & Metabolism v3.1 — VERO Info Modal + Verlauf-Reset (2026-05-04) - COMPLETED
 **Frontend (`/app/frontend/app/weight-metabolism.tsx`):**
 - Klickbarer Fasten-Kreis: Tap auf den großen SVG-Timer öffnet das **VERO-Info-Modal** mit ausführlicher Erklärung der Protein-Routine (5 Sektionen: Warum 4 Schritte, Protein, Essensfenster, Wasser, Tagesziele) + Tipp-Box. Kleiner violetter Hint-Chip "Tippe für VERO-Erklärung" unter dem Kreis.
