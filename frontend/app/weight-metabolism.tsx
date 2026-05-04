@@ -109,6 +109,7 @@ export default function WeightMetabolismScreen() {
   const [schedule, setSchedule] = useState<any>(null);
   const [weight, setWeight] = useState<any>(null);
   const [favorites, setFavorites] = useState<any[]>([]);
+  const [dayPlan, setDayPlan] = useState<any>(null);
 
   // Meal source picker
   const [mealPicker, setMealPicker] = useState(false);
@@ -135,10 +136,10 @@ export default function WeightMetabolismScreen() {
   const [weightModal, setWeightModal] = useState(false);
   const [weightInput, setWeightInput] = useState('');
 
-  // Schedule modal
+  // Schedule modal - now uses fast_start + duration (14/15/16h)
   const [scheduleModal, setScheduleModal] = useState(false);
-  const [winStart, setWinStart] = useState('12:00');
-  const [winHours, setWinHours] = useState('8');
+  const [fastStart, setFastStart] = useState('20:00');
+  const [fastDuration, setFastDuration] = useState<'14' | '15' | '16'>('16');
 
   // Goals modal
   const [goalModal, setGoalModal] = useState(false);
@@ -156,18 +157,20 @@ export default function WeightMetabolismScreen() {
 
   const loadAll = useCallback(async (pid: string) => {
     try {
-      const [tRes, gRes, schedRes, wRes, favRes] = await Promise.all([
+      const [tRes, gRes, schedRes, wRes, favRes, dpRes] = await Promise.all([
         fetch(`${API_URL}/api/weight-metabolism/${pid}/today`),
         fetch(`${API_URL}/api/weight-metabolism/${pid}/goals`),
         fetch(`${API_URL}/api/weight-metabolism/${pid}/schedule`),
         fetch(`${API_URL}/api/weight-metabolism/${pid}/weight/history?days=30`),
         fetch(`${API_URL}/api/weight-metabolism/${pid}/favorites`),
+        fetch(`${API_URL}/api/weight-metabolism/${pid}/day-plan`),
       ]);
       if (tRes.ok) setToday(await tRes.json());
       if (gRes.ok) setGoals(await gRes.json());
       if (schedRes.ok) setSchedule(await schedRes.json());
       if (wRes.ok) setWeight(await wRes.json());
       if (favRes.ok) { const d = await favRes.json(); setFavorites(d.items || []); }
+      if (dpRes.ok) setDayPlan(await dpRes.json());
     } catch (e) { console.warn(e); }
     setLoading(false);
   }, []);
@@ -184,7 +187,14 @@ export default function WeightMetabolismScreen() {
       eating_window_hours: schedule.eating_window_hours,
       reminders_enabled: !!schedule.reminders_enabled,
     }, lang).catch(() => {});
-  }, [schedule?.active, schedule?.eating_window_start, schedule?.eating_window_hours, schedule?.reminders_enabled, lang]);
+    // Refresh day-plan (which depends on schedule)
+    if (profileId) {
+      fetch(`${API_URL}/api/weight-metabolism/${profileId}/day-plan`)
+        .then(r => r.ok ? r.json() : null)
+        .then(d => { if (d) setDayPlan(d); })
+        .catch(() => {});
+    }
+  }, [schedule?.active, schedule?.eating_window_start, schedule?.eating_window_hours, schedule?.reminders_enabled, lang, profileId]);
 
   useEffect(() => {
     AsyncStorage.getItem('health_profile_id').then(async pid => {
@@ -426,31 +436,37 @@ export default function WeightMetabolismScreen() {
 
   // Schedule
   const openScheduleModal = () => {
-    setWinStart(schedule?.eating_window_start || '12:00');
-    setWinHours(String(schedule?.eating_window_hours || 8));
+    setFastStart(schedule?.fast_start || '20:00');
+    const dur = schedule?.fast_duration_hours;
+    if (dur === 14) setFastDuration('14');
+    else if (dur === 15) setFastDuration('15');
+    else setFastDuration('16');
     setScheduleModal(true);
   };
 
   const saveSchedule = async () => {
     if (!profileId) return;
-    const hours = parseFloat(winHours.replace(',', '.'));
-    if (isNaN(hours) || hours < 1 || hours > 14) { Alert.alert('1-14 Stunden'); return; }
-    if (!/^\d{1,2}:\d{2}$/.test(winStart)) { Alert.alert('Format HH:MM'); return; }
+    if (!/^\d{1,2}:\d{2}$/.test(fastStart)) { Alert.alert('Format HH:MM'); return; }
+    const duration = parseInt(fastDuration, 10);
     try {
       await fetch(`${API_URL}/api/weight-metabolism/${profileId}/schedule`, {
         method: 'PUT', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          eating_window_start: winStart,
-          eating_window_hours: hours,
+          fast_start: fastStart,
+          fast_duration_hours: duration,
           daily_recurring: true,
           reminders_enabled: true,
         }),
       });
       setScheduleModal(false);
-      // Schedule local push reminders (native only)
       try {
+        const hours = 24 - duration;
+        // Map fast-start to eating_window_start for notifications
+        const [h, m] = fastStart.split(':').map(x => parseInt(x, 10));
+        const ewMin = ((h * 60 + m + duration * 60) % 1440);
+        const ewStart = `${String(Math.floor(ewMin / 60)).padStart(2, '0')}:${String(ewMin % 60).padStart(2, '0')}`;
         const ok = await scheduleFastingReminders({
-          eating_window_start: winStart,
+          eating_window_start: ewStart,
           eating_window_hours: hours,
           reminders_enabled: true,
         }, lang);
@@ -463,7 +479,29 @@ export default function WeightMetabolismScreen() {
     } catch (e) { console.warn(e); }
   };
 
-  const stopSchedule = async () => {
+  const toggleEventCheck = async (eventKey: string, currentlyChecked: boolean) => {
+    if (!profileId) return;
+    // Optimistic UI
+    setDayPlan((prev: any) => {
+      if (!prev) return prev;
+      const events = prev.events.map((e: any) =>
+        e.key === eventKey ? { ...e, checked: !currentlyChecked } : e
+      );
+      const done = events.filter((e: any) => e.checked).length;
+      return { ...prev, events, done_count: done, progress_pct: Math.round(done / events.length * 100) };
+    });
+    try {
+      const res = await fetch(`${API_URL}/api/weight-metabolism/${profileId}/day-plan/check`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ event_key: eventKey, done: !currentlyChecked }),
+      });
+      if (res.ok) setDayPlan(await res.json());
+      if (!currentlyChecked) {
+        try { showActionToast('Gut gemacht!', 'success'); } catch {}
+      }
+    } catch (e) { console.warn(e); reload(); }
+  };
     if (!profileId) return;
     Alert.alert(
       'Fasten-Plan beenden?',
@@ -560,10 +598,23 @@ export default function WeightMetabolismScreen() {
     sched = { ...schedule, remaining_seconds: remaining };
   }
 
-  // Contextual VERO hint
+  // Contextual VERO hint (plan-aware)
   const remainingPro = Math.max(0, (today?.goals?.daily_protein || 0) - (today?.totals?.protein_g || 0));
   let veroHint: string | null = null;
-  if (sched?.active) {
+  if (dayPlan?.active && dayPlan?.next_event) {
+    const ne = dayPlan.next_event;
+    const neLabel = lang === 'it' ? ne.label_it : lang === 'en' ? ne.label_en : ne.label_de;
+    if (ne.status === 'now') {
+      veroHint = `Jetzt dran: ${neLabel} · ${ne.time}`;
+    } else if (dayPlan.done_count === 0) {
+      veroHint = `Naechster Schritt: ${neLabel} um ${ne.time}`;
+    } else if (dayPlan.done_count === dayPlan.total_count) {
+      veroHint = 'Perfekt – du hast heute alles erledigt!';
+    } else {
+      veroHint = `Du bist im Plan. Naechster: ${neLabel} · ${ne.time}`;
+    }
+  }
+  if (!veroHint && sched?.active) {
     const mins = Math.round((sched.remaining_seconds || 0) / 60);
     if (sched.phase === 'fasting' && mins <= 30 && mins > 0) {
       veroHint = `Dein Essensfenster startet in ${mins} Min`;
@@ -647,14 +698,79 @@ export default function WeightMetabolismScreen() {
               </View>
               <View style={st.scheduleInfo}>
                 <View style={st.scheduleRow}>
-                  <Text style={st.scheduleLabel}>Fenster</Text>
-                  <Text style={st.scheduleValue}>{sched.eating_window_start} – {sched.eating_window_end}</Text>
+                  <Text style={st.scheduleLabel}>{tx(lang, { de: 'Fasten', it: 'Digiuno', en: 'Fasting' })}</Text>
+                  <Text style={st.scheduleValue}>{sched.fast_start || sched.eating_window_end} – {sched.eating_window_start}</Text>
                 </View>
                 <View style={st.scheduleRow}>
-                  <Text style={st.scheduleLabel}>Fasten</Text>
-                  <Text style={st.scheduleValue}>{sched.fasting_hours}h</Text>
+                  <Text style={st.scheduleLabel}>{tx(lang, { de: 'Essen', it: 'Mangiare', en: 'Eating' })}</Text>
+                  <Text style={st.scheduleValue}>{sched.eating_window_start} – {sched.eating_window_end}</Text>
                 </View>
               </View>
+
+              {/* TIMELINE: Auto-generated daily plan */}
+              {dayPlan?.active && dayPlan?.events?.length > 0 && (
+                <View style={st.timelineBox} data-testid="wm-timeline">
+                  <View style={st.timelineHeader}>
+                    <Text style={st.timelineTitle}>
+                      {tx(lang, { de: 'Dein Tagesplan', it: 'Il tuo piano', en: 'Your plan' })}
+                    </Text>
+                    <Text style={st.timelineProgress}>
+                      {dayPlan.done_count}/{dayPlan.total_count}
+                    </Text>
+                  </View>
+                  {/* Progress bar */}
+                  <View style={st.timelineBar}>
+                    <View style={[st.timelineBarFill, { width: `${dayPlan.progress_pct}%` }]} />
+                  </View>
+                  {/* Events */}
+                  {dayPlan.events.map((ev: any, idx: number) => (
+                    <TouchableOpacity
+                      key={ev.key}
+                      style={[st.timelineEvent, ev.checked && st.timelineEventDone]}
+                      onPress={() => toggleEventCheck(ev.key, ev.checked)}
+                      activeOpacity={0.7}
+                      data-testid={`wm-timeline-event-${ev.key}`}
+                    >
+                      <View style={st.timelineDotCol}>
+                        <View style={[
+                          st.timelineDot,
+                          ev.checked && st.timelineDotDone,
+                          ev.status === 'now' && !ev.checked && st.timelineDotNow,
+                        ]}>
+                          {ev.checked ? (
+                            <MaterialCommunityIcons name="check" size={16} color="#FFFFFF" />
+                          ) : (
+                            <MaterialCommunityIcons name={ev.icon} size={14} color={ev.status === 'now' ? '#FFFFFF' : '#6B7280'} />
+                          )}
+                        </View>
+                        {idx < dayPlan.events.length - 1 && (
+                          <View style={[st.timelineLine, ev.checked && { backgroundColor: '#86EFAC' }]} />
+                        )}
+                      </View>
+                      <View style={{ flex: 1, paddingBottom: idx === dayPlan.events.length - 1 ? 0 : 14 }}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <Text style={[st.timelineEventLabel, ev.checked && { textDecorationLine: 'line-through', color: '#9CA3AF' }]}>
+                            {lang === 'it' ? ev.label_it : lang === 'en' ? ev.label_en : ev.label_de}
+                          </Text>
+                          <Text style={[st.timelineEventTime, ev.status === 'now' && { color: '#6D28D9', fontWeight: '800' }]}>
+                            {ev.time}
+                          </Text>
+                        </View>
+                        <View style={st.timelineMeta}>
+                          <MaterialCommunityIcons name="cup-water" size={12} color="#0EA5E9" />
+                          <Text style={st.timelineMetaText}>+{ev.water_ml}ml {tx(lang, { de: 'Wasser', it: 'acqua', en: 'water' })}</Text>
+                          {ev.status === 'now' && !ev.checked && (
+                            <View style={st.timelineNowBadge}>
+                              <Text style={st.timelineNowText}>{tx(lang, { de: 'Jetzt', it: 'Ora', en: 'Now' })}</Text>
+                            </View>
+                          )}
+                        </View>
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+
               <TouchableOpacity style={st.removeBtn} onPress={stopSchedule} data-testid="wm-schedule-stop-btn">
                 <Text style={st.removeBtnText}>{tx(lang, { de: 'Plan entfernen', it: 'Rimuovi piano', en: 'Remove plan' })}</Text>
               </TouchableOpacity>
@@ -663,15 +779,15 @@ export default function WeightMetabolismScreen() {
             <View style={{ marginTop: 8 }}>
               <Text style={st.fastIdleText}>
                 {tx(lang, {
-                  de: 'Lege dein Essensfenster fest. Wir kuemmern uns um den Rest - automatisch, jeden Tag.',
-                  it: 'Imposta la finestra, noi pensiamo al resto.',
-                  en: 'Set your eating window, we handle the rest.',
+                  de: 'Waehle Fastenstart + Dauer. Wir erstellen automatisch deinen Tagesplan mit Shakes und Mahlzeiten.',
+                  it: 'Scegli inizio + durata. Creiamo noi il tuo piano.',
+                  en: 'Choose start + duration. We build your plan.',
                 })}
               </Text>
               <TouchableOpacity style={st.bigPrimaryBtn} onPress={openScheduleModal} data-testid="wm-schedule-create-btn">
                 <MaterialCommunityIcons name="clock-plus-outline" size={20} color="#FFFFFF" />
                 <Text style={st.bigPrimaryBtnText}>
-                  {tx(lang, { de: 'Fasten-Plan erstellen', it: 'Crea piano', en: 'Create plan' })}
+                  {tx(lang, { de: 'Tagesplan erstellen', it: 'Crea piano', en: 'Create plan' })}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -978,39 +1094,51 @@ export default function WeightMetabolismScreen() {
       <Modal visible={scheduleModal} transparent animationType="slide" onRequestClose={() => setScheduleModal(false)}>
         <View style={st.modalBg}>
           <View style={st.modalCard} data-testid="wm-schedule-modal">
-            <Text style={st.modalTitle}>{tx(lang, { de: 'Essensfenster festlegen', it: 'Imposta finestra', en: 'Set eating window' })}</Text>
+            <Text style={st.modalTitle}>{tx(lang, { de: 'Dein Fasten-Rhythmus', it: 'Il tuo ritmo digiuno', en: 'Your fasting rhythm' })}</Text>
             <Text style={st.modalSub}>
-              {tx(lang, { de: 'Wir berechnen die Fastenphase automatisch.', it: 'Calcoliamo il digiuno automaticamente.', en: 'Fasting auto-computed.' })}
+              {tx(lang, {
+                de: 'Wir erstellen automatisch deinen Tagesplan mit Shakes und Mahlzeiten.',
+                it: 'Creiamo automaticamente il tuo piano giornaliero.',
+                en: 'We auto-generate your daily plan with shakes and meals.',
+              })}
             </Text>
-            <Text style={st.modalLabel}>{tx(lang, { de: 'Fensterbeginn (HH:MM)', it: 'Inizio (HH:MM)', en: 'Start (HH:MM)' })}</Text>
+            <Text style={st.modalLabel}>{tx(lang, { de: 'Fastenstart (HH:MM)', it: 'Inizio digiuno', en: 'Fasting start' })}</Text>
             <View style={st.presetRow}>
-              {['08:00', '10:00', '12:00', '14:00'].map(t => (
-                <TouchableOpacity key={t} style={[st.presetChip, winStart === t && st.presetChipActive]} onPress={() => setWinStart(t)}>
-                  <Text style={[st.presetText, winStart === t && { color: '#FFFFFF' }]}>{t}</Text>
+              {['18:00', '19:00', '20:00', '21:00'].map(t => (
+                <TouchableOpacity key={t} style={[st.presetChip, fastStart === t && st.presetChipActive]} onPress={() => setFastStart(t)} data-testid={`wm-fast-start-${t}`}>
+                  <Text style={[st.presetText, fastStart === t && { color: '#FFFFFF' }]}>{t}</Text>
                 </TouchableOpacity>
               ))}
             </View>
-            <TextInput style={st.input} value={winStart} onChangeText={setWinStart} placeholder="12:00" placeholderTextColor="#9CA3AF" data-testid="wm-schedule-start" />
-            <Text style={st.modalLabel}>{tx(lang, { de: 'Dauer (h)', it: 'Durata (h)', en: 'Duration (h)' })}</Text>
+            <TextInput style={st.input} value={fastStart} onChangeText={setFastStart} placeholder="20:00" placeholderTextColor="#9CA3AF" data-testid="wm-schedule-start" />
+            <Text style={st.modalLabel}>{tx(lang, { de: 'Fastendauer', it: 'Durata digiuno', en: 'Fasting duration' })}</Text>
             <View style={st.presetRow}>
-              {['6', '8', '10', '12'].map(h => (
-                <TouchableOpacity key={h} style={[st.presetChip, winHours === h && st.presetChipActive]} onPress={() => setWinHours(h)}>
-                  <Text style={[st.presetText, winHours === h && { color: '#FFFFFF' }]}>{h}h</Text>
+              {(['14', '15', '16'] as const).map(h => (
+                <TouchableOpacity key={h} style={[st.presetChip, fastDuration === h && st.presetChipActive]} onPress={() => setFastDuration(h)} data-testid={`wm-fast-duration-${h}`}>
+                  <Text style={[st.presetText, fastDuration === h && { color: '#FFFFFF' }]}>{h}h</Text>
                 </TouchableOpacity>
               ))}
             </View>
-            <TextInput style={st.input} value={winHours} onChangeText={setWinHours} keyboardType="numeric" data-testid="wm-schedule-hours" />
             <View style={st.scheduleSummary}>
-              <Text style={st.scheduleSummaryText}>
-                {tx(lang, { de: `Fasten: ${Math.max(0, 24 - parseFloat(winHours || '0'))}h taeglich`, it: `Digiuno: ${Math.max(0, 24 - parseFloat(winHours || '0'))}h`, en: `Fasting: ${Math.max(0, 24 - parseFloat(winHours || '0'))}h` })}
-              </Text>
+              {(() => {
+                const [h, m] = fastStart.split(':').map(x => parseInt(x, 10));
+                const dur = parseInt(fastDuration, 10);
+                if (isNaN(h) || isNaN(m)) return null;
+                const ewStartMin = (h * 60 + m + dur * 60) % 1440;
+                const ew = `${String(Math.floor(ewStartMin / 60)).padStart(2, '0')}:${String(ewStartMin % 60).padStart(2, '0')}`;
+                return (
+                  <Text style={st.scheduleSummaryText}>
+                    Fasten {fastStart} – {ew} · Essen {ew} – {fastStart}
+                  </Text>
+                );
+              })()}
             </View>
             <View style={st.modalRow}>
               <TouchableOpacity style={st.modalCancel} onPress={() => setScheduleModal(false)}>
                 <Text style={st.modalCancelText}>{tx(lang, { de: 'Abbrechen', it: 'Annulla', en: 'Cancel' })}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={st.modalConfirm} onPress={saveSchedule} data-testid="wm-schedule-save">
-                <Text style={st.modalConfirmText}>{tx(lang, { de: 'Speichern', it: 'Salva', en: 'Save' })}</Text>
+                <Text style={st.modalConfirmText}>{tx(lang, { de: 'Plan aktivieren', it: 'Attiva piano', en: 'Activate' })}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -1390,4 +1518,35 @@ const st = StyleSheet.create({
     borderRadius: 10, marginTop: 6,
   },
   deltaText: { fontSize: 10, fontWeight: '700' },
+
+  // Timeline
+  timelineBox: {
+    width: '100%', marginTop: 18, padding: 14, backgroundColor: '#F7FAF8',
+    borderRadius: 14, borderWidth: 1, borderColor: '#E6EAE7',
+  },
+  timelineHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+  timelineTitle: { fontSize: 14, fontWeight: '800', color: '#1F2937' },
+  timelineProgress: { fontSize: 13, fontWeight: '700', color: '#2E7D52' },
+  timelineBar: { height: 6, backgroundColor: '#E6EAE7', borderRadius: 3, overflow: 'hidden', marginBottom: 14 },
+  timelineBarFill: { height: '100%', backgroundColor: '#2E7D52', borderRadius: 3 },
+  timelineEvent: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
+  timelineEventDone: { opacity: 0.8 },
+  timelineDotCol: { alignItems: 'center', width: 30 },
+  timelineDot: {
+    width: 30, height: 30, borderRadius: 15, backgroundColor: '#FFFFFF',
+    borderWidth: 2, borderColor: '#D1D5DB',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  timelineDotDone: { backgroundColor: '#2E7D52', borderColor: '#2E7D52' },
+  timelineDotNow: { backgroundColor: '#6D28D9', borderColor: '#6D28D9' },
+  timelineLine: { width: 2, flex: 1, backgroundColor: '#E6EAE7', minHeight: 28, marginTop: 2 },
+  timelineEventLabel: { fontSize: 14, fontWeight: '700', color: '#1F2937', flex: 1 },
+  timelineEventTime: { fontSize: 13, fontWeight: '700', color: '#6B7280', fontVariant: ['tabular-nums'] },
+  timelineMeta: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 3 },
+  timelineMetaText: { fontSize: 11, color: '#6B7280' },
+  timelineNowBadge: {
+    marginLeft: 'auto', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8, backgroundColor: '#6D28D9',
+  },
+  timelineNowText: { fontSize: 10, fontWeight: '800', color: '#FFFFFF' },
+
 });

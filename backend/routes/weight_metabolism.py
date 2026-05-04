@@ -48,9 +48,13 @@ class FastingStartRequest(BaseModel):
 
 
 class FastingScheduleRequest(BaseModel):
-    """Time-of-day based eating window, recurring daily."""
-    eating_window_start: str  # "HH:MM" (24h) - when eating window opens
-    eating_window_hours: float  # duration of eating window (1-14)
+    """Eating window OR Fasting window – either can be provided.
+    If fast_start + fast_duration_hours are set, we compute the eating window from them.
+    """
+    eating_window_start: Optional[str] = None  # "HH:MM" (24h) - when eating window opens
+    eating_window_hours: Optional[float] = None  # duration of eating window (1-14)
+    fast_start: Optional[str] = None  # "HH:MM" - when fasting begins
+    fast_duration_hours: Optional[float] = None  # 12-20
     daily_recurring: bool = True
     reminders_enabled: bool = True
 
@@ -702,6 +706,8 @@ async def get_schedule(profile_id: str):
 
     end_t = dtime((start_m + int(window_h * 60)) // 60 % 24, (start_m + int(window_h * 60)) % 60)
     fasting_hours = round(24 - window_h, 1)
+    # Fast start = eating end
+    fast_start = _format_hhmm(end_t)
 
     return {
         "active": True,
@@ -709,6 +715,8 @@ async def get_schedule(profile_id: str):
         "eating_window_end": _format_hhmm(end_t),
         "eating_window_hours": window_h,
         "fasting_hours": fasting_hours,
+        "fast_start": fast_start,
+        "fast_duration_hours": float(doc.get("fast_duration_hours", fasting_hours)),
         "daily_recurring": bool(doc.get("daily_recurring", True)),
         "reminders_enabled": bool(doc.get("reminders_enabled", True)),
         "phase": phase,  # "eating" | "fasting"
@@ -722,13 +730,42 @@ async def get_schedule(profile_id: str):
 
 @router.put("/{profile_id}/schedule")
 async def update_schedule(profile_id: str, req: FastingScheduleRequest):
-    _parse_hhmm(req.eating_window_start)  # validate
-    if req.eating_window_hours < 1 or req.eating_window_hours > 14:
-        raise HTTPException(400, "eating_window_hours must be 1-14")
+    # If fast_start + fast_duration_hours provided, derive eating window
+    if req.fast_start and req.fast_duration_hours:
+        _parse_hhmm(req.fast_start)
+        if req.fast_duration_hours < 10 or req.fast_duration_hours > 22:
+            raise HTTPException(400, "fast_duration_hours must be 10-22")
+        fast_start_t = _parse_hhmm(req.fast_start)
+        fast_minutes = int(req.fast_duration_hours * 60)
+        # eating window starts when fasting ends
+        ew_total = (_minutes_since_midnight(fast_start_t) + fast_minutes) % (24 * 60)
+        ew_start_t = dtime(ew_total // 60, ew_total % 60)
+        ew_hours = 24.0 - float(req.fast_duration_hours)
+        eating_window_start = _format_hhmm(ew_start_t)
+        eating_window_hours = ew_hours
+        fast_start = req.fast_start
+        fast_duration = float(req.fast_duration_hours)
+    elif req.eating_window_start and req.eating_window_hours:
+        _parse_hhmm(req.eating_window_start)
+        if req.eating_window_hours < 1 or req.eating_window_hours > 14:
+            raise HTTPException(400, "eating_window_hours must be 1-14")
+        eating_window_start = req.eating_window_start
+        eating_window_hours = float(req.eating_window_hours)
+        # Compute fasting start = eating window end
+        ew_t = _parse_hhmm(eating_window_start)
+        fs_total = (_minutes_since_midnight(ew_t) + int(eating_window_hours * 60)) % (24 * 60)
+        fs_t = dtime(fs_total // 60, fs_total % 60)
+        fast_start = _format_hhmm(fs_t)
+        fast_duration = 24.0 - eating_window_hours
+    else:
+        raise HTTPException(400, "Provide fast_start+fast_duration_hours or eating_window_start+eating_window_hours")
+
     data = {
         "profile_id": profile_id,
-        "eating_window_start": req.eating_window_start,
-        "eating_window_hours": float(req.eating_window_hours),
+        "eating_window_start": eating_window_start,
+        "eating_window_hours": eating_window_hours,
+        "fast_start": fast_start,
+        "fast_duration_hours": fast_duration,
         "daily_recurring": bool(req.daily_recurring),
         "reminders_enabled": bool(req.reminders_enabled),
         "updated_at": now_iso(),
@@ -1034,6 +1071,147 @@ async def meal_coach_comment(profile_id: str, req: CoachCommentRequest):
         pass  # duplicate race is fine
 
     return {"comment": comment, "cached": False, "tone": tone}
+
+
+# ── Daily Nutrition Plan (Timeline with Shake + Meal events) ──
+
+DAY_PLAN_EVENTS = [
+    # key, label_de, label_it, label_en, icon, offset_description, water_ml
+    {"key": "shake1", "label_de": "Shake 1", "label_it": "Shake 1", "label_en": "Shake 1", "icon": "cup", "water_ml": 300},
+    {"key": "small_meal", "label_de": "Kleine Mahlzeit", "label_it": "Piccolo pasto", "label_en": "Small meal", "icon": "food-apple-outline", "water_ml": 300},
+    {"key": "shake2", "label_de": "Shake 2", "label_it": "Shake 2", "label_en": "Shake 2", "icon": "cup", "water_ml": 300},
+    {"key": "large_meal", "label_de": "Grosse Mahlzeit", "label_it": "Grande pasto", "label_en": "Large meal", "icon": "food-turkey", "water_ml": 400},
+]
+
+
+def _compute_plan_times(eating_start_hhmm: str, eating_hours: float) -> dict:
+    """Compute the 4 timeline events based on the eating window."""
+    start_t = _parse_hhmm(eating_start_hhmm)
+    start_m = _minutes_since_midnight(start_t)
+    window_m = int(eating_hours * 60)
+
+    # Shake 1: at the very start of the eating window
+    shake1_m = start_m
+    # Small meal: 45 min later (mid of 30-60 range)
+    small_m = (start_m + 45) % (24 * 60)
+    # Shake 2: middle of eating window
+    shake2_m = (start_m + window_m // 2) % (24 * 60)
+    # Large meal: 1.5h before eating window closes (between 1-2h)
+    large_m = (start_m + window_m - 90) % (24 * 60)
+
+    def to_hhmm(mins: int) -> str:
+        return f"{(mins // 60):02d}:{(mins % 60):02d}"
+
+    return {
+        "shake1": to_hhmm(shake1_m),
+        "small_meal": to_hhmm(small_m),
+        "shake2": to_hhmm(shake2_m),
+        "large_meal": to_hhmm(large_m),
+    }
+
+
+@router.get("/{profile_id}/day-plan")
+async def get_day_plan(profile_id: str):
+    """Return today's auto-generated nutrition timeline + check-in state."""
+    schedule = await get_schedule(profile_id)
+    if not schedule.get("active"):
+        return {"active": False, "events": [], "progress_pct": 0}
+
+    times = _compute_plan_times(schedule["eating_window_start"], schedule["eating_window_hours"])
+    date = today_str()
+    checkins = await db.day_plan_checkins.find(
+        {"profile_id": profile_id, "date": date},
+        {"_id": 0},
+    ).to_list(length=20)
+    checked_map = {c["event_key"]: c for c in checkins}
+
+    now = datetime.now(timezone.utc)
+    now_m = now.hour * 60 + now.minute
+
+    events = []
+    for meta in DAY_PLAN_EVENTS:
+        key = meta["key"]
+        t = times[key]
+        t_parts = t.split(":")
+        event_m = int(t_parts[0]) * 60 + int(t_parts[1])
+        status = "done" if key in checked_map else ("now" if abs(now_m - event_m) <= 30 else ("upcoming" if event_m >= now_m else "missed"))
+        events.append({
+            "key": key,
+            "time": t,
+            "label_de": meta["label_de"],
+            "label_it": meta["label_it"],
+            "label_en": meta["label_en"],
+            "icon": meta["icon"],
+            "water_ml": meta["water_ml"],
+            "checked": key in checked_map,
+            "checked_at": checked_map.get(key, {}).get("checked_at"),
+            "status": status,
+        })
+
+    done = sum(1 for e in events if e["checked"])
+    progress_pct = round(done / len(events) * 100) if events else 0
+    next_event = next((e for e in events if not e["checked"]), None)
+
+    return {
+        "active": True,
+        "phase": schedule.get("phase"),
+        "eating_window_start": schedule.get("eating_window_start"),
+        "eating_window_end": schedule.get("eating_window_end"),
+        "fast_start": schedule.get("fast_start"),
+        "fast_duration_hours": schedule.get("fast_duration_hours"),
+        "events": events,
+        "progress_pct": progress_pct,
+        "done_count": done,
+        "total_count": len(events),
+        "next_event": next_event,
+        "phase_remaining_seconds": schedule.get("remaining_seconds"),
+    }
+
+
+class PlanCheckRequest(BaseModel):
+    event_key: str
+    done: bool = True
+
+
+@router.post("/{profile_id}/day-plan/check")
+async def check_day_plan_event(profile_id: str, req: PlanCheckRequest):
+    """Toggle a day-plan event as done/undone for today."""
+    valid_keys = {e["key"] for e in DAY_PLAN_EVENTS}
+    if req.event_key not in valid_keys:
+        raise HTTPException(400, f"Invalid event_key. Must be one of: {valid_keys}")
+    date = today_str()
+    if req.done:
+        await db.day_plan_checkins.update_one(
+            {"profile_id": profile_id, "date": date, "event_key": req.event_key},
+            {"$set": {
+                "profile_id": profile_id,
+                "date": date,
+                "event_key": req.event_key,
+                "checked_at": now_iso(),
+            }},
+            upsert=True,
+        )
+        # Auto-log water for the event
+        schedule = await get_schedule(profile_id)
+        if schedule.get("active"):
+            meta = next((m for m in DAY_PLAN_EVENTS if m["key"] == req.event_key), None)
+            if meta and meta.get("water_ml"):
+                try:
+                    await db.water_intake_logs.insert_one({
+                        "id": str(uuid.uuid4()),
+                        "profile_id": profile_id,
+                        "date": date,
+                        "amount_ml": meta["water_ml"],
+                        "source": f"day_plan_{req.event_key}",
+                        "created_at": now_iso(),
+                    })
+                except Exception:
+                    pass
+    else:
+        await db.day_plan_checkins.delete_one(
+            {"profile_id": profile_id, "date": date, "event_key": req.event_key}
+        )
+    return await get_day_plan(profile_id)
 
 
 # ── Dashboard summary (lightweight) ──
