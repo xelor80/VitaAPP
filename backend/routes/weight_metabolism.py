@@ -94,6 +94,24 @@ def now_iso():
     return datetime.now(timezone.utc).isoformat()
 
 
+async def get_user_local_now(profile_id: str) -> datetime:
+    """Return the current wall-clock time in the user's timezone.
+    Uses stored profile_timezone.offset_minutes (set automatically on screen mount).
+    Fallback: server UTC.
+    """
+    try:
+        tz_doc = await db.profile_timezone.find_one(
+            {"profile_id": profile_id},
+            {"_id": 0, "offset_minutes": 1},
+        )
+        if tz_doc and tz_doc.get("offset_minutes") is not None:
+            offset = int(tz_doc["offset_minutes"])
+            return datetime.now(timezone.utc) + timedelta(minutes=offset)
+    except Exception:
+        pass
+    return datetime.now(timezone.utc)
+
+
 def calc_recommended_calories(profile: dict) -> int:
     """Mifflin-St Jeor BMR with activity multiplier."""
     try:
@@ -671,9 +689,7 @@ async def get_schedule(profile_id: str):
     start_m = _minutes_since_midnight(start_t)
     end_m = (start_m + int(window_h * 60)) % (24 * 60)
 
-    now = datetime.now(timezone.utc)
-    # Convert UTC to user's local "clock" — we store HH:MM as-is.
-    # For simplicity use server UTC clock. Client can display localized timings.
+    now = await get_user_local_now(profile_id)
     now_m = now.hour * 60 + now.minute
 
     def in_window(cur: int, s: int, e: int) -> bool:
@@ -1125,7 +1141,7 @@ async def get_day_plan(profile_id: str):
     ).to_list(length=20)
     checked_map = {c["event_key"]: c for c in checkins}
 
-    now = datetime.now(timezone.utc)
+    now = await get_user_local_now(profile_id)
     now_m = now.hour * 60 + now.minute
 
     events = []
