@@ -502,6 +502,8 @@ export default function WeightMetabolismScreen() {
       }
     } catch (e) { console.warn(e); reload(); }
   };
+
+  const stopSchedule = async () => {
     if (!profileId) return;
     Alert.alert(
       'Fasten-Plan beenden?',
