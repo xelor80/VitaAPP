@@ -1,0 +1,50 @@
+{
+  "summary": "Tested 2 new Weight & Metabolism features: (1) AI-Goals modal with 3 new inputs age/height_cm/current_weight_kg + persistence, (2) Tagesdefizit-Card under rings, plus weight DELETE endpoints. Backend: 8/8 pytest cases PASSED. Frontend: Goal Modal renders correctly with all 3 inputs + chips + Calculate button (visually verified). However, 0 data-testid attributes exist in the rendered DOM — RN Web strips unknown props; codebase uses 'data-testid=' instead of 'testID='. Could not fully verify AI calc result/Deficit Card in web preview because localStorage profile_id is None (rings 0/0).",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "ALL weight-metabolism.tsx components (and likely the whole app)",
+        "issue": "data-testid attributes are completely missing from the rendered DOM (0 elements found). React Native Web does NOT pass unknown props like 'data-testid' to the underlying DOM element — it only forwards 'testID' (which RN Web auto-converts to data-testid on web). Visual UI works fine, but every Playwright/Selenium-style automated test that targets data-testid will fail.",
+        "selector": "[data-testid=\"wm-goal-btn\"], [data-testid=\"wm-history-btn\"], [data-testid=\"wm-deficit-card\"], [data-testid=\"wm-ai-age-input\"], [data-testid=\"wm-ai-height-input\"], [data-testid=\"wm-ai-weight-input\"], [data-testid=\"wm-ai-run-btn\"], [data-testid=\"wm-ai-result\"] — ALL return 0 nodes",
+        "priority": "HIGH"
+      }
+    ],
+    "integration_issues": [
+      {
+        "flow": "Weight & Metabolism page in web preview",
+        "issue": "localStorage 'profile_id' is None on fresh page load → app falls back to a profile that has no goals, so calorie/protein rings show 0/0 and the Deficit-Card stays hidden (correct 'if (!goal) return null' behaviour). This blocked frontend verification of the deficit-card UI in the public preview. Backend behaviour with profile f97fdefb-... was verified independently via curl.",
+        "affected_selectors": ["wm-deficit-card", "wm-ai-result"]
+      }
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_weight_metabolism_ai_inputs_deficit.py",
+    "/app/test_reports/pytest/iter87_ai_inputs_deficit.xml"
+  ],
+  "action_items": [
+    "Replace 'data-testid=\"...\"' with 'testID=\"...\"' across React Native components (TouchableOpacity, View, TextInput, etc.) in /app/frontend/app/weight-metabolism.tsx (≈55 occurrences) and other RN screens. RN Web converts testID → data-testid automatically on web while keeping it as accessibilityIdentifier on native — this is the only reliable way to make automated UI testing work.",
+    "Optional: persist a default profile_id in localStorage on first WM page mount so web preview can showcase the deficit-card and AI-result without manual seeding."
+  ],
+  "critical_code_review_comments": [
+    "Testability blocker: weight-metabolism.tsx uses 'data-testid' as a direct prop on RN components — RN Web filters it out, so 0 testids reach the DOM. Use 'testID' (already supported by every RN primitive) which RN Web maps to data-testid automatically.",
+    "ai_calculate_goals: when only age/height are sent without gender, response is 400 'Geschlecht und aktuelles Gewicht werden benötigt.' but the message is misleading if only weight is missing. Consider per-field error messages.",
+    "ai_calculate_goals stores profile_updates with upsert=False — if no health_profiles row exists for this profile_id the writes are silently dropped. Either upsert=True or skip silently with a debug log (currently it logs only on exception).",
+    "weight reset endpoint (DELETE /weight) returns {deleted: count} — this is fine, but the frontend should refetch /weight/history after a reset. Verified the route works idempotently (deleted=0 on empty).",
+    "Frontend localStorage profile_id missing on first load is a UX cliff — page renders but every metric is 0; consider a skeleton state or a CTA pointing to onboarding."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_weight_metabolism_ai_inputs_deficit.py"
+  ],
+  "success_rate": {"backend": "100% (8/8)", "frontend": "Visual: 100% (Goal modal + AI inputs render). Automation: 0% (no data-testid in DOM)"},
+  "test_credentials": "Test profile_id f97fdefb-c81f-4d01-8d02-e38dd2132e74 used for backend curl seeding. test@vitaguide.de / Wk220480xel! provided in request but not exercised because tests didn't require auth.",
+  "seed_data_creation": "Seeded the known profile_id f97fdefb-... via curl: PUT /schedule (fast_start=20:00, dur=16h), PUT /goals (2100 kcal/120 g protein), POST /meal (TEST_meal 700/40). Pytest fixtures create+teardown TEST_pid_* documents in health_profiles, weight_log, weight_goals, meal_log.",
+  "retest_needed": true,
+  "main_agent_can_self_test": false,
+  "context_for_next_testing_agent": "Backend for new AI-inputs + weight DELETE + today.profile snapshot is 100% green (8 pytest cases in test_weight_metabolism_ai_inputs_deficit.py). Frontend: Goal Modal + 3 AI inputs + Activity/Goal chips render visually (see screenshot wm_goalmodal.png) but the entire codebase mis-uses 'data-testid' as an RN prop — RN Web filters it out, leaving 0 testids in DOM. Once main agent migrates to 'testID', frontend playwright tests will work as expected. Public web-preview also has no profile_id in localStorage on first load → rings show 0/0 → deficit-card hidden by design. To exercise the deficit-card visually, manually run: localStorage.setItem('profile_id','f97fdefb-c81f-4d01-8d02-e38dd2132e74'); reload.",
+  "rca of the issue": "Frontend data-testid blocker: React Native Web only forwards a curated set of accessibility/identifier props to the DOM. 'testID' (the RN convention) is automatically translated to 'data-testid'; an arbitrary 'data-testid' prop is dropped during prop normalization (createDOMProps). Fix: codebase-wide rename data-testid → testID on every RN-native component (TouchableOpacity/View/Text/TextInput/Pressable/Animated.View). Plain HTML elements (rare in this codebase) keep data-testid."
+}
