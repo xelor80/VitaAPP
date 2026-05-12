@@ -111,7 +111,7 @@ function RecipeCard({ recipe, tx, onPress, cardWidth }: { recipe: any; tx: typeo
       style={[s.card, { width: cardWidth }]}
       activeOpacity={0.85}
       onPress={onPress}
-      data-testid={`recipe-card-${recipe.id}`}
+      testID={`recipe-card-${recipe.id}`}
     >
       <Image
         source={{ uri: recipe.image_url || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=400&h=300&fit=crop' }}
@@ -256,7 +256,7 @@ export default function RecipesCatalogScreen() {
     <SafeAreaView style={s.safe}>
       {/* Header */}
       <View style={s.headerBar}>
-        <TouchableOpacity data-testid="catalog-back-btn" onPress={() => router.back()} style={s.backBtn}>
+        <TouchableOpacity testID="catalog-back-btn" onPress={() => router.back()} style={s.backBtn}>
           <MaterialCommunityIcons name="arrow-left" size={24} color="#1A2D26" />
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
@@ -266,7 +266,7 @@ export default function RecipesCatalogScreen() {
           </Text>
         </View>
         {hasActiveFilters && (
-          <TouchableOpacity data-testid="reset-filters-btn" onPress={resetFilters} style={s.resetBtn}>
+          <TouchableOpacity testID="reset-filters-btn" onPress={resetFilters} style={s.resetBtn}>
             <MaterialCommunityIcons name="filter-remove" size={20} color="#D9534F" />
           </TouchableOpacity>
         )}
@@ -276,7 +276,7 @@ export default function RecipesCatalogScreen() {
       <View style={s.searchWrap}>
         <MaterialCommunityIcons name="magnify" size={20} color="#8FA39B" style={{ marginRight: 8 }} />
         <TextInput
-          data-testid="recipe-search-input"
+          testID="recipe-search-input"
           style={s.searchInput}
           placeholder={tx.searchPlaceholder}
           placeholderTextColor="#8FA39B"
@@ -285,7 +285,7 @@ export default function RecipesCatalogScreen() {
           returnKeyType="search"
         />
         {searchText.length > 0 && (
-          <TouchableOpacity data-testid="clear-search-btn" onPress={() => setSearchText('')}>
+          <TouchableOpacity testID="clear-search-btn" onPress={() => setSearchText('')}>
             <MaterialCommunityIcons name="close-circle" size={18} color="#8FA39B" />
           </TouchableOpacity>
         )}
@@ -300,7 +300,7 @@ export default function RecipesCatalogScreen() {
               return (
                 <TouchableOpacity
                   key={cat.key}
-                  data-testid={`category-${cat.key}`}
+                  testID={`category-${cat.key}`}
                   style={[s.chip, active && s.chipActive]}
                   onPress={() => setSelectedCategory(active ? null : cat.key)}
                 >
@@ -315,7 +315,7 @@ export default function RecipesCatalogScreen() {
               return (
                 <TouchableOpacity
                   key={tf}
-                  data-testid={`time-filter-${tf}`}
+                  testID={`time-filter-${tf}`}
                   style={[s.chip, active && s.chipActive]}
                   onPress={() => setTimeFilter(active ? null : tf)}
                 >
@@ -329,7 +329,7 @@ export default function RecipesCatalogScreen() {
 
         {isLoading && (
           <View style={s.loadingWrap}>
-            <ActivityIndicator data-testid="catalog-loading" size="large" color="#4A8B71" />
+            <ActivityIndicator testID="catalog-loading" size="large" color="#4A8B71" />
           </View>
         )}
 
@@ -339,7 +339,7 @@ export default function RecipesCatalogScreen() {
             <MaterialCommunityIcons name="chef-hat" size={48} color="#8FA39B" />
             <Text style={s.emptyTitle}>{tx.noResults}</Text>
             <Text style={s.emptySub}>{tx.noResultsSub}</Text>
-            <TouchableOpacity data-testid="empty-reset-btn" style={s.emptyResetBtn} onPress={resetFilters}>
+            <TouchableOpacity testID="empty-reset-btn" style={s.emptyResetBtn} onPress={resetFilters}>
               <MaterialCommunityIcons name="refresh" size={16} color="#4A8B71" />
               <Text style={s.emptyResetText}>{tx.resetFilters}</Text>
             </TouchableOpacity>
@@ -353,14 +353,14 @@ export default function RecipesCatalogScreen() {
           <>
             {/* Profile Required Message */}
             {hasProfile === false && (
-              <View style={s.profileRequired} data-testid="profile-required-card">
+              <View style={s.profileRequired} testID="profile-required-card">
                 <MaterialCommunityIcons name="account-heart-outline" size={48} color="#2C8C99" />
                 <Text style={s.profileRequiredTitle}>{tx.profileRequired}</Text>
                 <Text style={s.profileRequiredSub}>{tx.profileRequiredSub}</Text>
                 <TouchableOpacity
                   style={s.profileRequiredBtn}
                   onPress={() => router.push('/onboarding')}
-                  data-testid="start-profile-btn"
+                  testID="start-profile-btn"
                 >
                   <MaterialCommunityIcons name="account-plus" size={16} color="#FFF" />
                   <Text style={s.profileRequiredBtnText}>{tx.startProfile}</Text>

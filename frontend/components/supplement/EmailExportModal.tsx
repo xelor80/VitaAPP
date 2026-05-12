@@ -68,7 +68,7 @@ export function EmailExportModal({ visible, onClose, profileId, lang }: Props) {
               <View style={s.iconCircle}>
                 <MaterialCommunityIcons name="email-fast-outline" size={28} color="#1a5632" />
               </View>
-              <TouchableOpacity onPress={handleClose} style={s.closeBtn} data-testid="email-modal-close">
+              <TouchableOpacity onPress={handleClose} style={s.closeBtn} testID="email-modal-close">
                 <MaterialCommunityIcons name="close" size={22} color="#6B7280" />
               </TouchableOpacity>
             </View>
@@ -93,7 +93,7 @@ export function EmailExportModal({ visible, onClose, profileId, lang }: Props) {
                     ? `Ihr Bericht wurde an ${email} gesendet.`
                     : `Il tuo rapporto e stato inviato a ${email}.`}
                 </Text>
-                <TouchableOpacity style={s.doneBtn} onPress={handleClose} data-testid="email-done-btn">
+                <TouchableOpacity style={s.doneBtn} onPress={handleClose} testID="email-done-btn">
                   <Text style={s.doneBtnText}>{lang === 'de' ? 'Fertig' : 'Fatto'}</Text>
                 </TouchableOpacity>
               </View>
@@ -111,7 +111,7 @@ export function EmailExportModal({ visible, onClose, profileId, lang }: Props) {
                     autoCapitalize="none"
                     autoCorrect={false}
                     editable={!sending}
-                    data-testid="email-input"
+                    testID="email-input"
                   />
                 </View>
 
@@ -133,7 +133,7 @@ export function EmailExportModal({ visible, onClose, profileId, lang }: Props) {
                   style={[s.sendBtn, (!isValidEmail(email) || sending) && s.sendBtnDisabled]}
                   onPress={handleSend}
                   disabled={!isValidEmail(email) || sending}
-                  data-testid="email-send-btn"
+                  testID="email-send-btn"
                 >
                   {sending ? (
                     <ActivityIndicator color="#FFF" size="small" />

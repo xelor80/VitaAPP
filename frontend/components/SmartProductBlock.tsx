@@ -67,7 +67,7 @@ export function SmartProductBlock({ context, profileId, limit = 2, testIdPrefix 
   const desc = (p: Product) => (lang === 'it' && p.description_it) ? p.description_it : (lang === 'en' && p.description_en) ? p.description_en : p.description_de;
 
   return (
-    <View style={st.container} data-testid={`${testIdPrefix}-block`}>
+    <View style={st.container} testID={`${testIdPrefix}-block`}>
       <View style={st.header}>
         <MaterialCommunityIcons name="package-variant-closed" size={14} color="#9CA3AF" />
         <Text style={st.headerText}>
@@ -83,7 +83,7 @@ export function SmartProductBlock({ context, profileId, limit = 2, testIdPrefix 
           style={st.card}
           activeOpacity={0.85}
           onPress={() => onPress(p)}
-          data-testid={`${testIdPrefix}-${p.id}`}
+          testID={`${testIdPrefix}-${p.id}`}
         >
           <View style={st.iconWrap}>
             {p.image_url ? (

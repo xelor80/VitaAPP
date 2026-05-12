@@ -111,11 +111,11 @@ export function CorrelationAnalysis({ profileId, lang }: Props) {
   return (
     <View>
       {/* Period Selector */}
-      <View style={styles.periodRow} data-testid="period-selector">
+      <View style={styles.periodRow} testID="period-selector">
         {PERIOD_OPTIONS.map(p => (
           <TouchableOpacity
             key={p}
-            data-testid={`period-${p}`}
+            testID={`period-${p}`}
             style={[styles.periodBtn, period === p && styles.periodBtnActive]}
             onPress={() => setPeriod(p)}
           >
@@ -128,14 +128,14 @@ export function CorrelationAnalysis({ profileId, lang }: Props) {
 
       {/* LLM Headline */}
       {llm.headline && (
-        <View style={styles.headlineCard} data-testid="correlation-headline">
+        <View style={styles.headlineCard} testID="correlation-headline">
           <MaterialCommunityIcons name="brain" size={22} color="#4A8B71" />
           <Text style={styles.headlineText}>{llm.headline}</Text>
         </View>
       )}
 
       {/* Overall Trend */}
-      <View style={styles.card} data-testid="overall-trend-card">
+      <View style={styles.card} testID="overall-trend-card">
         <View style={styles.overallRow}>
           <View style={[styles.overallBadge, { backgroundColor: trendColor(overall.direction) + '18' }]}>
             <MaterialCommunityIcons
@@ -161,7 +161,7 @@ export function CorrelationAnalysis({ profileId, lang }: Props) {
       </View>
 
       {/* Symptom Trends */}
-      <View style={styles.card} data-testid="symptom-trends-card">
+      <View style={styles.card} testID="symptom-trends-card">
         <Text style={styles.sectionTitle}>
           {lang === 'de' ? 'Symptom-Verlauf' : 'Andamento sintomi'}
         </Text>
@@ -187,7 +187,7 @@ export function CorrelationAnalysis({ profileId, lang }: Props) {
       </View>
 
       {/* Supplement Compliance */}
-      <View style={styles.card} data-testid="supplement-compliance-card">
+      <View style={styles.card} testID="supplement-compliance-card">
         <Text style={styles.sectionTitle}>
           {lang === 'de' ? 'Einnahmekonstanz' : 'Costanza assunzione'}
         </Text>
@@ -207,14 +207,14 @@ export function CorrelationAnalysis({ profileId, lang }: Props) {
 
       {/* LLM Insights */}
       {insights.length > 0 && (
-        <View data-testid="llm-insights-section">
+        <View testID="llm-insights-section">
           <Text style={[styles.sectionTitle, { marginTop: 4 }]}>
             {lang === 'de' ? 'KI-Erkenntnisse' : 'Insights IA'}
           </Text>
           {insights.map((insight: any, idx: number) => {
             const sev = SEVERITY_STYLE[insight.severity] || SEVERITY_STYLE.neutral;
             return (
-              <View key={idx} style={[styles.insightCard, { backgroundColor: sev.bg }]} data-testid={`insight-${idx}`}>
+              <View key={idx} style={[styles.insightCard, { backgroundColor: sev.bg }]} testID={`insight-${idx}`}>
                 <MaterialCommunityIcons name={(insight.icon || 'lightbulb') as any} size={20} color={sev.icon} />
                 <Text style={[styles.insightText, { color: sev.text }]}>{insight.text}</Text>
               </View>
@@ -225,7 +225,7 @@ export function CorrelationAnalysis({ profileId, lang }: Props) {
 
       {/* Recommendation */}
       {llm.recommendation && (
-        <View style={styles.recCard} data-testid="recommendation-card">
+        <View style={styles.recCard} testID="recommendation-card">
           <MaterialCommunityIcons name="lightbulb-on" size={20} color="#2D5A8B" />
           <Text style={styles.recText}>{llm.recommendation}</Text>
         </View>

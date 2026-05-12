@@ -23,7 +23,7 @@ export function TrustBanner({ lang }: Props) {
   const formatted = count.toLocaleString('de-DE');
 
   return (
-    <View style={s.wrap} data-testid="trust-banner">
+    <View style={s.wrap} testID="trust-banner">
       <MaterialCommunityIcons name="shield-check" size={16} color="#4A8B71" />
       <Text style={s.text}>
         {lang === 'de'

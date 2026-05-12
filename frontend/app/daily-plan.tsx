@@ -115,7 +115,7 @@ export default function DailyPlanScreen() {
                   style={[s.itemRow, item.checked && s.itemChecked]}
                   activeOpacity={0.7}
                   onPress={() => toggleItem(item)}
-                  data-testid={`daily-plan-item-${item.id}`}
+                  testID={`daily-plan-item-${item.id}`}
                 >
                   {/* Checkbox */}
                   <View style={[s.checkbox, item.checked && s.checkboxChecked, item.type === 'medication' && !item.checked && s.checkboxMed]}>

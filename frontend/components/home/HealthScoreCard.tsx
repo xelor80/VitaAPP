@@ -97,7 +97,7 @@ export function HealthScoreCard({ lang, onPress }: Props) {
       style={styles.card}
       onPress={onPress}
       activeOpacity={0.85}
-      data-testid="health-score-card"
+      testID="health-score-card"
     >
       {/* Top Row: Circle + Categories */}
       <View style={styles.topRow}>
@@ -138,7 +138,7 @@ export function HealthScoreCard({ lang, onPress }: Props) {
             const val = categories[key];
             const status = catStatus(val, lang);
             return (
-              <View key={key} style={styles.catRow} data-testid={`health-cat-${key}`}>
+              <View key={key} style={styles.catRow} testID={`health-cat-${key}`}>
                 <MaterialCommunityIcons name={catIcon(key) as any} size={18} color="#64748B" />
                 <Text style={styles.catName}>{catLabel(key, lang)}</Text>
                 <View style={[styles.catBadge, { backgroundColor: status.color + '20' }]}>
@@ -153,7 +153,7 @@ export function HealthScoreCard({ lang, onPress }: Props) {
       {/* Label + Trend */}
       <View style={[styles.labelRow, { backgroundColor: scoreBg(score) }]}>
         <View style={{ flex: 1 }}>
-          <Text style={[styles.labelText, { color }]} data-testid="health-score-label">
+          <Text style={[styles.labelText, { color }]} testID="health-score-label">
             {data.label}
           </Text>
           {data.recommendation ? (
@@ -161,7 +161,7 @@ export function HealthScoreCard({ lang, onPress }: Props) {
           ) : null}
         </View>
         {data.trend_change !== null && (
-          <View style={styles.trendBox} data-testid="health-score-trend">
+          <View style={styles.trendBox} testID="health-score-trend">
             <MaterialCommunityIcons
               name={data.trend_change >= 0 ? 'trending-up' : 'trending-down'}
               size={20}

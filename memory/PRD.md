@@ -429,6 +429,14 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - Reactivate TR, FR, ES, RU languages
 - Refactor `/app/frontend/app/(tabs)/index.tsx` (>1200 Zeilen) in kleinere Komponenten
 
+### testID Refactoring (2026-05-12) - COMPLETED
+**Frontend-weit**: 227 `data-testid="..."` Vorkommen in 33 Dateien zu `testID="..."` migriert (bulk sed). React Native Web filterte `data-testid` als unbekannten Prop aus dem DOM. Mit `testID` wird der Wert:
+- Auf Web automatisch als `data-testid` im DOM gerendert (für Playwright/Selenium/E2E Tests)
+- Auf iOS/Android als `accessibilityIdentifier` (Voice Control, Screen Reader, Detox/Appium Tests)
+
+Verifiziert: 14 testIDs auf Hauptseite + 15 weitere im Goal-Modal (darunter `wm-ai-age-input`, `wm-ai-height-input`, `wm-ai-weight-input`, `wm-ai-run-btn`) sichtbar im DOM — vorher 0.
+
+
 ### Weight & Metabolism v3.2 — Profil-Eingaben + Tagesdefizit (2026-05-04) - COMPLETED
 **Frontend (`/app/frontend/app/weight-metabolism.tsx`):**
 - **Goal-Modal AI-Sektion** erweitert um 3 Pflicht-Eingabefelder: `Alter`, `Größe (cm)`, `Gewicht (kg)`. Werte werden aus `today.profile` vorbefüllt.

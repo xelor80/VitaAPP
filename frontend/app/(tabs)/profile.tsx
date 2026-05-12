@@ -48,7 +48,7 @@ export default function ProfileTab() {
             ? 'Erstelle dein Gesundheitsprofil fuer personalisierte Empfehlungen.'
             : 'Crea il tuo profilo salute per raccomandazioni personalizzate.'}
         </Text>
-        <TouchableOpacity style={s.createBtn} onPress={() => router.push('/onboarding' as any)} data-testid="create-profile-btn">
+        <TouchableOpacity style={s.createBtn} onPress={() => router.push('/onboarding' as any)} testID="create-profile-btn">
           <Text style={s.createBtnText}>{lang === 'de' ? 'Profil erstellen' : 'Crea profilo'}</Text>
           <MaterialCommunityIcons name="arrow-right" size={20} color="#FFFFFF" />
         </TouchableOpacity>

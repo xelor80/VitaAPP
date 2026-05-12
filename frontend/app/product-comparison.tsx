@@ -133,7 +133,7 @@ export default function ProductComparisonScreen() {
       <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={s.header}>
-          <TouchableOpacity onPress={() => router.back()} style={s.backBtn} data-testid="product-back-btn">
+          <TouchableOpacity onPress={() => router.back()} style={s.backBtn} testID="product-back-btn">
             <MaterialCommunityIcons name="arrow-left" size={24} color="#1A2D26" />
           </TouchableOpacity>
           <View style={{ flex: 1 }}>
@@ -188,7 +188,7 @@ export default function ProductComparisonScreen() {
           </View>
         ) : (
           products.map((p: any, i: number) => (
-            <View key={p.product_id || i} style={[s.productCard, selectedProductId === p.product_id && s.productCardSelected]} data-testid={`product-card-${i}`}>
+            <View key={p.product_id || i} style={[s.productCard, selectedProductId === p.product_id && s.productCardSelected]} testID={`product-card-${i}`}>
               {/* Selection indicator */}
               {selectedProductId === p.product_id && (
                 <View style={s.selectedBanner}>
@@ -272,7 +272,7 @@ export default function ProductComparisonScreen() {
               <TouchableOpacity
                 style={[s.affiliateBtn, { backgroundColor: '#4A8B71' }]}
                 onPress={() => p.affiliate_url && Linking.openURL(p.affiliate_url)}
-                data-testid={`affiliate-btn-${i}`}
+                testID={`affiliate-btn-${i}`}
               >
                 <MaterialCommunityIcons name="shield-search" size={16} color="#FFF" />
                 <Text style={s.affiliateBtnText}>{texts.viewProduct}</Text>
@@ -285,7 +285,7 @@ export default function ProductComparisonScreen() {
                   selectedProductId === p.product_id ? s.selectBtnActive : s.selectBtnInactive,
                 ]}
                 onPress={() => selectProduct(p)}
-                data-testid={`select-product-btn-${i}`}
+                testID={`select-product-btn-${i}`}
               >
                 <MaterialCommunityIcons
                   name={selectedProductId === p.product_id ? 'check-circle' : 'circle-outline'}

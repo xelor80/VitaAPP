@@ -286,7 +286,7 @@ export default function OnboardingScreen() {
           ))}
 
           <TouchableOpacity 
-            data-testid="supplement-plan-btn"
+            testID="supplement-plan-btn"
             style={[styles.completeButton, { backgroundColor: '#2D8B5F', marginBottom: 10 }]}
             onPress={() => router.push({ pathname: '/supplement-plan', params: { profileId: profileId || '' } })}
           >
@@ -450,7 +450,7 @@ export default function OnboardingScreen() {
                 {options?.work_types?.map((w: any) => (
                   <TouchableOpacity
                     key={w.value}
-                    data-testid={`work-type-${w.value}`}
+                    testID={`work-type-${w.value}`}
                     style={[styles.chip, profile.work_type === w.value && styles.chipSelected]}
                     onPress={() => setProfile({ ...profile, work_type: w.value, shift_model: '', current_shift: '' })}
                   >
@@ -472,7 +472,7 @@ export default function OnboardingScreen() {
                         {options?.shift_models?.map((m: any) => (
                           <TouchableOpacity
                             key={m.value}
-                            data-testid={`shift-model-${m.value}`}
+                            testID={`shift-model-${m.value}`}
                             style={[styles.chip, profile.shift_model === m.value && styles.chipSelected]}
                             onPress={() => setProfile({ ...profile, shift_model: m.value })}
                           >
@@ -491,7 +491,7 @@ export default function OnboardingScreen() {
                     {options?.shift_types?.map((s: any) => (
                       <TouchableOpacity
                         key={s.value}
-                        data-testid={`shift-type-${s.value}`}
+                        testID={`shift-type-${s.value}`}
                         style={[styles.chip, profile.current_shift === s.value && styles.chipSelected]}
                         onPress={() => setProfile({ ...profile, current_shift: s.value })}
                       >

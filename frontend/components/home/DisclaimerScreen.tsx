@@ -49,7 +49,7 @@ export function DisclaimerScreen({ onAccept, lang, setLang }: DisclaimerScreenPr
             <TouchableOpacity
               key={code}
               testID={`lang-${code}-btn`}
-              data-testid={`lang-${code}-btn`}
+              testID={`lang-${code}-btn`}
               style={[localStyles.langChip, lang === code && localStyles.langChipActive]}
               onPress={() => setLang(code)}
             >
@@ -84,7 +84,7 @@ export function DisclaimerScreen({ onAccept, lang, setLang }: DisclaimerScreenPr
 
         <TouchableOpacity
           testID="disclaimer-accept-btn"
-          data-testid="disclaimer-accept-btn"
+          testID="disclaimer-accept-btn"
           style={styles.primaryBtn}
           activeOpacity={0.7}
           onPress={onAccept}

@@ -178,7 +178,7 @@ export function GuideMascot({ currentRoute, firstName }: Props) {
             style={[s.bubble, { borderColor: '#8B5CF6', backgroundColor: '#6D28D9' }]}
             onPress={() => router.push('/stress' as any)}
             activeOpacity={0.85}
-            data-testid="stress-meditation-bubble"
+            testID="stress-meditation-bubble"
           >
             <MaterialCommunityIcons name="meditation" size={28} color="#E9D5FF" />
           </TouchableOpacity>
@@ -187,7 +187,7 @@ export function GuideMascot({ currentRoute, firstName }: Props) {
             style={[s.bubble, { borderColor: bubbleBorderColor }]}
             onPress={handleOpen}
             activeOpacity={0.85}
-            data-testid="guide-mascot-bubble"
+            testID="guide-mascot-bubble"
           >
             <Image source={currentImage} style={s.bubbleImage} resizeMode="cover" />
           </TouchableOpacity>
@@ -221,13 +221,13 @@ export function GuideMascot({ currentRoute, firstName }: Props) {
                   <TouchableOpacity
                     onPress={() => { guide.dismissTemporarily(); handleClose(); }}
                     style={s.dismissBtn}
-                    data-testid="guide-dismiss-btn"
+                    testID="guide-dismiss-btn"
                   >
                     <Text style={s.dismissText}>
                       {lang === 'de' ? 'Spaeter' : 'Dopo'}
                     </Text>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={handleClose} data-testid="guide-close-btn">
+                  <TouchableOpacity onPress={handleClose} testID="guide-close-btn">
                     <MaterialCommunityIcons name="close" size={22} color="#94A3B8" />
                   </TouchableOpacity>
                 </View>
@@ -258,7 +258,7 @@ export function GuideMascot({ currentRoute, firstName }: Props) {
                         key={action.id}
                         style={s.quickActionBtn}
                         onPress={() => handleQuickAction(t(action.response, lang))}
-                        data-testid={`guide-action-${action.id}`}
+                        testID={`guide-action-${action.id}`}
                       >
                         <MaterialCommunityIcons name="help-circle-outline" size={16} color="#4A8B71" />
                         <Text style={s.quickActionText}>{t(action.label, lang)}</Text>
@@ -283,7 +283,7 @@ export function GuideMascot({ currentRoute, firstName }: Props) {
                 <TouchableOpacity
                   style={s.hideBtn}
                   onPress={() => { guide.hideGuide(); handleClose(); }}
-                  data-testid="guide-hide-btn"
+                  testID="guide-hide-btn"
                 >
                   <MaterialCommunityIcons name="eye-off-outline" size={14} color="#94A3B8" />
                   <Text style={s.hideText}>
@@ -377,7 +377,7 @@ function OnboardingTourModal({
 
           {/* Actions */}
           <View style={s.onboardingActions}>
-            <TouchableOpacity onPress={onSkip} style={s.skipBtn} data-testid="onboarding-tour-skip">
+            <TouchableOpacity onPress={onSkip} style={s.skipBtn} testID="onboarding-tour-skip">
               <Text style={s.skipText}>
                 {lang === 'de' ? 'Ueberspringen' : 'Salta'}
               </Text>
@@ -385,7 +385,7 @@ function OnboardingTourModal({
             <TouchableOpacity
               style={s.nextBtn}
               onPress={() => isLast ? onComplete() : animateTransition(step + 1)}
-              data-testid="onboarding-tour-next"
+              testID="onboarding-tour-next"
             >
               <Text style={s.nextBtnText}>
                 {isLast

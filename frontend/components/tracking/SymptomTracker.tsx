@@ -138,7 +138,7 @@ export function SymptomTracker({
   const chartValues = overallChart.slice(-7).map(d => d.value);
 
   return (
-    <View data-testid="symptom-tracker">
+    <View testID="symptom-tracker">
       {/* Trend Badge */}
       {symptomTrend && (
         <View style={[st.trendBadge, { backgroundColor: trendColor + '18' }]}>
@@ -246,7 +246,7 @@ export function SymptomTracker({
             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => (
               <TouchableOpacity
                 key={n}
-                data-testid={`overall-rating-${n}`}
+                testID={`overall-rating-${n}`}
                 style={[st.severitySegment, {
                   backgroundColor: overall >= n ? getSeverityColor(n) : '#E5E7EB',
                   borderTopLeftRadius: n === 1 ? 6 : 0,
@@ -310,7 +310,7 @@ export function SymptomTracker({
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => (
                   <TouchableOpacity
                     key={n}
-                    data-testid={`${cat.id}-rating-${n}`}
+                    testID={`${cat.id}-rating-${n}`}
                     style={[st.severitySegment, {
                       backgroundColor: val >= n ? getSeverityColor(n) : '#E5E7EB',
                       borderTopLeftRadius: n === 1 ? 6 : 0,
@@ -332,7 +332,7 @@ export function SymptomTracker({
 
         {/* Save Button */}
         <TouchableOpacity
-          data-testid="save-symptoms-btn"
+          testID="save-symptoms-btn"
           style={[st.saveBtn, saving && { opacity: 0.6 }]}
           onPress={handleSave}
           disabled={saving}

@@ -159,7 +159,7 @@ export function WaterTrackerCard({ profileId, lang, waterData, onDataUpdate, onW
     <TouchableOpacity
       activeOpacity={0.95}
       onPress={onNavigate}
-      data-testid="water-tracking-card"
+      testID="water-tracking-card"
     >
       <View style={st.card}>
         <LinearGradient
@@ -206,7 +206,7 @@ export function WaterTrackerCard({ profileId, lang, waterData, onDataUpdate, onW
                 activeOpacity={0.7}
                 onPress={(e) => { e.stopPropagation?.(); addWater(amt); }}
                 disabled={adding}
-                data-testid={`dashboard-add-water-${amt}`}
+                testID={`dashboard-add-water-${amt}`}
               >
                 <Text style={st.quickBtnText}>+{amt} ml</Text>
               </TouchableOpacity>

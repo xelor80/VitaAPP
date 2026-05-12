@@ -246,7 +246,7 @@ export default function DashboardHome() {
               style={[s.heroCta, { backgroundColor: '#2E7D52' }]}
               activeOpacity={0.85}
               onPress={() => hasPlan ? router.push('/(tabs)/plan' as any) : router.push(hasProfile ? ('/(tabs)/plan' as any) : ('/onboarding' as any))}
-              data-testid="hero-plan-btn"
+              testID="hero-plan-btn"
             >
               <MaterialCommunityIcons name="calendar-check-outline" size={18} color="#FFFFFF" />
               <Text style={s.heroCtaText}>{tx(lang, { de: 'Mein Plan', it: 'Piano', en: 'Plan' })}</Text>
@@ -255,7 +255,7 @@ export default function DashboardHome() {
               style={[s.heroCta, { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E5E7EB' }]}
               activeOpacity={0.85}
               onPress={() => router.push('/progress' as any)}
-              data-testid="hero-progress-btn"
+              testID="hero-progress-btn"
             >
               <MaterialCommunityIcons name="chart-line" size={18} color="#2E7D52" />
               <Text style={[s.heroCtaText, { color: '#2E7D52' }]}>{tx(lang, { de: 'Fortschritt', it: 'Progressi', en: 'Progress' })}</Text>
@@ -265,12 +265,12 @@ export default function DashboardHome() {
 
         {/* ────────────── 2) HEUTE FUER DICH (collapsible) ────────────── */}
         {hasProfile && totalOpen > 0 && (
-          <Animated.View entering={FadeInDown.duration(300)} style={s.todayCard} data-testid="today-card">
+          <Animated.View entering={FadeInDown.duration(300)} style={s.todayCard} testID="today-card">
             <TouchableOpacity
               onPress={() => setTodayCollapsed(c => !c)}
               activeOpacity={0.7}
               style={s.todayHeader}
-              data-testid="today-collapse-toggle"
+              testID="today-collapse-toggle"
             >
               <View style={{ flex: 1 }}>
                 <Text style={s.todayTitle}>{tx(lang, { de: 'Heute fuer dich', it: 'Oggi per te', en: 'For you today' })}</Text>
@@ -302,7 +302,7 @@ export default function DashboardHome() {
                       style={s.todayRow}
                       activeOpacity={0.7}
                       onPress={() => handleItemTap(item.action)}
-                      data-testid={`today-item-${item.type}`}
+                      testID={`today-item-${item.type}`}
                     >
                       <View style={[s.todayDot, { backgroundColor: item.color + '22' }]}>
                         <MaterialCommunityIcons name={item.icon as any} size={16} color={item.color} />
@@ -316,7 +316,7 @@ export default function DashboardHome() {
                   style={s.todayCta}
                   activeOpacity={0.85}
                   onPress={handleQuickAction}
-                  data-testid="today-cta-btn"
+                  testID="today-cta-btn"
                 >
                   <Text style={s.todayCtaText}>{tx(lang, { de: 'Jetzt starten', it: 'Inizia ora', en: 'Start now' })}</Text>
                   <MaterialCommunityIcons name="arrow-right" size={18} color="#FFFFFF" />
@@ -354,7 +354,7 @@ export default function DashboardHome() {
               style={s.catCard}
               activeOpacity={0.85}
               onPress={() => router.push(cat.route as any)}
-              data-testid={`category-${cat.key}`}
+              testID={`category-${cat.key}`}
             >
               <View style={[s.catIcon, { backgroundColor: cat.bg }]}>
                 <MaterialCommunityIcons name={cat.icon} size={28} color={cat.color} />
@@ -375,7 +375,7 @@ export default function DashboardHome() {
             style={s.progressCard}
             activeOpacity={0.85}
             onPress={() => router.push('/progress' as any)}
-            data-testid="progress-summary-card"
+            testID="progress-summary-card"
           >
             <View style={s.progressTop}>
               <View style={s.progressStat}>
@@ -437,7 +437,7 @@ export default function DashboardHome() {
                   else if (ins.action === 'plan') router.push('/(tabs)/plan' as any);
                   else if (ins.action === 'weight') router.push('/weight-metabolism' as any);
                 }}
-                data-testid={`coach-insight-${i}`}
+                testID={`coach-insight-${i}`}
               >
                 <View style={[s.recIcon, { backgroundColor: (ins.color || '#2E7D52') + '18' }]}>
                   <MaterialCommunityIcons name={(ins.icon || 'lightbulb-outline') as any} size={18} color={ins.color || '#2E7D52'} />
@@ -458,7 +458,7 @@ export default function DashboardHome() {
             style={s.onboardCta}
             activeOpacity={0.9}
             onPress={() => router.push('/onboarding' as any)}
-            data-testid="onboarding-cta"
+            testID="onboarding-cta"
           >
             <LinearGradient colors={['#1B6B45', '#2E9E6B']} style={s.onboardGradient}>
               <MaterialCommunityIcons name="account-plus-outline" size={28} color="#FFFFFF" />

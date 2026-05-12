@@ -421,7 +421,7 @@ export default function StressPlayerScreen() {
           </View>
         </View>
 
-        <TouchableOpacity style={st.startBtn} onPress={startSession} data-testid="stress-start-button">
+        <TouchableOpacity style={st.startBtn} onPress={startSession} testID="stress-start-button">
           <Text style={st.startBtnText}>{t('Uebung starten', 'Inizia esercizio')}</Text>
         </TouchableOpacity>
       </View>
@@ -465,7 +465,7 @@ export default function StressPlayerScreen() {
           </View>
         )}
 
-        <TouchableOpacity style={st.startBtn} onPress={completeSession} disabled={completing} data-testid="stress-complete-button">
+        <TouchableOpacity style={st.startBtn} onPress={completeSession} disabled={completing} testID="stress-complete-button">
           {completing ? <ActivityIndicator color="#fff" /> : (
             <Text style={st.startBtnText}>{t('Fertig', 'Fatto')}</Text>
           )}

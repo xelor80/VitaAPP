@@ -214,7 +214,7 @@ export default function PlanScreen() {
         <TouchableOpacity
           onPress={() => setShowReminderSettings(!showReminderSettings)}
           style={s.bellBtn}
-          data-testid="reminder-toggle-btn"
+          testID="reminder-toggle-btn"
         >
           <MaterialCommunityIcons
             name={reminders.enabled ? 'bell-ring' : 'bell-outline'}
@@ -233,7 +233,7 @@ export default function PlanScreen() {
           <TouchableOpacity
             style={s.navCard}
             onPress={() => router.push('/supplement-plan')}
-            data-testid="nav-supplement-plan"
+            testID="nav-supplement-plan"
           >
             <LinearGradient colors={['#1B6B45', '#2E9E6B']} style={s.navCardGradient}>
               <MaterialCommunityIcons name="pill" size={28} color="#FFF" />
@@ -244,7 +244,7 @@ export default function PlanScreen() {
           <TouchableOpacity
             style={s.navCard}
             onPress={() => router.push('/medications')}
-            data-testid="nav-medications"
+            testID="nav-medications"
           >
             <LinearGradient colors={['#3B82F6', '#60A5FA']} style={s.navCardGradient}>
               <MaterialCommunityIcons name="medical-bag" size={28} color="#FFF" />
@@ -284,7 +284,7 @@ export default function PlanScreen() {
           <TouchableOpacity
             style={s.toggleRow}
             onPress={() => setReminders({ ...reminders, enabled: !reminders.enabled })}
-            data-testid="reminder-enabled-toggle"
+            testID="reminder-enabled-toggle"
           >
             <MaterialCommunityIcons
               name={reminders.enabled ? 'toggle-switch' : 'toggle-switch-off'}
@@ -322,7 +322,7 @@ export default function PlanScreen() {
                         onChangeText={v => setReminders({ ...reminders, [key]: v })}
                         placeholder="HH:MM"
                         placeholderTextColor="#C4CEC8"
-                        data-testid={`reminder-time-${key}`}
+                        testID={`reminder-time-${key}`}
                       />
                     </View>
                     {items.length > 0 && (
@@ -355,11 +355,11 @@ export default function PlanScreen() {
           )}
 
           <View style={s.reminderBtns}>
-            <TouchableOpacity style={s.testBtn} onPress={() => sendTestNotification(lang)} data-testid="test-notification-btn">
+            <TouchableOpacity style={s.testBtn} onPress={() => sendTestNotification(lang)} testID="test-notification-btn">
               <MaterialCommunityIcons name="bell-ring" size={16} color="#1B6B45" />
               <Text style={s.testBtnText}>{tx(lang, { de: 'Testen', it: 'Prova', en: 'Test', tr: 'Test', fr: 'Tester', es: 'Probar', ru: 'Тест' })}</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={s.saveBtn} onPress={saveReminders} data-testid="save-reminders-btn">
+            <TouchableOpacity style={s.saveBtn} onPress={saveReminders} testID="save-reminders-btn">
               <LinearGradient colors={['#1B6B45', '#2E9E6B']} style={s.saveBtnGradient}>
                 <MaterialCommunityIcons name="content-save" size={16} color="#FFF" />
                 <Text style={s.saveBtnText}>{tx(lang, { de: 'Speichern', it: 'Salva', en: 'Save', tr: 'Kaydet', fr: 'Enregistrer', es: 'Guardar', ru: 'Сохранить' })}</Text>
@@ -412,7 +412,7 @@ export default function PlanScreen() {
               <TouchableOpacity
                 style={[s.itemRow, item.checked && s.itemChecked]}
                 onPress={() => toggleItem(item)}
-                data-testid={`plan-item-${item.id}-${item.timing}`}
+                testID={`plan-item-${item.id}-${item.timing}`}
                 activeOpacity={0.7}
               >
                 <View style={[s.checkbox, item.checked && s.checkboxChecked]}>

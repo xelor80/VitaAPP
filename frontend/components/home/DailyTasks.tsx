@@ -156,7 +156,7 @@ export function DailyTasks({ lang, onNavigate }: Props) {
   }
 
   return (
-    <View style={s.wrap} data-testid="daily-tasks-section">
+    <View style={s.wrap} testID="daily-tasks-section">
       <View style={s.headerRow}>
         <MaterialCommunityIcons name="star-four-points" size={18} color="#4A8B71" />
         <Text style={s.sectionTitle}>
@@ -172,13 +172,13 @@ export function DailyTasks({ lang, onNavigate }: Props) {
         const isInteractive = task.type === 'supplement' || task.type === 'tracking';
 
         return (
-          <View key={task.id} style={[s.card, { borderLeftColor: cfg.color }]} data-testid={`daily-task-${task.id}`}>
+          <View key={task.id} style={[s.card, { borderLeftColor: cfg.color }]} testID={`daily-task-${task.id}`}>
             {/* Card Header - Tappable */}
             <TouchableOpacity
               style={s.cardTop}
               onPress={() => isInteractive ? toggleExpand(task.id) : onNavigate(task.cta_route)}
               activeOpacity={0.7}
-              data-testid={`daily-task-header-${task.id}`}
+              testID={`daily-task-header-${task.id}`}
             >
               <View style={[s.iconWrap, { backgroundColor: cfg.bg }]}>
                 <MaterialCommunityIcons name={task.icon as any} size={20} color={cfg.color} />
@@ -218,7 +218,7 @@ export function DailyTasks({ lang, onNavigate }: Props) {
                     key={item.id}
                     style={s.checkRow}
                     onPress={() => toggleItem(item.id)}
-                    data-testid={`supplement-check-${item.id}`}
+                    testID={`supplement-check-${item.id}`}
                   >
                     <View style={[s.checkbox, checkedItems[item.id] && s.checkboxChecked]}>
                       {checkedItems[item.id] && (
@@ -239,7 +239,7 @@ export function DailyTasks({ lang, onNavigate }: Props) {
                   style={[s.confirmBtn, { backgroundColor: cfg.color }, saving && { opacity: 0.5 }]}
                   onPress={() => saveSupplements(task)}
                   disabled={saving || Object.values(checkedItems).every(v => !v)}
-                  data-testid="confirm-supplements-btn"
+                  testID="confirm-supplements-btn"
                 >
                   {saving ? (
                     <ActivityIndicator size="small" color="#FFF" />
@@ -273,7 +273,7 @@ export function DailyTasks({ lang, onNavigate }: Props) {
                         borderBottomRightRadius: n === 10 ? 6 : 0,
                       }]}
                       onPress={() => setSymptomRating(n)}
-                      data-testid={`quick-symptom-${n}`}
+                      testID={`quick-symptom-${n}`}
                     />
                   ))}
                 </View>
@@ -288,7 +288,7 @@ export function DailyTasks({ lang, onNavigate }: Props) {
                   style={[s.confirmBtn, { backgroundColor: cfg.color }, saving && { opacity: 0.5 }]}
                   onPress={saveSymptomCheck}
                   disabled={saving}
-                  data-testid="confirm-symptom-btn"
+                  testID="confirm-symptom-btn"
                 >
                   {saving ? (
                     <ActivityIndicator size="small" color="#FFF" />
@@ -309,7 +309,7 @@ export function DailyTasks({ lang, onNavigate }: Props) {
               <TouchableOpacity
                 style={[s.ctaBtn, { backgroundColor: cfg.color }]}
                 onPress={() => isInteractive ? toggleExpand(task.id) : onNavigate(task.cta_route)}
-                data-testid={`daily-task-cta-${task.id}`}
+                testID={`daily-task-cta-${task.id}`}
               >
                 <Text style={s.ctaText}>
                   {isInteractive

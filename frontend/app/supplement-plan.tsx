@@ -245,7 +245,7 @@ export default function SupplementPlanScreen() {
             {tx(lang, { de: 'Basierend auf Ihrem Gesundheitsprofil erstellen wir Ihren personalisierten 8-Wochen-Plan.', it: 'In base al tuo profilo salute creiamo il tuo piano personalizzato di 8 settimane.', en: 'Based on your health profile we create your personalized 8-week plan.', tr: 'Saglik profilinize gore 8 haftalik kisisel planinizi olusturuyoruz.', fr: 'Sur la base de votre profil sante nous creons votre plan personnalise de 8 semaines.', es: 'Basandonos en su perfil de salud creamos su plan personalizado de 8 semanas.', ru: 'На основе вашего профиля здоровья мы создаем ваш персональный 8-недельный план.' })}
           </Text>
           <TouchableOpacity
-            data-testid="generate-plan-btn"
+            testID="generate-plan-btn"
             style={styles.generateButton}
             onPress={generatePlan}
             disabled={generating}
@@ -363,7 +363,7 @@ export default function SupplementPlanScreen() {
           const timingIcon = s.timing === 'morning' ? 'weather-sunny' : s.timing === 'evening' ? 'weather-night' : 'weather-partly-cloudy';
 
           return (
-            <View key={s.id} style={ms.card} data-testid={`supplement-card-${s.id}`}>
+            <View key={s.id} style={ms.card} testID={`supplement-card-${s.id}`}>
               {/* 1. Header: Name + Status */}
               <View style={ms.cardHeader}>
                 <View style={[ms.statusStripe, { backgroundColor: riskColor }]} />
@@ -453,7 +453,7 @@ export default function SupplementPlanScreen() {
               {/* 7. CTAs */}
               <View style={ms.ctaWrap}>
                 <TouchableOpacity
-                  data-testid={`product-cta-${s.id}`}
+                  testID={`product-cta-${s.id}`}
                   style={[ms.primaryCta, { backgroundColor: riskColor }]}
                   onPress={() => router.push({
                     pathname: '/product-comparison',
@@ -468,7 +468,7 @@ export default function SupplementPlanScreen() {
                   }</Text>
                 </TouchableOpacity>
                 {pricingMap[s.id] && (
-                  <Text data-testid={`price-per-day-${s.id}`} style={ms.pricePerDay}>
+                  <Text testID={`price-per-day-${s.id}`} style={ms.pricePerDay}>
                     {tx(lang, { de: `Preis pro Tag: ca. ${pricingMap[s.id].avg_per_day.toFixed(2).replace('.', ',')} \u20AC`, it: `Prezzo al giorno: ca. ${pricingMap[s.id].avg_per_day.toFixed(2).replace('.', ',')} \u20AC`, en: `Preis pro Tag: ca. ${pricingMap[s.id].avg_per_day.toFixed(2).replace('.', ',')} \u20AC` })}
                     {pricingMap[s.id].product_count > 1
                       ? ` (${pricingMap[s.id].product_count} ${tx(lang, { de: 'Produkte verglichen', it: 'Prodotti confrontati', en: 'Products compared', tr: 'Urunler karsilastirildi', fr: 'Produits compares', es: 'Productos comparados', ru: 'Продукты сравнены' })})`

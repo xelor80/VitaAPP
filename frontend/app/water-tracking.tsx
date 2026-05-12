@@ -290,7 +290,7 @@ export default function WaterTrackingScreen() {
                 setLoadingTip(false);
               }
             }}
-            data-testid="vero-tip-button"
+            testID="vero-tip-button"
           >
             <Animated.View entering={FadeIn.delay(400).duration(500)} style={st.veroCard}>
               <Image source={VERO_WATER_IMAGE} style={st.veroImage} resizeMode="contain" />
@@ -328,7 +328,7 @@ export default function WaterTrackingScreen() {
                 style={st.addBtn}
                 activeOpacity={0.7}
                 onPress={() => addWater(amt)}
-                data-testid={`add-water-${amt}`}
+                testID={`add-water-${amt}`}
               >
                 <MaterialCommunityIcons name="water-plus" size={18} color="#3A86FF" />
                 <Text style={st.addBtnText}>+{amt} ml</Text>
@@ -338,7 +338,7 @@ export default function WaterTrackingScreen() {
           <TouchableOpacity
             style={st.customBtn}
             onPress={() => { setCustomAmount(''); setShowCustom(!showCustom); }}
-            data-testid="add-water-custom"
+            testID="add-water-custom"
           >
             <MaterialCommunityIcons name="pencil-outline" size={16} color="#6B7280" />
             <Text style={st.customBtnText}>{lang === 'de' ? 'Eigene Menge' : 'Quantita personalizzata'}</Text>
@@ -351,7 +351,7 @@ export default function WaterTrackingScreen() {
                 placeholder="ml"
                 value={customAmount}
                 onChangeText={setCustomAmount}
-                data-testid="custom-amount-input"
+                testID="custom-amount-input"
               />
               <TouchableOpacity
                 style={st.customConfirm}
@@ -432,7 +432,7 @@ export default function WaterTrackingScreen() {
               onValueChange={(v) => { setReminderEnabled(v); setReminderDirty(true); }}
               trackColor={{ false: '#D1D5DB', true: '#86EFAC' }}
               thumbColor={reminderEnabled ? '#2E9E6B' : '#9CA3AF'}
-              data-testid="water-reminder-toggle"
+              testID="water-reminder-toggle"
             />
           </View>
 
@@ -448,7 +448,7 @@ export default function WaterTrackingScreen() {
                     key={h}
                     style={[st.intervalBtn, reminderInterval === h && st.intervalBtnActive]}
                     onPress={() => { setReminderInterval(h); setReminderDirty(true); }}
-                    data-testid={`interval-${h}h-btn`}
+                    testID={`interval-${h}h-btn`}
                   >
                     <Text style={[st.intervalBtnText, reminderInterval === h && st.intervalBtnTextActive]}>
                       {lang === 'de' ? `Alle ${h}h` : `Every ${h}h`}
@@ -470,7 +470,7 @@ export default function WaterTrackingScreen() {
                     onChangeText={(v) => { setReminderStart(v); setReminderDirty(true); }}
                     placeholder="08:00"
                     maxLength={5}
-                    data-testid="reminder-start-time"
+                    testID="reminder-start-time"
                   />
                 </View>
                 <Text style={st.timeDash}>—</Text>
@@ -482,7 +482,7 @@ export default function WaterTrackingScreen() {
                     onChangeText={(v) => { setReminderEnd(v); setReminderDirty(true); }}
                     placeholder="22:00"
                     maxLength={5}
-                    data-testid="reminder-end-time"
+                    testID="reminder-end-time"
                   />
                 </View>
               </View>
@@ -508,7 +508,7 @@ export default function WaterTrackingScreen() {
                   style={[st.saveReminderBtn, !reminderDirty && st.saveReminderBtnDisabled]}
                   onPress={saveReminders}
                   disabled={reminderSaving}
-                  data-testid="save-water-reminders-btn"
+                  testID="save-water-reminders-btn"
                 >
                   {reminderSaving ? (
                     <ActivityIndicator size="small" color="#FFF" />
@@ -524,7 +524,7 @@ export default function WaterTrackingScreen() {
                 <TouchableOpacity
                   style={st.testReminderBtn}
                   onPress={() => sendTestNotification(lang)}
-                  data-testid="test-water-reminder-btn"
+                  testID="test-water-reminder-btn"
                 >
                   <MaterialCommunityIcons name="bell-ring" size={16} color="#2E9E6B" />
                   <Text style={st.testReminderBtnText}>

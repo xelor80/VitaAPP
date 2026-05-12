@@ -714,11 +714,11 @@ export default function WeightMetabolismScreen() {
     <SafeAreaView style={st.page}>
       {/* Header */}
       <View style={st.header}>
-        <TouchableOpacity onPress={() => canGoBack ? router.back() : router.push('/(tabs)' as any)} data-testid="wm-back-btn" hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
+        <TouchableOpacity onPress={() => canGoBack ? router.back() : router.push('/(tabs)' as any)} testID="wm-back-btn" hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
           <MaterialCommunityIcons name="arrow-left" size={26} color="#1F2937" />
         </TouchableOpacity>
         <Text style={st.headerTitle}>{tx(lang, { de: 'Gewicht & Stoffwechsel', it: 'Peso & metabolismo', en: 'Weight & metabolism' })}</Text>
-        <TouchableOpacity onPress={openGoalModal} data-testid="wm-goal-btn" hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
+        <TouchableOpacity onPress={openGoalModal} testID="wm-goal-btn" hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
           <MaterialCommunityIcons name="cog-outline" size={22} color="#2E7D52" />
         </TouchableOpacity>
       </View>
@@ -726,20 +726,20 @@ export default function WeightMetabolismScreen() {
       <ScrollView contentContainerStyle={{ paddingBottom: 80 }} showsVerticalScrollIndicator={false}>
         {/* VERO Hint */}
         {veroHint && (
-          <Animated.View entering={FadeIn.duration(300)} style={st.veroCard} data-testid="wm-vero-hint">
+          <Animated.View entering={FadeIn.duration(300)} style={st.veroCard} testID="wm-vero-hint">
             <Image source={VERO_HALLO} style={st.veroImg} resizeMode="contain" />
             <Text style={st.veroText}>{veroHint}</Text>
           </Animated.View>
         )}
 
         {/* Fasten Schedule Card */}
-        <View style={st.fastCard} data-testid="wm-fasting-card">
+        <View style={st.fastCard} testID="wm-fasting-card">
           <View style={st.cardHeader}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               <MaterialCommunityIcons name="clock-outline" size={22} color={sched?.active && sched.phase === 'eating' ? '#2E7D52' : '#6D28D9'} />
               <Text style={st.cardTitle}>{tx(lang, { de: 'Protein-Routine', it: 'Routine proteica', en: 'Protein routine' })}</Text>
             </View>
-            <TouchableOpacity onPress={openScheduleModal} data-testid="wm-schedule-edit-btn">
+            <TouchableOpacity onPress={openScheduleModal} testID="wm-schedule-edit-btn">
               <MaterialCommunityIcons name={sched?.active ? 'pencil-outline' : 'plus-circle-outline'} size={22} color="#2E7D52" />
             </TouchableOpacity>
           </View>
@@ -750,7 +750,7 @@ export default function WeightMetabolismScreen() {
                 style={st.fastTimerWrap}
                 onPress={() => setVeroInfoModal(true)}
                 activeOpacity={0.85}
-                data-testid="wm-fast-circle-info"
+                testID="wm-fast-circle-info"
               >
                 <Svg width={200} height={200}>
                   <G rotation="-90" origin="100, 100">
@@ -785,7 +785,7 @@ export default function WeightMetabolismScreen() {
                   </Text>
                 </View>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => setVeroInfoModal(true)} style={st.circleInfoHint} data-testid="wm-circle-info-hint">
+              <TouchableOpacity onPress={() => setVeroInfoModal(true)} style={st.circleInfoHint} testID="wm-circle-info-hint">
                 <MaterialCommunityIcons name="information-outline" size={14} color="#6D28D9" />
                 <Text style={st.circleInfoHintText}>
                   {tx(lang, { de: 'Tippe für VERO-Erklärung', it: 'Tocca per la guida VERO', en: 'Tap for VERO guide' })}
@@ -804,7 +804,7 @@ export default function WeightMetabolismScreen() {
 
               {/* TIMELINE: Auto-generated daily plan */}
               {dayPlan?.active && dayPlan?.events?.length > 0 && (
-                <View style={st.timelineBox} data-testid="wm-timeline">
+                <View style={st.timelineBox} testID="wm-timeline">
                   <View style={st.timelineHeader}>
                     <Text style={st.timelineTitle}>
                       {tx(lang, { de: 'Dein Tagesplan', it: 'Il tuo piano', en: 'Your plan' })}
@@ -831,7 +831,7 @@ export default function WeightMetabolismScreen() {
                         }
                       }}
                       activeOpacity={0.7}
-                      data-testid={`wm-timeline-event-${ev.key}`}
+                      testID={`wm-timeline-event-${ev.key}`}
                     >
                       <View style={st.timelineDotCol}>
                         <View style={[
@@ -889,7 +889,7 @@ export default function WeightMetabolismScreen() {
                               <TouchableOpacity
                                 style={st.drinkBtn}
                                 onPress={(e) => { e.stopPropagation?.(); toggleEventCheck(ev.key, false); }}
-                                data-testid={`wm-drink-${ev.key}`}
+                                testID={`wm-drink-${ev.key}`}
                               >
                                 <MaterialCommunityIcons name="check-circle-outline" size={14} color="#FFFFFF" />
                                 <Text style={st.drinkBtnText}>{tx(lang, { de: 'Getrunken', it: 'Bevuto', en: 'Drunk' })}</Text>
@@ -898,7 +898,7 @@ export default function WeightMetabolismScreen() {
                               <TouchableOpacity
                                 style={st.mealBtn}
                                 onPress={(e) => { e.stopPropagation?.(); setMealPicker(true); }}
-                                data-testid={`wm-meal-log-${ev.key}`}
+                                testID={`wm-meal-log-${ev.key}`}
                               >
                                 <MaterialCommunityIcons name="plus-circle-outline" size={14} color="#FFFFFF" />
                                 <Text style={st.drinkBtnText}>{tx(lang, { de: 'Mahlzeit eintragen', it: 'Registra pasto', en: 'Log meal' })}</Text>
@@ -912,7 +912,7 @@ export default function WeightMetabolismScreen() {
                 </View>
               )}
 
-              <TouchableOpacity style={st.removeBtn} onPress={stopSchedule} data-testid="wm-schedule-stop-btn">
+              <TouchableOpacity style={st.removeBtn} onPress={stopSchedule} testID="wm-schedule-stop-btn">
                 <Text style={st.removeBtnText}>{tx(lang, { de: 'Plan entfernen', it: 'Rimuovi piano', en: 'Remove plan' })}</Text>
               </TouchableOpacity>
             </View>
@@ -932,7 +932,7 @@ export default function WeightMetabolismScreen() {
                   en: 'This feature is not medical advice.',
                 })}
               </Text>
-              <TouchableOpacity style={st.bigPrimaryBtn} onPress={openScheduleModal} data-testid="wm-schedule-create-btn">
+              <TouchableOpacity style={st.bigPrimaryBtn} onPress={openScheduleModal} testID="wm-schedule-create-btn">
                 <MaterialCommunityIcons name="clock-plus-outline" size={20} color="#FFFFFF" />
                 <Text style={st.bigPrimaryBtnText}>
                   {tx(lang, { de: 'Protein-Routine starten', it: 'Avvia routine', en: 'Start routine' })}
@@ -943,7 +943,7 @@ export default function WeightMetabolismScreen() {
         </View>
 
         {/* Today summary rings */}
-        <View style={st.summaryCard} data-testid="wm-today-summary">
+        <View style={st.summaryCard} testID="wm-today-summary">
           <View style={st.summaryRings}>
             <Ring
               pct={today?.progress?.calories_pct || 0}
@@ -986,7 +986,7 @@ export default function WeightMetabolismScreen() {
                 ? tx(lang, { de: 'Du bist über deinem Tagesziel.', it: 'Sei sopra l\'obiettivo.', en: 'You are over your daily target.' })
                 : tx(lang, { de: 'Du bist genau im Ziel.', it: 'Sei in linea.', en: 'You are right on target.' });
             return (
-              <View style={[st.deficitCard, { backgroundColor: bg }]} data-testid="wm-deficit-card">
+              <View style={[st.deficitCard, { backgroundColor: bg }]} testID="wm-deficit-card">
                 <View style={{ flex: 1 }}>
                   <Text style={[st.deficitLabel, { color }]}>{label}</Text>
                   <Text style={st.deficitSub}>{sub}</Text>
@@ -1001,7 +1001,7 @@ export default function WeightMetabolismScreen() {
             );
           })()}
 
-          <TouchableOpacity style={st.bigPrimaryBtn} onPress={openMealPicker} data-testid="wm-add-meal-btn">
+          <TouchableOpacity style={st.bigPrimaryBtn} onPress={openMealPicker} testID="wm-add-meal-btn">
             <MaterialCommunityIcons name="plus-circle" size={22} color="#FFFFFF" />
             <Text style={st.bigPrimaryBtnText}>
               {tx(lang, { de: 'Mahlzeit hinzufuegen', it: 'Aggiungi pasto', en: 'Add meal' })}
@@ -1014,7 +1014,7 @@ export default function WeightMetabolismScreen() {
           <View style={st.mealsCard}>
             <Text style={st.cardTitle}>{tx(lang, { de: 'Heutige Mahlzeiten', it: 'Pasti di oggi', en: "Today's meals" })}</Text>
             {today.meals.map((m: any) => (
-              <View key={m.id} style={st.mealRow} data-testid={`wm-meal-${m.id}`}>
+              <View key={m.id} style={st.mealRow} testID={`wm-meal-${m.id}`}>
                 <View style={[st.mealIcon, { backgroundColor: mealColor(m.meal_type) + '20' }]}>
                   <MaterialCommunityIcons name={mealIcon(m.meal_type) as any} size={18} color={mealColor(m.meal_type)} />
                 </View>
@@ -1022,7 +1022,7 @@ export default function WeightMetabolismScreen() {
                   <Text style={st.mealName} numberOfLines={1}>{m.name}</Text>
                   <Text style={st.mealMeta}>{fmt(m.calories)} kcal · {fmt(m.protein_g)}g</Text>
                 </View>
-                <TouchableOpacity onPress={() => deleteMeal(m.id)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} data-testid={`wm-delete-meal-${m.id}`}>
+                <TouchableOpacity onPress={() => deleteMeal(m.id)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} testID={`wm-delete-meal-${m.id}`}>
                   <MaterialCommunityIcons name="delete-outline" size={20} color="#9CA3AF" />
                 </TouchableOpacity>
               </View>
@@ -1033,18 +1033,18 @@ export default function WeightMetabolismScreen() {
         <SmartProductBlock context="fasting" profileId={profileId} limit={1} testIdPrefix="wm-smart-fast" />
 
         {/* Weight */}
-        <View style={st.weightCard} data-testid="wm-weight-card">
+        <View style={st.weightCard} testID="wm-weight-card">
           <View style={st.cardHeader}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               <MaterialCommunityIcons name="scale-bathroom" size={20} color="#2E7D52" />
               <Text style={st.cardTitle}>{tx(lang, { de: 'Gewicht', it: 'Peso', en: 'Weight' })}</Text>
             </View>
             <View style={{ flexDirection: 'row', gap: 8 }}>
-              <TouchableOpacity onPress={() => setHistoryModal(true)} style={st.smallBtnGhost} data-testid="wm-history-btn">
+              <TouchableOpacity onPress={() => setHistoryModal(true)} style={st.smallBtnGhost} testID="wm-history-btn">
                 <MaterialCommunityIcons name="history" size={16} color="#6B7280" />
                 <Text style={st.smallBtnGhostText}>{tx(lang, { de: 'Verlauf', it: 'Storico', en: 'History' })}</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => setWeightModal(true)} style={st.smallBtn} data-testid="wm-add-weight-btn">
+              <TouchableOpacity onPress={() => setWeightModal(true)} style={st.smallBtn} testID="wm-add-weight-btn">
                 <MaterialCommunityIcons name="plus" size={16} color="#2E7D52" />
                 <Text style={st.smallBtnText}>{tx(lang, { de: 'Eintrag', it: 'Voce', en: 'Entry' })}</Text>
               </TouchableOpacity>
@@ -1077,9 +1077,9 @@ export default function WeightMetabolismScreen() {
       {/* Meal source picker modal */}
       <Modal visible={mealPicker} transparent animationType="slide" onRequestClose={() => setMealPicker(false)}>
         <View style={st.sheetBg}>
-          <Animated.View entering={ZoomIn.duration(250)} style={st.sheetCard} data-testid="wm-meal-picker">
+          <Animated.View entering={ZoomIn.duration(250)} style={st.sheetCard} testID="wm-meal-picker">
             <Text style={st.sheetTitle}>{tx(lang, { de: 'Wie moechtest du hinzufuegen?', it: 'Come vuoi aggiungere?', en: 'How do you want to add?' })}</Text>
-            <TouchableOpacity style={[st.sourceTile, { backgroundColor: '#E8F5E9' }]} onPress={pickPhoto} data-testid="wm-source-photo">
+            <TouchableOpacity style={[st.sourceTile, { backgroundColor: '#E8F5E9' }]} onPress={pickPhoto} testID="wm-source-photo">
               <MaterialCommunityIcons name="camera-plus-outline" size={36} color="#2E7D52" />
               <View style={{ flex: 1 }}>
                 <Text style={st.sourceTitle}>{tx(lang, { de: 'Foto aufnehmen', it: 'Scatta foto', en: 'Take photo' })}</Text>
@@ -1087,7 +1087,7 @@ export default function WeightMetabolismScreen() {
               </View>
               <MaterialCommunityIcons name="chevron-right" size={24} color="#2E7D52" />
             </TouchableOpacity>
-            <TouchableOpacity style={[st.sourceTile, { backgroundColor: '#FEF3C7' }]} onPress={pickManual} data-testid="wm-source-manual">
+            <TouchableOpacity style={[st.sourceTile, { backgroundColor: '#FEF3C7' }]} onPress={pickManual} testID="wm-source-manual">
               <MaterialCommunityIcons name="pencil-outline" size={36} color="#D97706" />
               <View style={{ flex: 1 }}>
                 <Text style={st.sourceTitle}>{tx(lang, { de: 'Manuell eingeben', it: 'Inserisci manualmente', en: 'Manual entry' })}</Text>
@@ -1095,7 +1095,7 @@ export default function WeightMetabolismScreen() {
               </View>
               <MaterialCommunityIcons name="chevron-right" size={24} color="#D97706" />
             </TouchableOpacity>
-            <TouchableOpacity style={[st.sourceTile, { backgroundColor: '#E0F2FE' }]} onPress={pickFavorites} data-testid="wm-source-favorites">
+            <TouchableOpacity style={[st.sourceTile, { backgroundColor: '#E0F2FE' }]} onPress={pickFavorites} testID="wm-source-favorites">
               <MaterialCommunityIcons name="heart-outline" size={36} color="#0284C7" />
               <View style={{ flex: 1 }}>
                 <Text style={st.sourceTitle}>{tx(lang, { de: 'Meine Mahlzeiten', it: 'I miei pasti', en: 'My meals' })}</Text>
@@ -1117,7 +1117,7 @@ export default function WeightMetabolismScreen() {
       {/* Photo analysis modal */}
       <Modal visible={photoModal} transparent animationType="slide" onRequestClose={closePhotoModal}>
         <View style={st.modalBg}>
-          <View style={[st.modalCard, { maxHeight: '90%' }]} data-testid="wm-photo-modal">
+          <View style={[st.modalCard, { maxHeight: '90%' }]} testID="wm-photo-modal">
             <ScrollView showsVerticalScrollIndicator={false}>
               <Text style={st.modalTitle}>{tx(lang, { de: 'Foto-Analyse', it: 'Analisi foto', en: 'Photo analysis' })}</Text>
               {photoUri && (
@@ -1132,7 +1132,7 @@ export default function WeightMetabolismScreen() {
                 </View>
               )}
               {analysisResult && !analyzing && (
-                <View data-testid="wm-photo-result">
+                <View testID="wm-photo-result">
                   {analysisResult.confidence === 'low' && (
                     <View style={st.warnBanner}>
                       <MaterialCommunityIcons name="alert-circle-outline" size={16} color="#D97706" />
@@ -1147,15 +1147,15 @@ export default function WeightMetabolismScreen() {
                     </View>
                   )}
                   <Text style={st.modalLabel}>{tx(lang, { de: 'Name', it: 'Nome', en: 'Name' })}</Text>
-                  <TextInput style={st.input} value={mealName} onChangeText={setMealName} data-testid="wm-photo-name" />
+                  <TextInput style={st.input} value={mealName} onChangeText={setMealName} testID="wm-photo-name" />
                   <View style={{ flexDirection: 'row', gap: 10 }}>
                     <View style={{ flex: 1 }}>
                       <Text style={st.modalLabel}>kcal</Text>
-                      <TextInput style={st.input} value={mealKcal} onChangeText={setMealKcal} keyboardType="numeric" data-testid="wm-photo-kcal" />
+                      <TextInput style={st.input} value={mealKcal} onChangeText={setMealKcal} keyboardType="numeric" testID="wm-photo-kcal" />
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text style={st.modalLabel}>Protein g</Text>
-                      <TextInput style={st.input} value={mealProt} onChangeText={setMealProt} keyboardType="numeric" data-testid="wm-photo-prot" />
+                      <TextInput style={st.input} value={mealProt} onChangeText={setMealProt} keyboardType="numeric" testID="wm-photo-prot" />
                     </View>
                   </View>
                   <View style={st.mealTypeRow}>
@@ -1165,7 +1165,7 @@ export default function WeightMetabolismScreen() {
                       </TouchableOpacity>
                     ))}
                   </View>
-                  <TouchableOpacity style={st.favToggle} onPress={() => setSaveAsFavorite(!saveAsFavorite)} data-testid="wm-photo-fav-toggle">
+                  <TouchableOpacity style={st.favToggle} onPress={() => setSaveAsFavorite(!saveAsFavorite)} testID="wm-photo-fav-toggle">
                     <MaterialCommunityIcons name={saveAsFavorite ? 'checkbox-marked' : 'checkbox-blank-outline'} size={20} color="#2E7D52" />
                     <Text style={st.favToggleText}>{tx(lang, { de: 'Als Favorit speichern', it: 'Salva come preferito', en: 'Save as favorite' })}</Text>
                   </TouchableOpacity>
@@ -1176,7 +1176,7 @@ export default function WeightMetabolismScreen() {
                   <Text style={st.modalCancelText}>{tx(lang, { de: 'Abbrechen', it: 'Annulla', en: 'Cancel' })}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={[st.modalConfirm, (analyzing || !analysisResult) && { opacity: 0.5 }]}
-                  disabled={analyzing || !analysisResult} onPress={savePhotoMeal} data-testid="wm-photo-save">
+                  disabled={analyzing || !analysisResult} onPress={savePhotoMeal} testID="wm-photo-save">
                   <Text style={st.modalConfirmText}>{tx(lang, { de: 'Speichern', it: 'Salva', en: 'Save' })}</Text>
                 </TouchableOpacity>
               </View>
@@ -1188,7 +1188,7 @@ export default function WeightMetabolismScreen() {
       {/* Manual modal */}
       <Modal visible={manualModal} transparent animationType="slide" onRequestClose={() => setManualModal(false)}>
         <View style={st.modalBg}>
-          <View style={st.modalCard} data-testid="wm-manual-modal">
+          <View style={st.modalCard} testID="wm-manual-modal">
             <Text style={st.modalTitle}>{tx(lang, { de: 'Manuell hinzufuegen', it: 'Aggiungi manualmente', en: 'Add manually' })}</Text>
             <View style={st.mealTypeRow}>
               {(['breakfast', 'lunch', 'dinner', 'snack', 'shake'] as const).map(t => (
@@ -1198,14 +1198,14 @@ export default function WeightMetabolismScreen() {
               ))}
             </View>
             <TextInput style={st.input} placeholder={tx(lang, { de: 'Name', it: 'Nome', en: 'Name' })}
-              placeholderTextColor="#9CA3AF" value={mealName} onChangeText={setMealName} data-testid="wm-manual-name" />
+              placeholderTextColor="#9CA3AF" value={mealName} onChangeText={setMealName} testID="wm-manual-name" />
             <View style={{ flexDirection: 'row', gap: 10 }}>
               <TextInput style={[st.input, { flex: 1 }]} placeholder="kcal" placeholderTextColor="#9CA3AF"
-                keyboardType="numeric" value={mealKcal} onChangeText={setMealKcal} data-testid="wm-manual-kcal" />
+                keyboardType="numeric" value={mealKcal} onChangeText={setMealKcal} testID="wm-manual-kcal" />
               <TextInput style={[st.input, { flex: 1 }]} placeholder="Protein g" placeholderTextColor="#9CA3AF"
-                keyboardType="numeric" value={mealProt} onChangeText={setMealProt} data-testid="wm-manual-prot" />
+                keyboardType="numeric" value={mealProt} onChangeText={setMealProt} testID="wm-manual-prot" />
             </View>
-            <TouchableOpacity style={st.favToggle} onPress={() => setSaveAsFavorite(!saveAsFavorite)} data-testid="wm-manual-fav-toggle">
+            <TouchableOpacity style={st.favToggle} onPress={() => setSaveAsFavorite(!saveAsFavorite)} testID="wm-manual-fav-toggle">
               <MaterialCommunityIcons name={saveAsFavorite ? 'checkbox-marked' : 'checkbox-blank-outline'} size={20} color="#2E7D52" />
               <Text style={st.favToggleText}>{tx(lang, { de: 'Als Favorit speichern', it: 'Salva come preferito', en: 'Save as favorite' })}</Text>
             </TouchableOpacity>
@@ -1213,7 +1213,7 @@ export default function WeightMetabolismScreen() {
               <TouchableOpacity style={st.modalCancel} onPress={() => { setManualModal(false); setSaveAsFavorite(false); }}>
                 <Text style={st.modalCancelText}>{tx(lang, { de: 'Abbrechen', it: 'Annulla', en: 'Cancel' })}</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={st.modalConfirm} onPress={addMealManual} data-testid="wm-manual-save">
+              <TouchableOpacity style={st.modalConfirm} onPress={addMealManual} testID="wm-manual-save">
                 <Text style={st.modalConfirmText}>{tx(lang, { de: 'Speichern', it: 'Salva', en: 'Save' })}</Text>
               </TouchableOpacity>
             </View>
@@ -1224,7 +1224,7 @@ export default function WeightMetabolismScreen() {
       {/* Favorites modal */}
       <Modal visible={favModal} transparent animationType="slide" onRequestClose={() => setFavModal(false)}>
         <View style={st.modalBg}>
-          <View style={[st.modalCard, { maxHeight: '85%' }]} data-testid="wm-favorites-modal">
+          <View style={[st.modalCard, { maxHeight: '85%' }]} testID="wm-favorites-modal">
             <View style={st.cardHeader}>
               <Text style={st.modalTitle}>{tx(lang, { de: 'Meine Mahlzeiten', it: 'I miei pasti', en: 'My meals' })}</Text>
               <TouchableOpacity onPress={() => setShowFavAdd(!showFavAdd)}>
@@ -1260,7 +1260,7 @@ export default function WeightMetabolismScreen() {
                 </View>
               ) : (
                 favorites.map(f => (
-                  <View key={f.id} style={st.favRow} data-testid={`wm-fav-${f.id}`}>
+                  <View key={f.id} style={st.favRow} testID={`wm-fav-${f.id}`}>
                     <View style={[st.mealIcon, { backgroundColor: mealColor(f.category) + '20' }]}>
                       <MaterialCommunityIcons name={mealIcon(f.category) as any} size={18} color={mealColor(f.category)} />
                     </View>
@@ -1268,7 +1268,7 @@ export default function WeightMetabolismScreen() {
                       <Text style={st.favName} numberOfLines={1}>{f.name}</Text>
                       <Text style={st.favMeta}>{f.calories} kcal · {f.protein_g}g Protein · {f.used_count}x</Text>
                     </View>
-                    <TouchableOpacity style={st.favUseBtn} onPress={() => useFavorite(f.id)} data-testid={`wm-fav-use-${f.id}`}>
+                    <TouchableOpacity style={st.favUseBtn} onPress={() => useFavorite(f.id)} testID={`wm-fav-use-${f.id}`}>
                       <MaterialCommunityIcons name="plus-circle" size={26} color="#2E7D52" />
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => deleteFavorite(f.id)} style={{ marginLeft: 6 }} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
@@ -1288,7 +1288,7 @@ export default function WeightMetabolismScreen() {
       {/* Schedule modal */}
       <Modal visible={scheduleModal} transparent animationType="slide" onRequestClose={() => setScheduleModal(false)}>
         <View style={st.modalBg}>
-          <View style={st.modalCard} data-testid="wm-schedule-modal">
+          <View style={st.modalCard} testID="wm-schedule-modal">
             <Text style={st.modalTitle}>{tx(lang, { de: 'Deine Protein-Routine', it: 'La tua routine proteica', en: 'Your protein routine' })}</Text>
             <Text style={st.modalSub}>
               {tx(lang, {
@@ -1300,16 +1300,16 @@ export default function WeightMetabolismScreen() {
             <Text style={st.modalLabel}>{tx(lang, { de: 'Routine-Start (HH:MM)', it: 'Avvio routine', en: 'Routine start' })}</Text>
             <View style={st.presetRow}>
               {['18:00', '19:00', '20:00', '21:00'].map(t => (
-                <TouchableOpacity key={t} style={[st.presetChip, fastStart === t && st.presetChipActive]} onPress={() => setFastStart(t)} data-testid={`wm-fast-start-${t}`}>
+                <TouchableOpacity key={t} style={[st.presetChip, fastStart === t && st.presetChipActive]} onPress={() => setFastStart(t)} testID={`wm-fast-start-${t}`}>
                   <Text style={[st.presetText, fastStart === t && { color: '#FFFFFF' }]}>{t}</Text>
                 </TouchableOpacity>
               ))}
             </View>
-            <TextInput style={st.input} value={fastStart} onChangeText={setFastStart} placeholder="20:00" placeholderTextColor="#9CA3AF" data-testid="wm-schedule-start" />
+            <TextInput style={st.input} value={fastStart} onChangeText={setFastStart} placeholder="20:00" placeholderTextColor="#9CA3AF" testID="wm-schedule-start" />
             <Text style={st.modalLabel}>{tx(lang, { de: 'Fastendauer', it: 'Durata digiuno', en: 'Fasting duration' })}</Text>
             <View style={st.presetRow}>
               {(['14', '15', '16'] as const).map(h => (
-                <TouchableOpacity key={h} style={[st.presetChip, fastDuration === h && st.presetChipActive]} onPress={() => setFastDuration(h)} data-testid={`wm-fast-duration-${h}`}>
+                <TouchableOpacity key={h} style={[st.presetChip, fastDuration === h && st.presetChipActive]} onPress={() => setFastDuration(h)} testID={`wm-fast-duration-${h}`}>
                   <Text style={[st.presetText, fastDuration === h && { color: '#FFFFFF' }]}>{h}h</Text>
                 </TouchableOpacity>
               ))}
@@ -1332,7 +1332,7 @@ export default function WeightMetabolismScreen() {
               <TouchableOpacity style={st.modalCancel} onPress={() => setScheduleModal(false)}>
                 <Text style={st.modalCancelText}>{tx(lang, { de: 'Abbrechen', it: 'Annulla', en: 'Cancel' })}</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={st.modalConfirm} onPress={saveSchedule} data-testid="wm-schedule-save">
+              <TouchableOpacity style={st.modalConfirm} onPress={saveSchedule} testID="wm-schedule-save">
                 <Text style={st.modalConfirmText}>{tx(lang, { de: 'Plan aktivieren', it: 'Attiva piano', en: 'Activate' })}</Text>
               </TouchableOpacity>
             </View>
@@ -1343,15 +1343,15 @@ export default function WeightMetabolismScreen() {
       {/* Weight modal */}
       <Modal visible={weightModal} transparent animationType="fade" onRequestClose={() => setWeightModal(false)}>
         <View style={st.modalBg}>
-          <View style={st.modalCard} data-testid="wm-weight-modal">
+          <View style={st.modalCard} testID="wm-weight-modal">
             <Text style={st.modalTitle}>{tx(lang, { de: 'Gewicht eintragen', it: 'Inserisci peso', en: 'Log weight' })}</Text>
             <TextInput style={st.input} placeholder="kg" placeholderTextColor="#9CA3AF" keyboardType="numeric"
-              value={weightInput} onChangeText={setWeightInput} autoFocus data-testid="wm-weight-input" />
+              value={weightInput} onChangeText={setWeightInput} autoFocus testID="wm-weight-input" />
             <View style={st.modalRow}>
               <TouchableOpacity style={st.modalCancel} onPress={() => setWeightModal(false)}>
                 <Text style={st.modalCancelText}>{tx(lang, { de: 'Abbrechen', it: 'Annulla', en: 'Cancel' })}</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={st.modalConfirm} onPress={addWeight} data-testid="wm-weight-confirm">
+              <TouchableOpacity style={st.modalConfirm} onPress={addWeight} testID="wm-weight-confirm">
                 <Text style={st.modalConfirmText}>{tx(lang, { de: 'Speichern', it: 'Salva', en: 'Save' })}</Text>
               </TouchableOpacity>
             </View>
@@ -1362,12 +1362,12 @@ export default function WeightMetabolismScreen() {
       {/* Goals modal */}
       <Modal visible={goalModal} transparent animationType="slide" onRequestClose={() => setGoalModal(false)}>
         <View style={st.modalBg}>
-          <View style={[st.modalCard, { maxHeight: '90%' }]} data-testid="wm-goal-modal">
+          <View style={[st.modalCard, { maxHeight: '90%' }]} testID="wm-goal-modal">
             <ScrollView showsVerticalScrollIndicator={false}>
               <Text style={st.modalTitle}>{tx(lang, { de: 'Ziele anpassen', it: 'Imposta obiettivi', en: 'Goals' })}</Text>
 
               {/* AI Calculator Section */}
-              <View style={st.aiSection} data-testid="wm-ai-section">
+              <View style={st.aiSection} testID="wm-ai-section">
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}>
                   <MaterialCommunityIcons name="creation" size={16} color="#6D28D9" />
                   <Text style={st.aiSectionTitle}>
@@ -1383,11 +1383,11 @@ export default function WeightMetabolismScreen() {
                 </Text>
                 {/* Gender */}
                 <View style={st.aiRow}>
-                  <TouchableOpacity style={[st.aiChip, aiGender === 'male' && st.aiChipActive]} onPress={() => setAiGender('male')} data-testid="wm-ai-gender-male">
+                  <TouchableOpacity style={[st.aiChip, aiGender === 'male' && st.aiChipActive]} onPress={() => setAiGender('male')} testID="wm-ai-gender-male">
                     <MaterialCommunityIcons name="gender-male" size={14} color={aiGender === 'male' ? '#FFFFFF' : '#6B7280'} />
                     <Text style={[st.aiChipText, aiGender === 'male' && { color: '#FFFFFF' }]}>{tx(lang, { de: 'Mann', it: 'Uomo', en: 'Male' })}</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={[st.aiChip, aiGender === 'female' && st.aiChipActive]} onPress={() => setAiGender('female')} data-testid="wm-ai-gender-female">
+                  <TouchableOpacity style={[st.aiChip, aiGender === 'female' && st.aiChipActive]} onPress={() => setAiGender('female')} testID="wm-ai-gender-female">
                     <MaterialCommunityIcons name="gender-female" size={14} color={aiGender === 'female' ? '#FFFFFF' : '#6B7280'} />
                     <Text style={[st.aiChipText, aiGender === 'female' && { color: '#FFFFFF' }]}>{tx(lang, { de: 'Frau', it: 'Donna', en: 'Female' })}</Text>
                   </TouchableOpacity>
@@ -1404,7 +1404,7 @@ export default function WeightMetabolismScreen() {
                       placeholder="35"
                       placeholderTextColor="#9CA3AF"
                       style={st.aiInputField}
-                      data-testid="wm-ai-age-input"
+                      testID="wm-ai-age-input"
                     />
                   </View>
                   <View style={st.aiInputCol}>
@@ -1416,7 +1416,7 @@ export default function WeightMetabolismScreen() {
                       placeholder="170"
                       placeholderTextColor="#9CA3AF"
                       style={st.aiInputField}
-                      data-testid="wm-ai-height-input"
+                      testID="wm-ai-height-input"
                     />
                   </View>
                   <View style={st.aiInputCol}>
@@ -1428,7 +1428,7 @@ export default function WeightMetabolismScreen() {
                       placeholder="75"
                       placeholderTextColor="#9CA3AF"
                       style={st.aiInputField}
-                      data-testid="wm-ai-weight-input"
+                      testID="wm-ai-weight-input"
                     />
                   </View>
                 </View>
@@ -1437,7 +1437,7 @@ export default function WeightMetabolismScreen() {
                 <Text style={st.aiMiniLabel}>{tx(lang, { de: 'Aktivitaet', it: 'Attivita', en: 'Activity' })}</Text>
                 <View style={st.aiRow}>
                   {(['sedentary', 'moderate', 'active', 'very_active'] as const).map(a => (
-                    <TouchableOpacity key={a} style={[st.aiChipSmall, aiActivity === a && st.aiChipActive]} onPress={() => setAiActivity(a)} data-testid={`wm-ai-activity-${a}`}>
+                    <TouchableOpacity key={a} style={[st.aiChipSmall, aiActivity === a && st.aiChipActive]} onPress={() => setAiActivity(a)} testID={`wm-ai-activity-${a}`}>
                       <Text style={[st.aiChipTextSmall, aiActivity === a && { color: '#FFFFFF' }]}>
                         {a === 'sedentary' ? tx(lang, { de: 'Ruhig', it: 'Bassa', en: 'Low' })
                           : a === 'moderate' ? tx(lang, { de: 'Mittel', it: 'Media', en: 'Med' })
@@ -1451,7 +1451,7 @@ export default function WeightMetabolismScreen() {
                 <Text style={st.aiMiniLabel}>{tx(lang, { de: 'Ziel', it: 'Obiettivo', en: 'Goal' })}</Text>
                 <View style={st.aiRow}>
                   {(['lose', 'maintain', 'gain', 'build_muscle'] as const).map(g => (
-                    <TouchableOpacity key={g} style={[st.aiChipSmall, aiGoal === g && st.aiChipActive]} onPress={() => setAiGoal(g)} data-testid={`wm-ai-goal-${g}`}>
+                    <TouchableOpacity key={g} style={[st.aiChipSmall, aiGoal === g && st.aiChipActive]} onPress={() => setAiGoal(g)} testID={`wm-ai-goal-${g}`}>
                       <Text style={[st.aiChipTextSmall, aiGoal === g && { color: '#FFFFFF' }]}>
                         {g === 'lose' ? tx(lang, { de: 'Abnehmen', it: 'Dimagrire', en: 'Lose' })
                           : g === 'maintain' ? tx(lang, { de: 'Halten', it: 'Mantenere', en: 'Keep' })
@@ -1462,7 +1462,7 @@ export default function WeightMetabolismScreen() {
                   ))}
                 </View>
 
-                <TouchableOpacity style={st.aiBtn} onPress={runAiCalculation} disabled={aiLoading} data-testid="wm-ai-run-btn">
+                <TouchableOpacity style={st.aiBtn} onPress={runAiCalculation} disabled={aiLoading} testID="wm-ai-run-btn">
                   {aiLoading ? (
                     <ActivityIndicator color="#FFFFFF" size="small" />
                   ) : (
@@ -1476,7 +1476,7 @@ export default function WeightMetabolismScreen() {
                 </TouchableOpacity>
 
                 {aiSuggestion && (
-                  <View style={st.aiResult} data-testid="wm-ai-result">
+                  <View style={st.aiResult} testID="wm-ai-result">
                     <View style={st.aiResultRow}>
                       <View style={st.aiResultBox}>
                         <Text style={st.aiResultLabel}>kcal</Text>
@@ -1487,7 +1487,7 @@ export default function WeightMetabolismScreen() {
                           if (!cur || diff === 0) return null;
                           const up = diff > 0;
                           return (
-                            <View style={[st.deltaBadge, { backgroundColor: up ? '#DCFCE7' : '#FEF3C7' }]} data-testid="wm-ai-delta-cal">
+                            <View style={[st.deltaBadge, { backgroundColor: up ? '#DCFCE7' : '#FEF3C7' }]} testID="wm-ai-delta-cal">
                               <MaterialCommunityIcons
                                 name={up ? 'trending-up' : 'trending-down'}
                                 size={11}
@@ -1509,7 +1509,7 @@ export default function WeightMetabolismScreen() {
                           if (!cur || diff === 0) return null;
                           const up = diff > 0;
                           return (
-                            <View style={[st.deltaBadge, { backgroundColor: up ? '#DCFCE7' : '#FEF3C7' }]} data-testid="wm-ai-delta-prot">
+                            <View style={[st.deltaBadge, { backgroundColor: up ? '#DCFCE7' : '#FEF3C7' }]} testID="wm-ai-delta-prot">
                               <MaterialCommunityIcons
                                 name={up ? 'trending-up' : 'trending-down'}
                                 size={11}
@@ -1531,16 +1531,16 @@ export default function WeightMetabolismScreen() {
               </View>
 
               <Text style={st.modalLabel}>{tx(lang, { de: 'Kalorien', it: 'Calorie', en: 'Calories' })}</Text>
-              <TextInput style={st.input} keyboardType="numeric" value={goalCal} onChangeText={setGoalCal} placeholderTextColor="#9CA3AF" data-testid="wm-goal-cal" />
+              <TextInput style={st.input} keyboardType="numeric" value={goalCal} onChangeText={setGoalCal} placeholderTextColor="#9CA3AF" testID="wm-goal-cal" />
               <Text style={st.modalLabel}>{tx(lang, { de: 'Protein (g)', it: 'Proteine (g)', en: 'Protein (g)' })}</Text>
-              <TextInput style={st.input} keyboardType="numeric" value={goalProt} onChangeText={setGoalProt} placeholderTextColor="#9CA3AF" data-testid="wm-goal-prot" />
+              <TextInput style={st.input} keyboardType="numeric" value={goalProt} onChangeText={setGoalProt} placeholderTextColor="#9CA3AF" testID="wm-goal-prot" />
               <Text style={st.modalLabel}>{tx(lang, { de: 'Zielgewicht (kg)', it: 'Peso target', en: 'Target weight' })}</Text>
-              <TextInput style={st.input} keyboardType="numeric" value={goalWeight} onChangeText={setGoalWeight} placeholderTextColor="#9CA3AF" data-testid="wm-goal-weight" />
+              <TextInput style={st.input} keyboardType="numeric" value={goalWeight} onChangeText={setGoalWeight} placeholderTextColor="#9CA3AF" testID="wm-goal-weight" />
               <View style={st.modalRow}>
                 <TouchableOpacity style={st.modalCancel} onPress={() => setGoalModal(false)}>
                   <Text style={st.modalCancelText}>{tx(lang, { de: 'Abbrechen', it: 'Annulla', en: 'Cancel' })}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={st.modalConfirm} onPress={saveGoals} data-testid="wm-goal-save">
+                <TouchableOpacity style={st.modalConfirm} onPress={saveGoals} testID="wm-goal-save">
                   <Text style={st.modalConfirmText}>{tx(lang, { de: 'Speichern', it: 'Salva', en: 'Save' })}</Text>
                 </TouchableOpacity>
               </View>
@@ -1552,7 +1552,7 @@ export default function WeightMetabolismScreen() {
       {/* VERO Info Modal: Abnehm-Erklaerung */}
       <Modal visible={veroInfoModal} transparent animationType="fade" onRequestClose={() => setVeroInfoModal(false)}>
         <View style={st.modalBg}>
-          <Animated.View entering={ZoomIn.duration(220)} style={st.modalCard} data-testid="wm-vero-info-modal">
+          <Animated.View entering={ZoomIn.duration(220)} style={st.modalCard} testID="wm-vero-info-modal">
             <ScrollView style={{ maxHeight: 560 }} showsVerticalScrollIndicator={false}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 }}>
                 <Image source={VERO_HALLO} style={{ width: 56, height: 56 }} resizeMode="contain" />
@@ -1642,7 +1642,7 @@ export default function WeightMetabolismScreen() {
                 </Text>
               </View>
             </ScrollView>
-            <TouchableOpacity style={[st.modalConfirm, { marginTop: 16 }]} onPress={() => setVeroInfoModal(false)} data-testid="wm-vero-info-close">
+            <TouchableOpacity style={[st.modalConfirm, { marginTop: 16 }]} onPress={() => setVeroInfoModal(false)} testID="wm-vero-info-close">
               <Text style={st.modalConfirmText}>{tx(lang, { de: 'Verstanden', it: 'Ho capito', en: 'Got it' })}</Text>
             </TouchableOpacity>
           </Animated.View>
@@ -1652,7 +1652,7 @@ export default function WeightMetabolismScreen() {
       {/* Weight History Modal */}
       <Modal visible={historyModal} transparent animationType="slide" onRequestClose={() => setHistoryModal(false)}>
         <View style={st.modalBg}>
-          <Animated.View entering={ZoomIn.duration(220)} style={st.modalCard} data-testid="wm-history-modal">
+          <Animated.View entering={ZoomIn.duration(220)} style={st.modalCard} testID="wm-history-modal">
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
               <Text style={st.modalTitle}>{tx(lang, { de: 'Gewicht-Verlauf', it: 'Storico peso', en: 'Weight history' })}</Text>
               <TouchableOpacity onPress={() => setHistoryModal(false)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
@@ -1676,7 +1676,7 @@ export default function WeightMetabolismScreen() {
                 </View>
               ) : (
                 [...(weight?.entries || [])].reverse().map((e: any) => (
-                  <View key={e.id} style={st.historyRow} data-testid={`wm-history-entry-${e.id}`}>
+                  <View key={e.id} style={st.historyRow} testID={`wm-history-entry-${e.id}`}>
                     <View style={{ flex: 1 }}>
                       <Text style={st.historyDate}>{e.date}</Text>
                       <Text style={st.historyKg}>{e.weight_kg.toFixed(1)} kg</Text>
@@ -1685,7 +1685,7 @@ export default function WeightMetabolismScreen() {
                       onPress={() => deleteWeightEntry(e.id)}
                       style={st.historyDeleteBtn}
                       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                      data-testid={`wm-history-delete-${e.id}`}
+                      testID={`wm-history-delete-${e.id}`}
                     >
                       <MaterialCommunityIcons name="trash-can-outline" size={18} color="#DC2626" />
                     </TouchableOpacity>
@@ -1694,7 +1694,7 @@ export default function WeightMetabolismScreen() {
               )}
             </ScrollView>
             {(weight?.entries || []).length > 0 && (
-              <TouchableOpacity onPress={resetWeightHistory} style={st.historyResetBtn} data-testid="wm-history-reset">
+              <TouchableOpacity onPress={resetWeightHistory} style={st.historyResetBtn} testID="wm-history-reset">
                 <MaterialCommunityIcons name="refresh" size={16} color="#DC2626" />
                 <Text style={st.historyResetText}>
                   {tx(lang, { de: 'Verlauf komplett zurücksetzen', it: 'Azzera tutto lo storico', en: 'Reset entire history' })}

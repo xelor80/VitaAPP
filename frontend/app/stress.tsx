@@ -85,7 +85,7 @@ export default function StressScreen() {
     <SafeAreaView style={s.safe}>
       <ScrollView style={s.scroll} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
         {/* Header */}
-        <View style={s.header} data-testid="stress-header">
+        <View style={s.header} testID="stress-header">
           <TouchableOpacity onPress={() => router.back()} style={s.backBtn}>
             <MaterialCommunityIcons name="arrow-left" size={24} color="#1F2937" />
           </TouchableOpacity>
@@ -93,7 +93,7 @@ export default function StressScreen() {
         </View>
 
         {/* SOS Button */}
-        <TouchableOpacity style={s.sosCard} activeOpacity={0.85} onPress={startSOS} data-testid="stress-sos-button">
+        <TouchableOpacity style={s.sosCard} activeOpacity={0.85} onPress={startSOS} testID="stress-sos-button">
           <LinearGradient colors={['#EF4444', '#DC2626']} style={s.sosGradient}>
             <MaterialCommunityIcons name="flash" size={28} color="#fff" />
             <View style={s.sosText}>
@@ -106,7 +106,7 @@ export default function StressScreen() {
 
         {/* Recommendation */}
         {recommendation && (
-          <View style={s.recCard} data-testid="stress-recommendation">
+          <View style={s.recCard} testID="stress-recommendation">
             <View style={s.recHeader}>
               <Image source={VERO} style={s.recVero} />
               <View style={{ flex: 1 }}>
@@ -139,7 +139,7 @@ export default function StressScreen() {
 
         {/* Quick Stats */}
         {stats && stats.total_sessions > 0 && (
-          <View style={s.statsRow} data-testid="stress-stats">
+          <View style={s.statsRow} testID="stress-stats">
             <View style={s.statCard}>
               <Text style={s.statNum}>{stats.total_sessions}</Text>
               <Text style={s.statLabel}>{t('Uebungen', 'Esercizi')}</Text>
@@ -202,7 +202,7 @@ export default function StressScreen() {
         {filteredExercises.map(ex => (
           <TouchableOpacity
             key={ex.id} style={s.exCard} onPress={() => startExercise(ex)} activeOpacity={0.8}
-            data-testid={`exercise-card-${ex.id}`}
+            testID={`exercise-card-${ex.id}`}
           >
             <View style={[s.exIcon, { backgroundColor: (CAT_COLORS[ex.category] || '#2E7D52') + '14' }]}>
               <MaterialCommunityIcons name={(CAT_ICONS[ex.category] || 'meditation') as any} size={24} color={CAT_COLORS[ex.category]} />

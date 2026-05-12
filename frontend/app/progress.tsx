@@ -264,7 +264,7 @@ export default function ProgressScreen() {
 
             {/* Medication Adherence */}
             {medStats && medStats.total_expected > 0 && (
-              <View style={styles.chartCard} data-testid="medication-adherence-card">
+              <View style={styles.chartCard} testID="medication-adherence-card">
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                   <MaterialCommunityIcons name="pill" size={20} color="#3B82F6" />
                   <Text style={styles.chartTitle}>{lang === 'de' ? 'Medikamenten-Einnahme (7 Tage)' : 'Assunzione farmaci (7 giorni)'}</Text>
@@ -299,7 +299,7 @@ export default function ProgressScreen() {
 
             {/* Water Intake History */}
             {waterHistory && waterHistory.days_with_data > 0 && (
-              <View style={styles.chartCard} data-testid="water-history-card">
+              <View style={styles.chartCard} testID="water-history-card">
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                   <MaterialCommunityIcons name="water" size={20} color="#3A86FF" />
                   <Text style={styles.chartTitle}>{lang === 'de' ? 'Wasseraufnahme (7 Tage)' : 'Idratazione (7 giorni)'}</Text>

@@ -82,7 +82,7 @@ export function InteractionAnalysis({ profileId, lang }: Props) {
             : 'Verifica il tuo stack di supplementi per interazioni, rischi e sinergie.'}
         </Text>
         <TouchableOpacity
-          data-testid="run-interaction-analysis-btn"
+          testID="run-interaction-analysis-btn"
           style={styles.analyzeBtn}
           onPress={runAnalysis}
         >
@@ -165,7 +165,7 @@ export function InteractionAnalysis({ profileId, lang }: Props) {
               <View
                 key={idx}
                 style={[styles.interactionCard, { backgroundColor: config.bg, borderColor: config.border }]}
-                data-testid={`interaction-card-${idx}`}
+                testID={`interaction-card-${idx}`}
               >
                 <View style={styles.interactionHeader}>
                   <MaterialCommunityIcons name={config.icon as any} size={20} color={config.iconColor} />
@@ -205,7 +205,7 @@ export function InteractionAnalysis({ profileId, lang }: Props) {
             {lang === 'de' ? 'Optimierungsvorschlaege' : 'Suggerimenti di ottimizzazione'}
           </Text>
           {optimizations.map((opt: any, idx: number) => (
-            <View key={idx} style={styles.optCard} data-testid={`optimization-card-${idx}`}>
+            <View key={idx} style={styles.optCard} testID={`optimization-card-${idx}`}>
               <View style={styles.optHeader}>
                 <View style={styles.optIconWrap}>
                   <MaterialCommunityIcons
@@ -244,7 +244,7 @@ export function InteractionAnalysis({ profileId, lang }: Props) {
 
       {/* Re-analyze Button */}
       <TouchableOpacity
-        data-testid="rerun-interaction-analysis-btn"
+        testID="rerun-interaction-analysis-btn"
         style={styles.reanalyzeBtn}
         onPress={runAnalysis}
         disabled={loading}

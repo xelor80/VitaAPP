@@ -11,9 +11,9 @@ interface Props {
 
 export function SavedAnalysisButtons({ lang, isLoading, onShowAnalysis, onNewAnalysis }: Props) {
   return (
-    <View style={styles.wrap} data-testid="saved-analysis-buttons">
+    <View style={styles.wrap} testID="saved-analysis-buttons">
       <TouchableOpacity
-        data-testid="show-saved-analysis-btn"
+        testID="show-saved-analysis-btn"
         style={styles.showBtn}
         onPress={onShowAnalysis}
         activeOpacity={0.7}
@@ -25,7 +25,7 @@ export function SavedAnalysisButtons({ lang, isLoading, onShowAnalysis, onNewAna
         </Text>
       </TouchableOpacity>
       <TouchableOpacity
-        data-testid="new-analysis-btn"
+        testID="new-analysis-btn"
         style={[styles.newBtn, isLoading && styles.newBtnLoading]}
         onPress={onNewAnalysis}
         activeOpacity={0.7}

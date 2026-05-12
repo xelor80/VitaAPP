@@ -94,7 +94,7 @@ export default function LoginScreen() {
             showsVerticalScrollIndicator={false}
           >
             {/* Logo / Header */}
-            <View style={styles.header} data-testid="login-header">
+            <View style={styles.header} testID="login-header">
               <View style={styles.logoCircle}>
                 <MaterialCommunityIcons name="leaf" size={40} color="#2E7D52" />
               </View>
@@ -105,7 +105,7 @@ export default function LoginScreen() {
             </View>
 
             {/* Form Card */}
-            <View style={styles.card} data-testid="login-form-card">
+            <View style={styles.card} testID="login-form-card">
               <Text style={styles.cardTitle}>
                 {mode === 'login'
                   ? t('Anmelden', 'Accedi')
@@ -122,7 +122,7 @@ export default function LoginScreen() {
                     value={firstName}
                     onChangeText={setFirstName}
                     autoCapitalize="words"
-                    data-testid="register-firstname-input"
+                    testID="register-firstname-input"
                   />
                 </View>
               )}
@@ -138,7 +138,7 @@ export default function LoginScreen() {
                   keyboardType="email-address"
                   autoCapitalize="none"
                   autoCorrect={false}
-                  data-testid="login-email-input"
+                  testID="login-email-input"
                 />
               </View>
 
@@ -151,7 +151,7 @@ export default function LoginScreen() {
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry={!showPassword}
-                  data-testid="login-password-input"
+                  testID="login-password-input"
                 />
                 <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeBtn}>
                   <MaterialCommunityIcons
@@ -166,7 +166,7 @@ export default function LoginScreen() {
                 style={styles.submitBtn}
                 onPress={handleSubmit}
                 disabled={loading}
-                data-testid="login-submit-button"
+                testID="login-submit-button"
               >
                 {loading ? (
                   <ActivityIndicator size="small" color="#fff" />
@@ -191,7 +191,7 @@ export default function LoginScreen() {
                 style={styles.googleBtn}
                 onPress={handleGoogleLogin}
                 disabled={googleLoading}
-                data-testid="google-login-button"
+                testID="google-login-button"
               >
                 {googleLoading ? (
                   <ActivityIndicator size="small" color="#374151" />
@@ -209,7 +209,7 @@ export default function LoginScreen() {
               <TouchableOpacity
                 style={styles.switchBtn}
                 onPress={() => setMode(mode === 'login' ? 'register' : 'login')}
-                data-testid="login-switch-mode"
+                testID="login-switch-mode"
               >
                 <Text style={styles.switchText}>
                   {mode === 'login'
@@ -223,7 +223,7 @@ export default function LoginScreen() {
             <TouchableOpacity
               style={styles.skipBtn}
               onPress={handleSkip}
-              data-testid="login-skip-button"
+              testID="login-skip-button"
             >
               <Text style={styles.skipText}>
                 {t('Ohne Anmeldung fortfahren', 'Continua senza accesso')}

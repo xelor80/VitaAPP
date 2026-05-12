@@ -55,7 +55,7 @@ export function WeightMetabolismCard({ profileId }: { profileId: string }) {
       style={st.card}
       activeOpacity={0.85}
       onPress={() => router.push('/weight-metabolism' as any)}
-      data-testid="dashboard-weight-metabolism-card"
+      testID="dashboard-weight-metabolism-card"
     >
       <View style={st.headerRow}>
         <View style={st.iconWrap}>

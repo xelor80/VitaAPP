@@ -222,7 +222,7 @@ export default function MedicationsScreen() {
           <MaterialCommunityIcons name="arrow-left" size={24} color="#FFF" />
         </TouchableOpacity>
         <Text style={s.headerTitle}>{tx(lang, { de: 'Medikamente', it: 'Farmaci', en: 'Medications', tr: 'Ilaclar', fr: 'Medicaments', es: 'Medicamentos', ru: 'Лекarstva' })}</Text>
-        <TouchableOpacity onPress={() => { resetForm(); setShowForm(true); }} style={s.addBtn} data-testid="add-medication-btn">
+        <TouchableOpacity onPress={() => { resetForm(); setShowForm(true); }} style={s.addBtn} testID="add-medication-btn">
           <MaterialCommunityIcons name="plus" size={24} color="#FFF" />
         </TouchableOpacity>
       </LinearGradient>
@@ -280,7 +280,7 @@ export default function MedicationsScreen() {
 
         {/* VERO Medication Reminders */}
         {medications.length > 0 && (
-          <View style={s.reminderWrap} data-testid="medication-reminder-section">
+          <View style={s.reminderWrap} testID="medication-reminder-section">
             <View style={s.reminderHeader}>
               <View style={s.reminderIconWrap}>
                 <MaterialCommunityIcons name="bell-ring-outline" size={20} color="#3B82F6" />
@@ -298,7 +298,7 @@ export default function MedicationsScreen() {
                 onValueChange={(v) => { setReminderEnabled(v); setReminderDirty(true); }}
                 trackColor={{ false: '#D1D5DB', true: '#93C5FD' }}
                 thumbColor={reminderEnabled ? '#3B82F6' : '#9CA3AF'}
-                data-testid="medication-reminder-toggle"
+                testID="medication-reminder-toggle"
               />
             </View>
 
@@ -318,7 +318,7 @@ export default function MedicationsScreen() {
                       onChangeText={(v) => { t.setter(v); setReminderDirty(true); }}
                       placeholder="HH:MM"
                       maxLength={5}
-                      data-testid={`reminder-time-${t.key}`}
+                      testID={`reminder-time-${t.key}`}
                     />
                     <Text style={s.timeMeds}>
                       {medications.filter(m => (m.timings || []).includes(t.key)).map(m => m.name).join(', ')}
@@ -331,7 +331,7 @@ export default function MedicationsScreen() {
                     style={[s.saveReminderBtn, !reminderDirty && { opacity: 0.5 }]}
                     onPress={saveReminders}
                     disabled={reminderSaving}
-                    data-testid="save-medication-reminders-btn"
+                    testID="save-medication-reminders-btn"
                   >
                     {reminderSaving ? <ActivityIndicator size="small" color="#FFF" /> : (
                       <>
@@ -345,7 +345,7 @@ export default function MedicationsScreen() {
                   <TouchableOpacity
                     style={s.testReminderBtn}
                     onPress={() => sendTestNotification(lang)}
-                    data-testid="test-medication-reminder-btn"
+                    testID="test-medication-reminder-btn"
                   >
                     <MaterialCommunityIcons name="bell-ring" size={16} color="#3B82F6" />
                     <Text style={s.testReminderBtnText}>

@@ -82,7 +82,7 @@ export function Achievements({ lang }: Props) {
     : 100;
 
   return (
-    <View style={s.wrap} data-testid="achievements-section">
+    <View style={s.wrap} testID="achievements-section">
       {/* New milestone toast */}
       {showNewBadge && (
         <Animated.View style={[s.toast, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
@@ -103,7 +103,7 @@ export function Achievements({ lang }: Props) {
             <MaterialCommunityIcons name="fire" size={22} color="#D97706" />
           </View>
           <View style={s.streakInfo}>
-            <Text style={s.streakLabel} data-testid="streak-label">{streak.label}</Text>
+            <Text style={s.streakLabel} testID="streak-label">{streak.label}</Text>
             {streak.next_label && (
               <Text style={s.nextGoal}>{streak.next_label}</Text>
             )}
@@ -151,7 +151,7 @@ export function Achievements({ lang }: Props) {
           </Text>
           <View style={s.badgesRow}>
             {milestones.unlocked.map(m => (
-              <View key={m.id} style={s.badge} data-testid={`badge-${m.id}`}>
+              <View key={m.id} style={s.badge} testID={`badge-${m.id}`}>
                 <View style={s.badgeCircle}>
                   <MaterialCommunityIcons name={m.icon as any} size={18} color="#059669" />
                 </View>
@@ -159,7 +159,7 @@ export function Achievements({ lang }: Props) {
               </View>
             ))}
             {milestones.next && (
-              <View key={milestones.next.id} style={s.badge} data-testid={`badge-next-${milestones.next.id}`}>
+              <View key={milestones.next.id} style={s.badge} testID={`badge-next-${milestones.next.id}`}>
                 <View style={s.badgeCircleLocked}>
                   <MaterialCommunityIcons name={milestones.next.icon as any} size={18} color="#B0BDB6" />
                 </View>

@@ -156,7 +156,7 @@ export default function RewardsPage() {
       {/* Header */}
       <LinearGradient colors={['#1B5E3B', '#2E7D52']} style={styles.header}>
         <View style={styles.headerTop}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} data-testid="rewards-back-btn">
+          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} testID="rewards-back-btn">
             <MaterialCommunityIcons name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>{t('Praemien', 'Premi')}</Text>
@@ -164,11 +164,11 @@ export default function RewardsPage() {
         </View>
 
         {/* Balance Card */}
-        <View style={styles.balanceCard} data-testid="rewards-balance-card">
+        <View style={styles.balanceCard} testID="rewards-balance-card">
           <View style={styles.balanceRow}>
             <View>
               <Text style={styles.balanceLabel}>{t('Dein Punktestand', 'I tuoi punti')}</Text>
-              <Text style={styles.balanceValue} data-testid="rewards-balance-value">
+              <Text style={styles.balanceValue} testID="rewards-balance-value">
                 {balance?.current_balance ?? 0}
               </Text>
             </View>
@@ -198,7 +198,7 @@ export default function RewardsPage() {
 
       {/* Level Card */}
       {levelInfo && (
-        <View style={styles.levelCard} data-testid="rewards-level-card">
+        <View style={styles.levelCard} testID="rewards-level-card">
           <View style={styles.levelRow}>
             <View style={styles.levelIconWrap}>
               <MaterialCommunityIcons name={(levelInfo.icon || 'seed-outline') as any} size={24} color="#2E7D52" />
@@ -220,7 +220,7 @@ export default function RewardsPage() {
 
       {/* Today's Breakdown */}
       {today && today.events_count > 0 && (
-        <View style={styles.todayCard} data-testid="rewards-today-breakdown">
+        <View style={styles.todayCard} testID="rewards-today-breakdown">
           <Text style={styles.todayTitle}>{t('Heute verdient', 'Guadagnato oggi')}</Text>
           <View style={styles.todayItems}>
             {Object.entries(today.breakdown).map(([action, pts]) => (
@@ -251,7 +251,7 @@ export default function RewardsPage() {
         <TouchableOpacity
           style={[styles.tab, activeTab === 'available' && styles.tabActive]}
           onPress={() => setActiveTab('available')}
-          data-testid="rewards-tab-available"
+          testID="rewards-tab-available"
         >
           <Text style={[styles.tabText, activeTab === 'available' && styles.tabTextActive]}>
             {t('Verfuegbar', 'Disponibili')} ({availableItems.length})
@@ -260,7 +260,7 @@ export default function RewardsPage() {
         <TouchableOpacity
           style={[styles.tab, activeTab === 'redeemed' && styles.tabActive]}
           onPress={() => setActiveTab('redeemed')}
-          data-testid="rewards-tab-redeemed"
+          testID="rewards-tab-redeemed"
         >
           <Text style={[styles.tabText, activeTab === 'redeemed' && styles.tabTextActive]}>
             {t('Eingeloest', 'Riscattati')} ({redeemedItems.length})
@@ -274,7 +274,7 @@ export default function RewardsPage() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2E7D52" />}
       >
         {(activeTab === 'available' ? availableItems : redeemedItems).map(item => (
-          <View key={item.id} style={[styles.rewardCard, (item.status === 'locked' || item.status === 'level_locked') && styles.rewardCardLocked]} data-testid={`reward-card-${item.id}`}>
+          <View key={item.id} style={[styles.rewardCard, (item.status === 'locked' || item.status === 'level_locked') && styles.rewardCardLocked]} testID={`reward-card-${item.id}`}>
             {/* Reward Image */}
             {item.image_url ? (
               <Image
@@ -333,7 +333,7 @@ export default function RewardsPage() {
                 style={styles.redeemBtn}
                 onPress={() => handleRedeem(item)}
                 disabled={redeeming === item.id}
-                data-testid={`redeem-btn-${item.id}`}
+                testID={`redeem-btn-${item.id}`}
               >
                 {redeeming === item.id ? (
                   <ActivityIndicator size="small" color="#fff" />
@@ -365,7 +365,7 @@ export default function RewardsPage() {
         )}
 
         {/* VERO Mascot Tip */}
-        <View style={styles.veroCard} data-testid="rewards-vero-tip">
+        <View style={styles.veroCard} testID="rewards-vero-tip">
           <Image source={VERO_IMG} style={styles.veroImage} />
           <View style={styles.veroTextWrap}>
             <Text style={styles.veroTitle}>{t('Tipp von VERO', 'Consiglio di VERO')}</Text>

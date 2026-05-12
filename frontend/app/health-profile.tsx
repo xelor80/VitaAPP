@@ -458,7 +458,7 @@ export default function HealthProfileScreen() {
             {(d.risk_level === 'high' || d.risk_level === 'medium') && (
               <View style={ctaStyles.ctaWrap}>
                 <TouchableOpacity
-                  data-testid={`cta-plan-${d.nutrient}`}
+                  testID={`cta-plan-${d.nutrient}`}
                   style={[ctaStyles.primaryBtn, { backgroundColor: d.risk_level === 'high' ? '#EF4444' : '#F59E0B' }]}
                   onPress={() => router.push('/(tabs)/plan' as any)}
                 >
@@ -468,7 +468,7 @@ export default function HealthProfileScreen() {
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  data-testid={`cta-products-${d.nutrient}`}
+                  testID={`cta-products-${d.nutrient}`}
                   style={[ctaStyles.secondaryBtn, { borderColor: d.risk_level === 'high' ? '#EF4444' : '#F59E0B' }]}
                   onPress={() => router.push({ pathname: '/product-comparison', params: { nutrient: d.nutrient, risk: d.risk_level } })}
                 >
@@ -508,7 +508,7 @@ export default function HealthProfileScreen() {
         <View style={styles.actionSection}>
           {hasPlan ? (
             <TouchableOpacity
-              data-testid="view-supplement-plan-btn"
+              testID="view-supplement-plan-btn"
               style={styles.ctaBtn}
               onPress={() => router.push('/(tabs)/plan' as any)}
             >
@@ -519,7 +519,7 @@ export default function HealthProfileScreen() {
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
-              data-testid="create-supplement-plan-btn"
+              testID="create-supplement-plan-btn"
               style={styles.ctaBtn}
               onPress={() => router.push('/(tabs)/plan' as any)}
             >
@@ -530,7 +530,7 @@ export default function HealthProfileScreen() {
             </TouchableOpacity>
           )}
           <TouchableOpacity
-            data-testid="redo-onboarding-btn"
+            testID="redo-onboarding-btn"
             style={styles.secondaryBtn}
             onPress={() => router.push('/onboarding')}
           >
@@ -581,7 +581,7 @@ export default function HealthProfileScreen() {
                     ]
                   );
                 }}
-                data-testid="logout-button"
+                testID="logout-button"
               >
                 <MaterialCommunityIcons name="logout" size={18} color="#EF4444" />
                 <Text style={accountStyles.logoutText}>{lang === 'de' ? 'Abmelden' : 'Disconnetti'}</Text>
@@ -591,7 +591,7 @@ export default function HealthProfileScreen() {
             <TouchableOpacity
               style={accountStyles.loginCard}
               onPress={() => router.push('/login' as any)}
-              data-testid="goto-login-button"
+              testID="goto-login-button"
             >
               <MaterialCommunityIcons name="account-plus-outline" size={24} color="#2E7D52" />
               <View style={{ flex: 1 }}>

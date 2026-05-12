@@ -85,7 +85,7 @@ export default function RecipesTab() {
         <TouchableOpacity
           style={[s.tab, activeTab === 'personal' && s.tabActive]}
           onPress={() => setActiveTab('personal')}
-          data-testid="tab-personal-recipes"
+          testID="tab-personal-recipes"
         >
           <MaterialCommunityIcons
             name="star-outline"
@@ -99,7 +99,7 @@ export default function RecipesTab() {
         <TouchableOpacity
           style={[s.tab, activeTab === 'all' && s.tabActive]}
           onPress={() => setActiveTab('all')}
-          data-testid="tab-all-recipes"
+          testID="tab-all-recipes"
         >
           <MaterialCommunityIcons
             name="book-open-outline"
@@ -122,7 +122,7 @@ export default function RecipesTab() {
               style={s.card}
               activeOpacity={0.85}
               onPress={() => router.push({ pathname: '/recipe', params: { id: r.id } } as any)}
-              data-testid={`recipe-grid-${i}`}
+              testID={`recipe-grid-${i}`}
             >
               {r.image_url ? (
                 <Image source={{ uri: r.image_url }} style={s.cardImg} />

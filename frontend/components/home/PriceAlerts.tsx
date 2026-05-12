@@ -65,7 +65,7 @@ export function PriceAlerts({ lang }: Props) {
           <TouchableOpacity
             style={s.dismissBtn}
             onPress={() => dismiss(alert.product_id)}
-            data-testid={`dismiss-price-alert-${alert.product_id}`}
+            testID={`dismiss-price-alert-${alert.product_id}`}
           >
             <MaterialCommunityIcons name="close" size={14} color="#8FA39B" />
           </TouchableOpacity>
@@ -96,7 +96,7 @@ export function PriceAlerts({ lang }: Props) {
             <TouchableOpacity
               style={s.ctaButton}
               onPress={() => alert.affiliate_url && Linking.openURL(alert.affiliate_url)}
-              data-testid={`price-alert-cta-${alert.product_id}`}
+              testID={`price-alert-cta-${alert.product_id}`}
             >
               <Text style={s.ctaText}>
                 {lang === 'de' ? 'Zum guenstigeren Preis ansehen' : 'Vedi il prezzo ridotto'}
