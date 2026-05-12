@@ -429,6 +429,19 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - Reactivate TR, FR, ES, RU languages
 - Refactor `/app/frontend/app/(tabs)/index.tsx` (>1200 Zeilen) in kleinere Komponenten
 
+### Snappier "Heute für dich" + Deutsche Umlaute (2026-05-12) - COMPLETED
+**Snappier task list** (`/app/frontend/app/(tabs)/index.tsx`):
+- `useFocusEffect` von expo-router hinzugefügt → bei jedem Tab-Re-Focus wird **nur** focus/water/reward neu geladen (lightweight, kein voller dashboard-reload mehr).
+- **Optimistic UI**: Beim Tippen auf einen Eintrag in "Heute für dich" verschwindet er sofort lokal (`setFocusData → filter items`), bevor der echte Server-State zurückkommt → User-feeling ist instant.
+
+**Deutsche Umlaute** (`/app/frontend/src/i18n.ts` + `guideData.ts`):
+- Neue Funktion `restoreGermanUmlauts()` + exportierte Variante `deUmlauts()` mit ~100 Wörter-Mapping (`fuer→für`, `ueber→über`, `naechste→nächste`, `Ernaehrung→Ernährung`, `unterstuetzt→unterstützt`, etc.).
+- `tx(lang, ...)` und `t(textObj, lang)` in `guideData.ts` rufen den Restorer für `lang==='de'` auf → automatisch alle ASCII-Transliterationen werden ersetzt.
+- Word-Liste mit `\b`-Boundaries verhindert false-positives (kein "neu→nü", kein "Mauer→Maür").
+- Lokal-Strings in `(tabs)/index.tsx` (Bereiche-Sektion) direkt mit echten Umlauten überschrieben.
+- Smoke-Test: "Bereit für heute?", "Neu für dich", "Atemübungen", "Ernährung & Rezepte", "Personalisiert für dich", "persönlicher Gesundheitsbegleiter" alle korrekt im DOM.
+
+
 ### Featured Products Slider — Home Screen (2026-05-12) - COMPLETED
 **Frontend (`/app/frontend/components/FeaturedProductsSlider.tsx` neu)**:
 - Horizontaler Slider direkt unter den Hero-CTAs auf der Home-Tab.

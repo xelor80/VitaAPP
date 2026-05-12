@@ -6,7 +6,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useLang } from '../../src/LangContext';
 import { tx } from '../../src/i18n';
@@ -48,7 +48,7 @@ const CATEGORIES = [
     label_de: 'Stress & Entspannung',
     label_it: 'Stress & Relax',
     label_en: 'Stress & Relax',
-    sub_de: 'Atemuebungen, Pausen',
+    sub_de: 'Atemübungen, Pausen',
     sub_it: 'Respirazione, pause',
     sub_en: 'Breathing, breaks',
     route: '/stress',
@@ -71,10 +71,10 @@ const CATEGORIES = [
     icon: 'silverware-fork-knife' as const,
     color: '#0EA5E9',
     bg: '#E0F2FE',
-    label_de: 'Ernaehrung & Rezepte',
+    label_de: 'Ernährung & Rezepte',
     label_it: 'Nutrizione & Ricette',
     label_en: 'Nutrition & Recipes',
-    sub_de: 'Personalisiert fuer dich',
+    sub_de: 'Personalisiert für dich',
     sub_it: 'Per te',
     sub_en: 'For you',
     route: '/(tabs)/recipes',
@@ -179,6 +179,34 @@ export default function DashboardHome() {
     };
   }, [loadData]);
 
+  // Lightweight refresh — only re-fetches the focus + water + reward endpoints so the "Heute fuer dich"
+  // list updates instantly when the user comes back from completing a task.
+  const refreshFocus = useCallback(async () => {
+    const pid = profileId || await AsyncStorage.getItem('health_profile_id');
+    if (!pid) return;
+    try {
+      const [focusRes, waterRes, rewardRes] = await Promise.all([
+        fetch(`${API_URL}/api/daily-plan/${pid}/focus?lang=${lang}`).catch(() => null),
+        fetch(`${API_URL}/api/water-tracking/${pid}/today?lang=${lang}`).catch(() => null),
+        fetch(`${API_URL}/api/rewards/${pid}/today?lang=${lang}`).catch(() => null),
+      ]);
+      if (focusRes?.ok) setFocusData(await focusRes.json());
+      if (waterRes?.ok) setWaterData(await waterRes.json());
+      if (rewardRes?.ok) {
+        const rd = await rewardRes.json();
+        setRewardStreak(rd.current_streak ?? 0);
+      }
+    } catch {}
+  }, [profileId, lang]);
+
+  // Reload focus list every time the home-tab gains focus (e.g. after returning from a sub-screen
+  // where the user completed a task). This guarantees an instant update of "Heute fuer dich".
+  useFocusEffect(
+    useCallback(() => {
+      refreshFocus();
+    }, [refreshFocus])
+  );
+
   const acceptDisclaimer = useCallback(async () => {
     await AsyncStorage.setItem('disclaimer_accepted', 'true');
     setDisclaimerAccepted(true);
@@ -214,7 +242,22 @@ export default function DashboardHome() {
     else if (first.action === 'tracking') router.push('/tracking' as any);
   };
 
-  const handleItemTap = (action: string) => {
+  const handleItemTap = (action: string, item?: any) => {
+    // Optimistic UI: remove the tapped item from the local list immediately so it
+    // visually disappears even before the user has actually completed the task on
+    // the target screen. When useFocusEffect fires on return, the real server
+    // state will be re-synced.
+    if (item && focusData?.items) {
+      setFocusData((prev: any) => {
+        if (!prev) return prev;
+        const filtered = (prev.items || []).filter((it: any) => it !== item);
+        return {
+          ...prev,
+          items: filtered,
+          total_open: Math.max(0, (prev.total_open || 0) - 1),
+        };
+      });
+    }
     if (action === 'plan') router.push('/(tabs)/plan' as any);
     else if (action === 'medications') router.push('/medications' as any);
     else if (action === 'water-tracking') router.push('/water-tracking' as any);
@@ -305,7 +348,7 @@ export default function DashboardHome() {
                       key={i}
                       style={s.todayRow}
                       activeOpacity={0.7}
-                      onPress={() => handleItemTap(item.action)}
+                      onPress={() => handleItemTap(item.action, item)}
                       testID={`today-item-${item.type}`}
                     >
                       <View style={[s.todayDot, { backgroundColor: item.color + '22' }]}>

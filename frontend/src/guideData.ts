@@ -593,6 +593,9 @@ export const PERSONALIZED_TIPS: PersonalizedTip[] = [
 ];
 
 // Helper to get text for current language
+import { deUmlauts } from './i18n';
+
 export function t(textObj: { de: string; it: string }, lang: Lang): string {
-  return textObj[lang] || textObj.de;
+  const raw = textObj[lang] || textObj.de;
+  return lang === 'de' ? deUmlauts(raw) : raw;
 }

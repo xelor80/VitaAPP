@@ -503,7 +503,201 @@ export function t(lang: Lang, key: string, dynamicOverrides?: Record<string, Rec
 
 /** Inline multi-language text helper. Falls back to en, then de. */
 export function tx(lang: Lang, texts: { de: string; it?: string; en?: string; tr?: string; fr?: string; es?: string; ru?: string }): string {
-  return (texts as any)[lang] || texts.en || texts.de;
+  const raw = (texts as any)[lang] || texts.en || texts.de;
+  if (lang === 'de') return restoreGermanUmlauts(raw);
+  return raw;
+}
+
+/**
+ * Restores German umlauts (ä, ö, ü, ß, Ä, Ö, Ü) in strings that were originally written
+ * with ASCII transliterations like "ue", "ae", "oe", "ss". Uses an explicit word-list to
+ * avoid false positives like "neu", "Sue", "Mauer" etc.
+ *
+ * Maintained as a focused dictionary of words actually used in the VitaGuide+ UI.
+ */
+const GERMAN_UMLAUT_MAP: Array<[RegExp, string]> = [
+  // === Common short words & verbs ===
+  [/\bfuer\b/g, 'für'],
+  [/\bFuer\b/g, 'Für'],
+  [/\bueber\b/g, 'über'],
+  [/\bUeber\b/g, 'Über'],
+  [/\buebung\b/g, 'übung'],
+  [/\bUebung\b/g, 'Übung'],
+  [/\buebungen\b/g, 'übungen'],
+  [/\bUebungen\b/g, 'Übungen'],
+
+  // === Time / scheduling ===
+  [/\bnaechste\b/g, 'nächste'],
+  [/\bNaechste\b/g, 'Nächste'],
+  [/\bnaechster\b/g, 'nächster'],
+  [/\bnaechsten\b/g, 'nächsten'],
+  [/\btaeglich\b/g, 'täglich'],
+  [/\bTaeglich\b/g, 'Täglich'],
+  [/\bwoechentlich\b/g, 'wöchentlich'],
+  [/\bWoechentlich\b/g, 'Wöchentlich'],
+  [/\bwoechentliche\b/g, 'wöchentliche'],
+  [/\bWoechentlicher\b/g, 'Wöchentlicher'],
+  [/\bmonatlich\b/g, 'monatlich'],
+
+  // === States / actions ===
+  [/\bmoeglich\b/g, 'möglich'],
+  [/\bMoeglich\b/g, 'Möglich'],
+  [/\bmoechte\b/g, 'möchte'],
+  [/\bMoechte\b/g, 'Möchte'],
+  [/\bloeschen\b/g, 'löschen'],
+  [/\bLoeschen\b/g, 'Löschen'],
+  [/\bschliessen\b/g, 'schließen'],
+  [/\bSchliessen\b/g, 'Schließen'],
+  [/\bmuessen\b/g, 'müssen'],
+  [/\bMuessen\b/g, 'Müssen'],
+  [/\bauswaehlen\b/g, 'auswählen'],
+  [/\bAuswaehlen\b/g, 'Auswählen'],
+  [/\bauswaehlbar\b/g, 'auswählbar'],
+  [/\bzaehlen\b/g, 'zählen'],
+  [/\bZaehlen\b/g, 'Zählen'],
+  [/\baendern\b/g, 'ändern'],
+  [/\bAendern\b/g, 'Ändern'],
+  [/\bdrueck\b/g, 'drück'],
+  [/\bDrueck\b/g, 'Drück'],
+  [/\bdruecke\b/g, 'drücke'],
+  [/\bDruecke\b/g, 'Drücke'],
+  [/\bdruecken\b/g, 'drücken'],
+  [/\bDruecken\b/g, 'Drücken'],
+  [/\beinfuehren\b/g, 'einführen'],
+  [/\bdurchfuehren\b/g, 'durchführen'],
+  [/\beinfuehrung\b/g, 'einführung'],
+  [/\bAusfuehrung\b/g, 'Ausführung'],
+  [/\beinfuegen\b/g, 'einfügen'],
+  [/\bEinfuegen\b/g, 'Einfügen'],
+  [/\bhinzufuegen\b/g, 'hinzufügen'],
+  [/\bHinzufuegen\b/g, 'Hinzufügen'],
+  [/\bUebersicht\b/g, 'Übersicht'],
+  [/\buebersicht\b/g, 'übersicht'],
+
+  // === Nutrition / weight / app domain ===
+  [/\bGetraenk\b/g, 'Getränk'],
+  [/\bGetraenke\b/g, 'Getränke'],
+  [/\bMahlzeit\b/g, 'Mahlzeit'],
+  [/\bGroesse\b/g, 'Größe'],
+  [/\bgroesse\b/g, 'größe'],
+  [/\bgroesser\b/g, 'größer'],
+  [/\bschoen\b/g, 'schön'],
+  [/\bSchoen\b/g, 'Schön'],
+  [/\bUnterstuetzung\b/g, 'Unterstützung'],
+  [/\bunterstuetzt\b/g, 'unterstützt'],
+  [/\bUnterstuetzt\b/g, 'Unterstützt'],
+  [/\bGewohnheit\b/g, 'Gewohnheit'],
+  [/\bGesundheitsfoerderung\b/g, 'Gesundheitsförderung'],
+  [/\bErnaehrung\b/g, 'Ernährung'],
+  [/\bernaehrung\b/g, 'ernährung'],
+  [/\bgesuender\b/g, 'gesünder'],
+  [/\bGesuender\b/g, 'Gesünder'],
+  [/\bBeduerfnis\b/g, 'Bedürfnis'],
+  [/\bBeduerfnisse\b/g, 'Bedürfnisse'],
+  [/\bAusfuehrlich\b/g, 'Ausführlich'],
+  [/\bausfuehrlich\b/g, 'ausführlich'],
+
+  // === Greetings / common words ===
+  [/\bGruss\b/g, 'Gruß'],
+  [/\bgruss\b/g, 'gruß'],
+  [/\bBegruessung\b/g, 'Begrüßung'],
+  [/\bbegruessung\b/g, 'begrüßung'],
+  [/\bWillkommen\b/g, 'Willkommen'],
+  [/\bspaeter\b/g, 'später'],
+  [/\bSpaeter\b/g, 'Später'],
+  [/\bfruehstueck\b/g, 'frühstück'],
+  [/\bFruehstueck\b/g, 'Frühstück'],
+  [/\bAbendessen\b/g, 'Abendessen'],
+
+  // === Feedback / state ===
+  [/\bzurueck\b/g, 'zurück'],
+  [/\bZurueck\b/g, 'Zurück'],
+  [/\bzuruecksetzen\b/g, 'zurücksetzen'],
+  [/\bZuruecksetzen\b/g, 'Zurücksetzen'],
+  [/\bzurueckgesetzt\b/g, 'zurückgesetzt'],
+
+  // === Misc app strings ===
+  [/\bUeberspringen\b/g, 'Überspringen'],
+  [/\bueberspringen\b/g, 'überspringen'],
+  [/\bAtemuebung\b/g, 'Atemübung'],
+  [/\batemuebung\b/g, 'atemübung'],
+  [/\bAtemuebungen\b/g, 'Atemübungen'],
+  [/\batemuebungen\b/g, 'atemübungen'],
+  [/\bpersoenlich\b/g, 'persönlich'],
+  [/\bPersoenlich\b/g, 'Persönlich'],
+  [/\bpersoenliche\b/g, 'persönliche'],
+  [/\bpersoenlichen\b/g, 'persönlichen'],
+  [/\bpersoenlicher\b/g, 'persönlicher'],
+  [/\bunterstuetzt\b/g, 'unterstützt'],
+  [/\bunterstuetzen\b/g, 'unterstützen'],
+  [/\bUnterstuetzen\b/g, 'Unterstützen'],
+  [/\bunterstuetze\b/g, 'unterstütze'],
+  [/\bUnterstuetze\b/g, 'Unterstütze'],
+  [/\bregelmaessig\b/g, 'regelmäßig'],
+  [/\bregelmaessige\b/g, 'regelmäßige'],
+  [/\bgemaess\b/g, 'gemäß'],
+  [/\bbloed\b/g, 'blöd'],
+  [/\bspruehen\b/g, 'sprühen'],
+  [/\bAerztin\b/g, 'Ärztin'],
+  [/\bAerzte\b/g, 'Ärzte'],
+  [/\baerztlich\b/g, 'ärztlich'],
+  [/\bErklaerung\b/g, 'Erklärung'],
+  [/\berklaerung\b/g, 'erklärung'],
+  [/\berklaert\b/g, 'erklärt'],
+  [/\bEingaenge\b/g, 'Eingänge'],
+  [/\beingabefelder\b/g, 'eingabefelder'],
+  [/\bGefuehl\b/g, 'Gefühl'],
+  [/\bGefuehle\b/g, 'Gefühle'],
+  [/\bgefuehlt\b/g, 'gefühlt'],
+  [/\bnatuerlich\b/g, 'natürlich'],
+  [/\bNatuerlich\b/g, 'Natürlich'],
+  [/\bnatuerliche\b/g, 'natürliche'],
+  [/\bnaehrstoff\b/g, 'nährstoff'],
+  [/\bNaehrstoff\b/g, 'Nährstoff'],
+  [/\bnaehrstoffe\b/g, 'nährstoffe'],
+  [/\bNaehrstoffe\b/g, 'Nährstoffe'],
+  [/\bRueckenschmerzen\b/g, 'Rückenschmerzen'],
+  [/\brueckenschmerzen\b/g, 'rückenschmerzen'],
+  [/\bMuedigkeit\b/g, 'Müdigkeit'],
+  [/\bmuede\b/g, 'müde'],
+  [/\bErkaeltung\b/g, 'Erkältung'],
+  [/\bErnstfall\b/g, 'Ernstfall'],
+  [/\bGelaende\b/g, 'Gelände'],
+
+  // === Beverage / shake / fast ===
+  [/\bGefaess\b/g, 'Gefäß'],
+  [/\bgemuese\b/g, 'gemüse'],
+  [/\bGemuese\b/g, 'Gemüse'],
+  [/\bAehnlich\b/g, 'Ähnlich'],
+  [/\baehnlich\b/g, 'ähnlich'],
+  [/\bKoerperwerte\b/g, 'Körperwerte'],
+  [/\bkoerperwerte\b/g, 'körperwerte'],
+  [/\bKoerper\b/g, 'Körper'],
+  [/\bkoerper\b/g, 'körper'],
+  [/\bAktivitaet\b/g, 'Aktivität'],
+  [/\baktivitaet\b/g, 'aktivität'],
+  [/\bberuecksichtigt\b/g, 'berücksichtigt'],
+  [/\bberuecksichtigen\b/g, 'berücksichtigen'],
+  [/\bGesundheitsberater\b/g, 'Gesundheitsberater'],
+  [/\bGesundheitsbegleiter\b/g, 'Gesundheitsbegleiter'],
+  [/\bGesundheitsdaten\b/g, 'Gesundheitsdaten'],
+  [/\bAuswertung\b/g, 'Auswertung'],
+  [/\bausgewertet\b/g, 'ausgewertet'],
+  [/\bEinkaufsliste\b/g, 'Einkaufsliste'],
+];
+
+function restoreGermanUmlauts(text: string): string {
+  if (!text) return text;
+  let out = text;
+  for (const [re, repl] of GERMAN_UMLAUT_MAP) {
+    out = out.replace(re, repl);
+  }
+  return out;
+}
+
+/** Public helper: returns the German-umlaut-restored version of an ASCII string. */
+export function deUmlauts(text: string): string {
+  return restoreGermanUmlauts(text);
 }
 
 export default translations;
