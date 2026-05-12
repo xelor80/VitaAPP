@@ -19,7 +19,7 @@
       "edgeToEdgeEnabled": true
     },
     "notification": {
-      "icon": "./assets/images/vero-hallo.png",
+      "icon": "./assets/icon.png",
       "color": "#2E7D52"
     },
     "web": {

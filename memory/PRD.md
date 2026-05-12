@@ -495,3 +495,9 @@ Verifiziert: 14 testIDs auf Hauptseite + 15 weitere im Goal-Modal (darunter `wm-
 **Marketing-Prompts erstellt:**
 - `/app/memory/ADMIN_AGENT_PROMPT.md` — vollständiger Prompt für den externen Admin-Web-Agenten (Smart-Products-Manager, Protein-Routine-Inspector, LLM-Cache-Übersicht).
 - `/app/memory/LANDING_PAGE_AGENT_PROMPT.md` — vollständiger Prompt für vitaguide.app Landing-Page-Agent (14 Sektionen, Hero-Feature Protein-Routine, Conversion-Optimierung, SEO, DSGVO).
+
+
+### iOS Build Fix — notification.icon (2026-05-12) - COMPLETED
+- **Problem**: EAS iOS Build schlug fehl mit `Field: notification.icon - image should be square...` (vero-hallo.png war 1024×1536, nicht quadratisch).
+- **Fix**: In `/app/frontend/app.json` (Zeile 22) `notification.icon` von `./assets/images/vero-hallo.png` auf `./assets/icon.png` (1024×1024, quadratisch) geändert.
+- **Validierung**: `npx expo-doctor` → 17/17 checks passed. Deployment-Blocker behoben.
