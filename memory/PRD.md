@@ -429,6 +429,26 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - Reactivate TR, FR, ES, RU languages
 - Refactor `/app/frontend/app/(tabs)/index.tsx` (>1200 Zeilen) in kleinere Komponenten
 
+### Featured Products Slider — Home Screen (2026-05-12) - COMPLETED
+**Frontend (`/app/frontend/components/FeaturedProductsSlider.tsx` neu)**:
+- Horizontaler Slider direkt unter den Hero-CTAs auf der Home-Tab.
+- 160px breite Karten mit Bild (110px hoch), Badge-Overlay (z.B. "NEU", "TOP", "-30%"), Titel, kurzer Beschreibung, Preis (grün), violette „Ansehen →" CTA-Pille.
+- Klick → trackt Klick mit `context="featured_slider"` + öffnet `affiliate_url` extern.
+- Mehrsprachig (DE/IT/EN), unsichtbar wenn keine Featured-Produkte vorhanden.
+- Klar als „Anzeige" gelabelt (Disclosure).
+- Eingebunden in `/app/frontend/app/(tabs)/index.tsx` zwischen Hero-Block und Today-Card.
+
+**Backend (`/app/backend/routes/smart_products.py`)**:
+- Schema-Erweiterung in `ProductUpsertRequest`: `is_featured: bool`, `featured_order: int`, `badge: str` (max 8 Zeichen empfohlen).
+- Neuer Endpoint `GET /api/smart-products/featured?limit=8` — sortiert nach `featured_order` (asc) dann `created_at` (desc), nur `enabled=true` + `is_featured=true`.
+- Tests via curl + Web-Smoke: ✅ 3 Demo-Featured-Produkte erstellt, Slider rendert mit 3 Cards inkl. NEU-Badge, Klick-Tracking funktioniert.
+
+**Admin-Prompt** (`/app/memory/ADMIN_AGENT_PROMPT.md`) erweitert:
+- Featured-Switch, `featured_order`-Input und Badge-Text-Input im Product-Editor
+- Neue Sektion: **Featured-Slider-Manager** mit Drag-&-Drop-Sortierung + Live-Vorschau
+- Separates Klick-Analytics-Diagramm für `context="featured_slider"`
+
+
 ### testID Refactoring (2026-05-12) - COMPLETED
 **Frontend-weit**: 227 `data-testid="..."` Vorkommen in 33 Dateien zu `testID="..."` migriert (bulk sed). React Native Web filterte `data-testid` als unbekannten Prop aus dem DOM. Mit `testID` wird der Wert:
 - Auf Web automatisch als `data-testid` im DOM gerendert (für Playwright/Selenium/E2E Tests)

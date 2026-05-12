@@ -15,6 +15,7 @@ import { useAuth } from '../../src/AuthContext';
 import { eventBus } from '../../src/eventBus';
 import { setCurrentAnalysis } from '../../src/store';
 import { DisclaimerScreen } from '../../components/home/DisclaimerScreen';
+import { FeaturedProductsSlider } from '../../components/FeaturedProductsSlider';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const SIDE_PAD = 16;
@@ -262,6 +263,9 @@ export default function DashboardHome() {
             </TouchableOpacity>
           </View>
         </View>
+
+        {/* Featured products slider (admin-managed) */}
+        <FeaturedProductsSlider profileId={profileId} limit={8} />
 
         {/* ────────────── 2) HEUTE FUER DICH (collapsible) ────────────── */}
         {hasProfile && totalOpen > 0 && (

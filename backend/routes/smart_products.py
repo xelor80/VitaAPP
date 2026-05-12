@@ -38,6 +38,9 @@ class ProductUpsertRequest(BaseModel):
     symptoms: List[str] = []  # tags matching symptom analysis
     deficits: List[str] = []  # nutrients: magnesium, vitamin_d, omega3, ...
     enabled: bool = True
+    is_featured: bool = False  # Show in home-screen "Neu" slider
+    featured_order: int = 0    # Lower = first in slider
+    badge: Optional[str] = None  # e.g. "NEU", "TOP", "-30%" – tiny ribbon overlay
 
 
 # ── Default placeholder catalog (seeded once if collection empty) ──
@@ -239,6 +242,20 @@ async def track_click(req: ClickRequest):
     }
     await db.smart_product_clicks.insert_one(entry)
     return {"ok": True}
+
+
+@router.get("/featured")
+async def featured(limit: int = Query(8, ge=1, le=20)):
+    """Featured product slider for the home screen.
+    Returns products with is_featured=true, sorted by featured_order (asc) then created_at desc.
+    """
+    await ensure_seeded()
+    cursor = db.smart_products.find(
+        {"enabled": True, "is_featured": True},
+        {"_id": 0},
+    ).sort([("featured_order", 1), ("created_at", -1)]).limit(limit)
+    items = await cursor.to_list(length=limit)
+    return {"items": items, "count": len(items)}
 
 
 @router.get("/catalog")

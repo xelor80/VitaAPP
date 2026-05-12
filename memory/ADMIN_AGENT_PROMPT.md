@@ -33,7 +33,7 @@
 |---|---|---|
 | `users` | Auth-Accounts | `user_id, email, password_hash, google_id, profile_id, auth_provider, last_login` |
 | `health_profiles` | Nutzerprofile | `id (UUID), age, gender, height, weight, diet, conditions, primary_symptoms, activity_level` |
-| `smart_products` | Affiliate-Produktkatalog | `id, title_de/it/en, description_de/it/en, image_url, affiliate_url, vendor, price_eur, contexts[], symptoms[], deficits[], enabled, is_placeholder` |
+| `smart_products` | Affiliate-Produktkatalog | `id, title_de/it/en, description_de/it/en, image_url, affiliate_url, vendor, price_eur, contexts[], symptoms[], deficits[], enabled, is_placeholder, is_featured, featured_order, badge` |
 | `smart_product_clicks` | Klick-Tracking | `id, product_id, profile_id, context, ts` |
 | `weight_goals` | Tagesziele | `profile_id, daily_calories, daily_protein, target_weight_kg, auto_calculated` |
 | `weight_log` | Gewichtsverlauf | `id, profile_id, weight_kg, note, measured_at, date` |
@@ -54,10 +54,12 @@
 
 ### 4.1 Smart Products (Affiliate-Monetarisierung) — **Hauptfokus**
 - `GET  /api/smart-products/catalog` → alle Produkte
-- `PUT  /api/smart-products/catalog/{product_id}` → Upsert (Felder siehe `ProductUpsertRequest`)
+- `PUT  /api/smart-products/catalog/{product_id}` → Upsert (Felder siehe `ProductUpsertRequest`, inkl. `is_featured`, `featured_order`, `badge`)
 - `DELETE /api/smart-products/catalog/{product_id}`
 - `GET  /api/smart-products/stats` → Klicks pro Produkt
 - `GET  /api/smart-products/recommendations?profile_id=X&context=Y` → Live-Vorschau wie in der App
+- **NEU** `GET /api/smart-products/featured?limit=8` → Featured-Slider-Endpoint (sortiert nach `featured_order` asc, dann `created_at` desc). Wird vom App-Home-Screen (`FeaturedProductsSlider.tsx`) konsumiert.
+- **Tracking** `POST /api/smart-products/click` mit `{product_id, profile_id, context}` — der Featured-Slider sendet `context="featured_slider"`, sodass Klicks daraus separat ausgewertet werden können.
 
 ### 4.2 Protein-Routine
 - `GET /api/weight-metabolism/{profile_id}/schedule`
@@ -76,18 +78,29 @@
 
 ### P0 — Smart-Products-Manager (Affiliate-Monetarisierung)
 1. **Listing-Seite** (`/admin/products`):
-   - Tabelle aller Smart Products: Bild-Thumb, Titel (DE), Vendor, Preis €, `enabled`-Switch, `is_placeholder`-Badge, Klicks (aus `/stats`), letzter Klick, Aktionen (Bearbeiten / Löschen).
-   - Filter: Context, „nur Platzhalter ohne `affiliate_url`", Vendor.
-   - Bulk-Aktion: Mehrere als „enabled=false" oder Vendor zuweisen.
+   - Tabelle aller Smart Products: Bild-Thumb, Titel (DE), Vendor, Preis €, `enabled`-Switch, `is_placeholder`-Badge, **`is_featured`-Switch (Stern-Icon)**, **`featured_order` (Zahl, klein editierbar)**, **`badge` (z.B. "NEU", "TOP", "-30%")**, Klicks (aus `/stats`), letzter Klick, Aktionen (Bearbeiten / Löschen).
+   - Filter: Context, „nur Platzhalter ohne `affiliate_url`", Vendor, **„nur Featured"**.
+   - Bulk-Aktion: Mehrere als „enabled=false", Vendor zuweisen, **`is_featured=true/false` setzen**.
 2. **Editor-Seite** (`/admin/products/{id}`):
    - Felder: `title_de/it/en`, `description_de/it/en`, `image_url`, **`affiliate_url`** (Pflicht für Live-Schaltung), `vendor`, `price_eur`, Tag-Inputs für `contexts`, `symptoms`, `deficits`, `enabled`, `is_placeholder`.
-   - Live-Vorschau: rechte Spalte rendert die Smart-Product-Karte exakt so, wie sie in der App aussieht (Layout aus `SmartProductBlock.tsx` nachbauen).
+   - **NEU: Featured-Block** (Karte mit Stern-Icon):
+     - Switch `is_featured` (boolean)
+     - Number-Input `featured_order` (Default 0, niedrigere Werte erscheinen zuerst im Slider)
+     - Text-Input `badge` (max 8 Zeichen, z.B. "NEU", "TOP", "-30%", "BESTSELLER")
+     - Vorschau-Hinweis: „Erscheint im Home-Slider der App, sobald `enabled=true` und `is_featured=true`."
+   - Live-Vorschau: rechte Spalte rendert die Smart-Product-Karte exakt so, wie sie in der App aussieht (Layout aus `SmartProductBlock.tsx` und **`FeaturedProductsSlider.tsx`** nachbauen).
    - Validierung: Wenn `enabled=true` und `affiliate_url` leer → Warnung „Produkt wird ohne Link nicht ausgespielt".
-3. **Neues Produkt anlegen** (gleiche Form, leer).
-4. **Klick-Analytics** (`/admin/products/analytics`):
+3. **NEU: Featured-Slider-Manager** (`/admin/products/featured`):
+   - Drag-&-Drop-Liste aller aktuell `is_featured=true` Produkte, sortiert nach `featured_order`.
+   - Beim Drag werden die `featured_order`-Werte automatisch neu gespeichert (1, 2, 3...).
+   - Live-Vorschau des Sliders rechts (gleiche Card-Optik wie in der App).
+   - Schnell-Aktionen pro Eintrag: „Aus Slider entfernen" (setzt `is_featured=false`), „Bearbeiten".
+4. **Neues Produkt anlegen** (gleiche Form, leer).
+5. **Klick-Analytics** (`/admin/products/analytics`):
    - Recharts-Bar: Klicks Top-10 Produkte (7 Tage, 30 Tage, all-time).
+   - **NEU: Separates Diagramm „Featured-Slider-Performance"** — Klicks gefiltert auf `context='featured_slider'`.
    - Tabelle: `product_id, title_de, clicks, last_click, CTR (Klicks / Recommendation-Impressions — vorerst nur Klicks)`.
-5. **Vendor-Management** (kleine Tabelle): häufige Vendor-Namen vorschlagen (Autocomplete), keine eigene Collection nötig — nur Distinct aus `smart_products`.
+6. **Vendor-Management** (kleine Tabelle): häufige Vendor-Namen vorschlagen (Autocomplete), keine eigene Collection nötig — nur Distinct aus `smart_products`.
 
 ### P1 — Protein-Routine-Inspector
 1. **Nutzerliste** (`/admin/users`): Suche nach E-Mail oder `profile_id`, zeigt für jeden User:
