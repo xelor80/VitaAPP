@@ -1,0 +1,56 @@
+{
+  "summary": "Phase 2 VitaGuide+ testing. Backend: 14/14 pytest cases PASSED covering (a) weight/history weekly-insights extension (week_avg_kg, prev_week_avg_kg, week_delta_kg, trend, hint_key, entries_last_week) across all 4 trend branches (down/up/stable/unknown), (b) analyze-meal-photo contract validation (short-image 400 + source-level coach_line key/phrases present — LLM call not exercised by design), (c) regression on /today, /goals, /schedule, /day-plan, /summary, /achievements still 200, (d) seeded profile f97fdefb-… now returns Phase 2 fields (trend='stable', hint_key='stable_is_normal'). Frontend: After forced expo bundler restart (CI mode requires it), wm-weight-toggle + wm-reco-toggle render, collapse/expand verified by hiding/showing wm-history-btn; Recommendations starts collapsed (collapsedReco default=true) — chevron-down visible. coachLineFor map keys are shake1/shake2 in source (bug fix applied).",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {
+        "flow": "Weight section state population for seeded profile f97fdefb-…",
+        "issue": "Backend GET /weight-metabolism/{pid}/weight/history returns current_kg=110.0 and week_avg_kg=110.0 for the seeded profile, but the WM screen shows 'Current —' and the Weekly-Insight block (testID='wm-weekly-insight') is not rendered. The conditional gate {weight?.week_avg_kg !== null && …} never becomes truthy in the page state. This is NOT a Phase 2 regression — it is a frontend-state issue with how /weight/history response is consumed (likely the setWeight call uses a different/incorrect response shape). Recommend the main agent verify the fetch + setState path for the weight history call.",
+        "affected_selectors": ["wm-weekly-insight"]
+      },
+      {
+        "flow": "Meals collapsible + coach lines",
+        "issue": "wm-meals-toggle and wm-coach-line-shake1/shake2/small_meal/large_meal cannot be visually verified for the seeded profile because today.meals.length===0 and no active routine is running. Their conditional wrappers therefore never render. Same constraint reported in iter88 — main agent self-test recommended after starting a routine + logging at least one meal."
+      }
+    ],
+    "design_issues": [
+      {
+        "screen": "Web bundle warnings (pre-existing)",
+        "issues": [
+          "'Invalid DOM property transform-origin. Did you mean transformOrigin?' still emitted on every render.",
+          "'Unexpected text node: . A text node cannot be a child of a <View>.' still spamming the console — same as iter88."
+        ]
+      }
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_abnehm_guide_phase2.py",
+    "/app/test_reports/pytest/iter89_phase2.xml"
+  ],
+  "action_items": [
+    "Investigate why /weight/history response is not populating the weight state for profile f97fdefb-… in the WM screen — Current shows '—' and weekly-insight card never renders, even though backend returns full data. Check that the fetch result is mapped/stored under the same key the JSX reads (`weight.week_avg_kg`, `weight.current_kg`).",
+    "(Same as iter88) Pre-existing 'transform-origin' DOM-prop warning + raw-text-node-in-<View> warning still pollute the console.",
+    "(Optional) For deterministic frontend testing of wm-meals-toggle and the four wm-coach-line-* selectors, seed an active routine + at least one meal_log entry for the test profile so the conditional sections render."
+  ],
+  "critical_code_review_comments": [
+    "weight_history weekly-insight logic is correct and well-bounded: stable-band uses strict |delta| < 0.2, down/up branches are mutually exclusive, hint_key mapping is 1:1 with trend. Good.",
+    "analyze_meal_photo wraps the coach_line computation in a try/except defaulting to empty string — good resilience, but consider returning a generic fallback line (e.g., 'Mahlzeit eingebucht.') instead of empty so the UI never shows an empty block.",
+    "Phase-2 weekly_insight uses Python sort on string dates ('YYYY-MM-DD') — works correctly because ISO-style dates sort lexicographically, but consider using actual datetime objects if formats ever change.",
+    "Frontend coachLineFor map now matches backend DAY_PLAN_EVENTS keys (shake1/shake2). Good fix.",
+    "Recommendations section default-collapsed (collapsedReco=true) is a sensible UX choice for a long screen and matches the request spec."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_abnehm_guide_phase2.py"
+  ],
+  "success_rate": {
+    "backend": "100% (14/14)",
+    "frontend": "Toggles + collapse/expand: 100%. Weekly-insight rendering: blocked by weight-state not populating (not a Phase 2 bug)."
+  },
+  "test_credentials": "test@vitaguide.de / Wk220480xel! (endpoints are profile_id-based; no auth used). Seeded profile_id: f97fdefb-c81f-4d01-8d02-e38dd2132e74",
+  "seed_data_creation": "test_abnehm_guide_phase2.py creates TEST_pid_* docs in weight_log (7+7 entries for down/up/stable/unknown trend scenarios) and cleans them up via fixture teardown across day_plan_checkins/water_intake_logs/meal_log/weight_goals/fasting_schedule/health_profiles/weight_log collections.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend Phase 2 (weight/history weekly insights + analyze-meal-photo coach_line contract) fully passes (14/14). Frontend toggles (wm-weight-toggle, wm-reco-toggle) verified working — Recommendations starts collapsed as spec'd. wm-meals-toggle and wm-coach-line-shake1/shake2 require active routine + meals to visually verify (same as iter88). wm-weekly-insight DOM render is blocked by an unrelated frontend-state issue: backend returns current_kg=110 and week_avg_kg=110 for the seeded profile but the WM screen shows '—'; the weight state from /weight/history isn't reaching the JSX gate. Worth a quick fetch/state-shape check by main agent. NOTE: Expo is running in CI mode and does NOT hot-reload, so after any frontend edit run 'sudo supervisorctl restart expo' to pick up changes (this was needed during this iteration to see the new toggle TouchableOpacities).",
+  "rca of the issue": "wm-weekly-insight rendering miss — RCA: not a backend bug (verified via curl: current_kg=110.0, week_avg_kg=110.0, trend='stable', hint_key='stable_is_normal'). The frontend never renders the conditional <View testID='wm-weekly-insight'> because `weight?.week_avg_kg` stays null/undefined in the React state. Reproduction: open /weight-metabolism with profile_id=f97fdefb-…; observe Weight card shows 'Current —' and no weekly card. Mitigation: main agent should confirm the setWeight(...) call assigns the full /weight/history response object (not just `entries`) and verify there is no destructuring that drops the new fields."
+}

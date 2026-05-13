@@ -542,12 +542,46 @@ async def weight_history(profile_id: str, days: int = 30):
     goals_doc = await db.weight_goals.find_one({"profile_id": profile_id}, {"_id": 0})
     target = goals_doc.get("target_weight_kg") if goals_doc else None
 
+    # Phase 2: weekly insights — last 7 days vs prior 7 days
+    week_cutoff = (datetime.now(timezone.utc) - timedelta(days=6)).strftime("%Y-%m-%d")
+    prev_week_cutoff = (datetime.now(timezone.utc) - timedelta(days=13)).strftime("%Y-%m-%d")
+    last_week = [e for e in entries if e["date"] >= week_cutoff]
+    prev_week = [e for e in entries if prev_week_cutoff <= e["date"] < week_cutoff]
+    week_avg = round(sum(e["weight_kg"] for e in last_week) / len(last_week), 1) if last_week else None
+    prev_avg = round(sum(e["weight_kg"] for e in prev_week) / len(prev_week), 1) if prev_week else None
+    week_delta = round(week_avg - prev_avg, 1) if (week_avg is not None and prev_avg is not None) else None
+    # Trend: stable if |delta| < 0.2 kg, else down/up
+    if week_delta is None:
+        trend = "unknown"
+    elif abs(week_delta) < 0.2:
+        trend = "stable"
+    elif week_delta < 0:
+        trend = "down"
+    else:
+        trend = "up"
+    # Hint logic (DE primary; FE will translate via lang dict on its side)
+    if trend == "unknown":
+        hint_key = "more_data_needed"
+    elif trend == "down":
+        hint_key = "good_progress"
+    elif trend == "up":
+        hint_key = "stay_consistent"
+    else:
+        hint_key = "stable_is_normal"
+
     return {
         "entries": entries,
         "current_kg": latest["weight_kg"] if latest else None,
         "delta_kg": delta,
         "target_kg": target,
         "days": days,
+        # Phase 2 weekly insights
+        "week_avg_kg": week_avg,
+        "prev_week_avg_kg": prev_avg,
+        "week_delta_kg": week_delta,
+        "trend": trend,
+        "hint_key": hint_key,
+        "entries_last_week": len(last_week),
     }
 
 
@@ -1007,6 +1041,27 @@ async def analyze_meal_photo(profile_id: str, req: PhotoAnalyzeRequest):
     except Exception:
         cal, pro, carbs, fat = 0, 0.0, 0.0, 0.0
 
+    # Phase 2: contextual coach line based on user's remaining protein goal today
+    coach_line = ""
+    try:
+        today = await get_today(profile_id)
+        daily_pro = today["goals"]["daily_protein"]
+        consumed_pro = today["totals"]["protein_g"]
+        remaining_pro = max(0, daily_pro - consumed_pro)
+        # How much of remaining does this meal cover?
+        if remaining_pro <= 0:
+            coach_line = "Tagesziel beim Protein ist bereits erreicht."
+        elif pro >= remaining_pro:
+            coach_line = "Mit dieser Mahlzeit erreichst du dein Tages-Protein-Ziel."
+        elif pro >= remaining_pro * 0.4:
+            coach_line = f"Passt gut zu deinem Protein-Ziel — noch {round(remaining_pro - pro)}g offen."
+        elif pro >= 15:
+            coach_line = f"Solide Mahlzeit. Noch {round(remaining_pro - pro)}g Protein bis zum Ziel."
+        else:
+            coach_line = f"Wenig Protein hier. Plane noch {round(remaining_pro - pro)}g für den Rest des Tages ein."
+    except Exception:
+        coach_line = ""
+
     return {
         "success": True,
         "name": str(data.get("name", "Mahlzeit"))[:80],
@@ -1017,6 +1072,7 @@ async def analyze_meal_photo(profile_id: str, req: PhotoAnalyzeRequest):
         "fat_g": round(fat, 1),
         "confidence": str(data.get("confidence", "medium"))[:20],
         "note": str(data.get("note", ""))[:160],
+        "coach_line": coach_line,
     }
 
 

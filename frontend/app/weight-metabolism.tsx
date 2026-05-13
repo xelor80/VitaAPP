@@ -146,6 +146,11 @@ export default function WeightMetabolismScreen() {
   // Achievements (streak, badges)
   const [achievements, setAchievements] = useState<any>(null);
 
+  // Phase 2: collapsible sections (Mahlzeiten, Gewicht, Empfehlungen)
+  const [collapsedMeals, setCollapsedMeals] = useState(false);
+  const [collapsedWeight, setCollapsedWeight] = useState(false);
+  const [collapsedReco, setCollapsedReco] = useState(true);
+
   // Weight-history modal (Verlauf einsehen + einzeln loeschen + reset)
   const [historyModal, setHistoryModal] = useState(false);
 
@@ -260,12 +265,12 @@ export default function WeightMetabolismScreen() {
   // ── Hunger-prevention coach lines (static, per timeline event) ──
   const coachLineFor = (eventKey: string): string => {
     const map: Record<string, { de: string; it: string; en: string }> = {
-      shake_1: {
+      shake1: {
         de: 'Dein erster Shake hilft dir, stabil in den Tag zu starten.',
         it: 'Il primo shake ti dà un avvio stabile.',
         en: 'Your first shake helps you start the day stable.',
       },
-      shake_2: {
+      shake2: {
         de: 'Die zweite Proteinphase hilft gegen spätere Snacks.',
         it: 'La seconda fase proteica evita snack tardivi.',
         en: 'The second protein step prevents late-day snacks.',
@@ -281,7 +286,7 @@ export default function WeightMetabolismScreen() {
         en: 'Enjoy a satiating, protein-rich meal here.',
       },
     };
-    const entry = map[eventKey] || map.shake_1;
+    const entry = map[eventKey] || map.shake1;
     return tx(lang, entry);
   };
 
@@ -1150,11 +1155,23 @@ export default function WeightMetabolismScreen() {
           </View>
         )}
 
-        {/* Today meals */}
+        {/* Mahlzeiten (collapsible) */}
         {today?.meals?.length > 0 && (
           <View style={st.mealsCard}>
-            <Text style={st.cardTitle}>{tx(lang, { de: 'Heutige Mahlzeiten', it: 'Pasti di oggi', en: "Today's meals" })}</Text>
-            {today.meals.map((m: any) => (
+            <TouchableOpacity
+              style={st.collapseHeader}
+              onPress={() => setCollapsedMeals(v => !v)}
+              activeOpacity={0.7}
+              testID="wm-meals-toggle"
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 }}>
+                <MaterialCommunityIcons name="silverware-fork-knife" size={18} color="#2E7D52" />
+                <Text style={st.cardTitle}>{tx(lang, { de: 'Mahlzeiten', it: 'Pasti', en: 'Meals' })}</Text>
+                <View style={st.countPill}><Text style={st.countPillText}>{today.meals.length}</Text></View>
+              </View>
+              <MaterialCommunityIcons name={collapsedMeals ? 'chevron-down' : 'chevron-up'} size={22} color="#6B7280" />
+            </TouchableOpacity>
+            {!collapsedMeals && today.meals.map((m: any) => (
               <View key={m.id} style={st.mealRow} testID={`wm-meal-${m.id}`}>
                 <View style={[st.mealIcon, { backgroundColor: mealColor(m.meal_type) + '20' }]}>
                   <MaterialCommunityIcons name={mealIcon(m.meal_type) as any} size={18} color={mealColor(m.meal_type)} />
@@ -1173,44 +1190,131 @@ export default function WeightMetabolismScreen() {
 
         <SmartProductBlock context="fasting" profileId={profileId} limit={1} testIdPrefix="wm-smart-fast" />
 
-        {/* Weight */}
+        {/* Gewicht (collapsible) — with Phase 2 Weekly Insights */}
         <View style={st.weightCard} testID="wm-weight-card">
-          <View style={st.cardHeader}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <TouchableOpacity
+            style={st.collapseHeader}
+            onPress={() => setCollapsedWeight(v => !v)}
+            activeOpacity={0.7}
+            testID="wm-weight-toggle"
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 }}>
               <MaterialCommunityIcons name="scale-bathroom" size={20} color="#2E7D52" />
               <Text style={st.cardTitle}>{tx(lang, { de: 'Gewicht', it: 'Peso', en: 'Weight' })}</Text>
+              {weight?.current_kg ? (
+                <Text style={st.collapseHeaderHint}>{weight.current_kg.toFixed(1)} kg</Text>
+              ) : null}
             </View>
-            <View style={{ flexDirection: 'row', gap: 8 }}>
-              <TouchableOpacity onPress={() => setHistoryModal(true)} style={st.smallBtnGhost} testID="wm-history-btn">
-                <MaterialCommunityIcons name="history" size={16} color="#6B7280" />
-                <Text style={st.smallBtnGhostText}>{tx(lang, { de: 'Verlauf', it: 'Storico', en: 'History' })}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => setWeightModal(true)} style={st.smallBtn} testID="wm-add-weight-btn">
-                <MaterialCommunityIcons name="plus" size={16} color="#2E7D52" />
-                <Text style={st.smallBtnText}>{tx(lang, { de: 'Eintrag', it: 'Voce', en: 'Entry' })}</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-          <View style={st.weightStatsRow}>
-            <View style={st.weightStat}>
-              <Text style={st.weightStatLabel}>{tx(lang, { de: 'Aktuell', it: 'Attuale', en: 'Current' })}</Text>
-              <Text style={st.weightStatValue}>{weight?.current_kg ? `${weight.current_kg.toFixed(1)} kg` : '–'}</Text>
-            </View>
-            <View style={st.weightStat}>
-              <Text style={st.weightStatLabel}>30 {tx(lang, { de: 'Tage', it: 'giorni', en: 'days' })}</Text>
-              <Text style={[st.weightStatValue, { color: weight?.delta_kg && weight.delta_kg > 0 ? '#DC2626' : '#2E7D52' }]}>
-                {weight?.delta_kg !== null && weight?.delta_kg !== undefined ? `${weight.delta_kg > 0 ? '+' : ''}${weight.delta_kg.toFixed(1)} kg` : '–'}
-              </Text>
-            </View>
-            <View style={st.weightStat}>
-              <Text style={st.weightStatLabel}>{tx(lang, { de: 'Ziel', it: 'Obiettivo', en: 'Target' })}</Text>
-              <Text style={st.weightStatValue}>{weight?.target_kg ? `${weight.target_kg.toFixed(1)} kg` : '–'}</Text>
-            </View>
-          </View>
-          <WeightChart entries={weight?.entries || []} />
+            <MaterialCommunityIcons name={collapsedWeight ? 'chevron-down' : 'chevron-up'} size={22} color="#6B7280" />
+          </TouchableOpacity>
+          {!collapsedWeight && (
+            <>
+              <View style={st.weightActionRow}>
+                <TouchableOpacity onPress={() => setHistoryModal(true)} style={st.smallBtnGhost} testID="wm-history-btn">
+                  <MaterialCommunityIcons name="history" size={16} color="#6B7280" />
+                  <Text style={st.smallBtnGhostText}>{tx(lang, { de: 'Verlauf', it: 'Storico', en: 'History' })}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setWeightModal(true)} style={st.smallBtn} testID="wm-add-weight-btn">
+                  <MaterialCommunityIcons name="plus" size={16} color="#2E7D52" />
+                  <Text style={st.smallBtnText}>{tx(lang, { de: 'Eintrag', it: 'Voce', en: 'Entry' })}</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={st.weightStatsRow}>
+                <View style={st.weightStat}>
+                  <Text style={st.weightStatLabel}>{tx(lang, { de: 'Aktuell', it: 'Attuale', en: 'Current' })}</Text>
+                  <Text style={st.weightStatValue}>{weight?.current_kg ? `${weight.current_kg.toFixed(1)} kg` : '–'}</Text>
+                </View>
+                <View style={st.weightStat}>
+                  <Text style={st.weightStatLabel}>30 {tx(lang, { de: 'Tage', it: 'giorni', en: 'days' })}</Text>
+                  <Text style={[st.weightStatValue, { color: weight?.delta_kg && weight.delta_kg > 0 ? '#DC2626' : '#2E7D52' }]}>
+                    {weight?.delta_kg !== null && weight?.delta_kg !== undefined ? `${weight.delta_kg > 0 ? '+' : ''}${weight.delta_kg.toFixed(1)} kg` : '–'}
+                  </Text>
+                </View>
+                <View style={st.weightStat}>
+                  <Text style={st.weightStatLabel}>{tx(lang, { de: 'Ziel', it: 'Obiettivo', en: 'Target' })}</Text>
+                  <Text style={st.weightStatValue}>{weight?.target_kg ? `${weight.target_kg.toFixed(1)} kg` : '–'}</Text>
+                </View>
+              </View>
+
+              {/* Phase 2: Weekly Insights */}
+              {weight?.week_avg_kg !== null && weight?.week_avg_kg !== undefined && (
+                <View style={st.weeklyInsight} testID="wm-weekly-insight">
+                  <View style={st.weeklyTop}>
+                    <View style={st.weeklyLeft}>
+                      <Text style={st.weeklyLabel}>{tx(lang, { de: '7-Tage Ø', it: 'Media 7 gg', en: '7-day avg' })}</Text>
+                      <Text style={st.weeklyValue}>{weight.week_avg_kg.toFixed(1)} kg</Text>
+                    </View>
+                    {weight.week_delta_kg !== null && weight.week_delta_kg !== undefined && (
+                      <View style={[
+                        st.trendChip,
+                        weight.trend === 'down' && st.trendChipDown,
+                        weight.trend === 'up' && st.trendChipUp,
+                        weight.trend === 'stable' && st.trendChipStable,
+                      ]}>
+                        <MaterialCommunityIcons
+                          name={weight.trend === 'down' ? 'trending-down' : weight.trend === 'up' ? 'trending-up' : 'trending-neutral'}
+                          size={14}
+                          color={weight.trend === 'down' ? '#2E7D52' : weight.trend === 'up' ? '#DC2626' : '#6B7280'}
+                        />
+                        <Text style={[
+                          st.trendChipText,
+                          { color: weight.trend === 'down' ? '#2E7D52' : weight.trend === 'up' ? '#DC2626' : '#6B7280' },
+                        ]}>
+                          {weight.week_delta_kg > 0 ? '+' : ''}{weight.week_delta_kg.toFixed(1)} kg
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                  <Text style={st.weeklyHint}>
+                    {weight.hint_key === 'good_progress' && tx(lang, {
+                      de: 'Schöner Trend – konstanz schlägt einzelne Tage.',
+                      it: 'Bel trend – la costanza batte i singoli giorni.',
+                      en: 'Nice trend – consistency beats single days.',
+                    })}
+                    {weight.hint_key === 'stay_consistent' && tx(lang, {
+                      de: 'Kleine Schwankungen sind normal. Bleib am Plan dran.',
+                      it: 'Piccole oscillazioni sono normali. Resta sul piano.',
+                      en: 'Small fluctuations are normal. Stay with the plan.',
+                    })}
+                    {weight.hint_key === 'stable_is_normal' && tx(lang, {
+                      de: 'Gewicht ist stabil – das ist ein gutes Plateau.',
+                      it: 'Peso stabile – è un buon plateau.',
+                      en: 'Weight stable – this is a healthy plateau.',
+                    })}
+                    {weight.hint_key === 'more_data_needed' && tx(lang, {
+                      de: 'Trage diese Woche regelmäßig ein für eine bessere Trend-Analyse.',
+                      it: 'Inserisci voci regolari per un trend più chiaro.',
+                      en: 'Log entries this week for a clearer trend.',
+                    })}
+                  </Text>
+                </View>
+              )}
+
+              <WeightChart entries={weight?.entries || []} />
+            </>
+          )}
         </View>
 
-        <SmartProductBlock context="weight" profileId={profileId} limit={1} testIdPrefix="wm-smart-weight" />
+        {/* Empfehlungen (collapsible, consolidated) */}
+        <View style={st.recoCard} testID="wm-reco-card">
+          <TouchableOpacity
+            style={st.collapseHeader}
+            onPress={() => setCollapsedReco(v => !v)}
+            activeOpacity={0.7}
+            testID="wm-reco-toggle"
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 }}>
+              <MaterialCommunityIcons name="store-outline" size={20} color="#6D28D9" />
+              <Text style={st.cardTitle}>{tx(lang, { de: 'Empfehlungen', it: 'Consigli', en: 'Recommendations' })}</Text>
+            </View>
+            <MaterialCommunityIcons name={collapsedReco ? 'chevron-down' : 'chevron-up'} size={22} color="#6B7280" />
+          </TouchableOpacity>
+          {!collapsedReco && (
+            <View style={{ marginTop: 4 }}>
+              <SmartProductBlock context="weight" profileId={profileId} limit={1} testIdPrefix="wm-smart-weight" />
+            </View>
+          )}
+        </View>
 
         <View style={{ height: 24 }} />
       </ScrollView>
@@ -1287,6 +1391,30 @@ export default function WeightMetabolismScreen() {
                       ))}
                     </View>
                   )}
+                  {/* Phase 2: coach line based on remaining protein goal */}
+                  {analysisResult.coach_line ? (
+                    <View style={st.photoCoachLine} testID="wm-photo-coach-line">
+                      <MaterialCommunityIcons name="lightbulb-on-outline" size={14} color="#6D28D9" />
+                      <Text style={st.photoCoachText}>{analysisResult.coach_line}</Text>
+                    </View>
+                  ) : null}
+                  {/* Phase 2: macro breakdown */}
+                  <View style={st.macroRow}>
+                    <View style={st.macroChip}>
+                      <Text style={st.macroChipLabel}>{tx(lang, { de: 'KH', it: 'Carb', en: 'Carb' })}</Text>
+                      <Text style={st.macroChipValue}>{Math.round(analysisResult.carbs_g || 0)}g</Text>
+                    </View>
+                    <View style={st.macroChip}>
+                      <Text style={st.macroChipLabel}>{tx(lang, { de: 'Fett', it: 'Grassi', en: 'Fat' })}</Text>
+                      <Text style={st.macroChipValue}>{Math.round(analysisResult.fat_g || 0)}g</Text>
+                    </View>
+                    {analysisResult.confidence && (
+                      <View style={[st.macroChip, { backgroundColor: analysisResult.confidence === 'high' ? '#E8F5E9' : analysisResult.confidence === 'low' ? '#FEE2E2' : '#FEF3C7' }]}>
+                        <Text style={st.macroChipLabel}>{tx(lang, { de: 'Sicherheit', it: 'Affid.', en: 'Conf.' })}</Text>
+                        <Text style={st.macroChipValue}>{analysisResult.confidence}</Text>
+                      </View>
+                    )}
+                  </View>
                   <Text style={st.modalLabel}>{tx(lang, { de: 'Name', it: 'Nome', en: 'Name' })}</Text>
                   <TextInput style={st.input} value={mealName} onChangeText={setMealName} testID="wm-photo-name" />
                   <View style={{ flexDirection: 'row', gap: 10 }}>
@@ -1987,6 +2115,88 @@ const st = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center',
   },
   badgeLabel: { flex: 1, fontSize: 12, fontWeight: '700', color: '#1F2937' },
+
+  // Phase 2 — Collapsible section header
+  collapseHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 4,
+  },
+  collapseHeaderHint: { fontSize: 13, color: '#9CA3AF', fontWeight: '600', marginLeft: 4 },
+  countPill: {
+    backgroundColor: '#E8F5E9',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
+    marginLeft: 4,
+  },
+  countPillText: { fontSize: 11, fontWeight: '800', color: '#2E7D52' },
+
+  // Phase 2 — Weight section actions row (replaces old cardHeader buttons)
+  weightActionRow: { flexDirection: 'row', gap: 8, marginTop: 8, marginBottom: 4, justifyContent: 'flex-end' },
+
+  // Phase 2 — Weekly insight card
+  weeklyInsight: {
+    backgroundColor: '#F0FDF4',
+    borderLeftWidth: 3,
+    borderLeftColor: '#2E7D52',
+    borderRadius: 10,
+    padding: 12,
+    marginTop: 12,
+    marginBottom: 8,
+  },
+  weeklyTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 },
+  weeklyLeft: { flexDirection: 'column' },
+  weeklyLabel: { fontSize: 11, color: '#6B7280', fontWeight: '600' },
+  weeklyValue: { fontSize: 18, fontWeight: '800', color: '#1F2937', marginTop: 2 },
+  trendChip: {
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12,
+  },
+  trendChipDown: { backgroundColor: '#E8F5E9' },
+  trendChipUp: { backgroundColor: '#FEE2E2' },
+  trendChipStable: { backgroundColor: '#F3F4F6' },
+  trendChipText: { fontSize: 12, fontWeight: '800' },
+  weeklyHint: { fontSize: 12, color: '#4B5563', lineHeight: 17 },
+
+  // Phase 2 — Recommendations card (consolidated)
+  recoCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 18,
+    marginHorizontal: 16,
+    marginVertical: 8,
+    padding: 16,
+    ...Platform.select({
+      ios: { shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 8, shadowOffset: { width: 0, height: 2 } },
+      android: { elevation: 2 },
+      web: { boxShadow: '0 2px 8px rgba(0,0,0,0.05)' as any },
+    }),
+  },
+
+  // Phase 2 — Photo coach line + macro chips
+  photoCoachLine: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#FAF5FF',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    marginVertical: 8,
+  },
+  photoCoachText: { flex: 1, fontSize: 12, color: '#6D28D9', lineHeight: 16, fontWeight: '600' },
+  macroRow: { flexDirection: 'row', gap: 8, marginVertical: 8 },
+  macroChip: {
+    flex: 1,
+    backgroundColor: '#F3F4F6',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  macroChipLabel: { fontSize: 10, color: '#6B7280', fontWeight: '600' },
+  macroChipValue: { fontSize: 13, fontWeight: '800', color: '#1F2937', marginTop: 1 },
 
   removeBtn: { marginTop: 12, paddingVertical: 8, paddingHorizontal: 16 },
   removeBtnText: { color: '#DC2626', fontSize: 12, fontWeight: '600' },
