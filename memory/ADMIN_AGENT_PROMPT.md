@@ -41,8 +41,8 @@
 | `meals` | Eingaben (Manuell/Foto/Favorit) | `id, profile_id, name, calories, protein_g, carbs_g, fat_g, meal_type, source (manual/photo/favorite), consumed_at` |
 | `meal_favorites` | Lieblingsmahlzeiten | `id, profile_id, name, calories, protein_g, ..., used_count` |
 | `meal_coach_cache` | LLM-Cache (Coach-Kommentare) | `cache_key, comment, tone, created_at` |
-| `day_plan_checkins` | Erledigte Timeline-Events | `profile_id, date, event_key (shake1/small_meal/shake2/large_meal), checked_at` |
-| `water_intake_logs` | Wasserprotokoll | `id, profile_id, date, amount_ml, source` |
+| `day_plan_checkins` | Erledigte Timeline-Events (Phase 1: Quelle für Streak/Achievements) | `profile_id, date, event_key (shake1/small_meal/shake2/large_meal), checked_at` |
+| `water_intake_logs` | Wasserprotokoll (Phase 1: Quelle für water_goal Badge ≥1500ml/Tag) | `id, profile_id, date, amount_ml, source` |
 | `profile_timezone` | Zeitzonen pro Profil | `profile_id, timezone, offset_minutes` |
 | `rewards_catalog`, `user_points`, `reward_redemptions`, `user_streaks`, `user_levels` | Belohnungssystem | siehe REWARDS_SYSTEM_BRIEFING.md |
 
@@ -186,3 +186,178 @@ Lege Admin-spezifische Endpoints in einer neuen Datei `/app/backend/routes/admin
 ---
 
 > **Ende des Prompts.** Bei Fragen oder fehlenden Endpoints: erst dokumentieren, dann im FastAPI-Backend ergänzen, dann im Admin nutzen.
+
+---
+
+# 🆕 Update vom 13.05.2026 — „Abnehm-Guide" Phase 1–3
+
+Die Sektion in der Mobile-App **„Gewicht & Stoffwechsel" wurde umbenannt in „Abnehm-Guide"** (DE) / „Slim guide" (EN) / „Guida dimagrante" (IT) und massiv erweitert um ein geführtes Coaching-System. Folgende neue Datenpunkte sind für das Admin-Web relevant:
+
+## A. Neue Backend-Endpoints (alle bereits live)
+
+### A.1 Achievements / Streak — Phase 1
+- `GET /api/weight-metabolism/{profile_id}/achievements`
+- Response-Shape:
+  ```json
+  {
+    "current_streak": 5,                 // Tage in Folge mit ≥1 day_plan_checkin
+    "longest_streak": 12,
+    "today_protein_done": true,          // protein_g >= daily_protein
+    "today_calories_done": false,        // kcal innerhalb 90–110% Band
+    "today_water_done": true,            // water_intake_logs heute ≥1500ml
+    "today_full_plan_done": false,       // alle 4 day_plan_checkins heute
+    "today_water_ml": 1700,
+    "today_checks": 2,                   // erledigte Steps heute
+    "total_steps": 4,
+    "badges": [
+      {"id":"streak_3","label_de":"3 Tage in Folge","icon":"fire","achieved":true,"value":5},
+      {"id":"protein_goal","label_de":"Protein-Ziel erreicht","icon":"dumbbell","achieved":true,"value":175},
+      {"id":"full_plan","label_de":"Heute voll im Plan","icon":"check-circle","achieved":false,"value":2},
+      {"id":"water_goal","label_de":"Wasser-Ziel erreicht","icon":"cup-water","achieved":true,"value":1700}
+    ]
+  }
+  ```
+- **Im Admin nutzbar für:** Engagement-Dashboard (Streak-Verteilung, Anteil Nutzer mit „today_full_plan_done", Top-Streak-Leaderboard).
+
+### A.2 Erweiterter Weight-History-Endpoint — Phase 2
+- `GET /api/weight-metabolism/{profile_id}/weight/history?days=30`
+- **Neue Felder (zusätzlich zu bestehenden `entries`, `current_kg`, `delta_kg`, `target_kg`, `days`):**
+  - `week_avg_kg` (7-Tage Durchschnitt)
+  - `prev_week_avg_kg` (Durchschnitt der davorliegenden 7 Tage)
+  - `week_delta_kg` (Δ zwischen den beiden Wochen)
+  - `trend` — einer von `down` / `up` / `stable` / `unknown` (|Δ|<0.2 kg = stable)
+  - `hint_key` — einer von `good_progress` / `stay_consistent` / `stable_is_normal` / `more_data_needed`
+  - `entries_last_week` (Anzahl Einträge in den letzten 7 Tagen)
+- **Im Admin nutzbar für:** Cohort-Trend-Auswertung (% User mit `trend='down'` in den letzten 30 Tagen, Plateau-Alarm bei >14 Tagen stable).
+
+### A.3 Erweiterte KI-Fotoanalyse — Phase 2
+- `POST /api/weight-metabolism/{profile_id}/analyze-meal-photo`
+- **Neues Feld in der Response: `coach_line`** (kontextbezogener Coach-Text basierend auf verbleibendem Protein-Tagesziel, eine von 5 Stufen: erreicht / fast erreicht / passt gut / solide / wenig Protein).
+- Das Feld wird im Admin **nicht aktiv geschrieben**, kann aber für Quality-Reviews der LLM-Outputs gezeigt werden.
+
+## B. Neue Daten-Verknüpfungen und Auswertungsideen
+
+| Auswertung | Quelle | Empfohlenes Admin-Widget |
+|---|---|---|
+| **Streak-Verteilung der aktiven Nutzer** | `day_plan_checkins` aggregiert | Histogramm (0, 1-2, 3-6, 7-13, 14+ Tage) |
+| **Top 10 Streaks** | `day_plan_checkins` | Tabelle mit `profile_id`, `email`, `current_streak`, `longest_streak` |
+| **Heutige Adherence** | `day_plan_checkins` heute | Donut: % User mit `today_full_plan_done=true` |
+| **Wasser-Compliance** | `water_intake_logs` heute | KPI-Kachel: % User ≥1500ml |
+| **Plateau-Liste** | `weight_log` mit `trend='stable'` & `week_avg_kg unverändert ≥14 Tage` | Tabelle mit Re-Engagement-Trigger |
+| **Trend-Verteilung** | `weight_log` aggregiert per User | Stacked-Bar: down/stable/up Anteile pro Woche |
+
+## C. Neue Frontend-Features in der App (nur zur Kenntnis — keine Admin-Aktion nötig)
+
+Damit der Admin-Agent das mentale Modell der App kennt:
+
+1. **6-Karten Educational Guide** (Modal): wird beim ersten Besuch der „Abnehm-Guide"-Sektion automatisch geöffnet. Inhalte sind **hardcoded im Frontend** (`/app/frontend/components/AbnehmGuideModal.tsx`) — nicht aus der DB. Falls in Zukunft CMS-Steuerung gewünscht: neuen Endpoint `GET /api/abnehm-guide/cards` einführen + Collection `abnehm_guide_cards`.
+2. **Phasen-Erklärungs-Cards** (Proteinphase / Essensfenster) unter dem Fasten-Kreis: rein visuell, keine DB-Bindung.
+3. **Heißhunger-Coach-Hinweise** unter jedem Timeline-Event: statisch im Frontend (`coachLineFor` map). Falls dynamisch gewünscht: pro `event_key` ein Feld in `protein_routine_settings` oder neue Collection.
+4. **Achievements-Card** in der App: rendert direkt aus `/achievements` (s. A.1). Keine Admin-Aktion nötig — aber das Admin sollte die Aggregations-Statistik darstellen.
+5. **Wochen-Übersicht (Ø + Trend + Hinweis)** in der App: rendert direkt aus dem erweiterten Weight-History-Endpoint (s. A.2).
+6. **KI-Foto-Coach-Zeile**: rendert direkt aus dem `coach_line` Feld (s. A.3).
+7. **Einklappbare Sektionen** (Mahlzeiten / Gewicht / Empfehlungen): rein UI, keine DB.
+8. **Routine-Mahlzeit-Templates** (Quick-Add im Meal-Picker): aktuell **hardcoded im Frontend** als 4 Presets (Standard Shake 320kcal/35g, Protein Bowl 480/38, Hähnchen Reis 620/45, Skyr Snack 180/22). Falls CMS-Steuerung gewünscht: neue Collection `meal_templates` mit Feldern `{id, name_de/it/en, calories, protein_g, meal_type, icon, color, sort_order, enabled}` + `GET /api/meal-templates` Endpoint.
+9. **Per-Step Product Chip** (Empfehlungs-Chip pro Timeline-Event): aktuell **statisch im Frontend** mit Mapping shake1→Protein-Mix, shake2→Protein-Boost, small_meal→Protein-Snack, large_meal→Elektrolyt-Komplex. Tap → expandiert die Empfehlungen-Sektion (kein direkter Produktlink). Falls dynamisch gewünscht: nutze die bestehenden `smart_products.contexts[]` und erweitere um Werte wie `step_shake1`, `step_shake2`, `step_small_meal`, `step_large_meal`.
+
+## D. Empfohlene neue Admin-Module (Erweiterung von Abschnitt 5)
+
+### P0 (sofort, ergänzend zum bestehenden Smart-Products-Manager)
+
+**D.1 „Abnehm-Guide CMS" (neue Admin-Seite `/admin/abnehm-guide`)**
+- Tab 1: **Guide-Karten** — bearbeitbare Tabelle der 6 Karten (Titel + Text DE/IT/EN, Icon, Farbe, Reihenfolge). 
+  - Backend-Erweiterung erforderlich: Neue Collection `abnehm_guide_cards` + `GET/PUT /api/admin/abnehm-guide/cards`.
+- Tab 2: **Meal-Templates** — bearbeitbare Tabelle der 4 Schnellzugriffs-Templates (Name DE/IT/EN, kcal, Protein, Icon, Farbe, sort_order, enabled).
+  - Backend-Erweiterung erforderlich: Neue Collection `meal_templates` + `GET/PUT /api/admin/meal-templates`. Mobile-App muss auf den Endpoint umgestellt werden, dafür ein kleiner Sprint nötig.
+- Tab 3: **Coach-Lines pro Event** — Mapping `{event_key, text_de, text_it, text_en}` für Heißhunger-Hinweise und Per-Step Product Hints.
+
+**D.2 „Engagement-Insights" (neuer Bereich in `/admin/users` und neues Top-Level `/admin/engagement`)**
+- KPI-Kacheln oben:
+  - „Aktive Nutzer heute" (User mit ≥1 day_plan_checkin heute)
+  - „Ø Streak aktive Nutzer"
+  - „Heute Wasser-Ziel erreicht" (% User mit today_water_done)
+  - „Tagesplan voll erledigt" (% User mit today_full_plan_done)
+- Diagramme:
+  - Streak-Histogramm (0 / 1-2 / 3-6 / 7-13 / 14+)
+  - 30-Tage-Trend „Anteil mit `trend=down`" pro Woche
+- Tabelle „Plateau-Risiko" (Liste der User mit `trend='stable'` ≥14 Tage) → Trigger für Re-Engagement-Push.
+
+### P1 — Nice-to-have
+
+**D.3 „Achievements-Engine-Settings" (`/admin/achievements`)**
+- Konfigurierbare Schwellwerte (aktuell hartcodiert im Backend):
+  - `streak_3` → 3 Tage in Folge (anpassbar auf 5? 7?)
+  - `water_goal` → 1500ml (anpassbar auf 2000? 2500?)
+  - `today_calories_done` → Band 90-110% (anpassbar auf 85-115%?)
+- Neue Collection `achievement_config` + Endpoint, das `weight_metabolism.get_achievements` einließt.
+
+**D.4 „Push-Re-Engagement-Trigger"**
+- Bei Plateau ≥14 Tage: automatischer Push „Schau dir deine Wochenbilanz an" (mit Deep-Link zur Wochenübersicht).
+- Bei Streak-Bruch (gestern aktiv, heute 0 Checks): „Komm zurück in die Routine" Push.
+- Konfiguration im Admin: an/aus, Zeitfenster, Anzahl pro Woche.
+
+## E. Read-/Write-Matrix für neue Auswertungen
+
+| Quelle | Lese-Zugriff (Admin OK) | Schreib-Zugriff |
+|---|---|---|
+| `day_plan_checkins` | ✅ über Backend-Aggregate-Endpoint (NEU `/api/admin/engagement/streaks`) | ❌ nie schreibend aus Admin |
+| `water_intake_logs` | ✅ über `/api/admin/engagement/water-stats` (NEU) | ❌ nie schreibend |
+| `weight_log` | ✅ über erweitertes `/weight/history` oder neuen `/api/admin/users/{pid}/weight-trend` | ❌ nur User selbst |
+| `abnehm_guide_cards` (NEU) | ✅ | ✅ (Admin CMS) |
+| `meal_templates` (NEU) | ✅ | ✅ (Admin CMS) |
+| `achievement_config` (NEU) | ✅ | ✅ (Admin Settings, mit Audit-Log) |
+
+## F. Migrationsplan für neue Collections (additiv, keine Breaking Changes)
+
+1. **Phase A (woche 1):**
+   - Backend: Collections `abnehm_guide_cards`, `meal_templates`, `achievement_config` anlegen mit Default-Seed-Daten (gespiegelt aus den aktuellen Frontend-Constants).
+   - Backend: Endpoints `GET/PUT /api/admin/abnehm-guide/cards`, `GET/PUT /api/admin/meal-templates`, `GET/PUT /api/admin/achievement-config`.
+   - Admin-Web: 3 CMS-Tabs unter `/admin/abnehm-guide`.
+
+2. **Phase B (woche 2):**
+   - Mobile-App: `AbnehmGuideModal.tsx` und Meal-Templates-Const umstellen, von API zu fetchen (mit Caching). Fallback auf Frontend-Constants, falls API offline.
+   - Mobile-App: Coach-Lines aus `coach_lines_settings` (neue Collection) lesen.
+
+3. **Phase C (woche 3):**
+   - Admin-Web: Engagement-Dashboard mit Aggregate-Endpoints.
+   - Push-Re-Engagement-Trigger.
+
+## G. Wichtige Hinweise für die Implementierung
+
+1. **Streak-Berechnung (Backend, Referenz):** Siehe `/app/backend/routes/weight_metabolism.py::get_achievements()` — die Logik scannt die letzten 500 `day_plan_checkins`-Dates, läuft rückwärts ab heute. Behalte diese Logik bei. Wenn du eine Admin-Aggregate machst, nutze MongoDB-Aggregation, **nicht** einen Loop über alle User.
+   - Beispiel-Pipeline für „Top 10 aktuelle Streaks":
+     ```python
+     db.day_plan_checkins.aggregate([
+       {"$sort": {"profile_id": 1, "date": -1}},
+       {"$group": {"_id": "$profile_id", "dates": {"$push": "$date"}}},
+       # ... Streak-Logik clientseitig nach $group, dann sort+limit
+     ])
+     ```
+
+2. **Achievements im Admin nie cachen länger als 5 Minuten** — Echtzeit-Charakter ist wichtig.
+
+3. **Audit-Log Pflicht** für:
+   - Änderungen an `abnehm_guide_cards`
+   - Änderungen an `meal_templates`
+   - Änderungen an `achievement_config`
+   - Trigger-Toggle für Re-Engagement-Pushes
+
+4. **i18n der CMS-Inhalte:** Alle Texte mehrsprachig DE/IT/EN. Bei fehlender Übersetzung Fallback auf DE.
+
+5. **Performance:** Engagement-Aggregate-Endpoints müssen Mongo-Indexe auf `(profile_id, date)` haben — sind bereits durch `ensure_indexes()` im Backend angelegt.
+
+## H. Test-Checkliste für die neuen Module
+
+- [ ] `GET /api/admin/abnehm-guide/cards` liefert 6 Karten mit DE/IT/EN-Texten.
+- [ ] `PUT /api/admin/abnehm-guide/cards/{id}` aktualisiert die Karte; Mobile-App-Fetch sieht die Änderung innerhalb der Cache-TTL (max 5 Min).
+- [ ] `PUT /api/admin/meal-templates/{id}` mit `enabled=false` entfernt den Quick-Add-Chip aus der App.
+- [ ] `PUT /api/admin/achievement-config` mit `streak_3.threshold=5` ändert die Badge-Logik im nächsten Achievements-Fetch.
+- [ ] Engagement-Dashboard zeigt korrekte Streak-Histogramm-Daten (cross-check via manuelle Mongo-Aggregate).
+- [ ] Plateau-Liste enthält nur User mit `trend='stable'` UND `entries_last_week ≥ 3`.
+- [ ] Audit-Log für jede CMS-Edit-Aktion vorhanden.
+- [ ] Mobile-App fällt auf Frontend-Constants zurück bei Admin-Endpoint-Outage (Resilience).
+
+---
+
+> **Ende des Updates.** Diese Datei ist die Single Source of Truth für den Admin-Agent. Bei Konflikten zwischen Original-Prompt und Update gilt das Update.
+
