@@ -1343,3 +1343,135 @@ async def summary(profile_id: str):
         "weight_delta_kg": weight.get("delta_kg"),
         "vero_hint": vero_hint,
     }
+
+
+
+# ── Achievements / Streak ──
+
+@router.get("/{profile_id}/achievements")
+async def get_achievements(profile_id: str):
+    """Phase 1: Achievements & streak system for Abnehm-Guide.
+
+    Returns:
+      - current_streak: days in a row (incl. today) with at least one day-plan check-in
+      - longest_streak: best streak ever
+      - today_protein_done: protein_g >= target
+      - today_calories_done: calories within 90% of target
+      - today_water_done: 1500ml+ water logged today
+      - today_full_plan_done: all 4 day-plan steps checked
+      - badges: array of unlocked badges for UI rendering
+    """
+    today = await get_today(profile_id)
+    daily_cal = today["goals"]["daily_calories"]
+    daily_pro = today["goals"]["daily_protein"]
+    cal_now = today["totals"]["calories"]
+    pro_now = today["totals"]["protein_g"]
+
+    # Water today (sum of water_intake_logs)
+    date = today_str()
+    water_logs = await db.water_intake_logs.find(
+        {"profile_id": profile_id, "date": date},
+        {"_id": 0, "amount_ml": 1},
+    ).to_list(length=200)
+    water_ml = sum(w.get("amount_ml", 0) for w in water_logs)
+
+    # Day-plan checks today
+    todays_checks = await db.day_plan_checkins.count_documents(
+        {"profile_id": profile_id, "date": date}
+    )
+    # Total day-plan steps (4 = shake1, shake2, small_meal, large_meal)
+    total_steps = 4
+
+    # Streak: count consecutive days back from today with >=1 check-in
+    # We pull last 60 distinct check-in dates and walk backwards.
+    cursor = db.day_plan_checkins.find(
+        {"profile_id": profile_id},
+        {"_id": 0, "date": 1},
+    ).sort("date", -1).limit(500)
+    rows = await cursor.to_list(length=500)
+    dates_set = {r["date"] for r in rows}
+
+    current_streak = 0
+    cur = datetime.now(timezone.utc).date()
+    # If today has checks, start streak with today, else start from yesterday
+    if cur.strftime("%Y-%m-%d") in dates_set:
+        current_streak = 1
+        check_day = cur - timedelta(days=1)
+    else:
+        check_day = cur - timedelta(days=1)
+    while check_day.strftime("%Y-%m-%d") in dates_set and current_streak < 365:
+        current_streak += 1
+        check_day = check_day - timedelta(days=1)
+
+    # Longest streak (scan all dates set, compute max run of consecutive days)
+    longest_streak = 0
+    if dates_set:
+        sorted_dates = sorted(dates_set)
+        run = 1
+        longest_streak = 1
+        for i in range(1, len(sorted_dates)):
+            prev = datetime.strptime(sorted_dates[i - 1], "%Y-%m-%d").date()
+            curd = datetime.strptime(sorted_dates[i], "%Y-%m-%d").date()
+            if (curd - prev).days == 1:
+                run += 1
+                longest_streak = max(longest_streak, run)
+            else:
+                run = 1
+
+    today_protein_done = bool(daily_pro and pro_now >= daily_pro)
+    today_calories_done = bool(daily_cal and cal_now >= daily_cal * 0.9 and cal_now <= daily_cal * 1.1)
+    today_water_done = water_ml >= 1500
+    today_full_plan_done = todays_checks >= total_steps
+
+    # Badges (always 4 slots, achieved or not)
+    badges = [
+        {
+            "id": "streak_3",
+            "label_de": "3 Tage in Folge",
+            "label_it": "3 giorni di fila",
+            "label_en": "3 days in a row",
+            "icon": "fire",
+            "achieved": current_streak >= 3,
+            "value": current_streak,
+        },
+        {
+            "id": "protein_goal",
+            "label_de": "Protein-Ziel erreicht",
+            "label_it": "Obiettivo proteine",
+            "label_en": "Protein goal reached",
+            "icon": "dumbbell",
+            "achieved": today_protein_done,
+            "value": round(pro_now),
+        },
+        {
+            "id": "full_plan",
+            "label_de": "Heute voll im Plan",
+            "label_it": "Piano completato",
+            "label_en": "On plan today",
+            "icon": "check-circle",
+            "achieved": today_full_plan_done,
+            "value": todays_checks,
+        },
+        {
+            "id": "water_goal",
+            "label_de": "Wasser-Ziel erreicht",
+            "label_it": "Obiettivo acqua",
+            "label_en": "Water goal reached",
+            "icon": "cup-water",
+            "achieved": today_water_done,
+            "value": water_ml,
+        },
+    ]
+
+    return {
+        "current_streak": current_streak,
+        "longest_streak": longest_streak,
+        "today_protein_done": today_protein_done,
+        "today_calories_done": today_calories_done,
+        "today_water_done": today_water_done,
+        "today_full_plan_done": today_full_plan_done,
+        "today_water_ml": water_ml,
+        "today_checks": todays_checks,
+        "total_steps": total_steps,
+        "badges": badges,
+    }

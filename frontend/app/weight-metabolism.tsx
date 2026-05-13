@@ -15,6 +15,7 @@ import { eventBus } from '../src/eventBus';
 import { SmartProductBlock } from '../components/SmartProductBlock';
 import { scheduleFastingReminders, cancelFastingReminders, getDeviceTimezone } from '../src/services/FastingReminderService';
 import { showActionToast } from '../components/ActionToast';
+import { AbnehmGuideModal } from '../components/AbnehmGuideModal';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 const { width: SCREEN_W } = Dimensions.get('window');
@@ -139,6 +140,12 @@ export default function WeightMetabolismScreen() {
   // VERO info modal (Abnehm-Erklaerung)
   const [veroInfoModal, setVeroInfoModal] = useState(false);
 
+  // Abnehm-Guide modal (Phase 1: 6-card educational carousel)
+  const [guideModal, setGuideModal] = useState(false);
+
+  // Achievements (streak, badges)
+  const [achievements, setAchievements] = useState<any>(null);
+
   // Weight-history modal (Verlauf einsehen + einzeln loeschen + reset)
   const [historyModal, setHistoryModal] = useState(false);
 
@@ -163,13 +170,14 @@ export default function WeightMetabolismScreen() {
 
   const loadAll = useCallback(async (pid: string) => {
     try {
-      const [tRes, gRes, schedRes, wRes, favRes, dpRes] = await Promise.all([
+      const [tRes, gRes, schedRes, wRes, favRes, dpRes, achRes] = await Promise.all([
         fetch(`${API_URL}/api/weight-metabolism/${pid}/today`),
         fetch(`${API_URL}/api/weight-metabolism/${pid}/goals`),
         fetch(`${API_URL}/api/weight-metabolism/${pid}/schedule`),
         fetch(`${API_URL}/api/weight-metabolism/${pid}/weight/history?days=30`),
         fetch(`${API_URL}/api/weight-metabolism/${pid}/favorites`),
         fetch(`${API_URL}/api/weight-metabolism/${pid}/day-plan`),
+        fetch(`${API_URL}/api/weight-metabolism/${pid}/achievements`),
       ]);
       if (tRes.ok) setToday(await tRes.json());
       if (gRes.ok) setGoals(await gRes.json());
@@ -177,6 +185,7 @@ export default function WeightMetabolismScreen() {
       if (wRes.ok) setWeight(await wRes.json());
       if (favRes.ok) { const d = await favRes.json(); setFavorites(d.items || []); }
       if (dpRes.ok) setDayPlan(await dpRes.json());
+      if (achRes.ok) setAchievements(await achRes.json());
     } catch (e) { console.warn(e); }
     setLoading(false);
   }, []);
@@ -216,6 +225,14 @@ export default function WeightMetabolismScreen() {
           body: JSON.stringify({ timezone: tz, offset_minutes: offset }),
         }).catch(() => {});
       } catch {}
+      // Auto-show Abnehm-Guide on first visit (one-time)
+      try {
+        const seen = await AsyncStorage.getItem('abnehm_guide_seen');
+        if (!seen) {
+          setTimeout(() => setGuideModal(true), 800);
+          AsyncStorage.setItem('abnehm_guide_seen', '1').catch(() => {});
+        }
+      } catch {}
     });
   }, [loadAll]);
 
@@ -238,6 +255,34 @@ export default function WeightMetabolismScreen() {
         try { showActionToast(`VERO: ${data.comment}`, data.tone === 'positive' ? 'success' : 'info'); } catch {}
       }
     } catch {}
+  };
+
+  // ── Hunger-prevention coach lines (static, per timeline event) ──
+  const coachLineFor = (eventKey: string): string => {
+    const map: Record<string, { de: string; it: string; en: string }> = {
+      shake_1: {
+        de: 'Dein erster Shake hilft dir, stabil in den Tag zu starten.',
+        it: 'Il primo shake ti dà un avvio stabile.',
+        en: 'Your first shake helps you start the day stable.',
+      },
+      shake_2: {
+        de: 'Die zweite Proteinphase hilft gegen spätere Snacks.',
+        it: 'La seconda fase proteica evita snack tardivi.',
+        en: 'The second protein step prevents late-day snacks.',
+      },
+      small_meal: {
+        de: 'Die kleine Mahlzeit verhindert extremes Abendessen.',
+        it: 'Il pasto piccolo evita una cena troppo abbondante.',
+        en: 'The small meal prevents an oversized dinner.',
+      },
+      large_meal: {
+        de: 'Gönn dir hier eine sättigende, eiweißreiche Mahlzeit.',
+        it: 'Concediti un pasto saziante e ricco di proteine.',
+        en: 'Enjoy a satiating, protein-rich meal here.',
+      },
+    };
+    const entry = map[eventKey] || map.shake_1;
+    return tx(lang, entry);
   };
 
   // ── Meal source picker ──
@@ -717,10 +762,15 @@ export default function WeightMetabolismScreen() {
         <TouchableOpacity onPress={() => canGoBack ? router.back() : router.push('/(tabs)' as any)} testID="wm-back-btn" hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
           <MaterialCommunityIcons name="arrow-left" size={26} color="#1F2937" />
         </TouchableOpacity>
-        <Text style={st.headerTitle}>{tx(lang, { de: 'Gewicht & Stoffwechsel', it: 'Peso & metabolismo', en: 'Weight & metabolism' })}</Text>
-        <TouchableOpacity onPress={openGoalModal} testID="wm-goal-btn" hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
-          <MaterialCommunityIcons name="cog-outline" size={22} color="#2E7D52" />
-        </TouchableOpacity>
+        <Text style={st.headerTitle}>{tx(lang, { de: 'Abnehm-Guide', it: 'Guida dimagrante', en: 'Slim guide' })}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+          <TouchableOpacity onPress={() => setGuideModal(true)} testID="wm-guide-btn" hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
+            <MaterialCommunityIcons name="book-open-page-variant-outline" size={22} color="#6D28D9" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={openGoalModal} testID="wm-goal-btn" hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
+            <MaterialCommunityIcons name="cog-outline" size={22} color="#2E7D52" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView contentContainerStyle={{ paddingBottom: 80 }} showsVerticalScrollIndicator={false}>
@@ -791,14 +841,42 @@ export default function WeightMetabolismScreen() {
                   {tx(lang, { de: 'Tippe für VERO-Erklärung', it: 'Tocca per la guida VERO', en: 'Tap for VERO guide' })}
                 </Text>
               </TouchableOpacity>
-              <View style={st.scheduleInfo}>
-                <View style={st.scheduleRow}>
-                  <Text style={st.scheduleLabel}>{tx(lang, { de: 'Proteinphase', it: 'Fase proteica', en: 'Protein phase' })}</Text>
-                  <Text style={st.scheduleValue}>{sched.fast_start || sched.eating_window_end} – {sched.eating_window_start}</Text>
+              <View style={st.phaseCardsWrap}>
+                <View style={[st.phaseCard, { backgroundColor: '#F3E8FF', borderLeftColor: '#6D28D9' }]}>
+                  <View style={st.phaseCardHead}>
+                    <MaterialCommunityIcons name="timer-sand" size={16} color="#6D28D9" />
+                    <Text style={[st.phaseCardTitle, { color: '#6D28D9' }]}>
+                      {tx(lang, { de: 'Proteinphase', it: 'Fase proteica', en: 'Protein phase' })}
+                    </Text>
+                    <Text style={st.phaseCardTime}>
+                      {sched.fast_start || sched.eating_window_end} – {sched.eating_window_start}
+                    </Text>
+                  </View>
+                  <Text style={st.phaseCardText}>
+                    {tx(lang, {
+                      de: 'In dieser Phase liegt der Fokus auf Struktur, Wasser und geplanten Proteinzeiten.',
+                      it: 'In questa fase: struttura, acqua e fasi proteiche pianificate.',
+                      en: 'This phase focuses on structure, water and planned protein steps.',
+                    })}
+                  </Text>
                 </View>
-                <View style={st.scheduleRow}>
-                  <Text style={st.scheduleLabel}>{tx(lang, { de: 'Essensfenster', it: 'Finestra cibo', en: 'Eating window' })}</Text>
-                  <Text style={st.scheduleValue}>{sched.eating_window_start} – {sched.eating_window_end}</Text>
+                <View style={[st.phaseCard, { backgroundColor: '#E8F5E9', borderLeftColor: '#2E7D52' }]}>
+                  <View style={st.phaseCardHead}>
+                    <MaterialCommunityIcons name="silverware-fork-knife" size={16} color="#2E7D52" />
+                    <Text style={[st.phaseCardTitle, { color: '#2E7D52' }]}>
+                      {tx(lang, { de: 'Essensfenster', it: 'Finestra cibo', en: 'Eating window' })}
+                    </Text>
+                    <Text style={st.phaseCardTime}>
+                      {sched.eating_window_start} – {sched.eating_window_end}
+                    </Text>
+                  </View>
+                  <Text style={st.phaseCardText}>
+                    {tx(lang, {
+                      de: 'Hier finden deine geplanten Mahlzeiten und Shakes statt.',
+                      it: 'Qui i tuoi pasti e shake pianificati.',
+                      en: 'Your planned meals and shakes happen here.',
+                    })}
+                  </Text>
                 </View>
               </View>
 
@@ -871,6 +949,13 @@ export default function WeightMetabolismScreen() {
                                 <Text style={[st.budgetChipText, { color: '#B45309' }]}>{ev.target_protein_g}g Protein</Text>
                               </View>
                             )}
+                          </View>
+                        )}
+                        {/* Hunger-prevention coach hint */}
+                        {!ev.checked && ev.status !== 'upcoming' && (
+                          <View style={st.coachLineRow} testID={`wm-coach-line-${ev.key}`}>
+                            <MaterialCommunityIcons name="lightbulb-on-outline" size={11} color="#6D28D9" />
+                            <Text style={st.coachLineText}>{coachLineFor(ev.key)}</Text>
                           </View>
                         )}
                         <View style={st.timelineMeta}>
@@ -1008,6 +1093,62 @@ export default function WeightMetabolismScreen() {
             </Text>
           </TouchableOpacity>
         </View>
+
+        {/* Achievements (Phase 1: streak + badges) */}
+        {achievements && (
+          <View style={st.achievementCard} testID="wm-achievements">
+            <View style={st.achHeader}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <MaterialCommunityIcons name="trophy-outline" size={20} color="#D97706" />
+                <Text style={st.cardTitle}>
+                  {tx(lang, { de: 'Deine Erfolge', it: 'I tuoi traguardi', en: 'Your wins' })}
+                </Text>
+              </View>
+              {achievements.current_streak > 0 && (
+                <View style={st.streakBadge}>
+                  <MaterialCommunityIcons name="fire" size={14} color="#DC2626" />
+                  <Text style={st.streakBadgeText}>{achievements.current_streak}</Text>
+                </View>
+              )}
+            </View>
+            <Text style={st.achSub}>
+              {achievements.current_streak > 0
+                ? tx(lang, {
+                    de: `${achievements.current_streak} Tag${achievements.current_streak === 1 ? '' : 'e'} in Folge dabei!`,
+                    it: `${achievements.current_streak} giorni di fila!`,
+                    en: `${achievements.current_streak} day${achievements.current_streak === 1 ? '' : 's'} in a row!`,
+                  })
+                : tx(lang, {
+                    de: 'Hake heute den ersten Schritt ab und starte deine Serie.',
+                    it: 'Spunta il primo passo per iniziare la serie.',
+                    en: 'Check off your first step and start your streak.',
+                  })}
+            </Text>
+            <View style={st.badgeGrid}>
+              {achievements.badges?.map((b: any) => {
+                const label = lang === 'it' ? b.label_it : lang === 'en' ? b.label_en : b.label_de;
+                return (
+                  <View
+                    key={b.id}
+                    style={[st.badgeTile, b.achieved ? st.badgeTileOn : st.badgeTileOff]}
+                    testID={`wm-badge-${b.id}`}
+                  >
+                    <View style={[st.badgeIcon, { backgroundColor: b.achieved ? '#FEF3C7' : '#F3F4F6' }]}>
+                      <MaterialCommunityIcons
+                        name={b.icon as any}
+                        size={20}
+                        color={b.achieved ? '#D97706' : '#9CA3AF'}
+                      />
+                    </View>
+                    <Text style={[st.badgeLabel, !b.achieved && { color: '#9CA3AF' }]} numberOfLines={2}>
+                      {label}
+                    </Text>
+                  </View>
+                );
+              })}
+            </View>
+          </View>
+        )}
 
         {/* Today meals */}
         {today?.meals?.length > 0 && (
@@ -1704,6 +1845,9 @@ export default function WeightMetabolismScreen() {
           </Animated.View>
         </View>
       </Modal>
+
+      {/* Abnehm-Guide Modal (Phase 1: educational carousel) */}
+      <AbnehmGuideModal visible={guideModal} onClose={() => setGuideModal(false)} />
     </SafeAreaView>
   );
 }
@@ -1773,6 +1917,76 @@ const st = StyleSheet.create({
   scheduleRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 4 },
   scheduleLabel: { fontSize: 13, color: '#6B7280' },
   scheduleValue: { fontSize: 13, fontWeight: '700', color: '#1F2937' },
+
+  // Phase 1 — Phase explanation cards under fasting circle
+  phaseCardsWrap: { width: '100%', marginTop: 16, gap: 8 },
+  phaseCard: {
+    borderLeftWidth: 3,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  phaseCardHead: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 },
+  phaseCardTitle: { fontSize: 13, fontWeight: '800', flex: 1 },
+  phaseCardTime: { fontSize: 12, fontWeight: '700', color: '#1F2937' },
+  phaseCardText: { fontSize: 12, color: '#4B5563', lineHeight: 17 },
+
+  // Phase 1 — Hunger-prevention coach line under timeline events
+  coachLineRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 4,
+    marginTop: 6,
+    backgroundColor: '#FAF5FF',
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  coachLineText: { flex: 1, fontSize: 11, color: '#6D28D9', lineHeight: 15, fontStyle: 'italic' },
+
+  // Phase 1 — Achievements card
+  achievementCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 18,
+    marginHorizontal: 16,
+    marginVertical: 8,
+    padding: 16,
+    ...Platform.select({
+      ios: { shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 8, shadowOffset: { width: 0, height: 2 } },
+      android: { elevation: 2 },
+      web: { boxShadow: '0 2px 8px rgba(0,0,0,0.05)' as any },
+    }),
+  },
+  achHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 },
+  achSub: { fontSize: 13, color: '#6B7280', marginBottom: 12 },
+  streakBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#FEE2E2',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  streakBadgeText: { fontSize: 13, fontWeight: '800', color: '#DC2626' },
+  badgeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  badgeTile: {
+    width: '47%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  badgeTileOn: { backgroundColor: '#FFFBEB', borderColor: '#FDE68A' },
+  badgeTileOff: { backgroundColor: '#F9FAFB', borderColor: '#E5E7EB' },
+  badgeIcon: {
+    width: 34, height: 34, borderRadius: 17,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  badgeLabel: { flex: 1, fontSize: 12, fontWeight: '700', color: '#1F2937' },
 
   removeBtn: { marginTop: 12, paddingVertical: 8, paddingHorizontal: 16 },
   removeBtnText: { color: '#DC2626', fontSize: 12, fontWeight: '600' },
