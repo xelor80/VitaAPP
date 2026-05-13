@@ -539,3 +539,14 @@ Verifiziert: 14 testIDs auf Hauptseite + 15 weitere im Goal-Modal (darunter `wm-
 - `POST /weight-metabolism/{pid}/analyze-meal-photo` erweitert: Antwort enthält jetzt `coach_line` Feld — kontextuell aus aktuellem Protein-Tagesziel berechnet (5 Stufen: erreicht / fast erreicht / passt gut / solide / wenig Protein).
 
 **Tests**: `/app/backend/tests/test_abnehm_guide_phase2.py` — 14/14 pytest cases PASSED (4 Trend-Branches, Endpoint-Vertrag, Regression auf alle Phase 1 + bestehenden Endpoints).
+
+
+### Abnehm-Guide Phase 3 (2026-05-13) - COMPLETED
+**Frontend (`/app/frontend/app/weight-metabolism.tsx`):**
+- **Routine-Mahlzeit-Templates** (1-Klick Quick-Add): 4 hardcoded Presets (Standard Shake 320/35, Protein Bowl 480/38, Hähnchen Reis 620/45, Skyr Snack 180/22) in horizontaler ScrollRow im Meal-Picker-Modal („QUICK ADD" Header). TestIDs `wm-template-std_shake`, `wm-template-protein_bowl`, `wm-template-chicken_rice`, `wm-template-skyr_snack`. `quickAddTemplate` Handler ruft existierenden `POST /meal` Endpoint auf, schließt Modal, zeigt Toast und triggert `showCoachComment`.
+- **Per-Step Product Chip**: Inline Empfehlungs-Chip (lila/blau, Store-Icon + Chevron) nur unter dem `status==='now'` Timeline-Event. Tap → expandiert die Empfehlungen-Collapsible. Mapping per Event: shake1→Protein-Mix, shake2→Sättigender Protein-Boost, small_meal→Protein-Snack, large_meal→Elektrolyt-Komplex. TestID: `wm-step-product-{key}`.
+- **Microinteractions**: Checkmark beim Abhaken nutzt `ZoomIn.duration(350).springify()` (reanimated). `key={`done-${ev.key}`}` erzwingt Remount → Animation feuert bei jedem Check. TestID `wm-check-anim-{key}`.
+
+**Tests**: `/app/backend/tests/test_abnehm_guide_phase3.py` — 12/12 pytest cases PASSED (4 Template-POST + 7 Regression + 1 today-shape). Frontend Self-Test: Skyr Snack erfolgreich via Tap im Browser angelegt (verified via curl). Console-Warnings (transform-origin, raw text nodes in `<View>`) sind pre-existing aus früheren Iterationen und nicht durch Phase 3 verursacht.
+
+**Hinweis**: Per-Step Product Chip und Check-Animation rendern nur bei aktiver Routine mit aktuellem Now-Event bzw. checked-State — visuelle Verifizierung erfordert eine laufende Routine.
