@@ -525,3 +525,17 @@ Verifiziert: 14 testIDs auf Hauptseite + 15 weitere im Goal-Modal (darunter `wm-
 
 **Tests**: `/app/backend/tests/test_abnehm_guide_achievements.py` — 10/10 pytest cases PASSED (shape, streak counting, badge logic, regression auf /today, /goals, /schedule, /day-plan, /summary).
 
+
+
+### Abnehm-Guide Phase 2 (2026-05-13) - COMPLETED
+**Frontend (`/app/frontend/app/weight-metabolism.tsx`):**
+- **Einklappbare Sektionen** mit Chevron-Toggle: Mahlzeiten (`wm-meals-toggle`), Gewicht (`wm-weight-toggle`), Empfehlungen (`wm-reco-toggle`, default eingeklappt). Sanftere Hierarchie auf langen Screen.
+- **Gewicht-Wochenübersicht** (Phase 2 Card unter Stats-Row): 7-Tage Ø, Trend-Chip (down/up/stable mit Icon), kontextueller Hinweistext (good_progress / stay_consistent / stable_is_normal / more_data_needed). TestID: `wm-weekly-insight`.
+- **KI-Foto-Coach-Zeile** im Photo-Modal: Lila Box mit Lightbulb-Icon + kontextuelle Coach-Zeile basierend auf verbleibendem Protein-Ziel. Plus neue Makro-Chips (KH, Fett, Sicherheit). TestID: `wm-photo-coach-line`.
+- **Bug-Fix**: `coachLineFor` map keys von `shake_1`/`shake_2` → `shake1`/`shake2` (matched backend `DAY_PLAN_EVENTS`). Shake 2 zeigt jetzt korrekt eigene Coach-Zeile statt der Shake 1 Zeile.
+
+**Backend (`/app/backend/routes/weight_metabolism.py`):**
+- `GET /weight-metabolism/{pid}/weight/history` erweitert: neue Felder `week_avg_kg`, `prev_week_avg_kg`, `week_delta_kg`, `trend` (down/up/stable/unknown), `hint_key`, `entries_last_week`. Trend-Logik: |Δ|<0.2 kg = stable, sonst down/up.
+- `POST /weight-metabolism/{pid}/analyze-meal-photo` erweitert: Antwort enthält jetzt `coach_line` Feld — kontextuell aus aktuellem Protein-Tagesziel berechnet (5 Stufen: erreicht / fast erreicht / passt gut / solide / wenig Protein).
+
+**Tests**: `/app/backend/tests/test_abnehm_guide_phase2.py` — 14/14 pytest cases PASSED (4 Trend-Branches, Endpoint-Vertrag, Regression auf alle Phase 1 + bestehenden Endpoints).
