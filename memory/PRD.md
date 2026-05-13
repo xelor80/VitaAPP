@@ -501,3 +501,27 @@ Verifiziert: 14 testIDs auf Hauptseite + 15 weitere im Goal-Modal (darunter `wm-
 - **Problem**: EAS iOS Build schlug fehl mit `Field: notification.icon - image should be square...` (vero-hallo.png war 1024×1536, nicht quadratisch).
 - **Fix**: In `/app/frontend/app.json` (Zeile 22) `notification.icon` von `./assets/images/vero-hallo.png` auf `./assets/icon.png` (1024×1024, quadratisch) geändert.
 - **Validierung**: `npx expo-doctor` → 17/17 checks passed. Deployment-Blocker behoben.
+
+### Abnehm-Guide Phase 1 (2026-05-13) - COMPLETED
+**Umbenennung**: Sektion „Gewicht & Stoffwechsel" → **„Abnehm-Guide"** (DE) / „Slim guide" (EN) / „Guida dimagrante" (IT). Header-Titel angepasst.
+
+**Frontend (`/app/frontend/components/AbnehmGuideModal.tsx` — neu):**
+- 6 Swipeable Karten (Warum Protein → Weniger Heißhunger → Struktur → Wasser → Defizit → Konstanz) mit Icon + Titel + Erklärung.
+- Dots-Navigation, „Weiter"/„Fertig"-Button, Close (X). TestIDs: `abnehm-guide-scroll`, `abnehm-guide-card-*`, `abnehm-guide-next-btn`, `abnehm-guide-close`.
+- Auto-Anzeige beim ersten Besuch (`AsyncStorage` Flag `abnehm_guide_seen`).
+- Trigger über neuen Buchsymbol-Button im Header (`wm-guide-btn`, lila, links neben dem Zahnrad).
+
+**Frontend (`/app/frontend/app/weight-metabolism.tsx`):**
+- **Phase-Erklärungs-Cards** unter dem Fasten-Kreis: zwei farbcodierte Cards (lila Proteinphase, grün Essensfenster) mit Uhrzeit + Erklärungstext (ersetzt die alten `scheduleInfo` rows).
+- **Heißhunger-Hinweise** unter jedem nicht-abgehakten Timeline-Step: lila italic-Box mit Lightbulb-Icon + statische VERO-Coach-Zeile pro Step (shake_1, shake_2, small_meal, large_meal). TestID-Schema: `wm-coach-line-{event_key}`.
+- **Achievements-Card** (nach dem Today-Summary): Streak-Badge (🔥 + Tage), motivierender Untertitel, 2×2 Grid mit 4 Badges (3 Tage in Folge, Protein-Ziel, Heute voll im Plan, Wasser-Ziel). TestID: `wm-achievements` + `wm-badge-{id}`.
+
+**Backend (`/app/backend/routes/weight_metabolism.py`):**
+- Neuer Endpoint `GET /api/weight-metabolism/{profile_id}/achievements`:
+  - `current_streak` (consecutive days mit ≥1 day_plan_checkin)
+  - `longest_streak` (max run aller Daten)
+  - `today_protein_done`, `today_calories_done` (90-110% band), `today_water_done` (≥1500 ml), `today_full_plan_done`
+  - `badges` Array (4 Items, immer in fester Reihenfolge: streak_3, protein_goal, full_plan, water_goal)
+
+**Tests**: `/app/backend/tests/test_abnehm_guide_achievements.py` — 10/10 pytest cases PASSED (shape, streak counting, badge logic, regression auf /today, /goals, /schedule, /day-plan, /summary).
+

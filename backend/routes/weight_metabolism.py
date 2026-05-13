@@ -1356,7 +1356,7 @@ async def get_achievements(profile_id: str):
       - current_streak: days in a row (incl. today) with at least one day-plan check-in
       - longest_streak: best streak ever
       - today_protein_done: protein_g >= target
-      - today_calories_done: calories within 90% of target
+      - today_calories_done: calories within 90%-110% band of target (acceptable range)
       - today_water_done: 1500ml+ water logged today
       - today_full_plan_done: all 4 day-plan steps checked
       - badges: array of unlocked badges for UI rendering
