@@ -262,6 +262,38 @@ export default function WeightMetabolismScreen() {
     } catch {}
   };
 
+  // ── Phase 3: contextual product hints per timeline event ──
+  const productHintFor = (eventKey: string): { de: string; it: string; en: string } => {
+    const map: Record<string, { de: string; it: string; en: string }> = {
+      shake1: {
+        de: 'Passend: Protein-Mix für deinen Start',
+        it: 'Consigliato: mix proteico per iniziare',
+        en: 'Match: protein mix for your start',
+      },
+      shake2: {
+        de: 'Passend: Sättigender Protein-Boost',
+        it: 'Consigliato: boost proteico saziante',
+        en: 'Match: filling protein boost',
+      },
+      small_meal: {
+        de: 'Passend: Proteinreiche Snack-Idee',
+        it: 'Consigliato: snack proteico',
+        en: 'Match: protein-rich snack idea',
+      },
+      large_meal: {
+        de: 'Passend: Elektrolyt-Komplex für Wasser',
+        it: 'Consigliato: complesso elettrolitico',
+        en: 'Match: electrolyte complex for water',
+      },
+    };
+    return map[eventKey] || map.shake1;
+  };
+
+  const openRecommendations = () => {
+    setCollapsedReco(false);
+    // Wait for state then scroll-hint isn't trivial in RN web; just expand
+  };
+
   // ── Hunger-prevention coach lines (static, per timeline event) ──
   const coachLineFor = (eventKey: string): string => {
     const map: Record<string, { de: string; it: string; en: string }> = {
@@ -397,6 +429,33 @@ export default function WeightMetabolismScreen() {
     setPhotoModal(false); setPhotoUri(null); setPhotoBase64(null);
     setAnalysisResult(null); setMealName(''); setMealKcal(''); setMealProt('');
     setSaveAsFavorite(false);
+  };
+
+  // ── Phase 3: Routine-Mahlzeit-Templates (1-Klick Quick-Add) ──
+  const MEAL_TEMPLATES = [
+    { id: 'std_shake', name: { de: 'Standard Shake', it: 'Shake standard', en: 'Standard shake' }, calories: 320, protein_g: 35, type: 'shake' as const, icon: 'cup', color: '#6D28D9' },
+    { id: 'protein_bowl', name: { de: 'Protein Bowl', it: 'Protein bowl', en: 'Protein bowl' }, calories: 480, protein_g: 38, type: 'lunch' as const, icon: 'bowl-mix-outline', color: '#2E7D52' },
+    { id: 'chicken_rice', name: { de: 'Hähnchen Reis', it: 'Pollo riso', en: 'Chicken rice' }, calories: 620, protein_g: 45, type: 'dinner' as const, icon: 'food-drumstick-outline', color: '#D97706' },
+    { id: 'skyr_snack', name: { de: 'Skyr Snack', it: 'Snack Skyr', en: 'Skyr snack' }, calories: 180, protein_g: 22, type: 'snack' as const, icon: 'food-apple-outline', color: '#0EA5E9' },
+  ];
+
+  const quickAddTemplate = async (tpl: typeof MEAL_TEMPLATES[number]) => {
+    if (!profileId) return;
+    setMealPicker(false);
+    const name = tpl.name[lang as 'de' | 'it' | 'en'] || tpl.name.de;
+    try {
+      await fetch(`${API_URL}/api/weight-metabolism/${profileId}/meal`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name, calories: tpl.calories, protein_g: tpl.protein_g, meal_type: tpl.type,
+        }),
+      });
+      showActionToast(tx(lang, { de: `${name} eingetragen`, it: `${name} aggiunto`, en: `${name} added` }), 'success');
+      reload();
+      eventBus.emit('weight_metabolism_changed');
+      showCoachComment({ name, calories: tpl.calories, protein_g: tpl.protein_g, meal_type: tpl.type });
+    } catch (e) { console.warn(e); }
   };
 
   const addMealManual = async () => {
@@ -923,7 +982,13 @@ export default function WeightMetabolismScreen() {
                           ev.status === 'now' && !ev.checked && st.timelineDotNow,
                         ]}>
                           {ev.checked ? (
-                            <MaterialCommunityIcons name="check" size={16} color="#FFFFFF" />
+                            <Animated.View
+                              key={`done-${ev.key}`}
+                              entering={ZoomIn.duration(350).springify()}
+                              testID={`wm-check-anim-${ev.key}`}
+                            >
+                              <MaterialCommunityIcons name="check" size={16} color="#FFFFFF" />
+                            </Animated.View>
                           ) : (
                             <MaterialCommunityIcons name={ev.icon} size={14} color={ev.status === 'now' ? '#FFFFFF' : '#6B7280'} />
                           )}
@@ -962,6 +1027,19 @@ export default function WeightMetabolismScreen() {
                             <MaterialCommunityIcons name="lightbulb-on-outline" size={11} color="#6D28D9" />
                             <Text style={st.coachLineText}>{coachLineFor(ev.key)}</Text>
                           </View>
+                        )}
+                        {/* Phase 3: per-step product hint (taps opens recommendations) */}
+                        {!ev.checked && ev.status === 'now' && (
+                          <TouchableOpacity
+                            style={st.stepProductChip}
+                            onPress={(e) => { e.stopPropagation?.(); openRecommendations(); }}
+                            activeOpacity={0.7}
+                            testID={`wm-step-product-${ev.key}`}
+                          >
+                            <MaterialCommunityIcons name="store-outline" size={11} color="#0EA5E9" />
+                            <Text style={st.stepProductText} numberOfLines={1}>{tx(lang, productHintFor(ev.key))}</Text>
+                            <MaterialCommunityIcons name="chevron-right" size={12} color="#0EA5E9" />
+                          </TouchableOpacity>
                         )}
                         <View style={st.timelineMeta}>
                           <MaterialCommunityIcons name="cup-water" size={12} color="#0EA5E9" />
@@ -1324,6 +1402,30 @@ export default function WeightMetabolismScreen() {
         <View style={st.sheetBg}>
           <Animated.View entering={ZoomIn.duration(250)} style={st.sheetCard} testID="wm-meal-picker">
             <Text style={st.sheetTitle}>{tx(lang, { de: 'Wie moechtest du hinzufuegen?', it: 'Come vuoi aggiungere?', en: 'How do you want to add?' })}</Text>
+
+            {/* Phase 3: Quick Templates */}
+            <Text style={st.templatesTitle}>{tx(lang, { de: 'Schnellzugriff', it: 'Accesso rapido', en: 'Quick add' })}</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingHorizontal: 4, paddingBottom: 12 }} testID="wm-templates-row">
+              {MEAL_TEMPLATES.map((tpl) => {
+                const label = tpl.name[lang as 'de' | 'it' | 'en'] || tpl.name.de;
+                return (
+                  <TouchableOpacity
+                    key={tpl.id}
+                    style={[st.templateChip, { borderColor: tpl.color + '40' }]}
+                    onPress={() => quickAddTemplate(tpl)}
+                    activeOpacity={0.7}
+                    testID={`wm-template-${tpl.id}`}
+                  >
+                    <View style={[st.templateChipIcon, { backgroundColor: tpl.color + '15' }]}>
+                      <MaterialCommunityIcons name={tpl.icon as any} size={20} color={tpl.color} />
+                    </View>
+                    <Text style={st.templateChipLabel} numberOfLines={1}>{label}</Text>
+                    <Text style={st.templateChipMeta}>{tpl.calories} kcal · {tpl.protein_g}g</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+
             <TouchableOpacity style={[st.sourceTile, { backgroundColor: '#E8F5E9' }]} onPress={pickPhoto} testID="wm-source-photo">
               <MaterialCommunityIcons name="camera-plus-outline" size={36} color="#2E7D52" />
               <View style={{ flex: 1 }}>
@@ -2197,6 +2299,52 @@ const st = StyleSheet.create({
   },
   macroChipLabel: { fontSize: 10, color: '#6B7280', fontWeight: '600' },
   macroChipValue: { fontSize: 13, fontWeight: '800', color: '#1F2937', marginTop: 1 },
+
+  // Phase 3 — Templates row inside meal picker
+  templatesTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#6B7280',
+    marginTop: 6,
+    marginBottom: 8,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+  },
+  templateChip: {
+    width: 130,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    borderWidth: 1,
+    alignItems: 'center',
+    gap: 4,
+  },
+  templateChipIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 2,
+  },
+  templateChipLabel: { fontSize: 12, fontWeight: '700', color: '#1F2937', textAlign: 'center' },
+  templateChipMeta: { fontSize: 10, color: '#6B7280', fontWeight: '500' },
+
+  // Phase 3 — Per-step product hint chip
+  stepProductChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 4,
+    backgroundColor: '#F0F9FF',
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderLeftWidth: 2,
+    borderLeftColor: '#0EA5E9',
+  },
+  stepProductText: { flex: 1, fontSize: 11, color: '#0369A1', fontWeight: '600' },
 
   removeBtn: { marginTop: 12, paddingVertical: 8, paddingHorizontal: 16 },
   removeBtnText: { color: '#DC2626', fontSize: 12, fontWeight: '600' },
