@@ -10,6 +10,7 @@ import { useRouter, useFocusEffect } from 'expo-router';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useLang } from '../../src/LangContext';
 import { tx } from '../../src/i18n';
+import { useBrand } from '../../src/BrandContext';
 import { useGuide } from '../../src/GuideContext';
 import { useAuth } from '../../src/AuthContext';
 import { eventBus } from '../../src/eventBus';
@@ -84,6 +85,7 @@ const CATEGORIES = [
 export default function DashboardHome() {
   const router = useRouter();
   const { lang, setLang } = useLang();
+  const { brand, appName } = useBrand();
   const guide = useGuide();
   const { user } = useAuth();
   const [disclaimerAccepted, setDisclaimerAccepted] = useState<boolean | null>(null);
@@ -269,9 +271,33 @@ export default function DashboardHome() {
     <View style={s.container}>
       <LinearGradient colors={['#E8F5E9', '#F1F8F3', '#F5F7FA']} style={s.bgGradient} />
 
-      {/* Header bar (slim, no clutter) */}
-      <LinearGradient colors={['#1B6B45', '#2E9E6B', '#43C68A']} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} style={s.header}>
-        <Text style={s.logoText}><Text style={s.logoVita}>Vita</Text>Guide<Text style={s.logoPlus}>+</Text></Text>
+      {/* Header bar (slim, no clutter) — brand aware */}
+      <LinearGradient
+        colors={brand.is_default
+          ? ['#1B6B45', '#2E9E6B', '#43C68A']
+          : [brand.primary_color, brand.primary_color, brand.primary_color]}
+        start={{ x: 0, y: 0.5 }}
+        end={{ x: 1, y: 0.5 }}
+        style={s.header}
+      >
+        {brand.logo_url ? (
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Image
+              source={{ uri: brand.logo_url }}
+              style={{ width: 22, height: 22, resizeMode: 'contain' }}
+              testID="header-brand-logo"
+            />
+            <Text style={s.logoText} testID="header-brand-name">{appName(lang)}</Text>
+          </View>
+        ) : (
+          <Text style={s.logoText} testID="header-brand-name">
+            {brand.is_default ? (
+              <><Text style={s.logoVita}>Vita</Text>Guide<Text style={s.logoPlus}>+</Text></>
+            ) : (
+              appName(lang)
+            )}
+          </Text>
+        )}
       </LinearGradient>
 
       <ScrollView style={s.scroll} contentContainerStyle={s.scrollContent} showsVerticalScrollIndicator={false}>

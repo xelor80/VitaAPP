@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { t } from '../../src/i18n';
 import { useSettings } from '../../src/SettingsContext';
+import { useBrand } from '../../src/BrandContext';
 import { styles } from './homeStyles';
 
 interface HomeHeaderProps {
@@ -14,6 +15,7 @@ interface HomeHeaderProps {
 
 export function HomeHeader({ lang, setLang, onLangChange, firstName }: HomeHeaderProps) {
   const { translations } = useSettings();
+  const { brand, appName, tagline } = useBrand();
   const handleLangChange = (newLang: string) => {
     setLang(newLang);
     onLangChange?.();
@@ -23,13 +25,28 @@ export function HomeHeader({ lang, setLang, onLangChange, firstName }: HomeHeade
     ? (lang === 'de' ? `Hallo ${firstName}!` : `Ciao ${firstName}!`)
     : null;
 
+  const customTagline = tagline(lang);
+  const subtitle = customTagline && !brand.is_default
+    ? customTagline
+    : t(lang, 'home_subtitle', translations);
+
   return (
     <View style={styles.header}>
       <View style={styles.headerTopRow}>
         <View style={{ width: 80 }} />
-        <View style={styles.logoRow}>
-          <MaterialCommunityIcons name="leaf" size={28} color="#4A8B71" />
-          <Text style={styles.logoText}>VitaGuide</Text>
+        <View style={styles.logoRow} testID="brand-logo-row">
+          {brand.logo_url ? (
+            <Image
+              source={{ uri: brand.logo_url }}
+              style={{ width: 28, height: 28, resizeMode: 'contain' }}
+              testID="brand-logo-image"
+            />
+          ) : (
+            <MaterialCommunityIcons name="leaf" size={28} color={brand.primary_color || '#4A8B71'} />
+          )}
+          <Text style={[styles.logoText, { color: brand.primary_color || '#4A8B71' }]} testID="brand-app-name">
+            {appName(lang)}
+          </Text>
         </View>
         <View style={styles.langSwitcherSmall}>
           <TouchableOpacity
@@ -51,7 +68,7 @@ export function HomeHeader({ lang, setLang, onLangChange, firstName }: HomeHeade
       {greeting && (
         <Text testID="personalized-greeting" style={styles.greetingText}>{greeting}</Text>
       )}
-      <Text style={styles.headerSubtitle}>{t(lang, 'home_subtitle', translations)}</Text>
+      <Text style={styles.headerSubtitle}>{subtitle}</Text>
     </View>
   );
 }

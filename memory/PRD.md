@@ -550,3 +550,31 @@ Verifiziert: 14 testIDs auf Hauptseite + 15 weitere im Goal-Modal (darunter `wm-
 **Tests**: `/app/backend/tests/test_abnehm_guide_phase3.py` — 12/12 pytest cases PASSED (4 Template-POST + 7 Regression + 1 today-shape). Frontend Self-Test: Skyr Snack erfolgreich via Tap im Browser angelegt (verified via curl). Console-Warnings (transform-origin, raw text nodes in `<View>`) sind pre-existing aus früheren Iterationen und nicht durch Phase 3 verursacht.
 
 **Hinweis**: Per-Step Product Chip und Check-Animation rendern nur bei aktiver Routine mit aktuellem Now-Event bzw. checked-State — visuelle Verifizierung erfordert eine laufende Routine.
+
+### White-Label Branding System (2026-05-15) - COMPLETED
+**Backend (`/app/backend/routes/branding.py` — neu):**
+- Mongo-Collection `brands` mit allen Brand-Feldern (Name DE/IT/EN, Tagline DE/IT/EN, Logo-Data-URL, Primary-Color hex, is_active, is_default).
+- Public Endpoint `GET /api/branding/active` (mit DEFAULT_BRAND Fallback wenn keiner aktiv).
+- Admin CRUD: `GET/POST/PUT/DELETE /api/branding/admin/brands`.
+- Activate-Endpoint `PUT /admin/brands/{id}/activate` (deaktiviert alle anderen).
+- Reset-Endpoint `PUT /admin/brands/reset-to-default` (alle inaktiv → DEFAULT fallback).
+- Logo akzeptiert: leerer String (Default-Leaf), HTTPS-URL oder Data-URL Base64 (max 300 KB).
+- Color-Validierung `#RRGGBB`. Schutz: Aktiver Brand kann nicht gelöscht werden.
+
+**Frontend (`/app/frontend/src/BrandContext.tsx` — neu):**
+- React Context mit `useBrand()` Hook → liefert `{brand, loading, refresh, appName(lang), tagline(lang)}`.
+- 30 s Polling via `setInterval`, AsyncStorage-Cache für Offline-Fallback.
+- DEFAULT_BRAND hardcoded für Network-Fail.
+- Wrapper im `app/_layout.tsx` zwischen `SettingsProvider` und `AuthProvider`.
+
+**Frontend (Header-Integration):**
+- `app/(tabs)/index.tsx`: Header-Gradient nutzt `brand.primary_color` (oder default-Gradient bei is_default). Text dynamisch via `appName(lang)`, Logo-Image bei vorhandener `logo_url`.
+- `components/home/HomeHeader.tsx`: gleiche Logik, plus Tagline-Subtitle.
+- TestIDs: `header-brand-name`, `header-brand-logo`, `brand-app-name`, `brand-logo-image`.
+
+**Verifikation (live im Browser-Screenshot):**
+- FitCoach-Brand erstellt (#FF6B35 orange + Logo-fallback Leaf) → aktiviert → Header zeigte sofort „FitCoach" auf orangem Hintergrund nach 30s-Poll bzw. Reload.
+- Reset → Header zurück auf VitaGuide+ grün-Gradient.
+
+**Admin-Agent-Prompt**: `/app/memory/ADMIN_BRANDING_PROMPT.md` (316 Zeilen) — vollständige Specs, Endpoint-Doku, Logo-Upload-Strategie, UI-Mockup, Audit-Anforderungen, cURL-Tests, Sicherheits-Hinweise.
+
