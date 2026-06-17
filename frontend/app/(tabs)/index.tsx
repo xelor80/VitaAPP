@@ -296,7 +296,7 @@ export default function DashboardHome() {
         >
           <View
             style={{
-              paddingTop: insets.top + 28,
+              paddingTop: insets.top + 36,
               paddingBottom: 32,
               paddingHorizontal: SIDE_PAD,
               backgroundColor: '#FFFFFF',
