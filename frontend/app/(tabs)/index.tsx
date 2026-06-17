@@ -288,28 +288,34 @@ export default function DashboardHome() {
       ) : (
         <View
           style={{
-            paddingTop: insets.top + 4,
-            paddingBottom: 6,
+            paddingTop: insets.top + 0,
+            paddingBottom: 4,
             paddingHorizontal: SIDE_PAD,
             backgroundColor: brand.primary_color,
             alignItems: 'center',
             justifyContent: 'center',
             flexDirection: 'row',
-            gap: 12,
+            gap: 10,
             borderBottomLeftRadius: 24,
             borderBottomRightRadius: 24,
           }}
         >
           <Text
-            style={{ color: '#FFFFFF', fontSize: 20, fontWeight: '700', letterSpacing: 0.5 }}
+            style={{
+              color: '#E5E5E5',
+              fontSize: 20,
+              fontWeight: '300',
+              letterSpacing: 3,
+              fontFamily: Platform.select({ ios: 'Didot', android: 'serif', default: 'Didot, Georgia, serif' }),
+            }}
             testID="header-brand-prefix"
           >
-            Joachim
+            JOACHIM
           </Text>
           {brand.logo_url ? (
             <Image
               source={{ uri: brand.logo_url }}
-              style={{ width: 56, height: 56, resizeMode: 'contain' }}
+              style={{ width: 52, height: 52, resizeMode: 'contain' }}
               testID="header-brand-logo"
             />
           ) : (
@@ -321,10 +327,16 @@ export default function DashboardHome() {
             </Text>
           )}
           <Text
-            style={{ color: '#FFFFFF', fontSize: 20, fontWeight: '700', letterSpacing: 0.5 }}
+            style={{
+              color: '#E5E5E5',
+              fontSize: 20,
+              fontWeight: '300',
+              letterSpacing: 3,
+              fontFamily: Platform.select({ ios: 'Didot', android: 'serif', default: 'Didot, Georgia, serif' }),
+            }}
             testID="header-brand-suffix"
           >
-            Kaeser
+            KAESER
           </Text>
         </View>
       )}
