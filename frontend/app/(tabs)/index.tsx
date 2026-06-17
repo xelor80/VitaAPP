@@ -290,19 +290,19 @@ export default function DashboardHome() {
           style={[
             s.header,
             {
-              paddingTop: insets.top + 14,
-              paddingBottom: 18,
+              paddingTop: insets.top + 18,
+              paddingBottom: 22,
               backgroundColor: '#FFFFFF',
               borderBottomWidth: 2,
               borderBottomColor: brand.primary_color,
-              minHeight: 64,
+              minHeight: 72,
             },
           ]}
         >
           {brand.logo_url ? (
             <Image
               source={{ uri: brand.logo_url }}
-              style={{ width: 52, height: 52, resizeMode: 'contain' }}
+              style={{ width: 42, height: 42, resizeMode: 'contain' }}
               testID="header-brand-logo"
             />
           ) : (
