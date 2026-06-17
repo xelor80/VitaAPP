@@ -272,33 +272,52 @@ export default function DashboardHome() {
       <LinearGradient colors={['#E8F5E9', '#F1F8F3', '#F5F7FA']} style={s.bgGradient} />
 
       {/* Header bar (slim, no clutter) — brand aware */}
-      <LinearGradient
-        colors={brand.is_default
-          ? ['#1B6B45', '#2E9E6B', '#43C68A']
-          : [brand.primary_color, brand.primary_color, brand.primary_color]}
-        start={{ x: 0, y: 0.5 }}
-        end={{ x: 1, y: 0.5 }}
-        style={s.header}
-      >
-        {brand.logo_url ? (
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <Image
-              source={{ uri: brand.logo_url }}
-              style={{ width: 22, height: 22, resizeMode: 'contain' }}
-              testID="header-brand-logo"
-            />
-            <Text style={s.logoText} testID="header-brand-name">{appName(lang)}</Text>
-          </View>
-        ) : (
+      {brand.is_default ? (
+        <LinearGradient
+          colors={['#1B6B45', '#2E9E6B', '#43C68A']}
+          start={{ x: 0, y: 0.5 }}
+          end={{ x: 1, y: 0.5 }}
+          style={s.header}
+        >
           <Text style={s.logoText} testID="header-brand-name">
-            {brand.is_default ? (
-              <><Text style={s.logoVita}>Vita</Text>Guide<Text style={s.logoPlus}>+</Text></>
-            ) : (
-              appName(lang)
-            )}
+            <Text style={s.logoVita}>Vita</Text>Guide<Text style={s.logoPlus}>+</Text>
           </Text>
-        )}
-      </LinearGradient>
+        </LinearGradient>
+      ) : (
+        <View
+          style={[
+            s.header,
+            {
+              backgroundColor: '#FFFFFF',
+              borderBottomWidth: 2,
+              borderBottomColor: brand.primary_color,
+            },
+          ]}
+        >
+          {brand.logo_url ? (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Image
+                source={{ uri: brand.logo_url }}
+                style={{ width: 26, height: 26, resizeMode: 'contain' }}
+                testID="header-brand-logo"
+              />
+              <Text
+                style={[s.logoText, { color: brand.primary_color }]}
+                testID="header-brand-name"
+              >
+                {appName(lang)}
+              </Text>
+            </View>
+          ) : (
+            <Text
+              style={[s.logoText, { color: brand.primary_color }]}
+              testID="header-brand-name"
+            >
+              {appName(lang)}
+            </Text>
+          )}
+        </View>
+      )}
 
       <ScrollView style={s.scroll} contentContainerStyle={s.scrollContent} showsVerticalScrollIndicator={false}>
 
