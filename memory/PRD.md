@@ -578,3 +578,13 @@ Verifiziert: 14 testIDs auf Hauptseite + 15 weitere im Goal-Modal (darunter `wm-
 
 **Admin-Agent-Prompt**: `/app/memory/ADMIN_BRANDING_PROMPT.md` (316 Zeilen) — vollständige Specs, Endpoint-Doku, Logo-Upload-Strategie, UI-Mockup, Audit-Anforderungen, cURL-Tests, Sicherheits-Hinweise.
 
+
+### JK Branding aktiviert (2026-06-17) - COMPLETED
+- **Brand erstellt**: „JK Joachim Kaeser" mit echtem JK-Logo (rotes Oval mit weißem „JK"), 256×256 PNG mit transparentem Hintergrund, ~55 KB als Data-URL gespeichert.
+- **Farbe**: `#C2272F` (Markenrot des JK-Logos)
+- **App-Name**: „JK" (alle Sprachen)
+- **Tagline**: „Joachim Kaeser"
+- **Verifiziert via Screenshot**: Header zeigt rotes JK-Logo + goldenes „JK" auf rotem Gradient — Live ohne App-Rebuild.
+- Original-Asset: `https://customer-assets.emergentagent.com/job_140674c3-b5f2-4e42-ae14-4e40407a4853/artifacts/t5xllq48_IMG_1833.jpeg`
+- Reset jederzeit möglich via `PUT /api/branding/admin/brands/reset-to-default` → zurück zu VitaGuide+ grün.
+
