@@ -302,7 +302,7 @@ export default function DashboardHome() {
           {brand.logo_url ? (
             <Image
               source={{ uri: brand.logo_url }}
-              style={{ width: 64, height: 64, resizeMode: 'contain' }}
+              style={{ width: 52, height: 52, resizeMode: 'contain' }}
               testID="header-brand-logo"
             />
           ) : (
