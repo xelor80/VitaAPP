@@ -295,18 +295,20 @@ export default function DashboardHome() {
             alignItems: 'center',
             justifyContent: 'center',
             flexDirection: 'row',
-            gap: 10,
             borderBottomLeftRadius: 24,
             borderBottomRightRadius: 24,
           }}
         >
           <Text
             style={{
+              flex: 1,
+              textAlign: 'right',
               color: '#E5E5E5',
               fontSize: 20,
               fontWeight: '300',
               letterSpacing: 3,
               fontFamily: Platform.select({ ios: 'Didot', android: 'serif', default: 'Didot, Georgia, serif' }),
+              paddingRight: 10,
             }}
             testID="header-brand-prefix"
           >
@@ -328,11 +330,14 @@ export default function DashboardHome() {
           )}
           <Text
             style={{
+              flex: 1,
+              textAlign: 'left',
               color: '#E5E5E5',
               fontSize: 20,
               fontWeight: '300',
               letterSpacing: 3,
               fontFamily: Platform.select({ ios: 'Didot', android: 'serif', default: 'Didot, Georgia, serif' }),
+              paddingLeft: 10,
             }}
             testID="header-brand-suffix"
           >
