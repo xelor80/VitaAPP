@@ -296,12 +296,12 @@ export default function DashboardHome() {
         >
           <View
             style={{
-              paddingTop: insets.top + 18,
-              paddingBottom: 22,
+              paddingTop: insets.top + 28,
+              paddingBottom: 32,
               paddingHorizontal: SIDE_PAD,
               backgroundColor: '#FFFFFF',
               alignItems: 'center',
-              minHeight: 72,
+              minHeight: 110,
               marginBottom: 4,
               borderBottomLeftRadius: 20,
               borderBottomRightRadius: 20,
@@ -310,7 +310,7 @@ export default function DashboardHome() {
             {brand.logo_url ? (
               <Image
                 source={{ uri: brand.logo_url }}
-                style={{ width: 42, height: 42, resizeMode: 'contain' }}
+                style={{ width: 68, height: 68, resizeMode: 'contain' }}
                 testID="header-brand-logo"
               />
             ) : (
