@@ -287,32 +287,42 @@ export default function DashboardHome() {
         </LinearGradient>
       ) : (
         <View
-          style={[
-            s.header,
-            {
-              paddingTop: insets.top + 18,
-              paddingBottom: 22,
-              backgroundColor: '#FFFFFF',
-              borderBottomWidth: 2,
-              borderBottomColor: brand.primary_color,
-              minHeight: 72,
-            },
-          ]}
+          style={{
+            borderBottomLeftRadius: 20,
+            borderBottomRightRadius: 20,
+            overflow: 'hidden',
+          }}
         >
-          {brand.logo_url ? (
-            <Image
-              source={{ uri: brand.logo_url }}
-              style={{ width: 42, height: 42, resizeMode: 'contain' }}
-              testID="header-brand-logo"
-            />
-          ) : (
-            <Text
-              style={[s.logoText, { color: brand.primary_color, fontSize: 22 }]}
-              testID="header-brand-name"
-            >
-              {appName(lang)}
-            </Text>
-          )}
+          <View
+            style={[
+              s.header,
+              {
+                paddingTop: insets.top + 18,
+                paddingBottom: 22,
+                backgroundColor: '#FFFFFF',
+                borderBottomLeftRadius: 0,
+                borderBottomRightRadius: 0,
+                minHeight: 72,
+              },
+            ]}
+          >
+            {brand.logo_url ? (
+              <Image
+                source={{ uri: brand.logo_url }}
+                style={{ width: 42, height: 42, resizeMode: 'contain' }}
+                testID="header-brand-logo"
+              />
+            ) : (
+              <Text
+                style={[s.logoText, { color: brand.primary_color, fontSize: 22 }]}
+                testID="header-brand-name"
+              >
+                {appName(lang)}
+              </Text>
+            )}
+          </View>
+          {/* Bottom accent strip — respects parent borderRadius via overflow:hidden */}
+          <View style={{ height: 2, backgroundColor: brand.primary_color }} />
         </View>
       )}
 
