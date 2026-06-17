@@ -298,7 +298,7 @@ export default function DashboardHome() {
           {brand.logo_url ? (
             <Image
               source={{ uri: brand.logo_url }}
-              style={{ width: 56, height: 56, resizeMode: 'contain' }}
+              style={{ width: 64, height: 64, resizeMode: 'contain' }}
               testID="header-brand-logo"
             />
           ) : (
