@@ -291,26 +291,19 @@ export default function DashboardHome() {
               backgroundColor: '#FFFFFF',
               borderBottomWidth: 2,
               borderBottomColor: brand.primary_color,
+              minHeight: 64,
             },
           ]}
         >
           {brand.logo_url ? (
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <Image
-                source={{ uri: brand.logo_url }}
-                style={{ width: 26, height: 26, resizeMode: 'contain' }}
-                testID="header-brand-logo"
-              />
-              <Text
-                style={[s.logoText, { color: brand.primary_color }]}
-                testID="header-brand-name"
-              >
-                {appName(lang)}
-              </Text>
-            </View>
+            <Image
+              source={{ uri: brand.logo_url }}
+              style={{ width: 48, height: 48, resizeMode: 'contain' }}
+              testID="header-brand-logo"
+            />
           ) : (
             <Text
-              style={[s.logoText, { color: brand.primary_color }]}
+              style={[s.logoText, { color: brand.primary_color, fontSize: 22 }]}
               testID="header-brand-name"
             >
               {appName(lang)}
