@@ -291,12 +291,10 @@ export default function DashboardHome() {
             paddingTop: insets.top + 12,
             paddingBottom: 14,
             paddingHorizontal: SIDE_PAD,
-            backgroundColor: '#FFFFFF',
+            backgroundColor: brand.primary_color,
             alignItems: 'center',
             borderBottomLeftRadius: 24,
             borderBottomRightRadius: 24,
-            borderBottomWidth: 3,
-            borderBottomColor: brand.primary_color,
           }}
         >
           {brand.logo_url ? (
@@ -307,7 +305,7 @@ export default function DashboardHome() {
             />
           ) : (
             <Text
-              style={[s.logoText, { color: brand.primary_color, fontSize: 22 }]}
+              style={[s.logoText, { color: '#FFFFFF', fontSize: 22 }]}
               testID="header-brand-name"
             >
               {appName(lang)}
