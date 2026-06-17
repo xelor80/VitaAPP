@@ -288,40 +288,31 @@ export default function DashboardHome() {
       ) : (
         <View
           style={{
-            borderBottomLeftRadius: 28,
-            borderBottomRightRadius: 28,
-            overflow: 'hidden',
-            backgroundColor: brand.primary_color,
+            paddingTop: insets.top + 12,
+            paddingBottom: 14,
+            paddingHorizontal: SIDE_PAD,
+            backgroundColor: '#FFFFFF',
+            alignItems: 'center',
+            borderBottomLeftRadius: 24,
+            borderBottomRightRadius: 24,
+            borderBottomWidth: 3,
+            borderBottomColor: brand.primary_color,
           }}
         >
-          <View
-            style={{
-              paddingTop: insets.top + 36,
-              paddingBottom: 32,
-              paddingHorizontal: SIDE_PAD,
-              backgroundColor: '#FFFFFF',
-              alignItems: 'center',
-              minHeight: 110,
-              marginBottom: 4,
-              borderBottomLeftRadius: 20,
-              borderBottomRightRadius: 20,
-            }}
-          >
-            {brand.logo_url ? (
-              <Image
-                source={{ uri: brand.logo_url }}
-                style={{ width: 68, height: 68, resizeMode: 'contain' }}
-                testID="header-brand-logo"
-              />
-            ) : (
-              <Text
-                style={[s.logoText, { color: brand.primary_color, fontSize: 22 }]}
-                testID="header-brand-name"
-              >
-                {appName(lang)}
-              </Text>
-            )}
-          </View>
+          {brand.logo_url ? (
+            <Image
+              source={{ uri: brand.logo_url }}
+              style={{ width: 56, height: 56, resizeMode: 'contain' }}
+              testID="header-brand-logo"
+            />
+          ) : (
+            <Text
+              style={[s.logoText, { color: brand.primary_color, fontSize: 22 }]}
+              testID="header-brand-name"
+            >
+              {appName(lang)}
+            </Text>
+          )}
         </View>
       )}
 
