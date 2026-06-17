@@ -8,6 +8,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter, useFocusEffect } from 'expo-router';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLang } from '../../src/LangContext';
 import { tx } from '../../src/i18n';
 import { useBrand } from '../../src/BrandContext';
@@ -86,6 +87,7 @@ export default function DashboardHome() {
   const router = useRouter();
   const { lang, setLang } = useLang();
   const { brand, appName } = useBrand();
+  const insets = useSafeAreaInsets();
   const guide = useGuide();
   const { user } = useAuth();
   const [disclaimerAccepted, setDisclaimerAccepted] = useState<boolean | null>(null);
@@ -271,13 +273,13 @@ export default function DashboardHome() {
     <View style={s.container}>
       <LinearGradient colors={['#E8F5E9', '#F1F8F3', '#F5F7FA']} style={s.bgGradient} />
 
-      {/* Header bar (slim, no clutter) — brand aware */}
+      {/* Header bar (slim, no clutter) — brand aware + safe-area aware */}
       {brand.is_default ? (
         <LinearGradient
           colors={['#1B6B45', '#2E9E6B', '#43C68A']}
           start={{ x: 0, y: 0.5 }}
           end={{ x: 1, y: 0.5 }}
-          style={s.header}
+          style={[s.header, { paddingTop: insets.top + 12 }]}
         >
           <Text style={s.logoText} testID="header-brand-name">
             <Text style={s.logoVita}>Vita</Text>Guide<Text style={s.logoPlus}>+</Text>
@@ -288,6 +290,8 @@ export default function DashboardHome() {
           style={[
             s.header,
             {
+              paddingTop: insets.top + 14,
+              paddingBottom: 18,
               backgroundColor: '#FFFFFF',
               borderBottomWidth: 2,
               borderBottomColor: brand.primary_color,
@@ -572,7 +576,6 @@ const s = StyleSheet.create({
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F7FA' },
 
   header: {
-    paddingTop: Platform.OS === 'ios' ? 56 : 40,
     paddingBottom: 18,
     paddingHorizontal: SIDE_PAD,
     borderBottomLeftRadius: 20,
