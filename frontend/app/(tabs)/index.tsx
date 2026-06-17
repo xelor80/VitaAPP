@@ -572,8 +572,8 @@ const s = StyleSheet.create({
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F7FA' },
 
   header: {
-    paddingTop: Platform.OS === 'ios' ? 48 : 32,
-    paddingBottom: 10,
+    paddingTop: Platform.OS === 'ios' ? 56 : 40,
+    paddingBottom: 18,
     paddingHorizontal: SIDE_PAD,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
