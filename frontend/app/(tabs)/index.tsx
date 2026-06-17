@@ -288,15 +288,24 @@ export default function DashboardHome() {
       ) : (
         <View
           style={{
-            paddingTop: insets.top + 12,
-            paddingBottom: 14,
+            paddingTop: insets.top + 4,
+            paddingBottom: 6,
             paddingHorizontal: SIDE_PAD,
             backgroundColor: brand.primary_color,
             alignItems: 'center',
+            justifyContent: 'center',
+            flexDirection: 'row',
+            gap: 12,
             borderBottomLeftRadius: 24,
             borderBottomRightRadius: 24,
           }}
         >
+          <Text
+            style={{ color: '#FFFFFF', fontSize: 20, fontWeight: '700', letterSpacing: 0.5 }}
+            testID="header-brand-prefix"
+          >
+            Joachim
+          </Text>
           {brand.logo_url ? (
             <Image
               source={{ uri: brand.logo_url }}
@@ -311,6 +320,12 @@ export default function DashboardHome() {
               {appName(lang)}
             </Text>
           )}
+          <Text
+            style={{ color: '#FFFFFF', fontSize: 20, fontWeight: '700', letterSpacing: 0.5 }}
+            testID="header-brand-suffix"
+          >
+            Kaeser
+          </Text>
         </View>
       )}
 
