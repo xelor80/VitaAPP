@@ -288,23 +288,24 @@ export default function DashboardHome() {
       ) : (
         <View
           style={{
-            borderBottomLeftRadius: 20,
-            borderBottomRightRadius: 20,
+            borderBottomLeftRadius: 28,
+            borderBottomRightRadius: 28,
             overflow: 'hidden',
+            backgroundColor: brand.primary_color,
           }}
         >
           <View
-            style={[
-              s.header,
-              {
-                paddingTop: insets.top + 18,
-                paddingBottom: 22,
-                backgroundColor: '#FFFFFF',
-                borderBottomLeftRadius: 0,
-                borderBottomRightRadius: 0,
-                minHeight: 72,
-              },
-            ]}
+            style={{
+              paddingTop: insets.top + 18,
+              paddingBottom: 22,
+              paddingHorizontal: SIDE_PAD,
+              backgroundColor: '#FFFFFF',
+              alignItems: 'center',
+              minHeight: 72,
+              marginBottom: 4,
+              borderBottomLeftRadius: 20,
+              borderBottomRightRadius: 20,
+            }}
           >
             {brand.logo_url ? (
               <Image
@@ -321,8 +322,6 @@ export default function DashboardHome() {
               </Text>
             )}
           </View>
-          {/* Bottom accent strip — respects parent borderRadius via overflow:hidden */}
-          <View style={{ height: 2, backgroundColor: brand.primary_color }} />
         </View>
       )}
 
