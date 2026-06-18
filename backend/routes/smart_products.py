@@ -209,6 +209,58 @@ async def ensure_seeded():
         logger.info(f"Seeded {len(DEFAULT_PRODUCTS)} smart products")
 
 
+# ── UI Slots (admin-friendly categories) ──
+#
+# These map cleanly to the 3 places the user wants to manage products from:
+#   home_slider       → top of Home dashboard (featured carousel)
+#   stress_relax      → "Stress & Entspannung" section
+#   weight_metabolism → "Gewicht & Stoffwechsel / Abnehm-Guide" section
+#
+# Each slot expands to all backend `contexts` so existing recommendation calls
+# (which filter by `contexts: <context>`) continue to work unchanged.
+
+SLOT_TO_CONTEXTS = {
+    "home_slider":       ["featured_slider", "dashboard"],
+    "stress_relax":      ["stress", "sleep", "stress_player"],
+    "weight_metabolism": ["weight", "weight_metabolism", "abnehm_guide", "fasting"],
+}
+ALL_SLOTS = list(SLOT_TO_CONTEXTS.keys())
+
+
+def slots_from_contexts(contexts: list) -> list:
+    """Reverse-derive which slots a product belongs to, based on its contexts."""
+    out = []
+    for slot, ctxs in SLOT_TO_CONTEXTS.items():
+        if any(c in contexts for c in ctxs):
+            out.append(slot)
+    return out
+
+
+def merge_contexts_for_slots(existing: list, slots: list) -> list:
+    """Given a product's current contexts, return new contexts that reflect
+    the chosen slots. We keep any non-slot context the operator may have set
+    (e.g. legacy `energy`, `analysis`) and overlay the slot-mapped contexts.
+    """
+    # Identify all known slot-related contexts
+    slot_contexts = set()
+    for ctxs in SLOT_TO_CONTEXTS.values():
+        slot_contexts.update(ctxs)
+    # Keep contexts that are NOT slot-managed (operator's custom tags)
+    keep = [c for c in (existing or []) if c not in slot_contexts]
+    # Add primary context for each chosen slot (= first entry in slot list)
+    add = []
+    for s in slots:
+        if s in SLOT_TO_CONTEXTS:
+            add.extend(SLOT_TO_CONTEXTS[s])
+    # De-dup preserving order
+    seen, result = set(), []
+    for c in keep + add:
+        if c not in seen:
+            seen.add(c)
+            result.append(c)
+    return result
+
+
 # ── Endpoints ──
 
 @router.get("/recommendations")
@@ -298,6 +350,9 @@ async def catalog():
     await ensure_seeded()
     cursor = db.smart_products.find({}, {"_id": 0}).sort("id", 1)
     items = await cursor.to_list(length=200)
+    # Enrich each product with derived `slots` for easy admin display
+    for p in items:
+        p["slots"] = slots_from_contexts(p.get("contexts") or [])
     return {"items": items, "count": len(items)}
 
 
@@ -313,6 +368,8 @@ async def update_product(product_id: str, req: ProductUpsertRequest):
         upsert=True,
     )
     doc = await db.smart_products.find_one({"id": product_id}, {"_id": 0})
+    if doc:
+        doc["slots"] = slots_from_contexts(doc.get("contexts") or [])
     return doc
 
 
@@ -322,6 +379,89 @@ async def delete_product(product_id: str):
     if res.deleted_count == 0:
         raise HTTPException(404, "Not found")
     return {"deleted": True}
+
+
+# ── UI Slot Management (Admin-friendly category endpoints) ──
+
+
+@router.get("/slots")
+async def list_slots():
+    """List the 3 UI slots with their human-readable labels and current product count."""
+    out = []
+    labels = {
+        "home_slider":       {"de": "Home Slider",            "it": "Slider Home",       "en": "Home Slider"},
+        "stress_relax":      {"de": "Stress & Entspannung",   "it": "Stress & Relax",    "en": "Stress & Relax"},
+        "weight_metabolism": {"de": "Gewicht & Stoffwechsel", "it": "Peso & metabolismo","en": "Weight & Metabolism"},
+    }
+    for slot in ALL_SLOTS:
+        ctxs = SLOT_TO_CONTEXTS[slot]
+        cnt = await db.smart_products.count_documents({
+            "enabled": True,
+            "contexts": {"$in": ctxs},
+        })
+        out.append({
+            "slot": slot,
+            "label": labels[slot],
+            "mapped_contexts": ctxs,
+            "active_product_count": cnt,
+        })
+    return {"slots": out}
+
+
+@router.get("/slots/{slot}/products")
+async def products_in_slot(slot: str):
+    """List all products assigned to a given slot. Sorted by featured first, then id."""
+    if slot not in SLOT_TO_CONTEXTS:
+        raise HTTPException(400, f"Unknown slot. Valid: {ALL_SLOTS}")
+    ctxs = SLOT_TO_CONTEXTS[slot]
+    cursor = db.smart_products.find(
+        {"contexts": {"$in": ctxs}},
+        {"_id": 0},
+    )
+    items = await cursor.to_list(length=200)
+    for p in items:
+        p["slots"] = slots_from_contexts(p.get("contexts") or [])
+    items.sort(key=lambda x: (
+        0 if x.get("is_featured") else 1,
+        x.get("featured_order", 999),
+        x.get("id", ""),
+    ))
+    return {"slot": slot, "items": items, "count": len(items)}
+
+
+class SlotAssignmentRequest(BaseModel):
+    """Admin: set which slots a product appears in. Replaces previous assignment."""
+    slots: List[str]  # subset of ["home_slider", "stress_relax", "weight_metabolism"]
+
+
+@router.put("/catalog/{product_id}/slots")
+async def update_product_slots(product_id: str, req: SlotAssignmentRequest):
+    """Assign a product to slots (the user's 3 UI categories).
+
+    This rewrites the product's `contexts` field to match the chosen slots,
+    while preserving any custom contexts the operator may have set previously.
+    """
+    # Validate
+    for s in req.slots:
+        if s not in SLOT_TO_CONTEXTS:
+            raise HTTPException(400, f"Unknown slot: {s}. Valid: {ALL_SLOTS}")
+
+    existing = await db.smart_products.find_one({"id": product_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(404, "Product not found")
+
+    new_contexts = merge_contexts_for_slots(existing.get("contexts") or [], req.slots)
+    await db.smart_products.update_one(
+        {"id": product_id},
+        {"$set": {
+            "contexts": new_contexts,
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        }},
+    )
+    doc = await db.smart_products.find_one({"id": product_id}, {"_id": 0})
+    if doc:
+        doc["slots"] = slots_from_contexts(doc.get("contexts") or [])
+    return doc
 
 
 @router.post("/impression")

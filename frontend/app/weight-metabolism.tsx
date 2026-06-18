@@ -1373,27 +1373,6 @@ export default function WeightMetabolismScreen() {
           )}
         </View>
 
-        {/* Empfehlungen (collapsible, consolidated) */}
-        <View style={st.recoCard} testID="wm-reco-card">
-          <TouchableOpacity
-            style={st.collapseHeader}
-            onPress={() => setCollapsedReco(v => !v)}
-            activeOpacity={0.7}
-            testID="wm-reco-toggle"
-          >
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 }}>
-              <MaterialCommunityIcons name="store-outline" size={20} color="#6D28D9" />
-              <Text style={st.cardTitle}>{tx(lang, { de: 'Empfehlungen', it: 'Consigli', en: 'Recommendations' })}</Text>
-            </View>
-            <MaterialCommunityIcons name={collapsedReco ? 'chevron-down' : 'chevron-up'} size={22} color="#6B7280" />
-          </TouchableOpacity>
-          {!collapsedReco && (
-            <View style={{ marginTop: 4 }}>
-              <SmartProductBlock context="weight" profileId={profileId} limit={1} testIdPrefix="wm-smart-weight" />
-            </View>
-          )}
-        </View>
-
         <View style={{ height: 24 }} />
       </ScrollView>
 
