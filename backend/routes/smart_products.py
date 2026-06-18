@@ -165,6 +165,26 @@ DEFAULT_PRODUCTS = [
         "deficits": ["b12"],
         "enabled": True,
     },
+    {
+        "id": "smart-slim-beauty-001",
+        "title_de": "Slim & Beauty",
+        "title_it": "Slim & Beauty",
+        "title_en": "Slim & Beauty",
+        "description_de": "Premium-Komplex fuer Stoffwechsel, Haut und gesunde Gewichtsreduktion.",
+        "description_it": "Complesso premium per metabolismo, pelle e perdita di peso sana.",
+        "description_en": "Premium complex for metabolism, skin and healthy weight loss.",
+        "image_url": None,
+        "affiliate_url": None,
+        "vendor": "Platzhalter",
+        "price_eur": None,
+        "contexts": ["weight", "weight_metabolism", "abnehm_guide"],
+        "symptoms": ["abnehmen", "stoffwechsel", "haut"],
+        "deficits": [],
+        "enabled": True,
+        "is_featured": True,
+        "featured_order": 1,
+        "badge": "NEU",
+    },
 ]
 
 
@@ -222,7 +242,10 @@ async def recommendations(
                 if d in deficits:
                     score += 3
             c["_score"] = score
-        candidates.sort(key=lambda x: (-x.get("_score", 0), x.get("id", "")))
+        candidates.sort(key=lambda x: (-x.get("_score", 0), 0 if x.get("is_featured") else 1, x.get("featured_order", 999), x.get("id", "")))
+    else:
+        # No profile_id: featured first, then by featured_order
+        candidates.sort(key=lambda x: (0 if x.get("is_featured") else 1, x.get("featured_order", 999), x.get("id", "")))
     # Strip score field before returning
     out = []
     for c in candidates[:limit]:
