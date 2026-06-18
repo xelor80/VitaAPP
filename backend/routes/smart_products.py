@@ -6,7 +6,7 @@ Placeholder products are seeded; admin can later replace affiliate_url.
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 from typing import Optional, List
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import uuid
 
 from core.config import db, logger
@@ -20,6 +20,18 @@ class ClickRequest(BaseModel):
     product_id: str
     profile_id: Optional[str] = None
     context: Optional[str] = None  # dashboard | stress | fasting | weight | analysis
+
+
+class ImpressionRequest(BaseModel):
+    """Logged when a product card is rendered in the UI (passive view)."""
+    product_id: str
+    profile_id: Optional[str] = None
+    context: Optional[str] = None
+
+
+class ImpressionBatch(BaseModel):
+    """Batch endpoint to log multiple impressions in one HTTP call."""
+    items: List[ImpressionRequest]
 
 
 class ProductUpsertRequest(BaseModel):
@@ -312,13 +324,220 @@ async def delete_product(product_id: str):
     return {"deleted": True}
 
 
-@router.get("/stats")
-async def stats():
-    """Aggregate clicks per product (admin)."""
-    pipeline = [
-        {"$group": {"_id": "$product_id", "clicks": {"$sum": 1}, "last_click": {"$max": "$ts"}}},
-        {"$sort": {"clicks": -1}},
+@router.post("/impression")
+async def track_impression(req: ImpressionRequest):
+    """Log a passive view (product card rendered, not necessarily tapped)."""
+    entry = {
+        "id": str(uuid.uuid4()),
+        "product_id": req.product_id,
+        "profile_id": req.profile_id,
+        "context": req.context,
+        "ts": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.smart_product_impressions.insert_one(entry)
+    return {"ok": True}
+
+
+@router.post("/impression/batch")
+async def track_impressions_batch(batch: ImpressionBatch):
+    """Batch endpoint to avoid HTTP overhead when several cards render at once."""
+    if not batch.items:
+        return {"ok": True, "inserted": 0}
+    now = datetime.now(timezone.utc).isoformat()
+    docs = [
+        {
+            "id": str(uuid.uuid4()),
+            "product_id": it.product_id,
+            "profile_id": it.profile_id,
+            "context": it.context,
+            "ts": now,
+        }
+        for it in batch.items[:50]  # safety cap
     ]
-    rows = await db.smart_product_clicks.aggregate(pipeline).to_list(length=200)
-    out = [{"product_id": r["_id"], "clicks": r["clicks"], "last_click": r.get("last_click")} for r in rows]
-    return {"items": out}
+    await db.smart_product_impressions.insert_many(docs)
+    return {"ok": True, "inserted": len(docs)}
+
+
+@router.get("/stats")
+async def stats(days: int = Query(30, ge=1, le=365)):
+    """Aggregate impressions, clicks, CTR per product (admin).
+
+    Returns:
+      - per_product: [{product_id, title_de, impressions, clicks, ctr, last_click}]
+      - totals: {impressions, clicks, ctr, products_with_clicks}
+      - window_days
+    """
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+
+    # Impressions per product
+    imp_pipe = [
+        {"$match": {"ts": {"$gte": cutoff}}},
+        {"$group": {"_id": "$product_id", "impressions": {"$sum": 1}}},
+    ]
+    imps = await db.smart_product_impressions.aggregate(imp_pipe).to_list(length=500)
+    imp_map = {r["_id"]: r["impressions"] for r in imps}
+
+    # Clicks per product
+    click_pipe = [
+        {"$match": {"ts": {"$gte": cutoff}}},
+        {"$group": {"_id": "$product_id", "clicks": {"$sum": 1}, "last_click": {"$max": "$ts"}}},
+    ]
+    clicks = await db.smart_product_clicks.aggregate(click_pipe).to_list(length=500)
+    click_map = {r["_id"]: r for r in clicks}
+
+    # Join with product titles
+    all_product_ids = set(imp_map.keys()) | set(click_map.keys())
+    products = await db.smart_products.find(
+        {"id": {"$in": list(all_product_ids)}},
+        {"_id": 0, "id": 1, "title_de": 1, "is_featured": 1},
+    ).to_list(length=200) if all_product_ids else []
+    title_map = {p["id"]: p for p in products}
+
+    rows = []
+    total_imp = 0
+    total_clicks = 0
+    for pid in all_product_ids:
+        imp = imp_map.get(pid, 0)
+        clk = click_map.get(pid, {}).get("clicks", 0)
+        ctr = round((clk / imp) * 100, 2) if imp > 0 else 0.0
+        title = title_map.get(pid, {}).get("title_de", pid)
+        is_featured = title_map.get(pid, {}).get("is_featured", False)
+        rows.append({
+            "product_id": pid,
+            "title_de": title,
+            "is_featured": is_featured,
+            "impressions": imp,
+            "clicks": clk,
+            "ctr_pct": ctr,
+            "last_click": click_map.get(pid, {}).get("last_click"),
+        })
+        total_imp += imp
+        total_clicks += clk
+    rows.sort(key=lambda r: (-r["clicks"], -r["impressions"]))
+
+    overall_ctr = round((total_clicks / total_imp) * 100, 2) if total_imp > 0 else 0.0
+    return {
+        "window_days": days,
+        "totals": {
+            "impressions": total_imp,
+            "clicks": total_clicks,
+            "ctr_pct": overall_ctr,
+            "products_with_clicks": sum(1 for r in rows if r["clicks"] > 0),
+        },
+        "per_product": rows,
+    }
+
+
+@router.get("/stats/timeseries")
+async def stats_timeseries(
+    product_id: Optional[str] = Query(None),
+    days: int = Query(30, ge=1, le=180),
+):
+    """Daily time-series of impressions + clicks. Optional filter by product."""
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+    match_clicks: dict = {"ts": {"$gte": cutoff}}
+    match_imps: dict = {"ts": {"$gte": cutoff}}
+    if product_id:
+        match_clicks["product_id"] = product_id
+        match_imps["product_id"] = product_id
+
+    def daily_pipeline(match: dict):
+        return [
+            {"$match": match},
+            {"$project": {"day": {"$substr": ["$ts", 0, 10]}}},
+            {"$group": {"_id": "$day", "count": {"$sum": 1}}},
+            {"$sort": {"_id": 1}},
+        ]
+
+    clicks_daily = await db.smart_product_clicks.aggregate(daily_pipeline(match_clicks)).to_list(length=400)
+    imps_daily = await db.smart_product_impressions.aggregate(daily_pipeline(match_imps)).to_list(length=400)
+    clk_map = {r["_id"]: r["count"] for r in clicks_daily}
+    imp_map = {r["_id"]: r["count"] for r in imps_daily}
+
+    all_days = sorted(set(clk_map.keys()) | set(imp_map.keys()))
+    series = [
+        {
+            "date": d,
+            "impressions": imp_map.get(d, 0),
+            "clicks": clk_map.get(d, 0),
+            "ctr_pct": round((clk_map.get(d, 0) / imp_map.get(d, 1)) * 100, 2) if imp_map.get(d, 0) > 0 else 0.0,
+        }
+        for d in all_days
+    ]
+    return {"product_id": product_id, "days": days, "series": series}
+
+
+@router.get("/stats/by-context")
+async def stats_by_context(days: int = Query(30, ge=1, le=365)):
+    """Breakdown of clicks + impressions per context (dashboard, weight, etc.)."""
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+    imps = await db.smart_product_impressions.aggregate([
+        {"$match": {"ts": {"$gte": cutoff}}},
+        {"$group": {"_id": "$context", "impressions": {"$sum": 1}}},
+    ]).to_list(length=50)
+    clicks = await db.smart_product_clicks.aggregate([
+        {"$match": {"ts": {"$gte": cutoff}}},
+        {"$group": {"_id": "$context", "clicks": {"$sum": 1}}},
+    ]).to_list(length=50)
+    imp_map = {r["_id"] or "unknown": r["impressions"] for r in imps}
+    clk_map = {r["_id"] or "unknown": r["clicks"] for r in clicks}
+    all_ctx = sorted(set(imp_map.keys()) | set(clk_map.keys()))
+    out = []
+    for ctx in all_ctx:
+        imp = imp_map.get(ctx, 0)
+        clk = clk_map.get(ctx, 0)
+        out.append({
+            "context": ctx,
+            "impressions": imp,
+            "clicks": clk,
+            "ctr_pct": round((clk / imp) * 100, 2) if imp > 0 else 0.0,
+        })
+    out.sort(key=lambda r: -r["clicks"])
+    return {"window_days": days, "by_context": out}
+
+
+@router.get("/stats/product/{product_id}")
+async def stats_product_detail(product_id: str, days: int = Query(30, ge=1, le=365)):
+    """Detailed conversion report for a single product (e.g. Slim & Beauty)."""
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+    imp_cnt = await db.smart_product_impressions.count_documents(
+        {"product_id": product_id, "ts": {"$gte": cutoff}}
+    )
+    clk_cnt = await db.smart_product_clicks.count_documents(
+        {"product_id": product_id, "ts": {"$gte": cutoff}}
+    )
+    # Unique profiles (engagement breadth)
+    unique_clickers = await db.smart_product_clicks.distinct(
+        "profile_id", {"product_id": product_id, "ts": {"$gte": cutoff}, "profile_id": {"$ne": None}}
+    )
+    unique_viewers = await db.smart_product_impressions.distinct(
+        "profile_id", {"product_id": product_id, "ts": {"$gte": cutoff}, "profile_id": {"$ne": None}}
+    )
+    # Per-context breakdown
+    ctx_clicks = await db.smart_product_clicks.aggregate([
+        {"$match": {"product_id": product_id, "ts": {"$gte": cutoff}}},
+        {"$group": {"_id": "$context", "clicks": {"$sum": 1}}},
+        {"$sort": {"clicks": -1}},
+    ]).to_list(length=50)
+    product = await db.smart_products.find_one({"id": product_id}, {"_id": 0})
+    if not product:
+        raise HTTPException(404, "Product not found")
+    return {
+        "product": {
+            "id": product["id"],
+            "title_de": product.get("title_de"),
+            "is_featured": product.get("is_featured", False),
+            "enabled": product.get("enabled", True),
+            "badge": product.get("badge"),
+        },
+        "window_days": days,
+        "impressions": imp_cnt,
+        "clicks": clk_cnt,
+        "ctr_pct": round((clk_cnt / imp_cnt) * 100, 2) if imp_cnt > 0 else 0.0,
+        "unique_viewers": len(unique_viewers),
+        "unique_clickers": len(unique_clickers),
+        "viewer_to_clicker_conversion_pct": round(
+            (len(unique_clickers) / len(unique_viewers)) * 100, 2
+        ) if unique_viewers else 0.0,
+        "by_context": [{"context": c["_id"] or "unknown", "clicks": c["clicks"]} for c in ctx_clicks],
+    }

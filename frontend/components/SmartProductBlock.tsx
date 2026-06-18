@@ -41,7 +41,22 @@ export function SmartProductBlock({ context, profileId, limit = 2, testIdPrefix 
         const res = await fetch(`${API_URL}/api/smart-products/recommendations?${params.toString()}`);
         if (!res.ok) return;
         const data = await res.json();
-        if (!cancelled) setItems(data.items || []);
+        if (!cancelled) {
+          setItems(data.items || []);
+          // Phase 4: track impressions in batch (passive view)
+          const imps = (data.items || []).map((p: Product) => ({
+            product_id: p.id,
+            profile_id: profileId || null,
+            context,
+          }));
+          if (imps.length) {
+            fetch(`${API_URL}/api/smart-products/impression/batch`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ items: imps }),
+            }).catch(() => {});
+          }
+        }
       } catch { /* ignore */ }
       finally { if (!cancelled) setLoading(false); }
     })();
