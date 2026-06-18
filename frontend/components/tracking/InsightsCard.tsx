@@ -16,7 +16,7 @@ interface InsightsCardProps {
 }
 
 const INSIGHT_COLORS: Record<string, { bg: string; text: string; icon: string }> = {
-  positive: { bg: '#DCFCE7', text: '#166534', icon: '#22C55E' },
+  positive: { bg: '#DCFCE7', text: '#166534', icon: '#DC2626' },
   warning: { bg: '#FEF3C7', text: '#92400E', icon: '#F59E0B' },
   suggestion: { bg: '#E0F2FE', text: '#075985', icon: '#0EA5E9' },
   info: { bg: '#F3F4F6', text: '#374151', icon: '#6B7280' },

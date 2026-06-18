@@ -14,11 +14,11 @@ const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 const W = Dimensions.get('window').width - 70;
 
 const INSIGHT_COLORS: Record<string, { bg: string; text: string; icon: string }> = {
-  positive: { bg: '#F0FDF4', text: '#166534', icon: '#10B981' },
+  positive: { bg: '#FEF2F2', text: '#166534', icon: '#DC2626' },
   warning: { bg: '#FEF2F2', text: '#991B1B', icon: '#EF4444' },
   suggestion: { bg: '#FFFBEB', text: '#92400E', icon: '#F59E0B' },
   info: { bg: '#EFF6FF', text: '#1E40AF', icon: '#3B82F6' },
-  motivation: { bg: '#F0FDF4', text: '#166534', icon: '#4A8B71' },
+  motivation: { bg: '#FEF2F2', text: '#166534', icon: '#D14953' },
 };
 
 const COMPLAINT_LABELS: Record<string, Record<string, string>> = {
@@ -115,7 +115,7 @@ export default function ProgressScreen() {
 
   if (loading) {
     return (<SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-      <ActivityIndicator size="large" color="#4A8B71" />
+      <ActivityIndicator size="large" color="#D14953" />
     </SafeAreaView>);
   }
 
@@ -137,7 +137,7 @@ export default function ProgressScreen() {
   const chartConfig = {
     backgroundGradientFrom: '#FFFFFF', backgroundGradientTo: '#FFFFFF',
     decimalPlaces: 0, color: (opacity = 1) => `rgba(74, 139, 113, ${opacity})`,
-    labelColor: () => '#8FA39B', propsForDots: { r: '4', strokeWidth: '2', stroke: '#4A8B71' },
+    labelColor: () => '#8FA39B', propsForDots: { r: '4', strokeWidth: '2', stroke: '#D14953' },
     propsForBackgroundLines: { strokeDasharray: '', stroke: '#F0F4F2' },
   };
 
@@ -146,7 +146,7 @@ export default function ProgressScreen() {
   const chartValues = overallChart.slice(-7).map((d: any) => d.value);
 
   const trendDir = dashboard?.symptom_trend?.direction || 'neutral';
-  const trendColor = trendDir === 'improving' ? '#10B981' : trendDir === 'worsening' ? '#EF4444' : '#F59E0B';
+  const trendColor = trendDir === 'improving' ? '#DC2626' : trendDir === 'worsening' ? '#EF4444' : '#F59E0B';
 
   return (
     <SafeAreaView style={styles.container}>
@@ -172,7 +172,7 @@ export default function ProgressScreen() {
               <Text style={styles.progressLabel}>{lang === 'de' ? 'Gesamtfortschritt' : 'Progresso totale'}</Text>
             </View>
             <View style={styles.statBox}>
-              <MaterialCommunityIcons name="check-circle" size={24} color="#4A8B71" style={styles.streakIcon} />
+              <MaterialCommunityIcons name="check-circle" size={24} color="#D14953" style={styles.streakIcon} />
               <Text style={styles.statValue}>{Math.round(dashboard?.compliance_rate || 0)}%</Text>
               <Text style={styles.statLabel}>{lang === 'de' ? 'Einnahmetreue' : 'Compliance'}</Text>
             </View>
@@ -182,7 +182,7 @@ export default function ProgressScreen() {
         {/* Coach Insights */}
         {dashboard?.insights?.length > 0 && (
           <View style={styles.coachCard}>
-            <MaterialCommunityIcons name="robot-happy" size={28} color="#4A8B71" />
+            <MaterialCommunityIcons name="robot-happy" size={28} color="#D14953" />
             <Text style={styles.coachText}>{dashboard.insights[0].text}</Text>
           </View>
         )}
@@ -274,7 +274,7 @@ export default function ProgressScreen() {
                     <Text style={{ fontSize: 22, fontWeight: '800', color: '#1E40AF' }}>{medStats.adherence_pct}%</Text>
                     <Text style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>{lang === 'de' ? 'Einnahmetreue' : 'Aderenza'}</Text>
                   </View>
-                  <View style={{ flex: 1, backgroundColor: '#F0FDF4', borderRadius: 10, padding: 10, alignItems: 'center' }}>
+                  <View style={{ flex: 1, backgroundColor: '#FEF2F2', borderRadius: 10, padding: 10, alignItems: 'center' }}>
                     <Text style={{ fontSize: 22, fontWeight: '800', color: '#166534' }}>{medStats.total_taken}/{medStats.total_expected}</Text>
                     <Text style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>{lang === 'de' ? 'Eingenommen' : 'Assunti'}</Text>
                   </View>
@@ -287,7 +287,7 @@ export default function ProgressScreen() {
                     return (
                       <View key={i} style={{ flex: 1, alignItems: 'center' }}>
                         <View style={{ width: '80%', height: 64, backgroundColor: '#F1F5F9', borderRadius: 4, overflow: 'hidden', justifyContent: 'flex-end' }}>
-                          <View style={{ width: '100%', height: barH, backgroundColor: pct >= 100 ? '#22C55E' : pct >= 50 ? '#3B82F6' : '#F59E0B', borderRadius: 4 }} />
+                          <View style={{ width: '100%', height: barH, backgroundColor: pct >= 100 ? '#DC2626' : pct >= 50 ? '#3B82F6' : '#F59E0B', borderRadius: 4 }} />
                         </View>
                         <Text style={{ fontSize: 9, color: '#9CA3AF', marginTop: 3 }}>{d.date.slice(5)}</Text>
                       </View>
@@ -309,7 +309,7 @@ export default function ProgressScreen() {
                     <Text style={{ fontSize: 22, fontWeight: '800', color: '#1E40AF' }}>{(waterHistory.average_ml / 1000).toFixed(1)} L</Text>
                     <Text style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>{lang === 'de' ? 'Durchschnitt' : 'Media'}</Text>
                   </View>
-                  <View style={{ flex: 1, backgroundColor: '#F0FDF4', borderRadius: 10, padding: 10, alignItems: 'center' }}>
+                  <View style={{ flex: 1, backgroundColor: '#FEF2F2', borderRadius: 10, padding: 10, alignItems: 'center' }}>
                     <Text style={{ fontSize: 22, fontWeight: '800', color: '#166534' }}>{waterHistory.days_goal_reached}/{waterHistory.days_with_data}</Text>
                     <Text style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>{lang === 'de' ? 'Ziel erreicht' : 'Obiettivo'}</Text>
                   </View>
@@ -322,7 +322,7 @@ export default function ProgressScreen() {
                     return (
                       <View key={i} style={{ flex: 1, alignItems: 'center' }}>
                         <View style={{ width: '80%', height: 64, backgroundColor: '#F1F5F9', borderRadius: 4, overflow: 'hidden', justifyContent: 'flex-end' }}>
-                          <View style={{ width: '100%', height: barH, backgroundColor: pct >= 100 ? '#22C55E' : '#5BC0EB', borderRadius: 4 }} />
+                          <View style={{ width: '100%', height: barH, backgroundColor: pct >= 100 ? '#DC2626' : '#5BC0EB', borderRadius: 4 }} />
                         </View>
                         <Text style={{ fontSize: 9, color: '#9CA3AF', marginTop: 3 }}>{d.date.slice(5)}</Text>
                       </View>
@@ -373,7 +373,7 @@ export default function ProgressScreen() {
               <View style={styles.complianceCard}>
                 <View style={styles.complianceHeader}>
                   <Text style={styles.ratingTitle}>{lang === 'de' ? 'Einnahme-Checkliste' : 'Checklist assunzione'}</Text>
-                  <Text style={[styles.complianceRate, { color: '#4A8B71' }]}>
+                  <Text style={[styles.complianceRate, { color: '#D14953' }]}>
                     {Math.round((Object.values(todayCompliance).filter(Boolean).length / Math.max(Object.keys(todayCompliance).length, 1)) * 100)}%
                   </Text>
                 </View>
@@ -383,8 +383,8 @@ export default function ProgressScreen() {
                     <Text style={{ fontSize: 12, color: '#8FA39B' }}>{s.dosage} {s.unit}</Text>
                     <TouchableOpacity
                       style={[styles.checkBtn, {
-                        backgroundColor: todayCompliance[s.id] ? '#4A8B71' : 'transparent',
-                        borderColor: todayCompliance[s.id] ? '#4A8B71' : '#E0E6E2'
+                        backgroundColor: todayCompliance[s.id] ? '#D14953' : 'transparent',
+                        borderColor: todayCompliance[s.id] ? '#D14953' : '#E0E6E2'
                       }]}
                       onPress={() => setTodayCompliance({ ...todayCompliance, [s.id]: !todayCompliance[s.id] })}
                     >
@@ -417,13 +417,13 @@ export default function ProgressScreen() {
             ) : (
               (dashboard?.milestones || []).map((m: any, i: number) => (
                 <View key={i} style={styles.milestoneRow}>
-                  <View style={[styles.milestoneBadge, { backgroundColor: m.achieved ? '#F0FDF4' : '#F0F4F2' }]}>
-                    <MaterialCommunityIcons name={(m.icon || 'star') as any} size={22} color={m.achieved ? '#4A8B71' : '#8FA39B'} />
+                  <View style={[styles.milestoneBadge, { backgroundColor: m.achieved ? '#FEF2F2' : '#F0F4F2' }]}>
+                    <MaterialCommunityIcons name={(m.icon || 'star') as any} size={22} color={m.achieved ? '#D14953' : '#8FA39B'} />
                   </View>
                   <Text style={[styles.milestoneName, !m.achieved && { color: '#8FA39B' }]}>
                     {lang === 'de' ? m.name_de : m.name_it}
                   </Text>
-                  {m.achieved && <MaterialCommunityIcons name="check-circle" size={20} color="#4A8B71" />}
+                  {m.achieved && <MaterialCommunityIcons name="check-circle" size={20} color="#D14953" />}
                 </View>
               ))
             )}

@@ -63,7 +63,7 @@ export default function DailyPlanScreen() {
     loadPlan();
   };
 
-  if (loading) return <View style={s.center}><ActivityIndicator size="large" color="#4A8B71" /></View>;
+  if (loading) return <View style={s.center}><ActivityIndicator size="large" color="#D14953" /></View>;
 
   const pct = plan?.percentage || 0;
 
@@ -127,7 +127,7 @@ export default function DailyPlanScreen() {
                     <MaterialCommunityIcons
                       name={item.type === 'medication' ? 'pill' : 'leaf'}
                       size={14}
-                      color={item.type === 'medication' ? '#3B82F6' : '#4A8B71'}
+                      color={item.type === 'medication' ? '#3B82F6' : '#D14953'}
                     />
                   </View>
 
@@ -172,7 +172,7 @@ const s = StyleSheet.create({
   pctText: { fontSize: 14, fontWeight: '800', color: '#FFF' },
   progressWrap: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 },
   progressBg: { height: 8, backgroundColor: '#E5E7EB', borderRadius: 4, overflow: 'hidden' },
-  progressFill: { height: 8, backgroundColor: '#4A8B71', borderRadius: 4 },
+  progressFill: { height: 8, backgroundColor: '#D14953', borderRadius: 4 },
   progressLabel: { fontSize: 12, color: '#6B7280', marginTop: 6, textAlign: 'center' },
   content: { padding: 16, paddingBottom: 40 },
   empty: { alignItems: 'center', paddingTop: 60 },
@@ -184,7 +184,7 @@ const s = StyleSheet.create({
   itemRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFF', borderRadius: 14, padding: 14, marginBottom: 6, gap: 10, elevation: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 4 },
   itemChecked: { opacity: 0.65 },
   checkbox: { width: 24, height: 24, borderRadius: 12, borderWidth: 2, borderColor: '#D1D5DB', justifyContent: 'center', alignItems: 'center' },
-  checkboxChecked: { backgroundColor: '#4A8B71', borderColor: '#4A8B71' },
+  checkboxChecked: { backgroundColor: '#D14953', borderColor: '#D14953' },
   checkboxMed: { borderColor: '#93C5FD' },
   typeIcon: { width: 28, height: 28, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
   typeIconSupp: { backgroundColor: '#ECFDF5' },
@@ -197,6 +197,6 @@ const s = StyleSheet.create({
   typeBadgeSupp: { backgroundColor: '#ECFDF5' },
   typeBadgeMed: { backgroundColor: '#EFF6FF' },
   typeBadgeText: { fontSize: 10, fontWeight: '700' },
-  typeBadgeTextSupp: { color: '#4A8B71' },
+  typeBadgeTextSupp: { color: '#D14953' },
   typeBadgeTextMed: { color: '#3B82F6' },
 });

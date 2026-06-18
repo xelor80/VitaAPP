@@ -40,7 +40,7 @@ const STATUS_CONFIG: Record<string, { color: string; bg: string }> = {
 };
 
 function getSeverityColor(val: number): string {
-  if (val <= 3) return '#22C55E';
+  if (val <= 3) return '#DC2626';
   if (val <= 6) return '#F59E0B';
   return '#EF4444';
 }
@@ -136,7 +136,7 @@ export function DailyTasks({ lang, onNavigate }: Props) {
     return (
       <View style={s.wrap}>
         <View style={s.headerRow}>
-          <MaterialCommunityIcons name="star-four-points" size={18} color="#4A8B71" />
+          <MaterialCommunityIcons name="star-four-points" size={18} color="#D14953" />
           <Text style={s.sectionTitle}>
             {firstName
               ? (lang === 'de' ? `Heute fuer ${firstName} wichtig` : `Importante per ${firstName} oggi`)
@@ -144,7 +144,7 @@ export function DailyTasks({ lang, onNavigate }: Props) {
           </Text>
         </View>
         <View style={s.doneCard}>
-          <MaterialCommunityIcons name="check-circle" size={28} color="#22C55E" />
+          <MaterialCommunityIcons name="check-circle" size={28} color="#DC2626" />
           <Text style={s.doneText}>
             {firstName
               ? (lang === 'de' ? `Alles erledigt! Gut gemacht, ${firstName}.` : `Tutto fatto! Ben fatto, ${firstName}.`)
@@ -158,7 +158,7 @@ export function DailyTasks({ lang, onNavigate }: Props) {
   return (
     <View style={s.wrap} testID="daily-tasks-section">
       <View style={s.headerRow}>
-        <MaterialCommunityIcons name="star-four-points" size={18} color="#4A8B71" />
+        <MaterialCommunityIcons name="star-four-points" size={18} color="#D14953" />
         <Text style={s.sectionTitle}>
           {firstName
             ? (lang === 'de' ? `Heute fuer ${firstName} wichtig` : `Importante per ${firstName} oggi`)
@@ -335,7 +335,7 @@ const s = StyleSheet.create({
   sectionTitle: { fontSize: 16, fontWeight: '700', color: '#1A2D26' },
 
   doneCard: {
-    backgroundColor: '#F0FDF4', borderRadius: 14, padding: 20,
+    backgroundColor: '#FEF2F2', borderRadius: 14, padding: 20,
     flexDirection: 'row', alignItems: 'center', gap: 12,
     borderWidth: 1, borderColor: '#BBF7D0',
   },
@@ -386,7 +386,7 @@ const s = StyleSheet.create({
     justifyContent: 'center', alignItems: 'center',
   },
   checkboxChecked: {
-    backgroundColor: '#22C55E', borderColor: '#22C55E',
+    backgroundColor: '#DC2626', borderColor: '#DC2626',
   },
   checkTextCol: { flex: 1 },
   checkName: { fontSize: 14, fontWeight: '600', color: '#1A2D26' },

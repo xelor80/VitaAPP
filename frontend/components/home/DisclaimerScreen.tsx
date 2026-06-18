@@ -61,7 +61,7 @@ export function DisclaimerScreen({ onAccept, lang, setLang }: DisclaimerScreenPr
         </View>
 
         <View style={styles.disclaimerIconWrap}>
-          <MaterialCommunityIcons name="shield-check" size={56} color="#4A8B71" />
+          <MaterialCommunityIcons name="shield-check" size={56} color="#D14953" />
         </View>
         <Text style={styles.disclaimerTitle}>{title}</Text>
         <Text style={styles.disclaimerSubtitle}>{SUBTITLE[lang] || SUBTITLE.en}</Text>
@@ -109,7 +109,7 @@ const localStyles = StyleSheet.create({
     paddingVertical: 7,
     paddingHorizontal: 16,
     borderRadius: 16,
-    backgroundColor: '#E8F5E9',
+    backgroundColor: '#FEE2E2',
     borderWidth: 1,
     borderColor: '#D4E7DC',
   },

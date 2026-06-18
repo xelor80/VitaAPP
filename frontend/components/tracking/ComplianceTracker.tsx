@@ -89,7 +89,7 @@ export function ComplianceTracker({
 
   const getTrendColor = () => {
     if (!complianceTrend) return '#6B7280';
-    if (complianceTrend.direction === 'improving') return '#22C55E';
+    if (complianceTrend.direction === 'improving') return '#DC2626';
     if (complianceTrend.direction === 'worsening') return '#EF4444';
     return '#6B7280';
   };
@@ -107,7 +107,7 @@ export function ComplianceTracker({
       <View style={styles.complianceCard}>
         <View style={styles.complianceHeader}>
           <Text style={styles.chartTitle}>{lang === 'de' ? 'Einnahmetreue' : 'Compliance'}</Text>
-          <Text style={[styles.complianceRate, { color: complianceRate >= 80 ? '#22C55E' : complianceRate >= 50 ? '#F59E0B' : '#EF4444' }]}>
+          <Text style={[styles.complianceRate, { color: complianceRate >= 80 ? '#DC2626' : complianceRate >= 50 ? '#F59E0B' : '#EF4444' }]}>
             {complianceRate}%
           </Text>
         </View>
@@ -172,9 +172,9 @@ export function ComplianceTracker({
               <Text style={styles.complianceName}>{s.name}</Text>
               <View style={[
                 styles.checkBtn,
-                { borderColor: checks[s.id] ? '#22C55E' : '#D1D5DB', backgroundColor: checks[s.id] ? '#DCFCE7' : '#FFFFFF' }
+                { borderColor: checks[s.id] ? '#DC2626' : '#D1D5DB', backgroundColor: checks[s.id] ? '#DCFCE7' : '#FFFFFF' }
               ]}>
-                {checks[s.id] && <MaterialCommunityIcons name="check" size={18} color="#22C55E" />}
+                {checks[s.id] && <MaterialCommunityIcons name="check" size={18} color="#DC2626" />}
               </View>
             </TouchableOpacity>
           ))

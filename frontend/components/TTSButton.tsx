@@ -91,12 +91,12 @@ export function TTSButton({ text, lang, testID = 'tts-btn' }: TTSButtonProps) {
       activeOpacity={0.7}
     >
       {loading ? (
-        <ActivityIndicator size="small" color="#4A8B71" />
+        <ActivityIndicator size="small" color="#D14953" />
       ) : (
         <MaterialCommunityIcons
           name={playing ? 'stop-circle' : 'play-circle'}
           size={28}
-          color="#4A8B71"
+          color="#D14953"
         />
       )}
       <Text style={s.label}>

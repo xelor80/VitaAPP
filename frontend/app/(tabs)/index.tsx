@@ -32,8 +32,8 @@ const CATEGORIES = [
   {
     key: 'supplements',
     icon: 'pill' as const,
-    color: '#2E7D52',
-    bg: '#E8F5E9',
+    color: '#C2272F',
+    bg: '#FEE2E2',
     label_de: 'Vitamine & Gesundheit',
     label_it: 'Vitamine & Salute',
     label_en: 'Vitamins & Health',
@@ -218,7 +218,7 @@ export default function DashboardHome() {
   }, [guide]);
 
   if (disclaimerAccepted === null) {
-    return <View style={s.loadingContainer}><ActivityIndicator size="large" color="#2E7D52" /></View>;
+    return <View style={s.loadingContainer}><ActivityIndicator size="large" color="#C2272F" /></View>;
   }
   if (!disclaimerAccepted) {
     return <DisclaimerScreen lang={lang} setLang={setLang} onAccept={acceptDisclaimer} />;
@@ -271,12 +271,12 @@ export default function DashboardHome() {
 
   return (
     <View style={s.container}>
-      <LinearGradient colors={['#E8F5E9', '#F1F8F3', '#F5F7FA']} style={s.bgGradient} />
+      <LinearGradient colors={['#FEE2E2', '#F1F8F3', '#F5F7FA']} style={s.bgGradient} />
 
       {/* Header bar (slim, no clutter) — brand aware + safe-area aware */}
       {brand.is_default ? (
         <LinearGradient
-          colors={['#1B6B45', '#2E9E6B', '#43C68A']}
+          colors={['#8B1A20', '#DC3540', '#EF4456']}
           start={{ x: 0, y: 0.5 }}
           end={{ x: 1, y: 0.5 }}
           style={[s.header, { paddingTop: insets.top + 12 }]}
@@ -359,7 +359,7 @@ export default function DashboardHome() {
           </View>
           <View style={s.heroCtaRow}>
             <TouchableOpacity
-              style={[s.heroCta, { backgroundColor: '#2E7D52' }]}
+              style={[s.heroCta, { backgroundColor: '#C2272F' }]}
               activeOpacity={0.85}
               onPress={() => hasPlan ? router.push('/(tabs)/plan' as any) : router.push(hasProfile ? ('/(tabs)/plan' as any) : ('/onboarding' as any))}
               testID="hero-plan-btn"
@@ -373,8 +373,8 @@ export default function DashboardHome() {
               onPress={() => router.push('/progress' as any)}
               testID="hero-progress-btn"
             >
-              <MaterialCommunityIcons name="chart-line" size={18} color="#2E7D52" />
-              <Text style={[s.heroCtaText, { color: '#2E7D52' }]}>{tx(lang, { de: 'Fortschritt', it: 'Progressi', en: 'Progress' })}</Text>
+              <MaterialCommunityIcons name="chart-line" size={18} color="#C2272F" />
+              <Text style={[s.heroCtaText, { color: '#C2272F' }]}>{tx(lang, { de: 'Fortschritt', it: 'Progressi', en: 'Progress' })}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -449,7 +449,7 @@ export default function DashboardHome() {
         {hasProfile && totalOpen === 0 && focusData && (
           <Animated.View entering={FadeInDown.duration(300)} style={[s.todayCard, s.todayCardDone]}>
             <View style={s.todayDoneRow}>
-              <MaterialCommunityIcons name="check-circle" size={28} color="#16A34A" />
+              <MaterialCommunityIcons name="check-circle" size={28} color="#B91C1C" />
               <View style={{ flex: 1 }}>
                 <Text style={s.todayTitle}>
                   {tx(lang, { de: 'Alles erledigt!', it: 'Tutto fatto!', en: 'All done!' })}
@@ -501,7 +501,7 @@ export default function DashboardHome() {
                 <MaterialCommunityIcons
                   name={(levelData?.icon || 'seed-outline') as any}
                   size={20}
-                  color="#2E7D52"
+                  color="#C2272F"
                 />
                 <View>
                   <Text style={s.progressLabel}>{tx(lang, { de: 'Level', it: 'Livello', en: 'Level' })}</Text>
@@ -558,8 +558,8 @@ export default function DashboardHome() {
                 }}
                 testID={`coach-insight-${i}`}
               >
-                <View style={[s.recIcon, { backgroundColor: (ins.color || '#2E7D52') + '18' }]}>
-                  <MaterialCommunityIcons name={(ins.icon || 'lightbulb-outline') as any} size={18} color={ins.color || '#2E7D52'} />
+                <View style={[s.recIcon, { backgroundColor: (ins.color || '#C2272F') + '18' }]}>
+                  <MaterialCommunityIcons name={(ins.icon || 'lightbulb-outline') as any} size={18} color={ins.color || '#C2272F'} />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={s.recTitle} numberOfLines={1}>{ins.title}</Text>
@@ -579,7 +579,7 @@ export default function DashboardHome() {
             onPress={() => router.push('/onboarding' as any)}
             testID="onboarding-cta"
           >
-            <LinearGradient colors={['#1B6B45', '#2E9E6B']} style={s.onboardGradient}>
+            <LinearGradient colors={['#8B1A20', '#DC3540']} style={s.onboardGradient}>
               <MaterialCommunityIcons name="account-plus-outline" size={28} color="#FFFFFF" />
               <View style={{ flex: 1 }}>
                 <Text style={s.onboardTitle}>
@@ -664,7 +664,7 @@ const s = StyleSheet.create({
     }),
   },
   todayCardDone: {
-    backgroundColor: '#F0FDF4',
+    backgroundColor: '#FEF2F2',
     borderWidth: 1,
     borderColor: '#BBF7D0',
   },
@@ -694,14 +694,14 @@ const s = StyleSheet.create({
   todayCta: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
     gap: 8, marginTop: 14,
-    backgroundColor: '#2E7D52', paddingVertical: 13, borderRadius: 12,
+    backgroundColor: '#C2272F', paddingVertical: 13, borderRadius: 12,
   },
   todayCtaText: { fontSize: 15, fontWeight: '700', color: '#FFFFFF' },
   todayMiniBar: {
-    height: 5, backgroundColor: '#F1F5F2', borderRadius: 3,
+    height: 5, backgroundColor: '#FDF4F4', borderRadius: 3,
     marginTop: 10, marginBottom: 4, overflow: 'hidden',
   },
-  todayMiniBarFill: { height: '100%', backgroundColor: '#2E7D52', borderRadius: 3 },
+  todayMiniBarFill: { height: '100%', backgroundColor: '#C2272F', borderRadius: 3 },
 
   // 3. Kategorien
   sectionTitle: {
@@ -750,10 +750,10 @@ const s = StyleSheet.create({
   progressLabel: { fontSize: 11, color: '#9CA3AF', fontWeight: '600' },
   progressValue: { fontSize: 14, fontWeight: '800', color: '#1A2E35', marginTop: 1 },
   progressBar: {
-    height: 6, backgroundColor: '#F1F5F2', borderRadius: 3,
+    height: 6, backgroundColor: '#FDF4F4', borderRadius: 3,
     overflow: 'hidden', marginBottom: 10,
   },
-  progressBarFill: { height: '100%', backgroundColor: '#2E7D52', borderRadius: 3 },
+  progressBarFill: { height: '100%', backgroundColor: '#C2272F', borderRadius: 3 },
   progressFooter: { flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', gap: 4 },
   progressDetailText: { fontSize: 12, fontWeight: '600', color: '#9CA3AF' },
 

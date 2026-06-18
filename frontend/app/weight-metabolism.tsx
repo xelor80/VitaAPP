@@ -87,11 +87,11 @@ function WeightChart({ entries }: { entries: { date: string; weight_kg: number }
   return (
     <Svg width={w} height={h}>
       <Line x1={pad} y1={h - pad} x2={w - pad} y2={h - pad} stroke="#E6E9E7" strokeWidth={1} />
-      <Polyline points={pts} fill="none" stroke="#2E7D52" strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" />
+      <Polyline points={pts} fill="none" stroke="#C2272F" strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" />
       {entries.map((e, i) => {
         const x = pad + i * xStep;
         const y = pad + (h - pad * 2) * (1 - (e.weight_kg - min) / range);
-        return <Circle key={i} cx={x} cy={y} r={3} fill="#2E7D52" />;
+        return <Circle key={i} cx={x} cy={y} r={3} fill="#C2272F" />;
       })}
     </Svg>
   );
@@ -434,7 +434,7 @@ export default function WeightMetabolismScreen() {
   // ── Phase 3: Routine-Mahlzeit-Templates (1-Klick Quick-Add) ──
   const MEAL_TEMPLATES = [
     { id: 'std_shake', name: { de: 'Standard Shake', it: 'Shake standard', en: 'Standard shake' }, calories: 320, protein_g: 35, type: 'shake' as const, icon: 'cup', color: '#6D28D9' },
-    { id: 'protein_bowl', name: { de: 'Protein Bowl', it: 'Protein bowl', en: 'Protein bowl' }, calories: 480, protein_g: 38, type: 'lunch' as const, icon: 'bowl-mix-outline', color: '#2E7D52' },
+    { id: 'protein_bowl', name: { de: 'Protein Bowl', it: 'Protein bowl', en: 'Protein bowl' }, calories: 480, protein_g: 38, type: 'lunch' as const, icon: 'bowl-mix-outline', color: '#C2272F' },
     { id: 'chicken_rice', name: { de: 'Hähnchen Reis', it: 'Pollo riso', en: 'Chicken rice' }, calories: 620, protein_g: 45, type: 'dinner' as const, icon: 'food-drumstick-outline', color: '#D97706' },
     { id: 'skyr_snack', name: { de: 'Skyr Snack', it: 'Snack Skyr', en: 'Skyr snack' }, calories: 180, protein_g: 22, type: 'snack' as const, icon: 'food-apple-outline', color: '#0EA5E9' },
   ];
@@ -779,7 +779,7 @@ export default function WeightMetabolismScreen() {
   if (loading) {
     return (
       <SafeAreaView style={st.page}>
-        <ActivityIndicator size="large" color="#2E7D52" style={{ marginTop: 100 }} />
+        <ActivityIndicator size="large" color="#C2272F" style={{ marginTop: 100 }} />
       </SafeAreaView>
     );
   }
@@ -832,7 +832,7 @@ export default function WeightMetabolismScreen() {
             <MaterialCommunityIcons name="book-open-page-variant-outline" size={22} color="#6D28D9" />
           </TouchableOpacity>
           <TouchableOpacity onPress={openGoalModal} testID="wm-goal-btn" hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
-            <MaterialCommunityIcons name="cog-outline" size={22} color="#2E7D52" />
+            <MaterialCommunityIcons name="cog-outline" size={22} color="#C2272F" />
           </TouchableOpacity>
         </View>
       </View>
@@ -850,11 +850,11 @@ export default function WeightMetabolismScreen() {
         <View style={st.fastCard} testID="wm-fasting-card">
           <View style={st.cardHeader}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <MaterialCommunityIcons name="clock-outline" size={22} color={sched?.active && sched.phase === 'eating' ? '#2E7D52' : '#6D28D9'} />
+              <MaterialCommunityIcons name="clock-outline" size={22} color={sched?.active && sched.phase === 'eating' ? '#C2272F' : '#6D28D9'} />
               <Text style={st.cardTitle}>{tx(lang, { de: 'Protein-Routine', it: 'Routine proteica', en: 'Protein routine' })}</Text>
             </View>
             <TouchableOpacity onPress={openScheduleModal} testID="wm-schedule-edit-btn">
-              <MaterialCommunityIcons name={sched?.active ? 'pencil-outline' : 'plus-circle-outline'} size={22} color="#2E7D52" />
+              <MaterialCommunityIcons name={sched?.active ? 'pencil-outline' : 'plus-circle-outline'} size={22} color="#C2272F" />
             </TouchableOpacity>
           </View>
 
@@ -870,7 +870,7 @@ export default function WeightMetabolismScreen() {
                   <G rotation="-90" origin="100, 100">
                     <Circle cx="100" cy="100" r="88" stroke="#EEF1EF" strokeWidth={12} fill="none" />
                     <Circle cx="100" cy="100" r="88"
-                      stroke={sched.phase === 'eating' ? '#2E7D52' : '#6D28D9'}
+                      stroke={sched.phase === 'eating' ? '#C2272F' : '#6D28D9'}
                       strokeWidth={12}
                       strokeDasharray={`${2 * Math.PI * 88 * (sched.progress_pct || 0) / 100} ${2 * Math.PI * 88}`}
                       strokeLinecap="round"
@@ -879,13 +879,13 @@ export default function WeightMetabolismScreen() {
                   </G>
                 </Svg>
                 <View style={st.fastTimerCenter}>
-                  <View style={[st.phaseBadge, { backgroundColor: sched.phase === 'eating' ? '#E8F5E9' : '#F3E8FF' }]}>
+                  <View style={[st.phaseBadge, { backgroundColor: sched.phase === 'eating' ? '#FEE2E2' : '#F3E8FF' }]}>
                     <MaterialCommunityIcons
                       name={sched.phase === 'eating' ? 'silverware-fork-knife' : 'timer-sand'}
                       size={12}
-                      color={sched.phase === 'eating' ? '#2E7D52' : '#6D28D9'}
+                      color={sched.phase === 'eating' ? '#C2272F' : '#6D28D9'}
                     />
-                    <Text style={[st.phaseBadgeText, { color: sched.phase === 'eating' ? '#2E7D52' : '#6D28D9' }]}>
+                    <Text style={[st.phaseBadgeText, { color: sched.phase === 'eating' ? '#C2272F' : '#6D28D9' }]}>
                       {sched.phase === 'eating'
                         ? tx(lang, { de: 'Essensfenster', it: 'Finestra cibo', en: 'Eating window' })
                         : tx(lang, { de: 'Proteinphase', it: 'Fase proteica', en: 'Protein phase' })}
@@ -924,10 +924,10 @@ export default function WeightMetabolismScreen() {
                     })}
                   </Text>
                 </View>
-                <View style={[st.phaseCard, { backgroundColor: '#E8F5E9', borderLeftColor: '#2E7D52' }]}>
+                <View style={[st.phaseCard, { backgroundColor: '#FEE2E2', borderLeftColor: '#C2272F' }]}>
                   <View style={st.phaseCardHead}>
-                    <MaterialCommunityIcons name="silverware-fork-knife" size={16} color="#2E7D52" />
-                    <Text style={[st.phaseCardTitle, { color: '#2E7D52' }]}>
+                    <MaterialCommunityIcons name="silverware-fork-knife" size={16} color="#C2272F" />
+                    <Text style={[st.phaseCardTitle, { color: '#C2272F' }]}>
                       {tx(lang, { de: 'Essensfenster', it: 'Finestra cibo', en: 'Eating window' })}
                     </Text>
                     <Text style={st.phaseCardTime}>
@@ -994,7 +994,7 @@ export default function WeightMetabolismScreen() {
                           )}
                         </View>
                         {idx < dayPlan.events.length - 1 && (
-                          <View style={[st.timelineLine, ev.checked && { backgroundColor: '#86EFAC' }]} />
+                          <View style={[st.timelineLine, ev.checked && { backgroundColor: '#FCA5A5' }]} />
                         )}
                       </View>
                       <View style={{ flex: 1, paddingBottom: idx === dayPlan.events.length - 1 ? 0 : 14 }}>
@@ -1115,7 +1115,7 @@ export default function WeightMetabolismScreen() {
           <View style={st.summaryRings}>
             <Ring
               pct={today?.progress?.calories_pct || 0}
-              color="#2E7D52"
+              color="#C2272F"
               label={tx(lang, { de: 'Kalorien', it: 'Calorie', en: 'Calories' })}
               value={`${fmt(today?.totals?.calories || 0)}`}
               sub={`/ ${today?.goals?.daily_calories || 0}`}
@@ -1137,8 +1137,8 @@ export default function WeightMetabolismScreen() {
             const diff = goal - consumed; // positive = deficit (good for losing weight)
             const inDeficit = diff > 0;
             const inSurplus = diff < -50;
-            const color = inDeficit ? '#2E7D52' : inSurplus ? '#DC2626' : '#6B7280';
-            const bg = inDeficit ? '#E8F5E9' : inSurplus ? '#FEE2E2' : '#F3F4F6';
+            const color = inDeficit ? '#C2272F' : inSurplus ? '#DC2626' : '#6B7280';
+            const bg = inDeficit ? '#FEE2E2' : inSurplus ? '#FEE2E2' : '#F3F4F6';
             const label = inDeficit
               ? tx(lang, { de: 'Tagesdefizit', it: 'Deficit giornaliero', en: 'Daily deficit' })
               : inSurplus
@@ -1243,7 +1243,7 @@ export default function WeightMetabolismScreen() {
               testID="wm-meals-toggle"
             >
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 }}>
-                <MaterialCommunityIcons name="silverware-fork-knife" size={18} color="#2E7D52" />
+                <MaterialCommunityIcons name="silverware-fork-knife" size={18} color="#C2272F" />
                 <Text style={st.cardTitle}>{tx(lang, { de: 'Mahlzeiten', it: 'Pasti', en: 'Meals' })}</Text>
                 <View style={st.countPill}><Text style={st.countPillText}>{today.meals.length}</Text></View>
               </View>
@@ -1277,7 +1277,7 @@ export default function WeightMetabolismScreen() {
             testID="wm-weight-toggle"
           >
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 }}>
-              <MaterialCommunityIcons name="scale-bathroom" size={20} color="#2E7D52" />
+              <MaterialCommunityIcons name="scale-bathroom" size={20} color="#C2272F" />
               <Text style={st.cardTitle}>{tx(lang, { de: 'Gewicht', it: 'Peso', en: 'Weight' })}</Text>
               {weight?.current_kg ? (
                 <Text style={st.collapseHeaderHint}>{weight.current_kg.toFixed(1)} kg</Text>
@@ -1293,7 +1293,7 @@ export default function WeightMetabolismScreen() {
                   <Text style={st.smallBtnGhostText}>{tx(lang, { de: 'Verlauf', it: 'Storico', en: 'History' })}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => setWeightModal(true)} style={st.smallBtn} testID="wm-add-weight-btn">
-                  <MaterialCommunityIcons name="plus" size={16} color="#2E7D52" />
+                  <MaterialCommunityIcons name="plus" size={16} color="#C2272F" />
                   <Text style={st.smallBtnText}>{tx(lang, { de: 'Eintrag', it: 'Voce', en: 'Entry' })}</Text>
                 </TouchableOpacity>
               </View>
@@ -1304,7 +1304,7 @@ export default function WeightMetabolismScreen() {
                 </View>
                 <View style={st.weightStat}>
                   <Text style={st.weightStatLabel}>30 {tx(lang, { de: 'Tage', it: 'giorni', en: 'days' })}</Text>
-                  <Text style={[st.weightStatValue, { color: weight?.delta_kg && weight.delta_kg > 0 ? '#DC2626' : '#2E7D52' }]}>
+                  <Text style={[st.weightStatValue, { color: weight?.delta_kg && weight.delta_kg > 0 ? '#DC2626' : '#C2272F' }]}>
                     {weight?.delta_kg !== null && weight?.delta_kg !== undefined ? `${weight.delta_kg > 0 ? '+' : ''}${weight.delta_kg.toFixed(1)} kg` : '–'}
                   </Text>
                 </View>
@@ -1332,11 +1332,11 @@ export default function WeightMetabolismScreen() {
                         <MaterialCommunityIcons
                           name={weight.trend === 'down' ? 'trending-down' : weight.trend === 'up' ? 'trending-up' : 'trending-neutral'}
                           size={14}
-                          color={weight.trend === 'down' ? '#2E7D52' : weight.trend === 'up' ? '#DC2626' : '#6B7280'}
+                          color={weight.trend === 'down' ? '#C2272F' : weight.trend === 'up' ? '#DC2626' : '#6B7280'}
                         />
                         <Text style={[
                           st.trendChipText,
-                          { color: weight.trend === 'down' ? '#2E7D52' : weight.trend === 'up' ? '#DC2626' : '#6B7280' },
+                          { color: weight.trend === 'down' ? '#C2272F' : weight.trend === 'up' ? '#DC2626' : '#6B7280' },
                         ]}>
                           {weight.week_delta_kg > 0 ? '+' : ''}{weight.week_delta_kg.toFixed(1)} kg
                         </Text>
@@ -1426,13 +1426,13 @@ export default function WeightMetabolismScreen() {
               })}
             </ScrollView>
 
-            <TouchableOpacity style={[st.sourceTile, { backgroundColor: '#E8F5E9' }]} onPress={pickPhoto} testID="wm-source-photo">
-              <MaterialCommunityIcons name="camera-plus-outline" size={36} color="#2E7D52" />
+            <TouchableOpacity style={[st.sourceTile, { backgroundColor: '#FEE2E2' }]} onPress={pickPhoto} testID="wm-source-photo">
+              <MaterialCommunityIcons name="camera-plus-outline" size={36} color="#C2272F" />
               <View style={{ flex: 1 }}>
                 <Text style={st.sourceTitle}>{tx(lang, { de: 'Foto aufnehmen', it: 'Scatta foto', en: 'Take photo' })}</Text>
                 <Text style={st.sourceSub}>{tx(lang, { de: 'KI erkennt & schaetzt', it: 'IA riconosce & stima', en: 'AI detects & estimates' })}</Text>
               </View>
-              <MaterialCommunityIcons name="chevron-right" size={24} color="#2E7D52" />
+              <MaterialCommunityIcons name="chevron-right" size={24} color="#C2272F" />
             </TouchableOpacity>
             <TouchableOpacity style={[st.sourceTile, { backgroundColor: '#FEF3C7' }]} onPress={pickManual} testID="wm-source-manual">
               <MaterialCommunityIcons name="pencil-outline" size={36} color="#D97706" />
@@ -1472,7 +1472,7 @@ export default function WeightMetabolismScreen() {
               )}
               {analyzing && (
                 <View style={{ alignItems: 'center', padding: 18 }}>
-                  <ActivityIndicator color="#2E7D52" />
+                  <ActivityIndicator color="#C2272F" />
                   <Text style={{ marginTop: 8, color: '#6B7280', fontSize: 13 }}>
                     {tx(lang, { de: 'KI analysiert dein Essen ...', it: "L'IA sta analizzando ...", en: 'AI analyzing ...' })}
                   </Text>
@@ -1511,7 +1511,7 @@ export default function WeightMetabolismScreen() {
                       <Text style={st.macroChipValue}>{Math.round(analysisResult.fat_g || 0)}g</Text>
                     </View>
                     {analysisResult.confidence && (
-                      <View style={[st.macroChip, { backgroundColor: analysisResult.confidence === 'high' ? '#E8F5E9' : analysisResult.confidence === 'low' ? '#FEE2E2' : '#FEF3C7' }]}>
+                      <View style={[st.macroChip, { backgroundColor: analysisResult.confidence === 'high' ? '#FEE2E2' : analysisResult.confidence === 'low' ? '#FEE2E2' : '#FEF3C7' }]}>
                         <Text style={st.macroChipLabel}>{tx(lang, { de: 'Sicherheit', it: 'Affid.', en: 'Conf.' })}</Text>
                         <Text style={st.macroChipValue}>{analysisResult.confidence}</Text>
                       </View>
@@ -1537,7 +1537,7 @@ export default function WeightMetabolismScreen() {
                     ))}
                   </View>
                   <TouchableOpacity style={st.favToggle} onPress={() => setSaveAsFavorite(!saveAsFavorite)} testID="wm-photo-fav-toggle">
-                    <MaterialCommunityIcons name={saveAsFavorite ? 'checkbox-marked' : 'checkbox-blank-outline'} size={20} color="#2E7D52" />
+                    <MaterialCommunityIcons name={saveAsFavorite ? 'checkbox-marked' : 'checkbox-blank-outline'} size={20} color="#C2272F" />
                     <Text style={st.favToggleText}>{tx(lang, { de: 'Als Favorit speichern', it: 'Salva come preferito', en: 'Save as favorite' })}</Text>
                   </TouchableOpacity>
                 </View>
@@ -1577,7 +1577,7 @@ export default function WeightMetabolismScreen() {
                 keyboardType="numeric" value={mealProt} onChangeText={setMealProt} testID="wm-manual-prot" />
             </View>
             <TouchableOpacity style={st.favToggle} onPress={() => setSaveAsFavorite(!saveAsFavorite)} testID="wm-manual-fav-toggle">
-              <MaterialCommunityIcons name={saveAsFavorite ? 'checkbox-marked' : 'checkbox-blank-outline'} size={20} color="#2E7D52" />
+              <MaterialCommunityIcons name={saveAsFavorite ? 'checkbox-marked' : 'checkbox-blank-outline'} size={20} color="#C2272F" />
               <Text style={st.favToggleText}>{tx(lang, { de: 'Als Favorit speichern', it: 'Salva come preferito', en: 'Save as favorite' })}</Text>
             </TouchableOpacity>
             <View style={st.modalRow}>
@@ -1599,7 +1599,7 @@ export default function WeightMetabolismScreen() {
             <View style={st.cardHeader}>
               <Text style={st.modalTitle}>{tx(lang, { de: 'Meine Mahlzeiten', it: 'I miei pasti', en: 'My meals' })}</Text>
               <TouchableOpacity onPress={() => setShowFavAdd(!showFavAdd)}>
-                <MaterialCommunityIcons name={showFavAdd ? 'close' : 'plus'} size={24} color="#2E7D52" />
+                <MaterialCommunityIcons name={showFavAdd ? 'close' : 'plus'} size={24} color="#C2272F" />
               </TouchableOpacity>
             </View>
             {showFavAdd && (
@@ -1640,7 +1640,7 @@ export default function WeightMetabolismScreen() {
                       <Text style={st.favMeta}>{f.calories} kcal · {f.protein_g}g Protein · {f.used_count}x</Text>
                     </View>
                     <TouchableOpacity style={st.favUseBtn} onPress={() => useFavorite(f.id)} testID={`wm-fav-use-${f.id}`}>
-                      <MaterialCommunityIcons name="plus-circle" size={26} color="#2E7D52" />
+                      <MaterialCommunityIcons name="plus-circle" size={26} color="#C2272F" />
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => deleteFavorite(f.id)} style={{ marginLeft: 6 }} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
                       <MaterialCommunityIcons name="delete-outline" size={18} color="#9CA3AF" />
@@ -1862,9 +1862,9 @@ export default function WeightMetabolismScreen() {
                               <MaterialCommunityIcons
                                 name={up ? 'trending-up' : 'trending-down'}
                                 size={11}
-                                color={up ? '#15803D' : '#B45309'}
+                                color={up ? '#991B1B' : '#B45309'}
                               />
-                              <Text style={[st.deltaText, { color: up ? '#15803D' : '#B45309' }]}>
+                              <Text style={[st.deltaText, { color: up ? '#991B1B' : '#B45309' }]}>
                                 {up ? '+' : ''}{diff} ggü. bisher
                               </Text>
                             </View>
@@ -1884,9 +1884,9 @@ export default function WeightMetabolismScreen() {
                               <MaterialCommunityIcons
                                 name={up ? 'trending-up' : 'trending-down'}
                                 size={11}
-                                color={up ? '#15803D' : '#B45309'}
+                                color={up ? '#991B1B' : '#B45309'}
                               />
-                              <Text style={[st.deltaText, { color: up ? '#15803D' : '#B45309' }]}>
+                              <Text style={[st.deltaText, { color: up ? '#991B1B' : '#B45309' }]}>
                                 {up ? '+' : ''}{diff}g ggü. bisher
                               </Text>
                             </View>
@@ -2091,7 +2091,7 @@ function mealIcon(t: string) {
 }
 function mealColor(t: string) {
   return t === 'breakfast' ? '#F59E0B'
-    : t === 'lunch' ? '#2E7D52'
+    : t === 'lunch' ? '#C2272F'
     : t === 'dinner' ? '#6D28D9'
     : t === 'shake' ? '#0EA5E9'
     : '#0284C7';
@@ -2112,13 +2112,13 @@ const st = StyleSheet.create({
   header: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: 16, paddingVertical: 14, backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1, borderBottomColor: '#F1F5F2',
+    borderBottomWidth: 1, borderBottomColor: '#FDF4F4',
   },
   headerTitle: { fontSize: 16, fontWeight: '700', color: '#1F2937', flex: 1, textAlign: 'center' },
 
   veroCard: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
-    margin: 16, marginBottom: 0, padding: 12, backgroundColor: '#E8F5E9', borderRadius: 14,
+    margin: 16, marginBottom: 0, padding: 12, backgroundColor: '#FEE2E2', borderRadius: 14,
   },
   veroImg: { width: 36, height: 36 },
   veroText: { flex: 1, fontSize: 13, color: '#1F5937', fontWeight: '600' },
@@ -2143,7 +2143,7 @@ const st = StyleSheet.create({
   fastTimerValue: { fontSize: 26, fontWeight: '800', color: '#1F2937', fontVariant: ['tabular-nums'] },
   fastTimerSub: { fontSize: 11, color: '#9CA3AF', marginTop: 2 },
 
-  scheduleInfo: { width: '100%', marginTop: 16, paddingTop: 14, borderTopWidth: 1, borderTopColor: '#F1F5F2' },
+  scheduleInfo: { width: '100%', marginTop: 16, paddingTop: 14, borderTopWidth: 1, borderTopColor: '#FDF4F4' },
   scheduleRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 4 },
   scheduleLabel: { fontSize: 13, color: '#6B7280' },
   scheduleValue: { fontSize: 13, fontWeight: '700', color: '#1F2937' },
@@ -2227,22 +2227,22 @@ const st = StyleSheet.create({
   },
   collapseHeaderHint: { fontSize: 13, color: '#9CA3AF', fontWeight: '600', marginLeft: 4 },
   countPill: {
-    backgroundColor: '#E8F5E9',
+    backgroundColor: '#FEE2E2',
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 10,
     marginLeft: 4,
   },
-  countPillText: { fontSize: 11, fontWeight: '800', color: '#2E7D52' },
+  countPillText: { fontSize: 11, fontWeight: '800', color: '#C2272F' },
 
   // Phase 2 — Weight section actions row (replaces old cardHeader buttons)
   weightActionRow: { flexDirection: 'row', gap: 8, marginTop: 8, marginBottom: 4, justifyContent: 'flex-end' },
 
   // Phase 2 — Weekly insight card
   weeklyInsight: {
-    backgroundColor: '#F0FDF4',
+    backgroundColor: '#FEF2F2',
     borderLeftWidth: 3,
-    borderLeftColor: '#2E7D52',
+    borderLeftColor: '#C2272F',
     borderRadius: 10,
     padding: 12,
     marginTop: 12,
@@ -2256,7 +2256,7 @@ const st = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', gap: 4,
     paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12,
   },
-  trendChipDown: { backgroundColor: '#E8F5E9' },
+  trendChipDown: { backgroundColor: '#FEE2E2' },
   trendChipUp: { backgroundColor: '#FEE2E2' },
   trendChipStable: { backgroundColor: '#F3F4F6' },
   trendChipText: { fontSize: 12, fontWeight: '800' },
@@ -2351,7 +2351,7 @@ const st = StyleSheet.create({
 
   bigPrimaryBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10,
-    backgroundColor: '#2E7D52', borderRadius: 14, paddingVertical: 16, marginTop: 8,
+    backgroundColor: '#C2272F', borderRadius: 14, paddingVertical: 16, marginTop: 8,
   },
   bigPrimaryBtnText: { color: '#FFFFFF', fontWeight: '700', fontSize: 15 },
 
@@ -2370,14 +2370,14 @@ const st = StyleSheet.create({
   ringLabel: { fontSize: 13, fontWeight: '600', color: '#6B7280', marginTop: 8, textAlign: 'center' },
 
   mealsCard: { backgroundColor: '#FFFFFF', borderRadius: 16, marginHorizontal: 16, marginVertical: 8, padding: 16 },
-  mealRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#F1F5F2' },
+  mealRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#FDF4F4' },
   mealIcon: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
   mealName: { fontSize: 14, fontWeight: '600', color: '#1F2937' },
   mealMeta: { fontSize: 12, color: '#6B7280', marginTop: 2 },
 
   weightCard: { backgroundColor: '#FFFFFF', borderRadius: 16, marginHorizontal: 16, marginVertical: 8, padding: 16 },
-  smallBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#E8F5E9', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10 },
-  smallBtnText: { color: '#2E7D52', fontWeight: '700', fontSize: 12 },
+  smallBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#FEE2E2', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10 },
+  smallBtnText: { color: '#C2272F', fontWeight: '700', fontSize: 12 },
   smallBtnGhost: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#F3F4F6', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10 },
   smallBtnGhostText: { color: '#6B7280', fontWeight: '700', fontSize: 12 },
   weightStatsRow: { flexDirection: 'row', justifyContent: 'space-between', marginVertical: 10 },
@@ -2436,35 +2436,35 @@ const st = StyleSheet.create({
   modalLabel: { fontSize: 12, color: '#6B7280', fontWeight: '600', marginTop: 10, marginBottom: 4 },
   input: { borderWidth: 1, borderColor: '#E5E7EB', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: '#1F2937', marginVertical: 4 },
   modalRow: { flexDirection: 'row', gap: 10, marginTop: 16 },
-  modalCancel: { flex: 1, paddingVertical: 14, alignItems: 'center', borderRadius: 12, backgroundColor: '#F1F5F2' },
+  modalCancel: { flex: 1, paddingVertical: 14, alignItems: 'center', borderRadius: 12, backgroundColor: '#FDF4F4' },
   modalCancelText: { color: '#6B7280', fontWeight: '600', fontSize: 14 },
-  modalConfirm: { flex: 1, paddingVertical: 14, alignItems: 'center', borderRadius: 12, backgroundColor: '#2E7D52' },
+  modalConfirm: { flex: 1, paddingVertical: 14, alignItems: 'center', borderRadius: 12, backgroundColor: '#C2272F' },
   modalConfirmText: { color: '#FFFFFF', fontWeight: '700', fontSize: 14 },
 
   mealTypeRow: { flexDirection: 'row', gap: 6, marginVertical: 10, flexWrap: 'wrap' },
-  mealTypeChip: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 16, backgroundColor: '#F1F5F2' },
-  mealTypeChipActive: { backgroundColor: '#2E7D52' },
+  mealTypeChip: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 16, backgroundColor: '#FDF4F4' },
+  mealTypeChipActive: { backgroundColor: '#C2272F' },
   mealTypeText: { fontSize: 12, fontWeight: '600', color: '#6B7280' },
 
   presetRow: { flexDirection: 'row', gap: 8, marginVertical: 6 },
-  presetChip: { flex: 1, paddingVertical: 12, borderRadius: 10, backgroundColor: '#F1F5F2', alignItems: 'center' },
-  presetChipActive: { backgroundColor: '#2E7D52' },
+  presetChip: { flex: 1, paddingVertical: 12, borderRadius: 10, backgroundColor: '#FDF4F4', alignItems: 'center' },
+  presetChipActive: { backgroundColor: '#C2272F' },
   presetText: { fontWeight: '700', color: '#6B7280' },
 
   scheduleSummary: { marginTop: 10, padding: 10, backgroundColor: '#F3E8FF', borderRadius: 10 },
   scheduleSummaryText: { fontSize: 12, color: '#6D28D9', fontWeight: '600', textAlign: 'center' },
 
-  photoPreview: { width: '100%', height: 200, borderRadius: 12, marginVertical: 12, backgroundColor: '#F1F5F2' },
+  photoPreview: { width: '100%', height: 200, borderRadius: 12, marginVertical: 12, backgroundColor: '#FDF4F4' },
   warnBanner: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#FFFBEB', borderRadius: 8, padding: 10, marginBottom: 10 },
   warnText: { flex: 1, fontSize: 12, color: '#92400E' },
   tagsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 10 },
-  tag: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, backgroundColor: '#E8F5E9' },
-  tagText: { fontSize: 11, color: '#2E7D52', fontWeight: '600' },
+  tag: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, backgroundColor: '#FEE2E2' },
+  tagText: { fontSize: 11, color: '#C2272F', fontWeight: '600' },
   favToggle: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 10 },
   favToggleText: { fontSize: 13, color: '#374151' },
 
   favAddBox: { backgroundColor: '#F7FAF8', padding: 12, borderRadius: 12, marginTop: 8 },
-  favRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F1F5F2' },
+  favRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#FDF4F4' },
   favName: { fontSize: 14, fontWeight: '700', color: '#1F2937' },
   favMeta: { fontSize: 11, color: '#6B7280', marginTop: 2 },
   favUseBtn: { padding: 4 },
@@ -2524,9 +2524,9 @@ const st = StyleSheet.create({
   },
   timelineHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   timelineTitle: { fontSize: 14, fontWeight: '800', color: '#1F2937' },
-  timelineProgress: { fontSize: 13, fontWeight: '700', color: '#2E7D52' },
+  timelineProgress: { fontSize: 13, fontWeight: '700', color: '#C2272F' },
   timelineBar: { height: 6, backgroundColor: '#E6EAE7', borderRadius: 3, overflow: 'hidden', marginBottom: 14 },
-  timelineBarFill: { height: '100%', backgroundColor: '#2E7D52', borderRadius: 3 },
+  timelineBarFill: { height: '100%', backgroundColor: '#C2272F', borderRadius: 3 },
   timelineEvent: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
   timelineEventDone: { opacity: 0.8 },
   timelineDotCol: { alignItems: 'center', width: 30 },
@@ -2535,7 +2535,7 @@ const st = StyleSheet.create({
     borderWidth: 2, borderColor: '#D1D5DB',
     alignItems: 'center', justifyContent: 'center',
   },
-  timelineDotDone: { backgroundColor: '#2E7D52', borderColor: '#2E7D52' },
+  timelineDotDone: { backgroundColor: '#C2272F', borderColor: '#C2272F' },
   timelineDotNow: { backgroundColor: '#6D28D9', borderColor: '#6D28D9' },
   timelineLine: { width: 2, flex: 1, backgroundColor: '#E6EAE7', minHeight: 28, marginTop: 2 },
   timelineEventLabel: { fontSize: 14, fontWeight: '700', color: '#1F2937', flex: 1 },
@@ -2550,14 +2550,14 @@ const st = StyleSheet.create({
   budgetRow: { flexDirection: 'row', gap: 6, marginTop: 6, flexWrap: 'wrap' },
   budgetChip: {
     paddingHorizontal: 8, paddingVertical: 2,
-    borderRadius: 8, backgroundColor: '#E8F5E9',
+    borderRadius: 8, backgroundColor: '#FEE2E2',
   },
-  budgetChipText: { fontSize: 11, fontWeight: '700', color: '#15803D' },
+  budgetChipText: { fontSize: 11, fontWeight: '700', color: '#991B1B' },
 
   stepActionRow: { flexDirection: 'row', marginTop: 8 },
   drinkBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 4,
-    backgroundColor: '#2E7D52', paddingHorizontal: 12, paddingVertical: 7,
+    backgroundColor: '#C2272F', paddingHorizontal: 12, paddingVertical: 7,
     borderRadius: 10,
   },
   mealBtn: {

@@ -35,7 +35,7 @@ export default function WeeklyReportScreen() {
 
   if (loading) return (
     <SafeAreaView style={s.safe}>
-      <View style={s.center}><ActivityIndicator size="large" color="#2E7D52" /></View>
+      <View style={s.center}><ActivityIndicator size="large" color="#C2272F" /></View>
     </SafeAreaView>
   );
 
@@ -56,7 +56,7 @@ export default function WeeklyReportScreen() {
       <LinearGradient colors={['#1A2D26', '#2E4A3E']} style={s.header}>
         <View style={s.headerRow}>
           <TouchableOpacity onPress={() => router.back()} style={s.backBtn}>
-            <MaterialCommunityIcons name="arrow-left" size={22} color="#E8F5E9" />
+            <MaterialCommunityIcons name="arrow-left" size={22} color="#FEE2E2" />
           </TouchableOpacity>
           <View style={{ flex: 1 }}>
             <Text style={s.headerTitle}>{t('Deine Woche', 'La tua settimana')}</Text>
@@ -75,7 +75,7 @@ export default function WeeklyReportScreen() {
             <Text style={s.ringPct}>{ov.week_completion_pct}%</Text>
           </View>
           <View style={s.overviewStats}>
-            <StatRow icon="calendar-check" color="#2E7D52" label={t('Aktive Tage', 'Giorni attivi')} value={`${ov.active_days}/7`} />
+            <StatRow icon="calendar-check" color="#C2272F" label={t('Aktive Tage', 'Giorni attivi')} value={`${ov.active_days}/7`} />
             <StatRow icon="check-circle" color="#3B82F6" label={t('Plan erledigt', 'Piano completato')} value={`${ov.plan_full_days}/7`} />
             <StatRow icon="star" color="#F59E0B" label={t('Punkte', 'Punti')} value={`${ov.total_points}`} />
           </View>
@@ -85,7 +85,7 @@ export default function WeeklyReportScreen() {
         <Animated.View entering={FadeInDown.delay(100).duration(400)} style={s.levelCard}>
           <View style={s.levelRow}>
             <View style={s.levelIcon}>
-              <MaterialCommunityIcons name={(lv.icon || 'seed-outline') as any} size={24} color="#2E7D52" />
+              <MaterialCommunityIcons name={(lv.icon || 'seed-outline') as any} size={24} color="#C2272F" />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={s.levelTitle}>Level {lv.level} - {lv.title}</Text>
@@ -105,7 +105,7 @@ export default function WeeklyReportScreen() {
         {report.supplements && (
           <Animated.View entering={FadeInDown.delay(150).duration(400)}>
             <AreaCard
-              icon="pill" color="#2E7D52" bg="#F0FDF4"
+              icon="pill" color="#C2272F" bg="#FEF2F2"
               title={t('Supplements', 'Integratori')}
               pct={report.supplements.adherence_pct}
               detail={t(
@@ -164,7 +164,7 @@ export default function WeeklyReportScreen() {
               </View>
               {report.stress.sessions > 0 && report.stress.improvement > 0 && (
                 <View style={s.improveBadge}>
-                  <MaterialCommunityIcons name="trending-down" size={14} color="#22C55E" />
+                  <MaterialCommunityIcons name="trending-down" size={14} color="#DC2626" />
                   <Text style={s.improveText}>-{report.stress.improvement}</Text>
                 </View>
               )}
@@ -198,7 +198,7 @@ export default function WeeklyReportScreen() {
               return (
                 <View key={day.date} style={s.dayCol}>
                   <View style={[s.dayDot,
-                    pct >= 0.8 && { backgroundColor: '#22C55E', borderColor: '#22C55E' },
+                    pct >= 0.8 && { backgroundColor: '#DC2626', borderColor: '#DC2626' },
                     pct > 0 && pct < 0.8 && { backgroundColor: '#FEF3C7', borderColor: '#F59E0B' },
                     day.is_today && { borderColor: '#1A2D26', borderWidth: 2.5 },
                   ]}>
@@ -269,7 +269,7 @@ const s = StyleSheet.create({
   header: { paddingTop: Platform.OS === 'ios' ? 12 : 16, paddingBottom: 16, paddingHorizontal: 16 },
   headerRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   backBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.1)', justifyContent: 'center', alignItems: 'center' },
-  headerTitle: { fontSize: 22, fontWeight: '800', color: '#E8F5E9' },
+  headerTitle: { fontSize: 22, fontWeight: '800', color: '#FEE2E2' },
   headerSub: { fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 1 },
 
   overviewCard: {
@@ -291,10 +291,10 @@ const s = StyleSheet.create({
     shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 4, elevation: 1,
   },
   levelRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  levelIcon: { width: 44, height: 44, borderRadius: 22, backgroundColor: '#F0FDF4', justifyContent: 'center', alignItems: 'center' },
+  levelIcon: { width: 44, height: 44, borderRadius: 22, backgroundColor: '#FEF2F2', justifyContent: 'center', alignItems: 'center' },
   levelTitle: { fontSize: 16, fontWeight: '700', color: '#1A2D26' },
   levelBar: { height: 6, backgroundColor: '#E5E7EB', borderRadius: 3, marginTop: 6, overflow: 'hidden' },
-  levelBarFill: { height: 6, backgroundColor: '#2E7D52', borderRadius: 3 },
+  levelBarFill: { height: 6, backgroundColor: '#C2272F', borderRadius: 3 },
   levelSub: { fontSize: 12, color: '#6B7280', marginTop: 4 },
 
   areaCard: {
@@ -333,7 +333,7 @@ const s = StyleSheet.create({
 
   veroCard: {
     flexDirection: 'row', alignItems: 'center', gap: 12, marginHorizontal: 16, marginTop: 12,
-    backgroundColor: '#F0FDF4', borderRadius: 14, padding: 14, borderWidth: 1, borderColor: '#D1FAE5',
+    backgroundColor: '#FEF2F2', borderRadius: 14, padding: 14, borderWidth: 1, borderColor: '#D1FAE5',
   },
   veroImg: { width: 44, height: 52 },
   veroLabel: { fontSize: 12, fontWeight: '700', color: '#065F46', marginBottom: 2 },

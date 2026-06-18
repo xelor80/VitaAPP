@@ -34,11 +34,11 @@ export const profileStyles = StyleSheet.create({
   avatarContainer: { alignItems: 'center', marginBottom: 10 },
   avatarCircle: {
     width: 56, height: 56, borderRadius: 28,
-    backgroundColor: '#E8F5E9',
+    backgroundColor: '#FEE2E2',
     justifyContent: 'center', alignItems: 'center',
-    borderWidth: 2, borderColor: '#4A8B71',
+    borderWidth: 2, borderColor: '#D14953',
   },
-  avatarText: { fontSize: 22, fontWeight: '700', color: '#4A8B71' },
+  avatarText: { fontSize: 22, fontWeight: '700', color: '#D14953' },
   profileInfoRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6, paddingLeft: 2 },
   profileInfoIcon: { width: 20, alignItems: 'center' },
   profileInfoText: { fontSize: 11, color: '#5C7A6F', fontWeight: '500', flex: 1 },
@@ -56,9 +56,9 @@ export const profileStyles = StyleSheet.create({
   bmiBadge: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
     gap: 4, marginTop: 'auto' as any, paddingVertical: 6, paddingHorizontal: 10,
-    borderRadius: 10, backgroundColor: '#F0FDF4',
+    borderRadius: 10, backgroundColor: '#FEF2F2',
   },
-  bmiBadgeText: { fontSize: 11, fontWeight: '700', color: '#10B981' },
+  bmiBadgeText: { fontSize: 11, fontWeight: '700', color: '#DC2626' },
 
   // Stress & Sleep Cards
   statusIconWrap: { alignItems: 'center', marginVertical: 8 },
@@ -114,10 +114,10 @@ export const profileStyles = StyleSheet.create({
 
   // Action Buttons
   actionSection: { marginTop: 8, gap: 10 },
-  ctaBtn: { backgroundColor: '#4A8B71', borderRadius: 14, paddingVertical: 14, paddingHorizontal: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
+  ctaBtn: { backgroundColor: '#D14953', borderRadius: 14, paddingVertical: 14, paddingHorizontal: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
   ctaBtnText: { color: '#FFFFFF', fontSize: 16, fontWeight: '600' },
-  secondaryBtn: { backgroundColor: '#FFFFFF', borderRadius: 14, paddingVertical: 14, paddingHorizontal: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#4A8B71' },
-  secondaryBtnText: { color: '#4A8B71', fontSize: 15, fontWeight: '600' },
+  secondaryBtn: { backgroundColor: '#FFFFFF', borderRadius: 14, paddingVertical: 14, paddingHorizontal: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#D14953' },
+  secondaryBtnText: { color: '#D14953', fontSize: 15, fontWeight: '600' },
 
   // Empty State
   emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40 },

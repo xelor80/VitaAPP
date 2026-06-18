@@ -176,7 +176,7 @@ export default function OnboardingScreen() {
   if (loading) {
     return (
       <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color="#4A8B71" />
+        <ActivityIndicator size="large" color="#D14953" />
       </SafeAreaView>
     );
   }
@@ -187,7 +187,7 @@ export default function OnboardingScreen() {
       <SafeAreaView style={styles.container}>
         <ScrollView contentContainerStyle={styles.assessmentContainer}>
           <View style={styles.assessmentHeader}>
-            <MaterialCommunityIcons name="clipboard-check" size={48} color="#4A8B71" />
+            <MaterialCommunityIcons name="clipboard-check" size={48} color="#D14953" />
             <Text style={styles.assessmentTitle}>
               {lang === 'de' ? 'Ihre Analyse' : 'La tua analisi'}
             </Text>
@@ -239,7 +239,7 @@ export default function OnboardingScreen() {
                   <View style={styles.priorityIcon}>
                     <MaterialCommunityIcons 
                       name={p.area === 'sleep' ? 'sleep' : p.area === 'stress' ? 'head-flash' : 'run'} 
-                      size={20} color="#4A8B71" 
+                      size={20} color="#D14953" 
                     />
                   </View>
                   <Text style={styles.priorityTitle}>{p.title}</Text>
@@ -454,7 +454,7 @@ export default function OnboardingScreen() {
                     style={[styles.chip, profile.work_type === w.value && styles.chipSelected]}
                     onPress={() => setProfile({ ...profile, work_type: w.value, shift_model: '', current_shift: '' })}
                   >
-                    <MaterialCommunityIcons name={w.icon || 'briefcase'} size={16} color={profile.work_type === w.value ? '#fff' : '#4A8B71'} />
+                    <MaterialCommunityIcons name={w.icon || 'briefcase'} size={16} color={profile.work_type === w.value ? '#fff' : '#D14953'} />
                     <Text style={[styles.chipText, { marginLeft: 4 }, profile.work_type === w.value && styles.chipTextSelected]}>
                       {getLabel(w)}
                     </Text>
@@ -495,7 +495,7 @@ export default function OnboardingScreen() {
                         style={[styles.chip, profile.current_shift === s.value && styles.chipSelected]}
                         onPress={() => setProfile({ ...profile, current_shift: s.value })}
                       >
-                        <MaterialCommunityIcons name={s.icon || 'clock'} size={16} color={profile.current_shift === s.value ? '#fff' : '#4A8B71'} />
+                        <MaterialCommunityIcons name={s.icon || 'clock'} size={16} color={profile.current_shift === s.value ? '#fff' : '#D14953'} />
                         <Text style={[styles.chipText, { marginLeft: 4 }, profile.current_shift === s.value && styles.chipTextSelected]}>
                           {getLabel(s)}
                         </Text>
@@ -569,7 +569,7 @@ export default function OnboardingScreen() {
                   <Text style={styles.sliderValue}>{profile.stress_level}/10</Text>
                 </View>
                 <View style={styles.sliderTrack}>
-                  <View style={[styles.sliderFill, { width: `${profile.stress_level * 10}%`, backgroundColor: profile.stress_level >= 7 ? '#EF4444' : '#4A8B71' }]} />
+                  <View style={[styles.sliderFill, { width: `${profile.stress_level * 10}%`, backgroundColor: profile.stress_level >= 7 ? '#EF4444' : '#D14953' }]} />
                 </View>
                 <View style={styles.sliderDots}>
                   {[1,2,3,4,5,6,7,8,9,10].map(n => (
@@ -684,7 +684,7 @@ export default function OnboardingScreen() {
                   <MaterialCommunityIcons 
                     name={selected ? 'checkbox-marked-circle' : 'checkbox-blank-circle-outline'} 
                     size={24} 
-                    color={selected ? '#4A8B71' : '#8FA39B'} 
+                    color={selected ? '#D14953' : '#8FA39B'} 
                   />
                   <Text style={styles.complaintName}>{getLabel(c)}</Text>
                   {selected && (
@@ -696,7 +696,7 @@ export default function OnboardingScreen() {
                         <Text style={styles.intensityText}>{selected.intensity}</Text>
                       </View>
                       <TouchableOpacity onPress={() => setComplaintIntensity(c.value, Math.min(10, selected.intensity + 1))}>
-                        <MaterialCommunityIcons name="plus-circle" size={24} color="#4A8B71" />
+                        <MaterialCommunityIcons name="plus-circle" size={24} color="#D14953" />
                       </TouchableOpacity>
                     </View>
                   )}

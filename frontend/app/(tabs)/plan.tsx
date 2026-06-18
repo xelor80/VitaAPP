@@ -22,7 +22,7 @@ const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
 const TIMING_ICONS: Record<string, { icon: string; color: string }> = {
   morning: { icon: 'weather-sunny', color: '#FF9800' },
-  noon: { icon: 'weather-partly-cloudy', color: '#2E9E6B' },
+  noon: { icon: 'weather-partly-cloudy', color: '#DC3540' },
   evening: { icon: 'weather-night', color: '#5C6BC0' },
 };
 
@@ -146,7 +146,7 @@ export default function PlanScreen() {
       item.name || (item.type === 'medication' ? 'Medikament' : 'Supplement'),
       5,
       item.type === 'medication' ? 'medical-bag' : 'pill',
-      item.type === 'medication' ? '#3B82F6' : '#2E7D52'
+      item.type === 'medication' ? '#3B82F6' : '#C2272F'
     );
   };
 
@@ -192,7 +192,7 @@ export default function PlanScreen() {
   if (loading) {
     return (
       <View style={s.center}>
-        <ActivityIndicator size="large" color="#1B6B45" />
+        <ActivityIndicator size="large" color="#8B1A20" />
       </View>
     );
   }
@@ -204,7 +204,7 @@ export default function PlanScreen() {
   return (
     <ScrollView style={s.container} contentContainerStyle={s.content}>
       {/* Header */}
-      <LinearGradient colors={['#1B6B45', '#2E9E6B']} style={s.header}>
+      <LinearGradient colors={['#8B1A20', '#DC3540']} style={s.header}>
         <View style={{ flex: 1 }}>
           <Text style={s.headerTitle}>{tx(lang, { de: 'Mein Plan', it: 'Il mio Piano', en: 'My Plan', tr: 'Planim', fr: 'Mon Plan', es: 'Mi Plan', ru: 'Мой План' })}</Text>
           <Text style={s.headerSubtitle}>
@@ -235,7 +235,7 @@ export default function PlanScreen() {
             onPress={() => router.push('/supplement-plan')}
             testID="nav-supplement-plan"
           >
-            <LinearGradient colors={['#1B6B45', '#2E9E6B']} style={s.navCardGradient}>
+            <LinearGradient colors={['#8B1A20', '#DC3540']} style={s.navCardGradient}>
               <MaterialCommunityIcons name="pill" size={28} color="#FFF" />
               <Text style={s.navCardTitle}>{tx(lang, { de: 'Supplements', it: 'Supplementi', en: 'Supplements', tr: 'Takviyeler', fr: 'Supplements', es: 'Suplementos', ru: 'Добavki' })}</Text>
               <Text style={s.navCardSub}>{tx(lang, { de: 'Plan ansehen', it: 'Vedi piano', en: 'View plan', tr: 'Plani gor', fr: 'Voir le plan', es: 'Ver plan', ru: 'Смотреть план' })}</Text>
@@ -277,7 +277,7 @@ export default function PlanScreen() {
       {showReminderSettings && (
         <Animated.View entering={FadeInDown.delay(150)} style={s.reminderCard}>
           <Text style={s.reminderTitle}>
-            <MaterialCommunityIcons name="bell-cog-outline" size={18} color="#1B6B45" />
+            <MaterialCommunityIcons name="bell-cog-outline" size={18} color="#8B1A20" />
             {' '}{tx(lang, { de: 'Erinnerungen', it: 'Promemoria', en: 'Reminders', tr: 'Hatirlatmalar', fr: 'Rappels', es: 'Recordatorios', ru: 'Напоминания' })}
           </Text>
 
@@ -289,7 +289,7 @@ export default function PlanScreen() {
             <MaterialCommunityIcons
               name={reminders.enabled ? 'toggle-switch' : 'toggle-switch-off'}
               size={44}
-              color={reminders.enabled ? '#1B6B45' : '#C4CEC8'}
+              color={reminders.enabled ? '#8B1A20' : '#C4CEC8'}
             />
             <Text style={[s.toggleText, { color: reminders.enabled ? '#1A2D26' : '#8FA39B' }]}>
               {reminders.enabled
@@ -302,7 +302,7 @@ export default function PlanScreen() {
             <View style={{ gap: 10, marginTop: 8 }}>
               {[
                 { key: 'morning_time', timing: 'morning', icon: 'weather-sunny', label: tx(lang, { de: 'Morgens', it: 'Mattina', en: 'Morning', tr: 'Sabah', fr: 'Matin', es: 'Manana', ru: 'Утро' }), color: '#FF9800' },
-                { key: 'noon_time', timing: 'noon', icon: 'weather-partly-cloudy', label: tx(lang, { de: 'Mittags', it: 'Mezzogiorno', en: 'Noon', tr: 'Ogle', fr: 'Midi', es: 'Mediodia', ru: 'Полдень' }), color: '#2E9E6B' },
+                { key: 'noon_time', timing: 'noon', icon: 'weather-partly-cloudy', label: tx(lang, { de: 'Mittags', it: 'Mezzogiorno', en: 'Noon', tr: 'Ogle', fr: 'Midi', es: 'Mediodia', ru: 'Полдень' }), color: '#DC3540' },
                 { key: 'evening_time', timing: 'evening', icon: 'weather-night', label: tx(lang, { de: 'Abends', it: 'Sera', en: 'Evening', tr: 'Aksam', fr: 'Soir', es: 'Noche', ru: 'Вечер' }), color: '#5C6BC0' },
               ].map(({ key, timing, icon, label, color }) => {
                 const combined = buildCombinedSchedule();
@@ -328,9 +328,9 @@ export default function PlanScreen() {
                     {items.length > 0 && (
                       <View style={s.previewRow}>
                         {suppCount > 0 && (
-                          <View style={[s.previewBadge, { backgroundColor: '#E8F5E9' }]}>
-                            <MaterialCommunityIcons name="pill" size={12} color="#1B6B45" />
-                            <Text style={[s.previewBadgeText, { color: '#1B6B45' }]}>
+                          <View style={[s.previewBadge, { backgroundColor: '#FEE2E2' }]}>
+                            <MaterialCommunityIcons name="pill" size={12} color="#8B1A20" />
+                            <Text style={[s.previewBadgeText, { color: '#8B1A20' }]}>
                               {suppCount} {tx(lang, { de: 'Supp.', it: 'Int.', en: 'Supp.', tr: 'Tak.', fr: 'Supp.', es: 'Supl.', ru: 'Доб.' })}
                             </Text>
                           </View>
@@ -356,11 +356,11 @@ export default function PlanScreen() {
 
           <View style={s.reminderBtns}>
             <TouchableOpacity style={s.testBtn} onPress={() => sendTestNotification(lang)} testID="test-notification-btn">
-              <MaterialCommunityIcons name="bell-ring" size={16} color="#1B6B45" />
+              <MaterialCommunityIcons name="bell-ring" size={16} color="#8B1A20" />
               <Text style={s.testBtnText}>{tx(lang, { de: 'Testen', it: 'Prova', en: 'Test', tr: 'Test', fr: 'Tester', es: 'Probar', ru: 'Тест' })}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={s.saveBtn} onPress={saveReminders} testID="save-reminders-btn">
-              <LinearGradient colors={['#1B6B45', '#2E9E6B']} style={s.saveBtnGradient}>
+              <LinearGradient colors={['#8B1A20', '#DC3540']} style={s.saveBtnGradient}>
                 <MaterialCommunityIcons name="content-save" size={16} color="#FFF" />
                 <Text style={s.saveBtnText}>{tx(lang, { de: 'Speichern', it: 'Salva', en: 'Save', tr: 'Kaydet', fr: 'Enregistrer', es: 'Guardar', ru: 'Сохранить' })}</Text>
               </LinearGradient>
@@ -435,7 +435,7 @@ export default function PlanScreen() {
                   <MaterialCommunityIcons name="gesture-swipe-right" size={16} color="#D1D5DB" />
                 )}
                 {item.checked && (
-                  <MaterialCommunityIcons name="check-circle" size={22} color="#22C55E" />
+                  <MaterialCommunityIcons name="check-circle" size={22} color="#DC2626" />
                 )}
               </TouchableOpacity>
               </Swipeable>
@@ -476,9 +476,9 @@ const s = StyleSheet.create({
   progressCard: { margin: 16, marginBottom: 8, padding: 16, backgroundColor: '#FFF', borderRadius: 16 },
   progressRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   progressLabel: { fontSize: 14, fontWeight: '600', color: '#1A2D26' },
-  progressPct: { fontSize: 18, fontWeight: '800', color: '#1B6B45' },
+  progressPct: { fontSize: 18, fontWeight: '800', color: '#8B1A20' },
   progressBarBg: { height: 8, backgroundColor: '#E8F0EB', borderRadius: 4 },
-  progressBarFill: { height: 8, backgroundColor: '#1B6B45', borderRadius: 4, minWidth: 4 },
+  progressBarFill: { height: 8, backgroundColor: '#8B1A20', borderRadius: 4, minWidth: 4 },
   progressDetail: { fontSize: 12, color: '#8FA39B', marginTop: 6 },
 
   reminderCard: { margin: 16, marginBottom: 8, padding: 16, backgroundColor: '#FFF', borderRadius: 16 },
@@ -494,8 +494,8 @@ const s = StyleSheet.create({
   previewBadgeText: { fontSize: 10, fontWeight: '700' },
   previewNames: { fontSize: 11, color: '#8FA39B', flex: 1 },
   reminderBtns: { flexDirection: 'row', gap: 10, marginTop: 14, justifyContent: 'flex-end' },
-  testBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10, borderWidth: 1, borderColor: '#1B6B45' },
-  testBtnText: { fontSize: 13, fontWeight: '600', color: '#1B6B45' },
+  testBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10, borderWidth: 1, borderColor: '#8B1A20' },
+  testBtnText: { fontSize: 13, fontWeight: '600', color: '#8B1A20' },
   saveBtn: { borderRadius: 10, overflow: 'hidden' },
   saveBtnGradient: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 16, paddingVertical: 8 },
   saveBtnText: { fontSize: 13, fontWeight: '700', color: '#FFF' },
@@ -506,18 +506,18 @@ const s = StyleSheet.create({
   groupCount: { fontSize: 13, fontWeight: '600', color: '#8FA39B' },
 
   itemRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#F0F4F1' },
-  itemChecked: { backgroundColor: '#F0FDF4' },
+  itemChecked: { backgroundColor: '#FEF2F2' },
   checkbox: { width: 24, height: 24, borderRadius: 6, borderWidth: 2, borderColor: '#C4CEC8', alignItems: 'center', justifyContent: 'center' },
-  checkboxChecked: { backgroundColor: '#22C55E', borderColor: '#22C55E' },
+  checkboxChecked: { backgroundColor: '#DC2626', borderColor: '#DC2626' },
   itemName: { fontSize: 15, fontWeight: '600', color: '#1A2D26' },
   itemNameChecked: { textDecorationLine: 'line-through', color: '#8FA39B' },
   itemDose: { fontSize: 12, color: '#8FA39B', marginTop: 2 },
 
   typeBadge: { paddingHorizontal: 6, paddingVertical: 1, borderRadius: 6 },
-  typeBadgeSupp: { backgroundColor: '#E8F5E9' },
+  typeBadgeSupp: { backgroundColor: '#FEE2E2' },
   typeBadgeMed: { backgroundColor: '#E3F2FD' },
   typeBadgeText: { fontSize: 10, fontWeight: '700' },
-  typeBadgeTextSupp: { color: '#1B6B45' },
+  typeBadgeTextSupp: { color: '#8B1A20' },
   typeBadgeTextMed: { color: '#3B82F6' },
 
   emptyCard: { margin: 16, padding: 40, backgroundColor: '#FFF', borderRadius: 16, alignItems: 'center', gap: 12 },
@@ -543,7 +543,7 @@ const s = StyleSheet.create({
   rewardToastText: { fontSize: 14, fontWeight: '600', color: '#F59E0B' },
   // Swipe actions
   swipeRight: {
-    backgroundColor: '#22C55E', justifyContent: 'center', alignItems: 'center',
+    backgroundColor: '#DC2626', justifyContent: 'center', alignItems: 'center',
     width: 80, flexDirection: 'column', gap: 2,
   },
   swipeRightText: { fontSize: 11, fontWeight: '700', color: '#fff' },

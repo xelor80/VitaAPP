@@ -138,7 +138,7 @@ export default function ResultsScreen() {
   if (isLoading) {
     return (
       <SafeAreaView style={[styles.safe, styles.centered]}>
-        <ActivityIndicator testID="results-loading" color="#4A8B71" size="large" />
+        <ActivityIndicator testID="results-loading" color="#D14953" size="large" />
       </SafeAreaView>
     );
   }

@@ -14,8 +14,8 @@ import { profileStyles as styles } from '../components/profile/profileStyles';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
-const RISK_COLORS: Record<string, string> = { high: '#EF4444', medium: '#F59E0B', low: '#10B981' };
-const RISK_BG: Record<string, string> = { high: '#FEF2F2', medium: '#FFFBEB', low: '#F0FDF4' };
+const RISK_COLORS: Record<string, string> = { high: '#EF4444', medium: '#F59E0B', low: '#DC2626' };
+const RISK_BG: Record<string, string> = { high: '#FEF2F2', medium: '#FFFBEB', low: '#FEF2F2' };
 const NUTRIENT_ICONS: Record<string, string> = {
   iron: 'water', zinc: 'shield-outline', omega3: 'fish',
   vitamin_d: 'white-balance-sunny', vitamin_b12: 'lightning-bolt',
@@ -80,7 +80,7 @@ function BMIGauge({ bmi }: { bmi: number }) {
   // Segment boundaries
   const segments = [
     { from: 15, to: 18.5, color: '#F59E0B' },   // underweight - amber
-    { from: 18.5, to: 25, color: '#10B981' },    // normal - green
+    { from: 18.5, to: 25, color: '#DC2626' },    // normal - green
     { from: 25, to: 30, color: '#F59E0B' },      // overweight - amber
     { from: 30, to: 35, color: '#EF4444' },      // obese - red
   ];
@@ -160,7 +160,7 @@ function GradientSlider({
 
 /* ── Status helpers ── */
 function getStressStatus(level: number, lang: string) {
-  if (level <= 3) return { label: lang === 'de' ? 'Niedrig' : 'Basso', color: '#10B981', bg: '#F0FDF4', icon: 'emoticon-happy-outline' as const };
+  if (level <= 3) return { label: lang === 'de' ? 'Niedrig' : 'Basso', color: '#DC2626', bg: '#FEF2F2', icon: 'emoticon-happy-outline' as const };
   if (level <= 6) return { label: lang === 'de' ? 'Mittel' : 'Medio', color: '#F59E0B', bg: '#FFFBEB', icon: 'emoticon-neutral-outline' as const };
   return { label: lang === 'de' ? 'Hoch' : 'Alto', color: '#EF4444', bg: '#FEF2F2', icon: 'emoticon-sad-outline' as const };
 }
@@ -168,7 +168,7 @@ function getStressStatus(level: number, lang: string) {
 function getSleepStatus(quality: number, lang: string) {
   if (quality <= 3) return { label: lang === 'de' ? 'Schlecht' : 'Scarso', color: '#EF4444', bg: '#FEF2F2', icon: 'weather-night' as const };
   if (quality <= 6) return { label: lang === 'de' ? 'Mittel' : 'Medio', color: '#F59E0B', bg: '#FFFBEB', icon: 'moon-waning-crescent' as const };
-  return { label: lang === 'de' ? 'Gut' : 'Buono', color: '#10B981', bg: '#F0FDF4', icon: 'moon-waning-crescent' as const };
+  return { label: lang === 'de' ? 'Gut' : 'Buono', color: '#DC2626', bg: '#FEF2F2', icon: 'moon-waning-crescent' as const };
 }
 
 /* ── Main Screen ── */
@@ -211,7 +211,7 @@ export default function HealthProfileScreen() {
   if (loading) {
     return (
       <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color="#4A8B71" />
+        <ActivityIndicator size="large" color="#D14953" />
       </SafeAreaView>
     );
   }
@@ -240,7 +240,7 @@ export default function HealthProfileScreen() {
     : bmi < 25 ? (lang === 'de' ? 'Normalgewicht' : 'Normopeso')
     : bmi < 30 ? (lang === 'de' ? 'Uebergewicht' : 'Sovrappeso')
     : (lang === 'de' ? 'Adipositas' : 'Obesita');
-  const bmiColor = bmi < 18.5 ? '#F59E0B' : bmi < 25 ? '#10B981' : bmi < 30 ? '#F59E0B' : '#EF4444';
+  const bmiColor = bmi < 18.5 ? '#F59E0B' : bmi < 25 ? '#DC2626' : bmi < 30 ? '#F59E0B' : '#EF4444';
 
   const dietLabels: Record<string, Record<string, string>> = {
     omnivore: { de: 'Mischkost', it: 'Onnivoro' },
@@ -268,7 +268,7 @@ export default function HealthProfileScreen() {
   const initials = (profile.first_name || 'U').charAt(0).toUpperCase();
 
   // Nutrition quality segments (visual representation)
-  const nutritionColors = ['#EF4444', '#F59E0B', '#FBBF24', '#84CC16', '#10B981'];
+  const nutritionColors = ['#EF4444', '#F59E0B', '#FBBF24', '#84CC16', '#DC2626'];
 
   return (
     <SafeAreaView style={styles.container}>
@@ -303,7 +303,7 @@ export default function HealthProfileScreen() {
             </View>
             <View style={styles.profileInfoRow}>
               <View style={styles.profileInfoIcon}>
-                <MaterialCommunityIcons name="account" size={14} color="#4A8B71" />
+                <MaterialCommunityIcons name="account" size={14} color="#D14953" />
               </View>
               <Text style={styles.profileInfoText}>
                 {lang === 'de' ? 'Alter' : 'Eta'}: {profile.age} {lang === 'de' ? 'Jahre' : 'Anni'}
@@ -311,7 +311,7 @@ export default function HealthProfileScreen() {
             </View>
             <View style={styles.profileInfoRow}>
               <View style={styles.profileInfoIcon}>
-                <MaterialCommunityIcons name="human" size={14} color="#4A8B71" />
+                <MaterialCommunityIcons name="human" size={14} color="#D14953" />
               </View>
               <Text style={styles.profileInfoText}>
                 {genderLabels[profile.gender]?.[lang] || profile.gender}
@@ -319,7 +319,7 @@ export default function HealthProfileScreen() {
             </View>
             <View style={styles.profileInfoRow}>
               <View style={styles.profileInfoIcon}>
-                <MaterialCommunityIcons name="food-apple" size={14} color="#10B981" />
+                <MaterialCommunityIcons name="food-apple" size={14} color="#DC2626" />
               </View>
               <Text style={styles.profileInfoText}>
                 {dietLabels[profile.diet]?.[lang] || profile.diet}
@@ -348,7 +348,7 @@ export default function HealthProfileScreen() {
               <Text style={[styles.bmiCatLabel, bmi < 18.5 && styles.bmiCatLabelActive]}>
                 {lang === 'de' ? 'Zu niedrig' : 'Troppo basso'}
               </Text>
-              <Text style={[styles.bmiCatLabel, bmi >= 18.5 && bmi < 25 && styles.bmiCatLabelActive, { color: bmi >= 18.5 && bmi < 25 ? '#10B981' : '#8FA39B' }]}>
+              <Text style={[styles.bmiCatLabel, bmi >= 18.5 && bmi < 25 && styles.bmiCatLabelActive, { color: bmi >= 18.5 && bmi < 25 ? '#DC2626' : '#8FA39B' }]}>
                 Normal
               </Text>
               <Text style={[styles.bmiCatLabel, bmi >= 25 && styles.bmiCatLabelActive]}>
@@ -376,7 +376,7 @@ export default function HealthProfileScreen() {
             <GradientSlider
               value={profile.stress_level || 5}
               max={10}
-              colors={['#10B981', '#84CC16', '#FBBF24', '#F59E0B', '#EF4444']}
+              colors={['#DC2626', '#84CC16', '#FBBF24', '#F59E0B', '#EF4444']}
               leftLabel={lang === 'de' ? 'Niedrig' : 'Basso'}
               rightLabel={lang === 'de' ? 'Hoch' : 'Alto'}
             />
@@ -396,7 +396,7 @@ export default function HealthProfileScreen() {
             <GradientSlider
               value={profile.sleep_quality || 5}
               max={10}
-              colors={['#EF4444', '#F59E0B', '#FBBF24', '#84CC16', '#10B981']}
+              colors={['#EF4444', '#F59E0B', '#FBBF24', '#84CC16', '#DC2626']}
               leftLabel={lang === 'de' ? 'Schlecht' : 'Scarso'}
               rightLabel={lang === 'de' ? 'Gut' : 'Buono'}
             />
@@ -431,8 +431,8 @@ export default function HealthProfileScreen() {
               <Text style={[styles.riskBadgeNum, { color: '#F59E0B' }]}>{medRisk.length}</Text>
               <Text style={styles.riskBadgeLabel}>{lang === 'de' ? 'Mittel' : 'Medio'}</Text>
             </View>
-            <View style={[styles.riskBadge, { backgroundColor: '#F0FDF4' }]}>
-              <Text style={[styles.riskBadgeNum, { color: '#10B981' }]}>{lowRisk.length}</Text>
+            <View style={[styles.riskBadge, { backgroundColor: '#FEF2F2' }]}>
+              <Text style={[styles.riskBadgeNum, { color: '#DC2626' }]}>{lowRisk.length}</Text>
               <Text style={styles.riskBadgeLabel}>{lang === 'de' ? 'Niedrig' : 'Basso'}</Text>
             </View>
           </View>
@@ -440,11 +440,11 @@ export default function HealthProfileScreen() {
 
         {/* Deficiency Cards with CTAs */}
         {deficiencies.map((d: any) => (
-          <View key={d.nutrient} style={[styles.defCard, { backgroundColor: RISK_BG[d.risk_level] || '#F0FDF4', borderLeftColor: RISK_COLORS[d.risk_level] || '#10B981' }]}>
+          <View key={d.nutrient} style={[styles.defCard, { backgroundColor: RISK_BG[d.risk_level] || '#FEF2F2', borderLeftColor: RISK_COLORS[d.risk_level] || '#DC2626' }]}>
             <View style={styles.defHeader}>
-              <MaterialCommunityIcons name={(NUTRIENT_ICONS[d.nutrient] || 'circle') as any} size={22} color={RISK_COLORS[d.risk_level] || '#10B981'} />
+              <MaterialCommunityIcons name={(NUTRIENT_ICONS[d.nutrient] || 'circle') as any} size={22} color={RISK_COLORS[d.risk_level] || '#DC2626'} />
               <Text style={styles.defName}>{NUTRIENT_NAMES[d.nutrient]?.[lang] || d.nutrient_name || d.nutrient}</Text>
-              <View style={[styles.defRiskTag, { backgroundColor: RISK_COLORS[d.risk_level] || '#10B981' }]}>
+              <View style={[styles.defRiskTag, { backgroundColor: RISK_COLORS[d.risk_level] || '#DC2626' }]}>
                 <Text style={styles.defRiskText}>
                   {d.risk_level === 'high' ? (lang === 'de' ? 'HOCH' : 'ALTO')
                     : d.risk_level === 'medium' ? (lang === 'de' ? 'MITTEL' : 'MEDIO')
@@ -492,7 +492,7 @@ export default function HealthProfileScreen() {
             </Text>
             {assessment.priority_areas.map((area: any, i: number) => (
               <View key={i} style={styles.priorityCard}>
-                <MaterialCommunityIcons name="target" size={20} color="#4A8B71" />
+                <MaterialCommunityIcons name="target" size={20} color="#D14953" />
                 <View style={{ flex: 1 }}>
                   <Text style={styles.priorityTitle}>{PRIORITY_NAMES[area.area]?.[lang] || area.area}</Text>
                   {area.recommendation && (
@@ -534,7 +534,7 @@ export default function HealthProfileScreen() {
             style={styles.secondaryBtn}
             onPress={() => router.push('/onboarding')}
           >
-            <MaterialCommunityIcons name="refresh" size={18} color="#4A8B71" />
+            <MaterialCommunityIcons name="refresh" size={18} color="#D14953" />
             <Text style={styles.secondaryBtnText}>
               {'  '}{lang === 'de' ? 'Gesundheits-Check wiederholen' : 'Ripeti check salute'}
             </Text>
@@ -553,7 +553,7 @@ export default function HealthProfileScreen() {
                   <MaterialCommunityIcons
                     name={user.auth_provider === 'google' ? 'google' : 'email-outline'}
                     size={20}
-                    color={user.auth_provider === 'google' ? '#EA4335' : '#2E7D52'}
+                    color={user.auth_provider === 'google' ? '#EA4335' : '#C2272F'}
                   />
                 </View>
                 <View style={{ flex: 1 }}>
@@ -565,7 +565,7 @@ export default function HealthProfileScreen() {
                   </Text>
                 </View>
                 <View style={accountStyles.syncBadge}>
-                  <MaterialCommunityIcons name="cloud-check-outline" size={14} color="#2E7D52" />
+                  <MaterialCommunityIcons name="cloud-check-outline" size={14} color="#C2272F" />
                   <Text style={accountStyles.syncText}>{lang === 'de' ? 'Synchronisiert' : 'Sincronizzato'}</Text>
                 </View>
               </View>
@@ -593,7 +593,7 @@ export default function HealthProfileScreen() {
               onPress={() => router.push('/login' as any)}
               testID="goto-login-button"
             >
-              <MaterialCommunityIcons name="account-plus-outline" size={24} color="#2E7D52" />
+              <MaterialCommunityIcons name="account-plus-outline" size={24} color="#C2272F" />
               <View style={{ flex: 1 }}>
                 <Text style={accountStyles.loginTitle}>
                   {lang === 'de' ? 'Konto erstellen oder anmelden' : 'Crea account o accedi'}
@@ -643,8 +643,8 @@ const accountStyles = StyleSheet.create({
   iconWrap: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#F3F4F6', justifyContent: 'center', alignItems: 'center' },
   email: { fontSize: 14, fontWeight: '600', color: '#1F2937' },
   provider: { fontSize: 12, color: '#6B7280', marginTop: 1 },
-  syncBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#F0FDF4', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
-  syncText: { fontSize: 11, color: '#2E7D52', fontWeight: '500' },
+  syncBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#FEF2F2', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
+  syncText: { fontSize: 11, color: '#C2272F', fontWeight: '500' },
   logoutBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 14, paddingVertical: 10, borderTopWidth: 1, borderTopColor: '#F3F4F6' },
   logoutText: { fontSize: 14, color: '#EF4444', fontWeight: '500' },
   loginCard: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#FFF', borderRadius: 14, padding: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 4, elevation: 2 },

@@ -30,7 +30,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', paddingVertical: 8, paddingHorizontal: 14,
     borderRadius: 20, backgroundColor: '#F7F9F6', gap: 6,
   },
-  tabActive: { backgroundColor: '#4A8B71' },
+  tabActive: { backgroundColor: '#D14953' },
   tabText: { fontSize: 14, fontWeight: '600', color: '#5C7A6F' },
   tabTextActive: { color: '#FFFFFF' },
 
@@ -55,7 +55,7 @@ export const styles = StyleSheet.create({
 
   // Badge
   badge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10 },
-  badgeHigh: { backgroundColor: '#E8F5E9' },
+  badgeHigh: { backgroundColor: '#FEE2E2' },
   badgeMed: { backgroundColor: '#FFF3E0' },
   badgeLow: { backgroundColor: '#FFEBEE' },
   badgeText: { fontSize: 11, fontWeight: '700', color: '#1A2D26' },
@@ -84,7 +84,7 @@ export const styles = StyleSheet.create({
   },
   productTop: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 8 },
   productIcon: {
-    width: 64, height: 64, borderRadius: 12, backgroundColor: '#E8F5E9',
+    width: 64, height: 64, borderRadius: 12, backgroundColor: '#FEE2E2',
     justifyContent: 'center', alignItems: 'center',
   },
   productImage: {
@@ -92,7 +92,7 @@ export const styles = StyleSheet.create({
   },
   productName: { fontSize: 16, fontWeight: '700', color: '#1A2D26' },
   productPriceRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 2 },
-  productPrice: { fontSize: 15, fontWeight: '600', color: '#4A8B71' },
+  productPrice: { fontSize: 15, fontWeight: '600', color: '#D14953' },
   ratingRow: { flexDirection: 'row', alignItems: 'center', gap: 3 },
   ratingText: { fontSize: 12, fontWeight: '600', color: '#5C7A6F' },
   productReason: { fontSize: 14, color: '#5C7A6F', lineHeight: 20, marginBottom: 4 },
@@ -108,10 +108,10 @@ export const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'flex-start', gap: 12, marginBottom: 14,
   },
   tipNumber: {
-    width: 28, height: 28, borderRadius: 14, backgroundColor: '#E8F5E9',
+    width: 28, height: 28, borderRadius: 14, backgroundColor: '#FEE2E2',
     justifyContent: 'center', alignItems: 'center',
   },
-  tipNumberText: { fontSize: 14, fontWeight: '700', color: '#4A8B71' },
+  tipNumberText: { fontSize: 14, fontWeight: '700', color: '#D14953' },
   nutritionTipText: { fontSize: 15, color: '#1A2D26', flex: 1, lineHeight: 22 },
 
   // Recipes
@@ -126,7 +126,7 @@ export const styles = StyleSheet.create({
   recipeDot: { fontSize: 13, color: '#8FA39B', marginHorizontal: 6 },
   recipeIngCount: { fontSize: 13, color: '#5C7A6F' },
   recipeTagsRow: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 10, gap: 6 },
-  recipeTag: { backgroundColor: '#E8F5E9', borderRadius: 12, paddingVertical: 4, paddingHorizontal: 10 },
+  recipeTag: { backgroundColor: '#FEE2E2', borderRadius: 12, paddingVertical: 4, paddingHorizontal: 10 },
   recipeTagText: { fontSize: 12, fontWeight: '600', color: '#2C5F78' },
   // Recipe detail (expanded)
   recipeDetail: {
@@ -139,10 +139,10 @@ export const styles = StyleSheet.create({
   recipeIngText: { fontSize: 14, color: '#1A2D26', flex: 1 },
   recipeStepRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginBottom: 10 },
   recipeStepNum: {
-    width: 24, height: 24, borderRadius: 12, backgroundColor: '#E8F5E9',
+    width: 24, height: 24, borderRadius: 12, backgroundColor: '#FEE2E2',
     justifyContent: 'center', alignItems: 'center',
   },
-  recipeStepNumText: { fontSize: 12, fontWeight: '700', color: '#4A8B71' },
+  recipeStepNumText: { fontSize: 12, fontWeight: '700', color: '#D14953' },
   recipeStepText: { fontSize: 14, color: '#1A2D26', flex: 1, lineHeight: 20 },
 
   // Empty states
@@ -150,7 +150,7 @@ export const styles = StyleSheet.create({
   emptyStateText: { fontSize: 15, color: '#8FA39B' },
   emptyText: { fontSize: 16, color: '#8FA39B', marginTop: 12 },
   linkBtn: { marginTop: 16, paddingVertical: 10, paddingHorizontal: 20 },
-  linkBtnText: { fontSize: 16, color: '#4A8B71', fontWeight: '600' },
+  linkBtnText: { fontSize: 16, color: '#D14953', fontWeight: '600' },
 
   // Disclaimer footer
   disclaimerFooter: {
@@ -168,7 +168,7 @@ export const styles = StyleSheet.create({
   featuredHeader: {
     flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 12,
   },
-  featuredLabel: { fontSize: 14, fontWeight: '700', color: '#4A8B71', flex: 1 },
+  featuredLabel: { fontSize: 14, fontWeight: '700', color: '#D14953', flex: 1 },
   featuredAdLabel: {
     fontSize: 10, fontWeight: '700', color: '#8FA39B',
     borderWidth: 1, borderColor: '#D0D5D2', borderRadius: 6,
@@ -179,11 +179,11 @@ export const styles = StyleSheet.create({
   featuredImagePlaceholder: { justifyContent: 'center', alignItems: 'center' },
   featuredInfo: { flex: 1 },
   featuredName: { fontSize: 16, fontWeight: '700', color: '#1A2D26', marginBottom: 2 },
-  featuredPrice: { fontSize: 15, fontWeight: '700', color: '#4A8B71', marginBottom: 4 },
+  featuredPrice: { fontSize: 15, fontWeight: '700', color: '#D14953', marginBottom: 4 },
   featuredReason: { fontSize: 13, color: '#5C7A6F', lineHeight: 18 },
   featuredShopBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    backgroundColor: '#4A8B71', borderRadius: 20, paddingVertical: 12,
+    backgroundColor: '#D14953', borderRadius: 20, paddingVertical: 12,
   },
   videoBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
@@ -210,7 +210,7 @@ export const styles = StyleSheet.create({
   scheduleProductRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 4 },
   scheduleProductImg: { width: 40, height: 40, borderRadius: 8, backgroundColor: '#F7F9F6' },
   scheduleProductName: { fontSize: 15, fontWeight: '700', color: '#1A2D26' },
-  scheduleDosage: { fontSize: 14, fontWeight: '600', color: '#4A8B71', marginTop: 1 },
+  scheduleDosage: { fontSize: 14, fontWeight: '600', color: '#D14953', marginTop: 1 },
   scheduleInstruction: { fontSize: 13, color: '#5C7A6F', marginTop: 4, lineHeight: 18 },
   officialInstructionRow: {
     flexDirection: 'row', alignItems: 'flex-start', gap: 6, marginTop: 6,
@@ -220,7 +220,7 @@ export const styles = StyleSheet.create({
   scheduleShopLink: {
     flexDirection: 'row', alignItems: 'center', marginTop: 6,
   },
-  scheduleShopText: { fontSize: 13, fontWeight: '600', color: '#4A8B71' },
+  scheduleShopText: { fontSize: 13, fontWeight: '600', color: '#D14953' },
   scheduleCaution: {
     flexDirection: 'row', alignItems: 'flex-start', gap: 6, marginTop: 4,
     backgroundColor: '#FFF8F0', borderRadius: 10, padding: 10,

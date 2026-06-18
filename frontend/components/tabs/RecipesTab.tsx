@@ -92,7 +92,7 @@ export function RecipesTab({ analysis, lang }: { analysis: any; lang: string }) 
                     <Text style={styles.recipeSectionTitle}>{lang === 'de' ? 'Zutaten' : 'Ingredienti'}</Text>
                     {recipe.ingredients.map((ing: string, j: number) => (
                       <View key={j} style={styles.recipeIngRow}>
-                        <MaterialCommunityIcons name="circle-small" size={18} color="#4A8B71" />
+                        <MaterialCommunityIcons name="circle-small" size={18} color="#D14953" />
                         <Text style={styles.recipeIngText}>{ing}</Text>
                       </View>
                     ))}

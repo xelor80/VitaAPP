@@ -32,7 +32,7 @@ function RatingRow({ label, icon, value, onChange, labels, icons, colors }: {
       <View style={styles.ratingRow}>
         {[1, 2, 3, 4, 5].map(v => {
           const active = v === value;
-          const color = colors ? colors[v - 1] : '#4A8B71';
+          const color = colors ? colors[v - 1] : '#D14953';
           return (
             <TouchableOpacity
               key={v}
@@ -190,7 +190,7 @@ export default function DiaryScreen() {
           <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
             {/* Date */}
             <View style={styles.dateCard}>
-              <MaterialCommunityIcons name="calendar-today" size={20} color="#4A8B71" />
+              <MaterialCommunityIcons name="calendar-today" size={20} color="#D14953" />
               <Text style={styles.dateText}>
                 {new Date().toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
               </Text>
@@ -302,7 +302,7 @@ export default function DiaryScreen() {
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           {loadingTrends ? (
             <View style={styles.centered}>
-              <ActivityIndicator testID="trends-loading" color="#4A8B71" size="large" />
+              <ActivityIndicator testID="trends-loading" color="#D14953" size="large" />
               <Text style={styles.loadingText}>{t(lang, 'diary_analyzing_trends')}</Text>
             </View>
           ) : trends ? (
@@ -336,7 +336,7 @@ function TrendsView({ trends, onRefresh, lang }: { trends: any; onRefresh: () =>
       {trends.summary ? (
         <View style={styles.card}>
           <View style={styles.cardHeader}>
-            <MaterialCommunityIcons name="chart-line" size={20} color="#4A8B71" />
+            <MaterialCommunityIcons name="chart-line" size={20} color="#D14953" />
             <Text style={styles.cardTitle}>{t(lang, 'diary_trend_summary')}</Text>
           </View>
           <Text style={styles.cardBody}>{trends.summary}</Text>
@@ -371,7 +371,7 @@ function TrendsView({ trends, onRefresh, lang }: { trends: any; onRefresh: () =>
       {sortedEntries.length > 0 && (
         <View style={styles.card}>
           <View style={styles.cardHeader}>
-            <MaterialCommunityIcons name="calendar-range" size={20} color="#4A8B71" />
+            <MaterialCommunityIcons name="calendar-range" size={20} color="#D14953" />
             <Text style={styles.cardTitle}>{t(lang, 'diary_last_days')} {sortedEntries.length} {t(lang, 'diary_days')}</Text>
           </View>
           {sortedEntries.slice(-7).map((e: any, i: number) => {
@@ -400,7 +400,7 @@ function TrendsView({ trends, onRefresh, lang }: { trends: any; onRefresh: () =>
       {trends.patterns?.length > 0 && (
         <View style={styles.card}>
           <View style={styles.cardHeader}>
-            <MaterialCommunityIcons name="eye-outline" size={20} color="#4A8B71" />
+            <MaterialCommunityIcons name="eye-outline" size={20} color="#D14953" />
             <Text style={styles.cardTitle}>{t(lang, 'diary_patterns')}</Text>
           </View>
           {trends.patterns.map((p: any, i: number) => (
@@ -423,7 +423,7 @@ function TrendsView({ trends, onRefresh, lang }: { trends: any; onRefresh: () =>
       {trends.tips?.length > 0 && (
         <View style={styles.tipsCard}>
           <View style={styles.cardHeader}>
-            <MaterialCommunityIcons name="lightbulb-on-outline" size={20} color="#4A8B71" />
+            <MaterialCommunityIcons name="lightbulb-on-outline" size={20} color="#D14953" />
             <Text style={styles.cardTitle}>{t(lang, 'diary_lifestyle_tips')}</Text>
           </View>
           {trends.tips.map((tip: string, i: number) => (
@@ -439,7 +439,7 @@ function TrendsView({ trends, onRefresh, lang }: { trends: any; onRefresh: () =>
 
       {/* Refresh */}
       <TouchableOpacity testID="trends-refresh-btn" style={styles.refreshBtn} onPress={onRefresh}>
-        <MaterialCommunityIcons name="refresh" size={18} color="#4A8B71" />
+        <MaterialCommunityIcons name="refresh" size={18} color="#D14953" />
         <Text style={styles.refreshBtnText}>  {t(lang, 'diary_refresh')}</Text>
       </TouchableOpacity>
 
@@ -476,7 +476,7 @@ const styles = StyleSheet.create({
     flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
     paddingVertical: 10, borderRadius: 20, backgroundColor: '#F7F9F6', gap: 6,
   },
-  tabActive: { backgroundColor: '#4A8B71' },
+  tabActive: { backgroundColor: '#D14953' },
   tabText: { fontSize: 15, fontWeight: '600', color: '#5C7A6F' },
   tabTextActive: { color: '#FFFFFF' },
 
@@ -506,7 +506,7 @@ const styles = StyleSheet.create({
   // Water
   waterRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   waterBtn: {
-    width: 44, height: 44, borderRadius: 22, backgroundColor: '#E8F5E9',
+    width: 44, height: 44, borderRadius: 22, backgroundColor: '#FEE2E2',
     justifyContent: 'center', alignItems: 'center',
   },
   waterDisplay: {
@@ -533,7 +533,7 @@ const styles = StyleSheet.create({
 
   // Save button
   saveBtn: {
-    backgroundColor: '#4A8B71', borderRadius: 24, paddingVertical: 16,
+    backgroundColor: '#D14953', borderRadius: 24, paddingVertical: 16,
     alignItems: 'center', justifyContent: 'center', marginTop: 8,
   },
   saveBtnText: { color: '#FFF', fontSize: 16, fontWeight: '700' },
@@ -572,7 +572,7 @@ const styles = StyleSheet.create({
   // Trend bars
   trendBarWrap: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   trendBarLabel: { fontSize: 11, color: '#5C7A6F', width: 0 },
-  trendBarBg: { flex: 1, height: 10, borderRadius: 5, backgroundColor: '#E8F5E9' },
+  trendBarBg: { flex: 1, height: 10, borderRadius: 5, backgroundColor: '#FEE2E2' },
   trendBarFill: { height: 10, borderRadius: 5 },
   trendBarValue: { fontSize: 11, fontWeight: '700', color: '#1A2D26', width: 0 },
 
@@ -583,11 +583,11 @@ const styles = StyleSheet.create({
 
   // Tips
   tipsCard: {
-    backgroundColor: '#E8F5E9', borderRadius: 16, padding: 16, marginBottom: 12,
+    backgroundColor: '#FEE2E2', borderRadius: 16, padding: 16, marginBottom: 12,
   },
   tipItem: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginBottom: 10 },
   tipBullet: {
-    width: 24, height: 24, borderRadius: 12, backgroundColor: '#4A8B71',
+    width: 24, height: 24, borderRadius: 12, backgroundColor: '#D14953',
     justifyContent: 'center', alignItems: 'center',
   },
   tipBulletText: { fontSize: 13, fontWeight: '700', color: '#FFF' },
@@ -598,7 +598,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
     paddingVertical: 12, marginBottom: 12,
   },
-  refreshBtnText: { fontSize: 14, fontWeight: '600', color: '#4A8B71' },
+  refreshBtnText: { fontSize: 14, fontWeight: '600', color: '#D14953' },
 
   // Disclaimer
   disclaimer: { flexDirection: 'row', alignItems: 'flex-start', gap: 6, paddingHorizontal: 8 },

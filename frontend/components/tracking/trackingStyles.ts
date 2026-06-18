@@ -13,7 +13,7 @@ export const trackingStyles = StyleSheet.create({
   progressCard: { backgroundColor: '#FFFFFF', borderRadius: 20, padding: 20, marginBottom: 16, alignItems: 'center' },
   progressRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', width: '100%' },
   progressCenter: { alignItems: 'center' },
-  progressPct: { fontSize: 36, fontWeight: '800', color: '#4A8B71' },
+  progressPct: { fontSize: 36, fontWeight: '800', color: '#D14953' },
   progressLabel: { fontSize: 13, color: '#5C7A6F', marginTop: 2 },
   statBox: { alignItems: 'center', flex: 1 },
   statValue: { fontSize: 22, fontWeight: '700', color: '#1A2D26' },
@@ -21,7 +21,7 @@ export const trackingStyles = StyleSheet.create({
   streakIcon: { marginBottom: 4 },
 
   // Coach message
-  coachCard: { backgroundColor: '#E8F5E9', borderRadius: 16, padding: 14, marginBottom: 16, flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
+  coachCard: { backgroundColor: '#FEE2E2', borderRadius: 16, padding: 14, marginBottom: 16, flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
   coachText: { flex: 1, fontSize: 14, color: '#2D5A3F', lineHeight: 22 },
 
   // Section
@@ -30,7 +30,7 @@ export const trackingStyles = StyleSheet.create({
   // Tabs
   tabs: { flexDirection: 'row', backgroundColor: '#FFFFFF', borderRadius: 14, padding: 4, marginBottom: 16 },
   tab: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 10, borderRadius: 12 },
-  tabActive: { backgroundColor: '#4A8B71' },
+  tabActive: { backgroundColor: '#D14953' },
   tabText: { fontSize: 13, fontWeight: '600', color: '#5C7A6F' },
   tabTextActive: { color: '#FFFFFF' },
 
@@ -66,10 +66,10 @@ export const trackingStyles = StyleSheet.create({
   ratingLabel: { fontSize: 13, color: '#5C7A6F', width: 100 },
   ratingDots: { flexDirection: 'row', flex: 1, gap: 3 },
   ratingDot: { flex: 1, height: 32, borderRadius: 8, backgroundColor: '#F0F4F2', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: '#E0E6E2' },
-  ratingDotActive: { backgroundColor: '#4A8B71', borderColor: '#4A8B71' },
+  ratingDotActive: { backgroundColor: '#D14953', borderColor: '#D14953' },
   ratingDotText: { fontSize: 11, fontWeight: '600', color: '#5C7A6F' },
   ratingDotTextActive: { color: '#FFFFFF' },
-  saveBtn: { backgroundColor: '#4A8B71', borderRadius: 14, paddingVertical: 13, alignItems: 'center', marginTop: 10 },
+  saveBtn: { backgroundColor: '#D14953', borderRadius: 14, paddingVertical: 13, alignItems: 'center', marginTop: 10 },
   saveBtnText: { color: '#FFFFFF', fontSize: 15, fontWeight: '600' },
 
   // Empty

@@ -52,7 +52,7 @@ export function PriceAlerts({ lang }: Props) {
   return (
     <View style={s.container}>
       <View style={s.headerRow}>
-        <MaterialCommunityIcons name="tag-arrow-down" size={18} color="#4A8B71" />
+        <MaterialCommunityIcons name="tag-arrow-down" size={18} color="#D14953" />
         <Text style={s.sectionTitle}>
           {firstName
             ? (lang === 'de' ? `Preis-Update fuer ${firstName}` : `Aggiornamento prezzi per ${firstName}`)
@@ -79,7 +79,7 @@ export function PriceAlerts({ lang }: Props) {
 
             <View style={s.priceRow}>
               <Text style={s.oldPrice}>{alert.old_price.toFixed(2).replace('.', ',')} EUR</Text>
-              <MaterialCommunityIcons name="arrow-right" size={14} color="#4A8B71" />
+              <MaterialCommunityIcons name="arrow-right" size={14} color="#D14953" />
               <Text style={s.newPrice}>{alert.new_price.toFixed(2).replace('.', ',')} EUR</Text>
               <View style={s.dropBadge}>
                 <MaterialCommunityIcons name="arrow-down" size={10} color="#FFF" />
@@ -101,7 +101,7 @@ export function PriceAlerts({ lang }: Props) {
               <Text style={s.ctaText}>
                 {lang === 'de' ? 'Zum guenstigeren Preis ansehen' : 'Vedi il prezzo ridotto'}
               </Text>
-              <MaterialCommunityIcons name="open-in-new" size={12} color="#4A8B71" />
+              <MaterialCommunityIcons name="open-in-new" size={12} color="#D14953" />
             </TouchableOpacity>
           </View>
         </View>
@@ -144,7 +144,7 @@ const s = StyleSheet.create({
     paddingVertical: 2,
     borderRadius: 6,
   },
-  nutrientBadgeText: { fontSize: 11, fontWeight: '600', color: '#4A8B71' },
+  nutrientBadgeText: { fontSize: 11, fontWeight: '600', color: '#D14953' },
   productName: { fontSize: 14, fontWeight: '600', color: '#1A2D26', paddingRight: 20 },
   priceRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   oldPrice: { fontSize: 13, color: '#8FA39B', textDecorationLine: 'line-through' as const },
@@ -152,7 +152,7 @@ const s = StyleSheet.create({
   dropBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#22C55E',
+    backgroundColor: '#DC2626',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 8,
@@ -166,6 +166,6 @@ const s = StyleSheet.create({
     gap: 4,
     marginTop: 4,
   },
-  ctaText: { fontSize: 13, fontWeight: '600', color: '#4A8B71' },
+  ctaText: { fontSize: 13, fontWeight: '600', color: '#D14953' },
   disclaimer: { fontSize: 10, color: '#B0BDB6', textAlign: 'center', marginTop: 4 },
 });

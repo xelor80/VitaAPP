@@ -85,7 +85,7 @@ export default function TrackingScreen() {
   if (loading) {
     return (
       <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color="#4A8B71" testID="loading-indicator" />
+        <ActivityIndicator size="large" color="#D14953" testID="loading-indicator" />
       </SafeAreaView>
     );
   }

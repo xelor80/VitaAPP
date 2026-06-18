@@ -15,7 +15,7 @@ export const styles = StyleSheet.create({
   langSwitcherSmall: { flexDirection: 'row', gap: 4, width: 80, justifyContent: 'flex-end' },
   langBtnSm: {
     paddingVertical: 4, paddingHorizontal: 10, borderRadius: 12,
-    backgroundColor: '#E8F5E9', borderWidth: 1, borderColor: '#D4E7DC',
+    backgroundColor: '#FEE2E2', borderWidth: 1, borderColor: '#D4E7DC',
   },
   langBtnSmActive: { backgroundColor: '#2C5F78', borderColor: '#2C5F78' },
   langBtnSmText: { fontSize: 13, fontWeight: '700', color: '#2C5F78' },
@@ -38,7 +38,7 @@ export const styles = StyleSheet.create({
   chipsTitle: { fontSize: 14, fontWeight: '600', color: '#1A2D26', marginBottom: 8 },
   chipsWrap: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 16 },
   chip: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: '#E8F5E9',
+    flexDirection: 'row', alignItems: 'center', backgroundColor: '#FEE2E2',
     borderRadius: 16, paddingVertical: 6, paddingHorizontal: 10,
     marginRight: 6, marginBottom: 6, gap: 4,
   },
@@ -48,7 +48,7 @@ export const styles = StyleSheet.create({
 
   // Buttons
   primaryBtn: {
-    backgroundColor: '#4A8B71', borderRadius: 24, paddingVertical: 16,
+    backgroundColor: '#D14953', borderRadius: 24, paddingVertical: 16,
     paddingHorizontal: 24, alignItems: 'center', flexDirection: 'row',
     justifyContent: 'center',
     shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1,
@@ -73,7 +73,7 @@ export const styles = StyleSheet.create({
 
   // Onboarding Button
   onboardingButton: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: '#4A8B71',
+    flexDirection: 'row', alignItems: 'center', backgroundColor: '#D14953',
     borderRadius: 12, padding: 8, marginBottom: 5, gap: 8,
   },
   onboardingIconWrap: {
@@ -112,7 +112,7 @@ export const styles = StyleSheet.create({
   alertCard: { backgroundColor: '#FFFFFF', borderRadius: 20, padding: 28, alignItems: 'center', width: '100%', maxWidth: 360 },
   alertTitle: { fontSize: 18, fontWeight: '700', color: '#1A2D26', marginTop: 14, textAlign: 'center' },
   alertText: { fontSize: 14, color: '#5C7A6F', marginTop: 10, textAlign: 'center', lineHeight: 22 },
-  alertBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#4A8B71', borderRadius: 14, paddingVertical: 13, paddingHorizontal: 20, marginTop: 20, width: '100%' },
+  alertBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#D14953', borderRadius: 14, paddingVertical: 13, paddingHorizontal: 20, marginTop: 20, width: '100%' },
   alertBtnText: { color: '#FFFFFF', fontSize: 15, fontWeight: '600' },
   alertDismiss: { marginTop: 12, paddingVertical: 8 },
   alertDismissText: { color: '#8FA39B', fontSize: 14 },
@@ -130,13 +130,13 @@ export const styles = StyleSheet.create({
   },
   langBtn: {
     paddingVertical: 8, paddingHorizontal: 20, borderRadius: 16,
-    backgroundColor: '#E8F5E9', borderWidth: 1, borderColor: '#D4E7DC',
+    backgroundColor: '#FEE2E2', borderWidth: 1, borderColor: '#D4E7DC',
   },
   langBtnActive: { backgroundColor: '#2C5F78', borderColor: '#2C5F78' },
   langBtnText: { fontSize: 15, fontWeight: '700', color: '#2C5F78' },
   langBtnTextActive: { color: '#FFFFFF' },
   disclaimerIconWrap: {
-    width: 88, height: 88, borderRadius: 44, backgroundColor: '#E8F5E9',
+    width: 88, height: 88, borderRadius: 44, backgroundColor: '#FEE2E2',
     justifyContent: 'center', alignItems: 'center', marginBottom: 20,
   },
   disclaimerTitle: { fontSize: 26, fontWeight: '700', color: '#1A2D26', marginBottom: 4 },

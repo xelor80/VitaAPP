@@ -7,7 +7,7 @@ const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 const SEVERITY_CONFIG: Record<string, { bg: string; border: string; icon: string; iconColor: string; label_de: string; label_it: string }> = {
   red: { bg: '#FEF2F2', border: '#FECACA', icon: 'alert-circle', iconColor: '#DC2626', label_de: 'Risiko', label_it: 'Rischio' },
   yellow: { bg: '#FFFBEB', border: '#FDE68A', icon: 'alert', iconColor: '#D97706', label_de: 'Beachten', label_it: 'Attenzione' },
-  green: { bg: '#F0FDF4', border: '#BBF7D0', icon: 'check-circle', iconColor: '#16A34A', label_de: 'Synergie', label_it: 'Sinergia' },
+  green: { bg: '#FEF2F2', border: '#BBF7D0', icon: 'check-circle', iconColor: '#B91C1C', label_de: 'Synergie', label_it: 'Sinergia' },
 };
 
 const OPT_ICONS: Record<string, string> = {
@@ -61,7 +61,7 @@ export function InteractionAnalysis({ profileId, lang }: Props) {
   };
 
   const scoreColor = (s: number) => {
-    if (s >= 75) return '#16A34A';
+    if (s >= 75) return '#B91C1C';
     if (s >= 50) return '#D97706';
     return '#DC2626';
   };
@@ -71,7 +71,7 @@ export function InteractionAnalysis({ profileId, lang }: Props) {
     return (
       <View style={styles.emptyWrap}>
         <View style={styles.emptyIconWrap}>
-          <MaterialCommunityIcons name="shield-search" size={48} color="#4A8B71" />
+          <MaterialCommunityIcons name="shield-search" size={48} color="#D14953" />
         </View>
         <Text style={styles.emptyTitle}>
           {lang === 'de' ? 'Stack-Analyse' : 'Analisi Stack'}
@@ -100,7 +100,7 @@ export function InteractionAnalysis({ profileId, lang }: Props) {
   if (loading) {
     return (
       <View style={styles.loadingWrap}>
-        <ActivityIndicator size="large" color="#4A8B71" />
+        <ActivityIndicator size="large" color="#D14953" />
         <Text style={styles.loadingText}>
           {lang === 'de' ? 'Analysiere Wechselwirkungen...' : 'Analisi interazioni...'}
         </Text>
@@ -146,9 +146,9 @@ export function InteractionAnalysis({ profileId, lang }: Props) {
           <Text style={[styles.trafficNum, { color: '#D97706' }]}>{yellowCount}</Text>
           <Text style={styles.trafficLabel}>{lang === 'de' ? 'Beachten' : 'Attenzione'}</Text>
         </View>
-        <View style={[styles.trafficItem, { backgroundColor: '#F0FDF4' }]}>
-          <MaterialCommunityIcons name="check-circle" size={18} color="#16A34A" />
-          <Text style={[styles.trafficNum, { color: '#16A34A' }]}>{greenCount}</Text>
+        <View style={[styles.trafficItem, { backgroundColor: '#FEF2F2' }]}>
+          <MaterialCommunityIcons name="check-circle" size={18} color="#B91C1C" />
+          <Text style={[styles.trafficNum, { color: '#B91C1C' }]}>{greenCount}</Text>
           <Text style={styles.trafficLabel}>{lang === 'de' ? 'Synergien' : 'Sinergie'}</Text>
         </View>
       </View>
@@ -188,7 +188,7 @@ export function InteractionAnalysis({ profileId, lang }: Props) {
                 )}
                 {item.recommendation && (
                   <View style={styles.recRow}>
-                    <MaterialCommunityIcons name="lightbulb-outline" size={16} color="#4A8B71" />
+                    <MaterialCommunityIcons name="lightbulb-outline" size={16} color="#D14953" />
                     <Text style={styles.recText}>{item.recommendation}</Text>
                   </View>
                 )}
@@ -249,7 +249,7 @@ export function InteractionAnalysis({ profileId, lang }: Props) {
         onPress={runAnalysis}
         disabled={loading}
       >
-        <MaterialCommunityIcons name="refresh" size={18} color="#4A8B71" />
+        <MaterialCommunityIcons name="refresh" size={18} color="#D14953" />
         <Text style={styles.reanalyzeBtnText}>
           {lang === 'de' ? 'Erneut analysieren' : 'Rianalizza'}
         </Text>
@@ -262,14 +262,14 @@ const styles = StyleSheet.create({
   // Empty state
   emptyWrap: { alignItems: 'center', paddingVertical: 32, paddingHorizontal: 20 },
   emptyIconWrap: {
-    width: 80, height: 80, borderRadius: 40, backgroundColor: '#E8F5E9',
+    width: 80, height: 80, borderRadius: 40, backgroundColor: '#FEE2E2',
     justifyContent: 'center', alignItems: 'center', marginBottom: 16,
   },
   emptyTitle: { fontSize: 20, fontWeight: '700', color: '#1A2D26', marginBottom: 8 },
   emptyDesc: { fontSize: 14, color: '#5C7A6F', textAlign: 'center', lineHeight: 22, marginBottom: 20 },
   analyzeBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 8,
-    backgroundColor: '#4A8B71', borderRadius: 14, paddingHorizontal: 24, paddingVertical: 14,
+    backgroundColor: '#D14953', borderRadius: 14, paddingHorizontal: 24, paddingVertical: 14,
   },
   analyzeBtnText: { color: '#FFF', fontSize: 16, fontWeight: '600' },
   errorText: { color: '#DC2626', fontSize: 13, marginTop: 12, textAlign: 'center' },
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
   pill: { backgroundColor: '#F1F5F9', borderRadius: 8, paddingHorizontal: 8, paddingVertical: 3 },
   pillText: { fontSize: 11, color: '#475569', fontWeight: '600' },
   recRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 6, marginTop: 4 },
-  recText: { flex: 1, fontSize: 12, color: '#4A8B71', fontWeight: '600', lineHeight: 18 },
+  recText: { flex: 1, fontSize: 12, color: '#D14953', fontWeight: '600', lineHeight: 18 },
 
   // Optimization cards
   optCard: {
@@ -348,5 +348,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
     backgroundColor: '#F0F4F2', borderRadius: 12, padding: 12, marginTop: 4,
   },
-  reanalyzeBtnText: { fontSize: 14, fontWeight: '600', color: '#4A8B71' },
+  reanalyzeBtnText: { fontSize: 14, fontWeight: '600', color: '#D14953' },
 });

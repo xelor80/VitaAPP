@@ -26,7 +26,7 @@ const TIMING_ICONS: Record<string, string> = {
 const RISK_COLORS: Record<string, string> = {
   high: '#EF4444',
   medium: '#F59E0B',
-  low: '#10B981',
+  low: '#DC2626',
 };
 
 // Mapping: supplement ID -> product search tags
@@ -55,22 +55,22 @@ const PILL_STYLES: Record<string, { bg: string; icon: string; accent: string }> 
   vitamin_d: { bg: '#FFF3E0', icon: 'water-outline', accent: '#FF9800' },
   omega3: { bg: '#FFF8E1', icon: 'pill', accent: '#F9A825' },
   magnesium: { bg: '#E3F2FD', icon: 'pill', accent: '#2196F3' },
-  probiotics: { bg: '#E8F5E9', icon: 'pill', accent: '#66BB6A' },
+  probiotics: { bg: '#FEE2E2', icon: 'pill', accent: '#66BB6A' },
   zinc: { bg: '#EDE7F6', icon: 'pill', accent: '#7E57C2' },
   iron: { bg: '#FBE9E7', icon: 'pill', accent: '#E53935' },
   vitamin_b12: { bg: '#FCE4EC', icon: 'pill', accent: '#EC407A' },
   vitamin_c: { bg: '#FFFDE7', icon: 'fruit-citrus', accent: '#FBC02D' },
   calcium: { bg: '#EFEBE9', icon: 'bone', accent: '#8D6E63' },
-  folate: { bg: '#E8F5E9', icon: 'leaf', accent: '#43A047' },
+  folate: { bg: '#FEE2E2', icon: 'leaf', accent: '#C2272F' },
   b_vitamins: { bg: '#FFF3E0', icon: 'lightning-bolt', accent: '#FF9800' },
   coq10: { bg: '#FBE9E7', icon: 'heart-pulse', accent: '#EF5350' },
   selenium: { bg: '#F3E5F5', icon: 'atom', accent: '#AB47BC' },
   iodine: { bg: '#E0F2F1', icon: 'flask', accent: '#26A69A' },
   ashwagandha: { bg: '#F1F8E9', icon: 'flower', accent: '#7CB342' },
-  vitamin_k2: { bg: '#E8F5E9', icon: 'heart-pulse', accent: '#388E3C' },
+  vitamin_k2: { bg: '#FEE2E2', icon: 'heart-pulse', accent: '#8B1A20' },
   vitamin_e: { bg: '#FFFDE7', icon: 'shield-star', accent: '#F9A825' },
   melatonin: { bg: '#E8EAF6', icon: 'moon-waning-crescent', accent: '#5C6BC0' },
-  _default: { bg: '#F0F4F2', icon: 'pill', accent: '#4A8B71' },
+  _default: { bg: '#F0F4F2', icon: 'pill', accent: '#D14953' },
 };
 
 function PillIcon({ id, size = 48 }: { id: string; size?: number }) {
@@ -228,7 +228,7 @@ export default function SupplementPlanScreen() {
   if (loading) {
     return (
       <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color="#4A8B71" />
+        <ActivityIndicator size="large" color="#D14953" />
       </SafeAreaView>
     );
   }
@@ -237,7 +237,7 @@ export default function SupplementPlanScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.emptyState}>
-          <MaterialCommunityIcons name="pill" size={64} color="#4A8B71" />
+          <MaterialCommunityIcons name="pill" size={64} color="#D14953" />
           <Text style={styles.emptyTitle}>
             {tx(lang, { de: 'Supplement-Plan erstellen', it: 'Crea piano integratori', en: 'Create supplement plan', tr: 'Takviye plani olustur', fr: 'Creer un plan de supplements', es: 'Crear plan de suplementos', ru: 'Создать план dobavok' })}
           </Text>
@@ -276,7 +276,7 @@ export default function SupplementPlanScreen() {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Gradient Header */}
         <LinearGradient
-          colors={['#1B6B45', '#2E9E6B', '#43C68A']}
+          colors={['#8B1A20', '#DC3540', '#EF4456']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={ns.gradientHeader}
@@ -306,7 +306,7 @@ export default function SupplementPlanScreen() {
         {plan.personal_summary && (
           <View style={styles.summaryCard}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <MaterialCommunityIcons name="account-heart" size={24} color="#4A8B71" />
+              <MaterialCommunityIcons name="account-heart" size={24} color="#D14953" />
             </View>
             <Text style={styles.summaryText}>{plan.personal_summary}</Text>
           </View>
@@ -346,13 +346,13 @@ export default function SupplementPlanScreen() {
 
         {/* Stack Tab - Structured Medical Report Style */}
         {activeTab === 'stack' && plan.stack?.map((s: any, idx: number) => {
-          const riskColor = RISK_COLORS[s.risk_level] || '#10B981';
-          const riskBg = s.risk_level === 'high' ? '#FEF2F2' : s.risk_level === 'medium' ? '#FFFBEB' : '#F0FDF4';
+          const riskColor = RISK_COLORS[s.risk_level] || '#DC2626';
+          const riskBg = s.risk_level === 'high' ? '#FEF2F2' : s.risk_level === 'medium' ? '#FFFBEB' : '#FEF2F2';
           const riskLabel = s.risk_level === 'high'
             ? (tx(lang, { de: 'HOCH', it: 'ALTO', en: 'HIGH', tr: 'YUKSEK', fr: 'ELEVE', es: 'ALTO', ru: 'ВЫСОКИЙ' }))
             : s.risk_level === 'medium' ? (tx(lang, { de: 'MITTEL', it: 'MEDIO', en: 'MEDIUM', tr: 'ORTA', fr: 'MOYEN', es: 'MEDIO', ru: 'СРЕДНИЙ' }))
             : (tx(lang, { de: 'NIEDRIG', it: 'BASSO', en: 'LOW', tr: 'DUSUK', fr: 'FAIBLE', es: 'BAJO', ru: 'НИЗКИЙ' }));
-          const evColor = s.evidence_level === 'high' ? '#16A34A' : s.evidence_level === 'medium' ? '#D97706' : '#EA580C';
+          const evColor = s.evidence_level === 'high' ? '#B91C1C' : s.evidence_level === 'medium' ? '#D97706' : '#EA580C';
           const evBg = s.evidence_level === 'high' ? '#DCFCE7' : s.evidence_level === 'medium' ? '#FEF3C7' : '#FFEDD5';
           const evIcon = s.evidence_level === 'high' ? 'check-decagram' : s.evidence_level === 'medium' ? 'flask-outline' : 'magnify';
           const evLabel = s.evidence_level === 'high'
@@ -402,13 +402,13 @@ export default function SupplementPlanScreen() {
               <View style={ms.dataGrid}>
                 {/* Dosierung */}
                 <View style={ms.dataCell}>
-                  <MaterialCommunityIcons name="pill" size={16} color="#4A8B71" />
+                  <MaterialCommunityIcons name="pill" size={16} color="#D14953" />
                   <Text style={ms.dataCellLabel}>{tx(lang, { de: 'Dosierung', it: 'Dosaggio', en: 'Dosage', tr: 'Dozaj', fr: 'Dosage', es: 'Dosis', ru: 'Дозировка' })}</Text>
                   <Text style={ms.dataCellValue}>{s.dosage} {s.unit}</Text>
                 </View>
                 {/* Einnahmezeitpunkt */}
                 <View style={ms.dataCell}>
-                  <MaterialCommunityIcons name={timingIcon as any} size={16} color="#4A8B71" />
+                  <MaterialCommunityIcons name={timingIcon as any} size={16} color="#D14953" />
                   <Text style={ms.dataCellLabel}>{tx(lang, { de: 'Einnahme', it: 'Assunzione', en: 'Intake', tr: 'Alim', fr: 'Prise', es: 'Toma', ru: 'Приём' })}</Text>
                   <Text style={ms.dataCellValue}>{s.timing_label}</Text>
                   <Text style={ms.dataCellSub}>{s.with_food_label}</Text>
@@ -421,7 +421,7 @@ export default function SupplementPlanScreen() {
                 </View>
                 {/* Wirkungseintritt */}
                 <View style={ms.dataCell}>
-                  <MaterialCommunityIcons name="timer-sand" size={16} color="#4A8B71" />
+                  <MaterialCommunityIcons name="timer-sand" size={16} color="#D14953" />
                   <Text style={ms.dataCellLabel}>{tx(lang, { de: 'Wirkung ab', it: 'Effetto da', en: 'Effect from', tr: 'Etki baslangici', fr: 'Effet a partir de', es: 'Efecto desde', ru: 'Действие с' })}</Text>
                   <Text style={ms.dataCellValue}>{s.onset_weeks} {tx(lang, { de: 'Wo.', it: 'Sett.', en: 'Wk.', tr: 'Hf.', fr: 'Sem.', es: 'Sem.', ru: 'Нед.' })}</Text>
                 </View>
@@ -430,7 +430,7 @@ export default function SupplementPlanScreen() {
               {/* 5. Synergies */}
               {s.synergies?.length > 0 && (
                 <View style={ms.synRow}>
-                  <MaterialCommunityIcons name="link-variant" size={14} color="#4A8B71" />
+                  <MaterialCommunityIcons name="link-variant" size={14} color="#D14953" />
                   <Text style={ms.synLabel}>{tx(lang, { de: 'Synergie:', it: 'Sinergia:', en: 'Synergy:', tr: 'Sinerji:', fr: 'Synergie:', es: 'Sinergia:', ru: 'Синергия:' })}</Text>
                   <Text style={ms.synText}>{s.synergies.join(', ')}</Text>
                 </View>
@@ -495,7 +495,7 @@ export default function SupplementPlanScreen() {
             </View>
             <Text style={styles.phaseDescription}>{phase.description}</Text>
             <Text style={styles.phaseNote}>
-              <MaterialCommunityIcons name="information" size={14} color="#4A8B71" /> {phase.note}
+              <MaterialCommunityIcons name="information" size={14} color="#D14953" /> {phase.note}
             </Text>
           </View>
         ))}
@@ -568,9 +568,9 @@ const ms = StyleSheet.create({
   synRow: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
     paddingHorizontal: 16, marginBottom: 8,
-    backgroundColor: '#F0FDF4', marginHorizontal: 16, borderRadius: 8, padding: 8,
+    backgroundColor: '#FEF2F2', marginHorizontal: 16, borderRadius: 8, padding: 8,
   },
-  synLabel: { fontSize: 12, fontWeight: '600', color: '#4A8B71' },
+  synLabel: { fontSize: 12, fontWeight: '600', color: '#D14953' },
   synText: { fontSize: 12, color: '#374151', flex: 1 },
 
   warnRow: {
@@ -626,7 +626,7 @@ const ns = StyleSheet.create({
   reminderBody: { padding: 18, gap: 14 },
   reminderSubtitle: { fontSize: 15, fontWeight: '600', color: '#1A2D26', textAlign: 'center' },
   reminderClockRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12 },
-  reminderTimeText: { fontSize: 28, fontWeight: '800', color: '#1B6B45' },
+  reminderTimeText: { fontSize: 28, fontWeight: '800', color: '#8B1A20' },
   reminderItem: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
     backgroundColor: '#F8FAF9', borderRadius: 14, padding: 12,
@@ -659,17 +659,17 @@ const ns = StyleSheet.create({
   },
   settingsTimeLabel: { flex: 1, fontSize: 14, fontWeight: '600', color: '#1A2D26' },
   settingsTimeInput: {
-    width: 70, fontSize: 16, fontWeight: '700', color: '#1B6B45',
-    textAlign: 'center', borderBottomWidth: 2, borderBottomColor: '#1B6B45',
+    width: 70, fontSize: 16, fontWeight: '700', color: '#8B1A20',
+    textAlign: 'center', borderBottomWidth: 2, borderBottomColor: '#8B1A20',
     paddingVertical: 4,
   },
   settingsBtnRow: { flexDirection: 'row', gap: 10 },
   settingsТестBtn: {
     flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
     backgroundColor: '#F0F4F2', borderRadius: 14, paddingVertical: 12,
-    borderWidth: 1.5, borderColor: '#1B6B45',
+    borderWidth: 1.5, borderColor: '#8B1A20',
   },
-  settingsТестBtnText: { fontSize: 13, fontWeight: '600', color: '#1B6B45' },
+  settingsТестBtnText: { fontSize: 13, fontWeight: '600', color: '#8B1A20' },
   settingsSaveBtn: { flex: 1, borderRadius: 14, overflow: 'hidden' },
   settingsSaveGradient: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
@@ -685,7 +685,7 @@ const ns = StyleSheet.create({
   },
   timeCardHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 14 },
   timeLabel: { fontSize: 17, fontWeight: '700', color: '#1A2D26' },
-  timeValue: { fontSize: 15, fontWeight: '600', color: '#1B6B45' },
+  timeValue: { fontSize: 15, fontWeight: '600', color: '#8B1A20' },
   timeCount: { fontSize: 12, color: '#8FA39B', fontWeight: '500' },
   pillGrid: {
     flexDirection: 'row', flexWrap: 'wrap', gap: 12,
@@ -722,7 +722,7 @@ const ns = StyleSheet.create({
   overviewItemName: { fontSize: 13, fontWeight: '600', color: '#1A2D26', textAlign: 'center' },
   overviewItemDose: { fontSize: 11, color: '#8FA39B' },
   showAllBtn: {
-    backgroundColor: '#1B6B45', borderRadius: 10,
+    backgroundColor: '#8B1A20', borderRadius: 10,
     paddingVertical: 10, alignItems: 'center',
     marginHorizontal: 14, marginBottom: 14,
   },

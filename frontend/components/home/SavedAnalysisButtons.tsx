@@ -32,9 +32,9 @@ export function SavedAnalysisButtons({ lang, isLoading, onShowAnalysis, onNewAna
         disabled={isLoading}
       >
         {isLoading ? (
-          <ActivityIndicator size="small" color="#4A8B71" />
+          <ActivityIndicator size="small" color="#D14953" />
         ) : (
-          <MaterialCommunityIcons name="plus-circle-outline" size={18} color="#4A8B71" />
+          <MaterialCommunityIcons name="plus-circle-outline" size={18} color="#D14953" />
         )}
         <Text style={styles.newBtnText}>
           {isLoading
@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    backgroundColor: '#4A8B71',
+    backgroundColor: '#D14953',
     borderRadius: 12,
     paddingVertical: 10,
     paddingHorizontal: 10,
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     borderColor: '#D0DDD6',
   },
   newBtnText: {
-    color: '#4A8B71',
+    color: '#D14953',
     fontSize: 13,
     fontWeight: '600',
   },

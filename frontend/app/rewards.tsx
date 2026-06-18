@@ -22,7 +22,7 @@ const CATEGORY_ICONS: Record<string, string> = {
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  available: '#2E7D52',
+  available: '#C2272F',
   locked: '#9CA3AF',
   redeemed: '#6366F1',
 };
@@ -143,7 +143,7 @@ export default function RewardsPage() {
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color="#2E7D52" />
+        <ActivityIndicator size="large" color="#C2272F" />
       </View>
     );
   }
@@ -154,7 +154,7 @@ export default function RewardsPage() {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <LinearGradient colors={['#1B5E3B', '#2E7D52']} style={styles.header}>
+      <LinearGradient colors={['#1B5E3B', '#C2272F']} style={styles.header}>
         <View style={styles.headerTop}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} testID="rewards-back-btn">
             <MaterialCommunityIcons name="arrow-left" size={24} color="#fff" />
@@ -201,7 +201,7 @@ export default function RewardsPage() {
         <View style={styles.levelCard} testID="rewards-level-card">
           <View style={styles.levelRow}>
             <View style={styles.levelIconWrap}>
-              <MaterialCommunityIcons name={(levelInfo.icon || 'seed-outline') as any} size={24} color="#2E7D52" />
+              <MaterialCommunityIcons name={(levelInfo.icon || 'seed-outline') as any} size={24} color="#C2272F" />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={styles.levelTitle}>Level {levelInfo.level} - {levelInfo.title}</Text>
@@ -271,7 +271,7 @@ export default function RewardsPage() {
       {/* Catalog */}
       <ScrollView
         style={styles.catalogScroll}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2E7D52" />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#C2272F" />}
       >
         {(activeTab === 'available' ? availableItems : redeemedItems).map(item => (
           <View key={item.id} style={[styles.rewardCard, (item.status === 'locked' || item.status === 'level_locked') && styles.rewardCardLocked]} testID={`reward-card-${item.id}`}>
@@ -407,14 +407,14 @@ const styles = StyleSheet.create({
   todayItems: { gap: 4 },
   todayItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   todayAction: { fontSize: 13, color: '#6B7280' },
-  todayPoints: { fontSize: 13, fontWeight: '700', color: '#2E7D52' },
+  todayPoints: { fontSize: 13, fontWeight: '700', color: '#C2272F' },
   nextRewardHint: { flexDirection: 'row', alignItems: 'center', marginHorizontal: 16, marginTop: 12, backgroundColor: '#FFFBEB', borderRadius: 10, padding: 10, gap: 8 },
   nextRewardText: { fontSize: 13, color: '#92400E', flex: 1 },
   tabs: { flexDirection: 'row', marginHorizontal: 16, marginTop: 16, marginBottom: 8, backgroundColor: '#E5E7EB', borderRadius: 10, padding: 3 },
   tab: { flex: 1, paddingVertical: 8, borderRadius: 8, alignItems: 'center' },
   tabActive: { backgroundColor: '#fff', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2, elevation: 2 },
   tabText: { fontSize: 13, fontWeight: '500', color: '#6B7280' },
-  tabTextActive: { color: '#2E7D52', fontWeight: '600' },
+  tabTextActive: { color: '#C2272F', fontWeight: '600' },
   catalogScroll: { flex: 1, paddingHorizontal: 16 },
   rewardCard: { backgroundColor: '#fff', borderRadius: 14, marginBottom: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 4, elevation: 2, overflow: 'hidden' },
   rewardCardLocked: { opacity: 0.8 },
@@ -429,9 +429,9 @@ const styles = StyleSheet.create({
   pointsBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFBEB', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, gap: 4 },
   pointsText: { fontSize: 14, fontWeight: '700', color: '#B45309' },
   progressBar: { marginTop: 12, height: 20, backgroundColor: '#F3F4F6', borderRadius: 10, overflow: 'hidden', justifyContent: 'center' },
-  progressFill: { position: 'absolute', left: 0, top: 0, bottom: 0, backgroundColor: '#2E7D52', borderRadius: 10, opacity: 0.2 },
+  progressFill: { position: 'absolute', left: 0, top: 0, bottom: 0, backgroundColor: '#C2272F', borderRadius: 10, opacity: 0.2 },
   progressText: { fontSize: 11, color: '#6B7280', textAlign: 'center' },
-  redeemBtn: { marginTop: 12, backgroundColor: '#2E7D52', borderRadius: 10, paddingVertical: 10, alignItems: 'center' },
+  redeemBtn: { marginTop: 12, backgroundColor: '#C2272F', borderRadius: 10, paddingVertical: 10, alignItems: 'center' },
   redeemText: { fontSize: 14, fontWeight: '600', color: '#fff' },
   redeemedBadge: { flexDirection: 'row', alignItems: 'center', marginTop: 10, gap: 6 },
   redeemedText: { fontSize: 13, color: '#6366F1', fontWeight: '500' },
@@ -445,17 +445,17 @@ const styles = StyleSheet.create({
   // Level card
   levelCard: {
     margin: 16, marginBottom: 0, backgroundColor: '#fff', borderRadius: 14, padding: 14,
-    borderLeftWidth: 4, borderLeftColor: '#2E7D52',
+    borderLeftWidth: 4, borderLeftColor: '#C2272F',
     shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2,
   },
   levelRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   levelIconWrap: {
-    width: 44, height: 44, borderRadius: 22, backgroundColor: '#F0FDF4',
+    width: 44, height: 44, borderRadius: 22, backgroundColor: '#FEF2F2',
     justifyContent: 'center', alignItems: 'center',
   },
   levelTitle: { fontSize: 15, fontWeight: '700', color: '#1A2D26' },
   levelBarTrack: { height: 6, backgroundColor: '#E5E7EB', borderRadius: 3, marginTop: 6, overflow: 'hidden' },
-  levelBarFill: { height: 6, backgroundColor: '#2E7D52', borderRadius: 3 },
+  levelBarFill: { height: 6, backgroundColor: '#C2272F', borderRadius: 3 },
   levelSub: { fontSize: 12, color: '#6B7280', marginTop: 4 },
   // Level lock badge
   levelLockBadge: {

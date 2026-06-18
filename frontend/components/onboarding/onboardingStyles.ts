@@ -7,10 +7,10 @@ export const onboardingStyles = StyleSheet.create({
   // Progress
   progressContainer: { paddingHorizontal: 20, paddingTop: 20 },
   progressBar: { height: 4, backgroundColor: '#E0E6E2', borderRadius: 2, overflow: 'hidden' },
-  progressFill: { height: '100%', backgroundColor: '#4A8B71', borderRadius: 2 },
+  progressFill: { height: '100%', backgroundColor: '#D14953', borderRadius: 2 },
   stepIndicator: { flexDirection: 'row', justifyContent: 'center', marginTop: 12, gap: 8 },
   stepDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#E0E6E2' },
-  stepDotActive: { backgroundColor: '#4A8B71' },
+  stepDotActive: { backgroundColor: '#D14953' },
   stepDotCompleted: { backgroundColor: '#2C5F78' },
   
   // Header
@@ -40,7 +40,7 @@ export const onboardingStyles = StyleSheet.create({
     paddingVertical: 12, paddingHorizontal: 16, borderRadius: 12,
     backgroundColor: '#F7F9F6', borderWidth: 1, borderColor: '#E0E6E2',
   },
-  optionButtonSelected: { backgroundColor: '#4A8B71', borderColor: '#4A8B71' },
+  optionButtonSelected: { backgroundColor: '#D14953', borderColor: '#D14953' },
   optionText: { fontSize: 14, fontWeight: '500', color: '#5C7A6F' },
   optionTextSelected: { color: '#FFFFFF' },
   
@@ -57,15 +57,15 @@ export const onboardingStyles = StyleSheet.create({
   // Slider
   sliderContainer: { marginBottom: 16 },
   sliderLabel: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
-  sliderValue: { fontSize: 24, fontWeight: '700', color: '#4A8B71' },
+  sliderValue: { fontSize: 24, fontWeight: '700', color: '#D14953' },
   sliderTrack: { height: 8, backgroundColor: '#E0E6E2', borderRadius: 4, marginBottom: 12 },
-  sliderFill: { height: '100%', backgroundColor: '#4A8B71', borderRadius: 4 },
+  sliderFill: { height: '100%', backgroundColor: '#D14953', borderRadius: 4 },
   sliderDots: { flexDirection: 'row', justifyContent: 'space-between', gap: 4 },
   sliderDot: {
     flex: 1, height: 40, borderRadius: 10, backgroundColor: '#F0F4F2',
     justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: '#E0E6E2',
   },
-  sliderDotActive: { backgroundColor: '#4A8B71', borderColor: '#4A8B71' },
+  sliderDotActive: { backgroundColor: '#D14953', borderColor: '#D14953' },
   sliderDotText: { fontSize: 14, fontWeight: '600', color: '#5C7A6F' },
   sliderDotTextActive: { color: '#FFFFFF' },
   
@@ -74,10 +74,10 @@ export const onboardingStyles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', padding: 12, borderRadius: 12,
     backgroundColor: '#F7F9F6', marginBottom: 8, gap: 12,
   },
-  complaintItemSelected: { backgroundColor: '#E8F5E9', borderWidth: 1, borderColor: '#4A8B71' },
+  complaintItemSelected: { backgroundColor: '#FEE2E2', borderWidth: 1, borderColor: '#D14953' },
   complaintName: { flex: 1, fontSize: 14, fontWeight: '500', color: '#1A2D26' },
   intensityBadge: {
-    paddingVertical: 4, paddingHorizontal: 10, borderRadius: 12, backgroundColor: '#4A8B71',
+    paddingVertical: 4, paddingHorizontal: 10, borderRadius: 12, backgroundColor: '#D14953',
   },
   intensityText: { fontSize: 12, fontWeight: '700', color: '#FFFFFF' },
   
@@ -87,12 +87,12 @@ export const onboardingStyles = StyleSheet.create({
     borderTopWidth: 1, borderTopColor: '#E0E6E2',
   },
   backButton: {
-    flex: 1, paddingVertical: 16, borderRadius: 12, backgroundColor: '#E8F5E9',
+    flex: 1, paddingVertical: 16, borderRadius: 12, backgroundColor: '#FEE2E2',
     alignItems: 'center',
   },
-  backButtonText: { fontSize: 16, fontWeight: '600', color: '#4A8B71' },
+  backButtonText: { fontSize: 16, fontWeight: '600', color: '#D14953' },
   nextButton: {
-    flex: 2, paddingVertical: 16, borderRadius: 12, backgroundColor: '#4A8B71',
+    flex: 2, paddingVertical: 16, borderRadius: 12, backgroundColor: '#D14953',
     alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8,
   },
   nextButtonText: { fontSize: 16, fontWeight: '700', color: '#FFFFFF' },
@@ -111,7 +111,7 @@ export const onboardingStyles = StyleSheet.create({
     backgroundColor: '#FFFFFF', borderRadius: 16, padding: 20, marginBottom: 16,
     alignItems: 'center',
   },
-  bmiValue: { fontSize: 48, fontWeight: '700', color: '#4A8B71' },
+  bmiValue: { fontSize: 48, fontWeight: '700', color: '#D14953' },
   bmiLabel: { fontSize: 14, color: '#5C7A6F', marginTop: 4 },
   bmiCategory: { fontSize: 16, fontWeight: '600', color: '#1A2D26', marginTop: 8 },
   
@@ -121,7 +121,7 @@ export const onboardingStyles = StyleSheet.create({
   },
   deficiencyHigh: { borderLeftColor: '#EF4444' },
   deficiencyMedium: { borderLeftColor: '#F59E0B' },
-  deficiencyLow: { borderLeftColor: '#10B981' },
+  deficiencyLow: { borderLeftColor: '#DC2626' },
   deficiencyHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   deficiencyName: { fontSize: 16, fontWeight: '700', color: '#1A2D26' },
   deficiencyRisk: { fontSize: 12, fontWeight: '700', paddingVertical: 4, paddingHorizontal: 10, borderRadius: 12 },
@@ -142,7 +142,7 @@ export const onboardingStyles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', gap: 12,
   },
   priorityIcon: {
-    width: 40, height: 40, borderRadius: 20, backgroundColor: '#E8F5E9',
+    width: 40, height: 40, borderRadius: 20, backgroundColor: '#FEE2E2',
     justifyContent: 'center', alignItems: 'center',
   },
   priorityTitle: { flex: 1, fontSize: 15, fontWeight: '600', color: '#1A2D26' },
@@ -151,7 +151,7 @@ export const onboardingStyles = StyleSheet.create({
   priorityBadgeMedium: { backgroundColor: '#FEF3C7', color: '#D97706' },
   
   completeButton: {
-    backgroundColor: '#4A8B71', borderRadius: 16, paddingVertical: 18, alignItems: 'center',
+    backgroundColor: '#D14953', borderRadius: 16, paddingVertical: 18, alignItems: 'center',
     marginTop: 16,
   },
   completeButtonText: { fontSize: 18, fontWeight: '700', color: '#FFFFFF' },

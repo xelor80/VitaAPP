@@ -25,7 +25,7 @@ export default function ProfileTab() {
   }, [check]);
 
   if (hasProfile === null) {
-    return <View style={s.center}><ActivityIndicator size="large" color="#2E7D52" /></View>;
+    return <View style={s.center}><ActivityIndicator size="large" color="#C2272F" /></View>;
   }
 
   // Render full health profile directly in the tab
@@ -35,7 +35,7 @@ export default function ProfileTab() {
 
   return (
     <View style={s.container}>
-      <LinearGradient colors={['#1B6B45', '#2E9E6B', '#43C68A']} style={s.header}>
+      <LinearGradient colors={['#8B1A20', '#DC3540', '#EF4456']} style={s.header}>
         <Text style={s.headerTitle}>{lang === 'de' ? 'Gesundheitsprofil' : 'Profilo salute'}</Text>
       </LinearGradient>
       <View style={s.emptyState}>
@@ -73,7 +73,7 @@ const s = StyleSheet.create({
   emptyText: { fontSize: 14, color: '#6B7280', textAlign: 'center', marginTop: 8, lineHeight: 20 },
   createBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 8,
-    backgroundColor: '#2E7D52', paddingHorizontal: 24, paddingVertical: 14, borderRadius: 30, marginTop: 24,
+    backgroundColor: '#C2272F', paddingHorizontal: 24, paddingVertical: 14, borderRadius: 30, marginTop: 24,
   },
   createBtnText: { fontSize: 16, fontWeight: '700', color: '#FFFFFF' },
 });

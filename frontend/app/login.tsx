@@ -83,7 +83,7 @@ export default function LoginScreen() {
 
   return (
     <View style={styles.container}>
-      <LinearGradient colors={['#1B5E3B', '#2E7D52', '#3D9966']} style={styles.gradient}>
+      <LinearGradient colors={['#1B5E3B', '#C2272F', '#3D9966']} style={styles.gradient}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.keyboardView}
@@ -96,7 +96,7 @@ export default function LoginScreen() {
             {/* Logo / Header */}
             <View style={styles.header} testID="login-header">
               <View style={styles.logoCircle}>
-                <MaterialCommunityIcons name="leaf" size={40} color="#2E7D52" />
+                <MaterialCommunityIcons name="leaf" size={40} color="#C2272F" />
               </View>
               <Text style={styles.appName}>VitaGuide</Text>
               <Text style={styles.subtitle}>
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
   inputIcon: { marginRight: 10 },
   input: { flex: 1, fontSize: 15, color: '#1F2937', height: 50 },
   eyeBtn: { padding: 4 },
-  submitBtn: { backgroundColor: '#2E7D52', borderRadius: 12, height: 50, justifyContent: 'center', alignItems: 'center', marginTop: 4 },
+  submitBtn: { backgroundColor: '#C2272F', borderRadius: 12, height: 50, justifyContent: 'center', alignItems: 'center', marginTop: 4 },
   submitText: { fontSize: 16, fontWeight: '600', color: '#fff' },
   divider: { flexDirection: 'row', alignItems: 'center', marginVertical: 18 },
   dividerLine: { flex: 1, height: 1, backgroundColor: '#E5E7EB' },
@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
   googleBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#F9FAFB', borderRadius: 12, height: 50, borderWidth: 1, borderColor: '#E5E7EB', gap: 10 },
   googleText: { fontSize: 15, fontWeight: '500', color: '#374151' },
   switchBtn: { marginTop: 16, alignItems: 'center' },
-  switchText: { fontSize: 13, color: '#2E7D52', fontWeight: '500' },
+  switchText: { fontSize: 13, color: '#C2272F', fontWeight: '500' },
   skipBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 24, gap: 6 },
   skipText: { fontSize: 14, color: 'rgba(255,255,255,0.7)' },
 });

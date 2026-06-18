@@ -30,7 +30,7 @@ export function ProgressHeader({ progress, streak, daysTracked, complianceRate, 
 
         {/* Days Tracked */}
         <View style={styles.statBox}>
-          <MaterialCommunityIcons name="calendar-check" size={24} color="#4A8B71" style={styles.streakIcon} />
+          <MaterialCommunityIcons name="calendar-check" size={24} color="#D14953" style={styles.streakIcon} />
           <Text style={styles.statValue}>{daysTracked}</Text>
           <Text style={styles.statLabel}>{lang === 'de' ? 'Tage getrackt' : 'Giorni tracciati'}</Text>
         </View>
@@ -39,7 +39,7 @@ export function ProgressHeader({ progress, streak, daysTracked, complianceRate, 
       {/* Compliance Mini-Stat */}
       <View style={{ marginTop: 16, alignItems: 'center' }}>
         <Text style={{ fontSize: 13, color: '#5C7A6F' }}>
-          {lang === 'de' ? 'Einnahmetreue' : 'Compliance'}: <Text style={{ fontWeight: '700', color: complianceRate >= 80 ? '#4A8B71' : complianceRate >= 50 ? '#F59E0B' : '#EF4444' }}>{complianceRate}%</Text>
+          {lang === 'de' ? 'Einnahmetreue' : 'Compliance'}: <Text style={{ fontWeight: '700', color: complianceRate >= 80 ? '#D14953' : complianceRate >= 50 ? '#F59E0B' : '#EF4444' }}>{complianceRate}%</Text>
         </Text>
       </View>
     </View>

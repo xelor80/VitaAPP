@@ -319,7 +319,7 @@ export default function RecipesCatalogScreen() {
                   style={[s.chip, active && s.chipActive]}
                   onPress={() => setTimeFilter(active ? null : tf)}
                 >
-                  <MaterialCommunityIcons name={icon as any} size={13} color={active ? '#FFF' : '#4A8B71'} />
+                  <MaterialCommunityIcons name={icon as any} size={13} color={active ? '#FFF' : '#D14953'} />
                   <Text style={[s.chipText, active && s.chipTextActive]}>{label}</Text>
                 </TouchableOpacity>
               );
@@ -329,7 +329,7 @@ export default function RecipesCatalogScreen() {
 
         {isLoading && (
           <View style={s.loadingWrap}>
-            <ActivityIndicator testID="catalog-loading" size="large" color="#4A8B71" />
+            <ActivityIndicator testID="catalog-loading" size="large" color="#D14953" />
           </View>
         )}
 
@@ -340,7 +340,7 @@ export default function RecipesCatalogScreen() {
             <Text style={s.emptyTitle}>{tx.noResults}</Text>
             <Text style={s.emptySub}>{tx.noResultsSub}</Text>
             <TouchableOpacity testID="empty-reset-btn" style={s.emptyResetBtn} onPress={resetFilters}>
-              <MaterialCommunityIcons name="refresh" size={16} color="#4A8B71" />
+              <MaterialCommunityIcons name="refresh" size={16} color="#D14953" />
               <Text style={s.emptyResetText}>{tx.resetFilters}</Text>
             </TouchableOpacity>
           </View>
@@ -384,7 +384,7 @@ export default function RecipesCatalogScreen() {
             {personalizedRecipes.filter(r => r.relevance_score === 0).length > 0 && (
               <View style={{ marginTop: 8 }}>
                 <View style={s.sectionHeader}>
-                  <MaterialCommunityIcons name="silverware-fork-knife" size={18} color="#4A8B71" />
+                  <MaterialCommunityIcons name="silverware-fork-knife" size={18} color="#D14953" />
                   <Text style={s.sectionTitle}>{hasProfile ? tx.otherRecipes : tx.allRecipes}</Text>
                   <Text style={s.sectionCount}>{personalizedRecipes.filter(r => r.relevance_score === 0).length}</Text>
                 </View>
@@ -419,18 +419,18 @@ const s = StyleSheet.create({
   chipRow: { flexDirection: 'row', gap: 6 },
   chip: {
     flexDirection: 'row', alignItems: 'center', gap: 4,
-    backgroundColor: '#E8F5E9', borderRadius: 16, paddingVertical: 6, paddingHorizontal: 12,
+    backgroundColor: '#FEE2E2', borderRadius: 16, paddingVertical: 6, paddingHorizontal: 12,
   },
-  chipActive: { backgroundColor: '#4A8B71' },
-  chipText: { fontSize: 12, fontWeight: '600', color: '#4A8B71' },
+  chipActive: { backgroundColor: '#D14953' },
+  chipText: { fontSize: 12, fontWeight: '600', color: '#D14953' },
   chipTextActive: { color: '#FFF' },
 
   loadingWrap: { paddingVertical: 40, alignItems: 'center' },
   emptyState: { alignItems: 'center', paddingVertical: 40 },
   emptyTitle: { fontSize: 17, fontWeight: '700', color: '#1A2D26', marginTop: 12 },
   emptySub: { fontSize: 14, color: '#8FA39B', marginTop: 4, textAlign: 'center' },
-  emptyResetBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 16, paddingVertical: 10, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#E8F5E9' },
-  emptyResetText: { fontSize: 14, fontWeight: '600', color: '#4A8B71' },
+  emptyResetBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 16, paddingVertical: 10, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#FEE2E2' },
+  emptyResetText: { fontSize: 14, fontWeight: '600', color: '#D14953' },
 
   // Grid
   gridRow: {

@@ -344,7 +344,7 @@ export default function StressPlayerScreen() {
   };
 
   if (loading || !exercise) return (
-    <SafeAreaView style={st.safe}><View style={st.center}><ActivityIndicator size="large" color="#2E7D52" /></View></SafeAreaView>
+    <SafeAreaView style={st.safe}><View style={st.center}><ActivityIndicator size="large" color="#C2272F" /></View></SafeAreaView>
   );
 
   const remaining = Math.max(0, exercise.duration_seconds - elapsed);
@@ -378,7 +378,7 @@ export default function StressPlayerScreen() {
                 value={audioSettings.voiceEnabled}
                 onValueChange={() => toggleSetting('voiceEnabled')}
                 trackColor={{ false: '#D1D5DB', true: '#93C5FD' }}
-                thumbColor={audioSettings.voiceEnabled ? '#2E7D52' : '#9CA3AF'}
+                thumbColor={audioSettings.voiceEnabled ? '#C2272F' : '#9CA3AF'}
               />
             </View>
             <View style={st.settingRow}>
@@ -388,7 +388,7 @@ export default function StressPlayerScreen() {
                 value={audioSettings.soundEnabled}
                 onValueChange={() => toggleSetting('soundEnabled')}
                 trackColor={{ false: '#D1D5DB', true: '#93C5FD' }}
-                thumbColor={audioSettings.soundEnabled ? '#2E7D52' : '#9CA3AF'}
+                thumbColor={audioSettings.soundEnabled ? '#C2272F' : '#9CA3AF'}
               />
             </View>
             <Text style={st.settingHint}>
@@ -432,7 +432,7 @@ export default function StressPlayerScreen() {
   if (phase === 'post') return (
     <SafeAreaView style={st.safe}>
       <View style={st.preContainer}>
-        <MaterialCommunityIcons name="check-circle" size={56} color="#22C55E" style={{ alignSelf: 'center', marginBottom: 16 }} />
+        <MaterialCommunityIcons name="check-circle" size={56} color="#DC2626" style={{ alignSelf: 'center', marginBottom: 16 }} />
         <Text style={st.preTitle}>{t('Gut gemacht!', 'Ben fatto!')}</Text>
         <Text style={st.preDesc}>{t('Wie fuehlst du dich jetzt?', 'Come ti senti adesso?')}</Text>
 
@@ -458,7 +458,7 @@ export default function StressPlayerScreen() {
 
         {stressBefore > stressAfter && (
           <View style={st.improvBadge}>
-            <MaterialCommunityIcons name="trending-down" size={18} color="#22C55E" />
+            <MaterialCommunityIcons name="trending-down" size={18} color="#DC2626" />
             <Text style={st.improvText}>
               {t(`Stress um ${stressBefore - stressAfter} gesenkt`, `Stress ridotto di ${stressBefore - stressAfter}`)}
             </Text>
@@ -604,18 +604,18 @@ const st = StyleSheet.create({
   sliderRow: { flexDirection: 'row', justifyContent: 'center', gap: 6 },
   sliderDot: { width: 30, height: 30, borderRadius: 15, justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: '#E5E7EB' },
   sliderDotActive: { borderWidth: 2 },
-  sliderGreen: { borderColor: '#D1FAE5' }, sliderGreenActive: { backgroundColor: '#22C55E', borderColor: '#22C55E' },
+  sliderGreen: { borderColor: '#D1FAE5' }, sliderGreenActive: { backgroundColor: '#DC2626', borderColor: '#DC2626' },
   sliderYellow: { borderColor: '#FEF3C7' }, sliderYellowActive: { backgroundColor: '#F59E0B', borderColor: '#F59E0B' },
   sliderRed: { borderColor: '#FEE2E2' }, sliderRedActive: { backgroundColor: '#EF4444', borderColor: '#EF4444' },
   sliderNum: { fontSize: 12, fontWeight: '600', color: '#9CA3AF' },
   sliderNumActive: { color: '#fff' },
   sliderLabels: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 },
-  sliderMin: { fontSize: 11, color: '#22C55E' },
+  sliderMin: { fontSize: 11, color: '#DC2626' },
   sliderMax: { fontSize: 11, color: '#EF4444' },
-  startBtn: { backgroundColor: '#2E7D52', borderRadius: 14, height: 52, justifyContent: 'center', alignItems: 'center', marginTop: 32 },
+  startBtn: { backgroundColor: '#C2272F', borderRadius: 14, height: 52, justifyContent: 'center', alignItems: 'center', marginTop: 32 },
   startBtnText: { fontSize: 17, fontWeight: '700', color: '#fff' },
-  improvBadge: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 16, paddingVertical: 8, paddingHorizontal: 16, backgroundColor: '#F0FDF4', borderRadius: 20, alignSelf: 'center' },
-  improvText: { fontSize: 14, fontWeight: '600', color: '#22C55E' },
+  improvBadge: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 16, paddingVertical: 8, paddingHorizontal: 16, backgroundColor: '#FEF2F2', borderRadius: 20, alignSelf: 'center' },
+  improvText: { fontSize: 14, fontWeight: '600', color: '#DC2626' },
   // Intro / Outro
   introContainer: { flex: 1, backgroundColor: '#1A2D26', justifyContent: 'center', alignItems: 'center', padding: 40 },
   introContent: { flex: 1, justifyContent: 'center', alignItems: 'center' },
@@ -627,11 +627,11 @@ const st = StyleSheet.create({
   topBar: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 },
   timerText: { fontSize: 18, fontWeight: '700', color: 'rgba(255,255,255,0.9)', fontVariant: ['tabular-nums'] },
   progressBar: { height: 3, backgroundColor: 'rgba(255,255,255,0.1)', marginHorizontal: 20 },
-  progressFill: { height: 3, backgroundColor: '#22C55E', borderRadius: 2 },
+  progressFill: { height: 3, backgroundColor: '#DC2626', borderRadius: 2 },
   contentArea: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 32 },
   // Breathing
-  breathCircle: { width: CIRCLE_SIZE, height: CIRCLE_SIZE, borderRadius: CIRCLE_SIZE / 2, backgroundColor: 'rgba(46,125,82,0.15)', justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: 'rgba(46,125,82,0.3)' },
-  breathInner: { width: CIRCLE_SIZE * 0.7, height: CIRCLE_SIZE * 0.7, borderRadius: CIRCLE_SIZE * 0.35, backgroundColor: 'rgba(46,125,82,0.25)', justifyContent: 'center', alignItems: 'center' },
+  breathCircle: { width: CIRCLE_SIZE, height: CIRCLE_SIZE, borderRadius: CIRCLE_SIZE / 2, backgroundColor: 'rgba(194,39,47,0.15)', justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: 'rgba(194,39,47,0.3)' },
+  breathInner: { width: CIRCLE_SIZE * 0.7, height: CIRCLE_SIZE * 0.7, borderRadius: CIRCLE_SIZE * 0.35, backgroundColor: 'rgba(194,39,47,0.25)', justifyContent: 'center', alignItems: 'center' },
   breathLabel: { fontSize: 20, fontWeight: '600', color: '#fff', textAlign: 'center' },
   exerciseName: { fontSize: 16, color: 'rgba(255,255,255,0.6)', marginTop: 32 },
   // Voice overlay

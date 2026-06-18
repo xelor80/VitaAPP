@@ -179,7 +179,7 @@ const s = StyleSheet.create({
   // Toast for new milestone
   toast: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
-    backgroundColor: '#F0FDF4', borderRadius: 12, padding: 14,
+    backgroundColor: '#FEF2F2', borderRadius: 12, padding: 14,
     marginBottom: 10, borderWidth: 1, borderColor: '#BBF7D0',
   },
   toastIcon: {
@@ -188,7 +188,7 @@ const s = StyleSheet.create({
   },
   toastText: { flex: 1 },
   toastTitle: { fontSize: 14, fontWeight: '700', color: '#166534' },
-  toastMsg: { fontSize: 12, color: '#15803D', marginTop: 2 },
+  toastMsg: { fontSize: 12, color: '#991B1B', marginTop: 2 },
 
   // Streak card
   streakCard: {

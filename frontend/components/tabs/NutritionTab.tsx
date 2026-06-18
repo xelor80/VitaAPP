@@ -24,7 +24,7 @@ export function NutritionTab({ analysis, onShopPress, lang }: { analysis: any; o
       {schedule.length > 0 && (
         <View style={styles.scheduleSection}>
           <View style={styles.cardHeader}>
-            <MaterialCommunityIcons name="clock-outline" size={20} color="#4A8B71" />
+            <MaterialCommunityIcons name="clock-outline" size={20} color="#D14953" />
             <Text style={styles.cardTitle}>{t(lang, 'schedule_title')}</Text>
           </View>
           <Text style={styles.scheduleSubtitle}>{t(lang, 'schedule_subtitle')}</Text>
@@ -32,7 +32,7 @@ export function NutritionTab({ analysis, onShopPress, lang }: { analysis: any; o
           {schedule.map((item: any, i: number) => {
             const timeKey = Object.keys(TIME_ICONS).find(k => item.time?.includes(k)) || 'Morgens';
             const iconName = TIME_ICONS[timeKey] || 'clock-outline';
-            const iconColor = TIME_COLORS[timeKey] || '#4A8B71';
+            const iconColor = TIME_COLORS[timeKey] || '#D14953';
             return (
               <View key={i} testID={`schedule-item-${i}`} style={styles.scheduleCard}>
                 <View style={styles.scheduleLeft}>
@@ -60,7 +60,7 @@ export function NutritionTab({ analysis, onShopPress, lang }: { analysis: any; o
                   ) : null}
                   {item.affiliate_url ? (
                     <TouchableOpacity testID={`schedule-shop-${i}`} style={styles.scheduleShopLink} onPress={() => onShopPress(item.product_id || '', item.affiliate_url)}>
-                      <MaterialCommunityIcons name="open-in-new" size={13} color="#4A8B71" />
+                      <MaterialCommunityIcons name="open-in-new" size={13} color="#D14953" />
                       <Text style={styles.scheduleShopText}>  {t(lang, 'shop_link')}</Text>
                     </TouchableOpacity>
                   ) : null}
@@ -79,7 +79,7 @@ export function NutritionTab({ analysis, onShopPress, lang }: { analysis: any; o
       {analysis.nutrition_tips?.length > 0 ? (
         <View style={styles.card}>
           <View style={styles.cardHeader}>
-            <MaterialCommunityIcons name="food-apple-outline" size={20} color="#4A8B71" />
+            <MaterialCommunityIcons name="food-apple-outline" size={20} color="#D14953" />
             <Text style={styles.cardTitle}>{t(lang, 'nutrition_tips_title')}</Text>
           </View>
           {analysis.nutrition_tips.map((tip: any, i: number) => (

@@ -7,7 +7,7 @@ const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 const PERIOD_OPTIONS = [14, 30, 60];
 
 const SEVERITY_STYLE: Record<string, { bg: string; text: string; icon: string }> = {
-  positive: { bg: '#DCFCE7', text: '#166534', icon: '#22C55E' },
+  positive: { bg: '#DCFCE7', text: '#166534', icon: '#DC2626' },
   neutral: { bg: '#F3F4F6', text: '#374151', icon: '#6B7280' },
   negative: { bg: '#FEF3C7', text: '#92400E', icon: '#F59E0B' },
 };
@@ -66,7 +66,7 @@ export function CorrelationAnalysis({ profileId, lang }: Props) {
   if (loading) {
     return (
       <View style={styles.loadingWrap}>
-        <ActivityIndicator size="large" color="#4A8B71" />
+        <ActivityIndicator size="large" color="#D14953" />
         <Text style={styles.loadingText}>
           {lang === 'de' ? 'Analysiere Zusammenhaenge...' : 'Analisi correlazioni...'}
         </Text>
@@ -104,7 +104,7 @@ export function CorrelationAnalysis({ profileId, lang }: Props) {
   const symTrends = data.symptom_trends || {};
 
   const trendColor = (dir: string) =>
-    dir === 'improving' ? '#16A34A' : dir === 'worsening' ? '#DC2626' : '#6B7280';
+    dir === 'improving' ? '#B91C1C' : dir === 'worsening' ? '#DC2626' : '#6B7280';
   const trendIcon = (dir: string) =>
     dir === 'improving' ? 'trending-up' : dir === 'worsening' ? 'trending-down' : 'minus';
 
@@ -129,7 +129,7 @@ export function CorrelationAnalysis({ profileId, lang }: Props) {
       {/* LLM Headline */}
       {llm.headline && (
         <View style={styles.headlineCard} testID="correlation-headline">
-          <MaterialCommunityIcons name="brain" size={22} color="#4A8B71" />
+          <MaterialCommunityIcons name="brain" size={22} color="#D14953" />
           <Text style={styles.headlineText}>{llm.headline}</Text>
         </View>
       )}
@@ -192,7 +192,7 @@ export function CorrelationAnalysis({ profileId, lang }: Props) {
           {lang === 'de' ? 'Einnahmekonstanz' : 'Costanza assunzione'}
         </Text>
         {Object.entries(suppComp).map(([sid, comp]: [string, any]) => {
-          const rateColor = comp.rate >= 80 ? '#16A34A' : comp.rate >= 60 ? '#D97706' : '#DC2626';
+          const rateColor = comp.rate >= 80 ? '#B91C1C' : comp.rate >= 60 ? '#D97706' : '#DC2626';
           return (
             <View key={sid} style={styles.compRow}>
               <Text style={styles.compName}>{SUPPLEMENT_LABELS[sid] || sid}</Text>
@@ -246,14 +246,14 @@ const styles = StyleSheet.create({
     flex: 1, alignItems: 'center', paddingVertical: 8,
     borderRadius: 10, backgroundColor: '#F0F4F2',
   },
-  periodBtnActive: { backgroundColor: '#4A8B71' },
+  periodBtnActive: { backgroundColor: '#D14953' },
   periodText: { fontSize: 13, fontWeight: '600', color: '#5C7A6F' },
   periodTextActive: { color: '#FFFFFF' },
 
   // Headline
   headlineCard: {
     flexDirection: 'row', alignItems: 'flex-start', gap: 10,
-    backgroundColor: '#E8F5E9', borderRadius: 14, padding: 14, marginBottom: 12,
+    backgroundColor: '#FEE2E2', borderRadius: 14, padding: 14, marginBottom: 12,
   },
   headlineText: { flex: 1, fontSize: 14, fontWeight: '600', color: '#2D5A3F', lineHeight: 22 },
 

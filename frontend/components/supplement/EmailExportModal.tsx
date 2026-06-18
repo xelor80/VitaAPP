@@ -84,7 +84,7 @@ export function EmailExportModal({ visible, onClose, profileId, lang }: Props) {
 
             {status === 'success' ? (
               <View style={s.successBox}>
-                <MaterialCommunityIcons name="check-circle" size={48} color="#16A34A" />
+                <MaterialCommunityIcons name="check-circle" size={48} color="#B91C1C" />
                 <Text style={s.successTitle}>
                   {lang === 'de' ? 'E-Mail gesendet!' : 'E-mail inviata!'}
                 </Text>
@@ -123,7 +123,7 @@ export function EmailExportModal({ visible, onClose, profileId, lang }: Props) {
                 )}
 
                 <View style={s.infoRow}>
-                  <MaterialCommunityIcons name="file-pdf-box" size={16} color="#4A8B71" />
+                  <MaterialCommunityIcons name="file-pdf-box" size={16} color="#D14953" />
                   <Text style={s.infoText}>
                     {lang === 'de' ? 'Inkl. PDF-Anhang zum Ausdrucken' : 'Incl. allegato PDF da stampare'}
                   </Text>
@@ -184,7 +184,7 @@ const s = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: 26,
-    backgroundColor: '#F0FDF4',
+    backgroundColor: '#FEF2F2',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -271,7 +271,7 @@ const s = StyleSheet.create({
   successTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#16A34A',
+    color: '#B91C1C',
     marginTop: 12,
     marginBottom: 6,
   },

@@ -11,7 +11,7 @@ interface Props { lang: string; }
 const BAR_HEIGHT = 80;
 
 function barColor(s: number): string {
-  if (s >= 71) return '#22C55E';
+  if (s >= 71) return '#DC2626';
   if (s >= 41) return '#EAB308';
   return '#EF4444';
 }
@@ -58,9 +58,9 @@ export function ScoreHistoryChart({ lang }: Props) {
             <MaterialCommunityIcons
               name={improving ? 'trending-up' : 'trending-down'}
               size={14}
-              color={improving ? '#16A34A' : '#DC2626'}
+              color={improving ? '#B91C1C' : '#DC2626'}
             />
-            <Text style={[styles.badgeText, { color: improving ? '#16A34A' : '#DC2626' }]}>
+            <Text style={[styles.badgeText, { color: improving ? '#B91C1C' : '#DC2626' }]}>
               {improving ? '+' : ''}{diff} {lang === 'de' ? 'Pkt' : 'Pts'}
             </Text>
           </View>
@@ -77,7 +77,7 @@ export function ScoreHistoryChart({ lang }: Props) {
           </View>
           <View style={styles.refLine}>
             <Text style={styles.refLabel}>70</Text>
-            <View style={[styles.refDash, { borderColor: '#22C55E40' }]} />
+            <View style={[styles.refDash, { borderColor: '#DC262640' }]} />
           </View>
           <View style={styles.refLine}>
             <Text style={styles.refLabel}>40</Text>
@@ -117,7 +117,7 @@ export function ScoreHistoryChart({ lang }: Props) {
       {/* Legend */}
       <View style={styles.legend}>
         {[
-          { c: '#22C55E', t: lang === 'de' ? '71-100 Gut' : '71-100 Buono' },
+          { c: '#DC2626', t: lang === 'de' ? '71-100 Gut' : '71-100 Buono' },
           { c: '#EAB308', t: lang === 'de' ? '41-70 Mittel' : '41-70 Medio' },
           { c: '#EF4444', t: lang === 'de' ? '0-40 Niedrig' : '0-40 Basso' },
         ].map(z => (

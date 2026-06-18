@@ -39,7 +39,7 @@ const DEFAULT_BRAND: Brand = {
   tagline_it: 'Il tuo coach IA della salute',
   tagline_en: 'Your AI health coach',
   logo_url: '',
-  primary_color: '#2E7D52',
+  primary_color: '#C2272F',
   is_active: true,
   is_default: true,
 };

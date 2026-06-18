@@ -161,7 +161,7 @@ const st = StyleSheet.create({
   cardTitle: { fontSize: 12, fontWeight: '700', color: '#1F2937', lineHeight: 15 },
   cardDesc: { fontSize: 10, color: '#6B7280', marginTop: 2 },
   cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 },
-  price: { fontSize: 12, fontWeight: '900', color: '#2E7D52' },
+  price: { fontSize: 12, fontWeight: '900', color: '#C2272F' },
   ctaPill: { flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: '#7C3AED', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999 },
   ctaPillText: { color: '#FFFFFF', fontSize: 10, fontWeight: '800' },
 });

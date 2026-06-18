@@ -79,10 +79,10 @@ export function RecipeRecommendations({ lang, onViewAll }: Props) {
     return (
       <View style={s.container}>
         <View style={s.headerRow}>
-          <MaterialCommunityIcons name="silverware-fork-knife" size={20} color="#4A8B71" />
+          <MaterialCommunityIcons name="silverware-fork-knife" size={20} color="#D14953" />
           <Text style={s.title}>{tx.title}</Text>
         </View>
-        <ActivityIndicator testID="recommendations-loading" color="#4A8B71" style={{ padding: 20 }} />
+        <ActivityIndicator testID="recommendations-loading" color="#D14953" style={{ padding: 20 }} />
       </View>
     );
   }
@@ -92,7 +92,7 @@ export function RecipeRecommendations({ lang, onViewAll }: Props) {
   return (
     <View style={s.container} testID="recipe-recommendations">
       <View style={s.headerRow}>
-        <MaterialCommunityIcons name="silverware-fork-knife" size={20} color="#4A8B71" />
+        <MaterialCommunityIcons name="silverware-fork-knife" size={20} color="#D14953" />
         <Text style={s.title}>{tx.title}</Text>
       </View>
       <Text style={s.subtitle}>{tx.sub}</Text>
@@ -113,7 +113,7 @@ export function RecipeRecommendations({ lang, onViewAll }: Props) {
             {/* Reason Badge */}
             {reasonLabel ? (
               <View style={s.reasonBadge}>
-                <MaterialCommunityIcons name="lightbulb-on-outline" size={12} color="#4A8B71" />
+                <MaterialCommunityIcons name="lightbulb-on-outline" size={12} color="#D14953" />
                 <Text style={s.reasonText}>{reasonLabel}</Text>
               </View>
             ) : null}
@@ -172,7 +172,7 @@ export function RecipeRecommendations({ lang, onViewAll }: Props) {
 
       <TouchableOpacity testID="view-all-recipes-btn" style={s.viewAllBtn} onPress={onViewAll}>
         <Text style={s.viewAllText}>{tx.viewAll}</Text>
-        <MaterialCommunityIcons name="arrow-right" size={16} color="#4A8B71" />
+        <MaterialCommunityIcons name="arrow-right" size={16} color="#D14953" />
       </TouchableOpacity>
     </View>
   );
@@ -190,10 +190,10 @@ const s = StyleSheet.create({
   },
   reasonBadge: {
     flexDirection: 'row', alignItems: 'center', gap: 4,
-    backgroundColor: '#E8F5E9', borderRadius: 8, paddingVertical: 3, paddingHorizontal: 8,
+    backgroundColor: '#FEE2E2', borderRadius: 8, paddingVertical: 3, paddingHorizontal: 8,
     alignSelf: 'flex-start', marginBottom: 8,
   },
-  reasonText: { fontSize: 11, fontWeight: '700', color: '#4A8B71' },
+  reasonText: { fontSize: 11, fontWeight: '700', color: '#D14953' },
 
   cardHeader: { flexDirection: 'row', alignItems: 'center' },
   recipeTitle: { fontSize: 15, fontWeight: '700', color: '#1A2D26' },
@@ -207,17 +207,17 @@ const s = StyleSheet.create({
 
   expandedSection: { marginTop: 12, borderTopWidth: 1, borderTopColor: '#F0F4F1', paddingTop: 12 },
   ingRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 3 },
-  ingDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: '#4A8B71' },
+  ingDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: '#D14953' },
   ingText: { fontSize: 13, color: '#1A2D26', flex: 1 },
 
   stepRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: 6 },
-  stepNum: { width: 22, height: 22, borderRadius: 11, backgroundColor: '#4A8B71', justifyContent: 'center', alignItems: 'center' },
+  stepNum: { width: 22, height: 22, borderRadius: 11, backgroundColor: '#D14953', justifyContent: 'center', alignItems: 'center' },
   stepNumTxt: { fontSize: 11, fontWeight: '700', color: '#FFF' },
   stepText: { fontSize: 13, color: '#1A2D26', flex: 1, lineHeight: 18 },
 
   viewAllBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
-    paddingVertical: 10, borderRadius: 12, backgroundColor: '#E8F5E9', marginTop: 4,
+    paddingVertical: 10, borderRadius: 12, backgroundColor: '#FEE2E2', marginTop: 4,
   },
-  viewAllText: { fontSize: 14, fontWeight: '600', color: '#4A8B71' },
+  viewAllText: { fontSize: 14, fontWeight: '600', color: '#D14953' },
 });

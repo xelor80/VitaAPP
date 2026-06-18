@@ -242,7 +242,7 @@ export default function WaterTrackingScreen() {
     <SafeAreaView style={st.container}>
       <ScrollView contentContainerStyle={st.scroll} showsVerticalScrollIndicator={false}>
         {/* Header */}
-        <LinearGradient colors={['#1B6B45', '#2E9E6B', '#43C68A']} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} style={st.header}>
+        <LinearGradient colors={['#8B1A20', '#DC3540', '#EF4456']} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} style={st.header}>
           {canGoBack && (
             <TouchableOpacity onPress={() => router.back()} style={st.backBtn}>
               <MaterialCommunityIcons name="arrow-left" size={22} color="#FFF" />
@@ -404,7 +404,7 @@ export default function WaterTrackingScreen() {
                   return (
                     <View key={i} style={st.barCol}>
                       <View style={st.barBg}>
-                        <View style={[st.barFill, { height: `${barPct}%` as any, backgroundColor: barPct >= 100 ? '#2E9E6B' : '#5BC0EB' }]} />
+                        <View style={[st.barFill, { height: `${barPct}%` as any, backgroundColor: barPct >= 100 ? '#DC3540' : '#5BC0EB' }]} />
                       </View>
                       <Text style={st.barLabel}>{dayLabel}</Text>
                     </View>
@@ -430,8 +430,8 @@ export default function WaterTrackingScreen() {
             <Switch
               value={reminderEnabled}
               onValueChange={(v) => { setReminderEnabled(v); setReminderDirty(true); }}
-              trackColor={{ false: '#D1D5DB', true: '#86EFAC' }}
-              thumbColor={reminderEnabled ? '#2E9E6B' : '#9CA3AF'}
+              trackColor={{ false: '#D1D5DB', true: '#FCA5A5' }}
+              thumbColor={reminderEnabled ? '#DC3540' : '#9CA3AF'}
               testID="water-reminder-toggle"
             />
           </View>
@@ -526,7 +526,7 @@ export default function WaterTrackingScreen() {
                   onPress={() => sendTestNotification(lang)}
                   testID="test-water-reminder-btn"
                 >
-                  <MaterialCommunityIcons name="bell-ring" size={16} color="#2E9E6B" />
+                  <MaterialCommunityIcons name="bell-ring" size={16} color="#DC3540" />
                   <Text style={st.testReminderBtnText}>
                     {lang === 'de' ? 'Testen' : 'Test'}
                   </Text>
@@ -591,7 +591,7 @@ const st = StyleSheet.create({
   // Feedback toast
   toast: {
     flexDirection: 'row', alignItems: 'center', gap: 8,
-    backgroundColor: '#2E9E6B', marginHorizontal: 32, borderRadius: 24,
+    backgroundColor: '#DC3540', marginHorizontal: 32, borderRadius: 24,
     paddingVertical: 10, paddingHorizontal: 18, alignSelf: 'center', marginBottom: 8,
   },
   toastText: { color: '#FFF', fontSize: 14, fontWeight: '600' },
@@ -600,7 +600,7 @@ const st = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: '#E8F5E9',
+    backgroundColor: '#FEE2E2',
     marginHorizontal: 20,
     borderRadius: 14,
     padding: 14,
@@ -615,7 +615,7 @@ const st = StyleSheet.create({
   veroRight: {
     flex: 1,
   },
-  veroText: { fontSize: 13, color: '#2E7D52', lineHeight: 18, fontWeight: '500' },
+  veroText: { fontSize: 13, color: '#C2272F', lineHeight: 18, fontWeight: '500' },
   veroHint: { fontSize: 10, color: '#81C784', marginTop: 4, fontStyle: 'italic' },
   // Tip card
   tipCard: {
@@ -694,7 +694,7 @@ const st = StyleSheet.create({
   barLabel: { fontSize: 10, color: '#9CA3AF', marginTop: 4 },
   // Empty
   emptyTitle: { fontSize: 18, fontWeight: '700', color: '#1A2E35', marginTop: 16 },
-  primaryBtn: { backgroundColor: '#2E7D52', paddingHorizontal: 24, paddingVertical: 14, borderRadius: 30, marginTop: 20 },
+  primaryBtn: { backgroundColor: '#C2272F', paddingHorizontal: 24, paddingVertical: 14, borderRadius: 30, marginTop: 20 },
   primaryBtnText: { fontSize: 16, fontWeight: '700', color: '#FFF' },
   // Modal
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'center', alignItems: 'center' },
@@ -726,9 +726,9 @@ const st = StyleSheet.create({
     flex: 1, paddingVertical: 12, borderRadius: 12, backgroundColor: '#F3F4F6',
     alignItems: 'center', borderWidth: 1.5, borderColor: '#E5E7EB',
   },
-  intervalBtnActive: { backgroundColor: '#E8F5E9', borderColor: '#2E9E6B' },
+  intervalBtnActive: { backgroundColor: '#FEE2E2', borderColor: '#DC3540' },
   intervalBtnText: { fontSize: 14, fontWeight: '600', color: '#6B7280' },
-  intervalBtnTextActive: { color: '#2E9E6B', fontWeight: '700' },
+  intervalBtnTextActive: { color: '#DC3540', fontWeight: '700' },
   timeRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   timeInputWrap: {
     flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8,
@@ -745,13 +745,13 @@ const st = StyleSheet.create({
   reminderActions: { flexDirection: 'row', gap: 10, marginTop: 14 },
   saveReminderBtn: {
     flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
-    backgroundColor: '#2E9E6B', borderRadius: 12, paddingVertical: 12,
+    backgroundColor: '#DC3540', borderRadius: 12, paddingVertical: 12,
   },
   saveReminderBtnDisabled: { opacity: 0.5 },
   saveReminderBtnText: { fontSize: 14, fontWeight: '700', color: '#FFF' },
   testReminderBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
-    borderWidth: 1.5, borderColor: '#2E9E6B', borderRadius: 12, paddingVertical: 12, paddingHorizontal: 16,
+    borderWidth: 1.5, borderColor: '#DC3540', borderRadius: 12, paddingVertical: 12, paddingHorizontal: 16,
   },
-  testReminderBtnText: { fontSize: 14, fontWeight: '600', color: '#2E9E6B' },
+  testReminderBtnText: { fontSize: 14, fontWeight: '600', color: '#DC3540' },
 });

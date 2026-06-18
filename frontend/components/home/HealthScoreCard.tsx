@@ -12,7 +12,7 @@ const SIZE = (RADIUS + STROKE) * 2;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 function scoreColor(s: number): string {
-  if (s >= 71) return '#22C55E';
+  if (s >= 71) return '#DC2626';
   if (s >= 41) return '#EAB308';
   return '#EF4444';
 }
@@ -44,7 +44,7 @@ function catLabel(key: string, lang: string): string {
 }
 
 function catStatus(val: number, lang: string): { text: string; color: string } {
-  if (val >= 70) return { text: lang === 'de' ? 'Gut' : 'Buono', color: '#22C55E' };
+  if (val >= 70) return { text: lang === 'de' ? 'Gut' : 'Buono', color: '#DC2626' };
   if (val >= 40) return { text: lang === 'de' ? 'Mittel' : 'Medio', color: '#EAB308' };
   return { text: lang === 'de' ? 'Niedrig' : 'Basso', color: '#EF4444' };
 }
@@ -106,7 +106,7 @@ export function HealthScoreCard({ lang, onPress }: Props) {
           <Svg width={SIZE} height={SIZE}>
             <Defs>
               <LinearGradient id="scoreGrad" x1="0" y1="0" x2="1" y2="1">
-                <Stop offset="0%" stopColor={score >= 41 ? '#22C55E' : '#EF4444'} />
+                <Stop offset="0%" stopColor={score >= 41 ? '#DC2626' : '#EF4444'} />
                 <Stop offset="100%" stopColor={color} />
               </LinearGradient>
             </Defs>
@@ -165,9 +165,9 @@ export function HealthScoreCard({ lang, onPress }: Props) {
             <MaterialCommunityIcons
               name={data.trend_change >= 0 ? 'trending-up' : 'trending-down'}
               size={20}
-              color={data.trend_change >= 0 ? '#22C55E' : '#EF4444'}
+              color={data.trend_change >= 0 ? '#DC2626' : '#EF4444'}
             />
-            <Text style={[styles.trendText, { color: data.trend_change >= 0 ? '#22C55E' : '#EF4444' }]}>
+            <Text style={[styles.trendText, { color: data.trend_change >= 0 ? '#DC2626' : '#EF4444' }]}>
               {data.trend_change >= 0 ? '+' : ''}{data.trend_change}
             </Text>
           </View>

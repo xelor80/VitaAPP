@@ -23,11 +23,11 @@ const TIMING_META: Record<string, { icon: string; gradient: string[]; accent: st
   noon: { icon: 'white-balance-sunny', gradient: ['#FEE2E2', '#FDE8E8'], accent: '#DC2626' },
   evening: { icon: 'weather-night', gradient: ['#EDE9FE', '#E8E0FD'], accent: '#7C3AED' },
   all_day: { icon: 'clock-outline', gradient: ['#DBEAFE', '#E0EDFF'], accent: '#2563EB' },
-  flexible: { icon: 'tune-vertical', gradient: ['#F0FDF4', '#E8F5E9'], accent: '#059669' },
+  flexible: { icon: 'tune-vertical', gradient: ['#FEF2F2', '#FEE2E2'], accent: '#059669' },
 };
 
 const TYPE_COLORS: Record<string, string> = {
-  supplement: '#2E7D52',
+  supplement: '#C2272F',
   medication: '#3B82F6',
   water: '#0EA5E9',
   stress: '#8B5CF6',
@@ -131,7 +131,7 @@ export default function MyDayScreen() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ supplement_id: task.related_id, timing: task.timing }),
       }).catch(() => {});
-      showActionToast(task.name, 5, 'pill', '#2E7D52');
+      showActionToast(task.name, 5, 'pill', '#C2272F');
     } else if (task.type === 'medication') {
       fetch(`${API_URL}/api/medications/${profileId}/${task.related_id}/check-in`, {
         method: 'POST',
@@ -147,7 +147,7 @@ export default function MyDayScreen() {
 
   if (loading) return (
     <SafeAreaView style={s.safe}>
-      <View style={s.center}><ActivityIndicator size="large" color="#2E7D52" /></View>
+      <View style={s.center}><ActivityIndicator size="large" color="#C2272F" /></View>
     </SafeAreaView>
   );
 
@@ -217,7 +217,7 @@ export default function MyDayScreen() {
               <View style={[s.sectionHeader, { backgroundColor: meta.gradient[0] }]}>
                 <MaterialCommunityIcons name={meta.icon as any} size={18} color={meta.accent} />
                 <Text style={[s.sectionLabel, { color: meta.accent }]}>{section.label}</Text>
-                {allDone && <MaterialCommunityIcons name="check-circle" size={18} color="#22C55E" />}
+                {allDone && <MaterialCommunityIcons name="check-circle" size={18} color="#DC2626" />}
               </View>
               {section.tasks.map((task: any) => (
                 <TouchableOpacity
@@ -292,9 +292,9 @@ export default function MyDayScreen() {
               activeOpacity={0.7}
               onPress={() => router.push('/weekly-report' as any)}
             >
-              <MaterialCommunityIcons name="chart-bar" size={16} color="#2E7D52" />
+              <MaterialCommunityIcons name="chart-bar" size={16} color="#C2272F" />
               <Text style={s.weekReportBtnText}>{t('Wochenbericht ansehen', 'Vedi report settimanale')}</Text>
-              <MaterialCommunityIcons name="chevron-right" size={16} color="#2E7D52" />
+              <MaterialCommunityIcons name="chevron-right" size={16} color="#C2272F" />
             </TouchableOpacity>
           </Animated.View>
         )}
@@ -314,7 +314,7 @@ export default function MyDayScreen() {
               </View>
               <Text style={s.modalLabel}>LEVEL UP!</Text>
               <Animated.View entering={ZoomIn.delay(200).duration(600).springify()} style={s.modalIconCircle}>
-                <MaterialCommunityIcons name={(levelUp?.icon || 'star') as any} size={48} color="#2E7D52" />
+                <MaterialCommunityIcons name={(levelUp?.icon || 'star') as any} size={48} color="#C2272F" />
               </Animated.View>
               <Animated.Text entering={FadeInUp.delay(350).duration(400)} style={s.modalLevel}>
                 Level {levelUp?.level}
@@ -346,7 +346,7 @@ const s = StyleSheet.create({
   scroll: { flex: 1 },
   content: { paddingBottom: 16 },
   emptyTitle: { fontSize: 18, fontWeight: '700', color: '#374151', marginTop: 16 },
-  ctaBtn: { backgroundColor: '#2E7D52', paddingHorizontal: 24, paddingVertical: 14, borderRadius: 30, marginTop: 20 },
+  ctaBtn: { backgroundColor: '#C2272F', paddingHorizontal: 24, paddingVertical: 14, borderRadius: 30, marginTop: 20 },
   ctaBtnText: { fontSize: 16, fontWeight: '700', color: '#fff' },
 
   // Header
@@ -357,7 +357,7 @@ const s = StyleSheet.create({
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
   },
-  headerTitle: { fontSize: 26, fontWeight: '800', color: '#E8F5E9', letterSpacing: -0.5 },
+  headerTitle: { fontSize: 26, fontWeight: '800', color: '#FEE2E2', letterSpacing: -0.5 },
   headerDate: { fontSize: 14, color: 'rgba(255,255,255,0.55)', marginTop: 2 },
   progressWrap: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 18 },
   progressBar: { flex: 1, height: 8, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 4, overflow: 'hidden' },
@@ -376,7 +376,7 @@ const s = StyleSheet.create({
   // VERO
   veroCard: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
-    marginHorizontal: 16, marginTop: 16, backgroundColor: '#F0FDF4',
+    marginHorizontal: 16, marginTop: 16, backgroundColor: '#FEF2F2',
     borderRadius: 14, padding: 14, borderWidth: 1, borderColor: '#D1FAE5',
   },
   veroImg: { width: 40, height: 48 },
@@ -402,7 +402,7 @@ const s = StyleSheet.create({
     width: 24, height: 24, borderRadius: 12, borderWidth: 2,
     justifyContent: 'center', alignItems: 'center',
   },
-  checkboxDone: { backgroundColor: '#22C55E', borderColor: '#22C55E' },
+  checkboxDone: { backgroundColor: '#DC2626', borderColor: '#DC2626' },
   taskIcon: { width: 34, height: 34, borderRadius: 17, justifyContent: 'center', alignItems: 'center' },
   taskContent: { flex: 1 },
   taskName: { fontSize: 14, fontWeight: '600', color: '#1F2937' },
@@ -425,17 +425,17 @@ const s = StyleSheet.create({
     width: 28, height: 28, borderRadius: 14, backgroundColor: '#F3F4F6',
     justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: '#E5E7EB',
   },
-  weekDotFull: { backgroundColor: '#22C55E', borderColor: '#22C55E' },
+  weekDotFull: { backgroundColor: '#DC2626', borderColor: '#DC2626' },
   weekDotPartial: { backgroundColor: '#FEF3C7', borderColor: '#F59E0B' },
-  weekDotToday: { borderColor: '#2E7D52', borderWidth: 2.5 },
+  weekDotToday: { borderColor: '#C2272F', borderWidth: 2.5 },
   weekDayLabel: { fontSize: 11, fontWeight: '600', color: '#9CA3AF' },
-  weekDayLabelToday: { color: '#2E7D52', fontWeight: '700' },
+  weekDayLabelToday: { color: '#C2272F', fontWeight: '700' },
   weekReportBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
     marginTop: 14, paddingVertical: 10, borderRadius: 10,
-    backgroundColor: '#F0FDF4', borderWidth: 1, borderColor: '#D1FAE5',
+    backgroundColor: '#FEF2F2', borderWidth: 1, borderColor: '#D1FAE5',
   },
-  weekReportBtnText: { fontSize: 13, fontWeight: '600', color: '#2E7D52' },
+  weekReportBtnText: { fontSize: 13, fontWeight: '600', color: '#C2272F' },
 
   // Level-Up Modal
   modalOverlay: {

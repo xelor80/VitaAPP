@@ -42,9 +42,9 @@ export function HomeHeader({ lang, setLang, onLangChange, firstName }: HomeHeade
               testID="brand-logo-image"
             />
           ) : (
-            <MaterialCommunityIcons name="leaf" size={28} color={brand.primary_color || '#4A8B71'} />
+            <MaterialCommunityIcons name="leaf" size={28} color={brand.primary_color || '#D14953'} />
           )}
-          <Text style={[styles.logoText, { color: brand.primary_color || '#4A8B71' }]} testID="brand-app-name">
+          <Text style={[styles.logoText, { color: brand.primary_color || '#D14953' }]} testID="brand-app-name">
             {appName(lang)}
           </Text>
         </View>

@@ -30,7 +30,7 @@ const SYMPTOM_CATEGORIES = [
 ];
 
 function getSeverityColor(val: number): string {
-  if (val <= 3) return '#22C55E';
+  if (val <= 3) return '#DC2626';
   if (val <= 6) return '#F59E0B';
   return '#EF4444';
 }
@@ -128,7 +128,7 @@ export function SymptomTracker({
   };
 
   const trendColor = !symptomTrend ? '#6B7280'
-    : symptomTrend.direction === 'improving' ? '#22C55E'
+    : symptomTrend.direction === 'improving' ? '#DC2626'
     : symptomTrend.direction === 'worsening' ? '#EF4444' : '#6B7280';
   const trendIcon = !symptomTrend ? 'minus'
     : symptomTrend.direction === 'improving' ? 'trending-down'
@@ -170,7 +170,7 @@ export function SymptomTracker({
               color: (op = 1) => `rgba(74,139,113,${op})`,
               labelColor: () => '#8FA39B',
               style: { borderRadius: 12 },
-              propsForDots: { r: '4', strokeWidth: '2', stroke: '#4A8B71' }
+              propsForDots: { r: '4', strokeWidth: '2', stroke: '#D14953' }
             }}
             bezier
             style={{ borderRadius: 12 }}
@@ -181,7 +181,7 @@ export function SymptomTracker({
       {/* Today's Rating Card */}
       <View style={st.ratingCard}>
         <View style={st.ratingCardHeader}>
-          <MaterialCommunityIcons name="calendar-today" size={18} color="#4A8B71" />
+          <MaterialCommunityIcons name="calendar-today" size={18} color="#D14953" />
           <Text style={st.ratingCardTitle}>
             {lang === 'de' ? `Heutige Bewertung` : `Valutazione di oggi`}
           </Text>
@@ -192,7 +192,7 @@ export function SymptomTracker({
         {todaySubmitted ? (
           <View>
             <View style={st.lockedBanner}>
-              <MaterialCommunityIcons name="check-circle" size={24} color="#10B981" />
+              <MaterialCommunityIcons name="check-circle" size={24} color="#DC2626" />
               <View style={{ flex: 1 }}>
                 <Text style={st.lockedTitle}>
                   {lang === 'de' ? 'Bereits fuer heute eingetragen' : 'Gia inserito per oggi'}
@@ -284,7 +284,7 @@ export function SymptomTracker({
                   >
                     <MaterialCommunityIcons
                       name={showChart === cat.id ? 'chart-line' : 'chart-line-variant'}
-                      size={14} color="#4A8B71"
+                      size={14} color="#D14953"
                     />
                   </TouchableOpacity>
                 )}
@@ -396,17 +396,17 @@ const st = StyleSheet.create({
 
   saveBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    gap: 8, backgroundColor: '#4A8B71', borderRadius: 12,
+    gap: 8, backgroundColor: '#D14953', borderRadius: 12,
     paddingVertical: 14, marginTop: 8,
   },
   saveBtnText: { color: '#FFF', fontSize: 15, fontWeight: '600' },
 
   lockedBanner: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
-    backgroundColor: '#F0FDF4', borderRadius: 12, padding: 14, marginBottom: 16,
+    backgroundColor: '#FEF2F2', borderRadius: 12, padding: 14, marginBottom: 16,
     borderWidth: 1, borderColor: '#D1FAE5',
   },
-  lockedTitle: { fontSize: 15, fontWeight: '700', color: '#10B981' },
+  lockedTitle: { fontSize: 15, fontWeight: '700', color: '#DC2626' },
   lockedSubtitle: { fontSize: 12, color: '#5C7A6F', marginTop: 2 },
   lockedOverall: { marginBottom: 12, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: '#F0F4F2' },
   lockedRatings: { gap: 8 },

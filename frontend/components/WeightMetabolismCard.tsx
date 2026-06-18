@@ -59,7 +59,7 @@ export function WeightMetabolismCard({ profileId }: { profileId: string }) {
     >
       <View style={st.headerRow}>
         <View style={st.iconWrap}>
-          <MaterialCommunityIcons name="scale-balance" size={22} color="#2E7D52" />
+          <MaterialCommunityIcons name="scale-balance" size={22} color="#C2272F" />
         </View>
         <View style={{ flex: 1 }}>
           <Text style={st.title}>{tx(lang, { de: 'Gewicht & Stoffwechsel', it: 'Peso & metabolismo', en: 'Weight & metabolism' })}</Text>
@@ -73,7 +73,7 @@ export function WeightMetabolismCard({ profileId }: { profileId: string }) {
           <Text style={st.metricLabel}>{tx(lang, { de: 'Kalorien', it: 'Calorie', en: 'Calories' })}</Text>
           <Text style={st.metricValue}>{data.calories} / {data.calories_goal}</Text>
           <View style={st.bar}>
-            <View style={[st.barFill, { width: `${Math.min(100, calsPct)}%`, backgroundColor: '#2E7D52' }]} />
+            <View style={[st.barFill, { width: `${Math.min(100, calsPct)}%`, backgroundColor: '#C2272F' }]} />
           </View>
         </View>
         <View style={st.metric}>
@@ -90,9 +90,9 @@ export function WeightMetabolismCard({ profileId }: { profileId: string }) {
           <MaterialCommunityIcons
             name={data.schedule_phase === 'eating' ? 'silverware-fork-knife' : 'timer-sand'}
             size={14}
-            color={data.schedule_phase === 'eating' ? '#2E7D52' : '#6D28D9'}
+            color={data.schedule_phase === 'eating' ? '#C2272F' : '#6D28D9'}
           />
-          <Text style={[st.fastText, { color: data.schedule_phase === 'eating' ? '#2E7D52' : '#6D28D9' }]}>
+          <Text style={[st.fastText, { color: data.schedule_phase === 'eating' ? '#C2272F' : '#6D28D9' }]}>
             {data.schedule_active ? (
               data.schedule_phase === 'eating'
                 ? `${tx(lang, { de: 'Essensfenster', it: 'Finestra', en: 'Eating' })} · ${fmtTime(data.schedule_remaining_seconds || 0)}`
@@ -129,7 +129,7 @@ const st = StyleSheet.create({
   },
   headerRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   iconWrap: {
-    width: 44, height: 44, borderRadius: 22, backgroundColor: '#E8F5E9',
+    width: 44, height: 44, borderRadius: 22, backgroundColor: '#FEE2E2',
     alignItems: 'center', justifyContent: 'center',
   },
   title: { fontSize: 14, fontWeight: '700', color: '#1F2937' },
@@ -139,12 +139,12 @@ const st = StyleSheet.create({
   metric: { flex: 1 },
   metricLabel: { fontSize: 11, color: '#9CA3AF', fontWeight: '600' },
   metricValue: { fontSize: 13, fontWeight: '700', color: '#1F2937', marginTop: 2 },
-  bar: { height: 5, backgroundColor: '#F1F5F2', borderRadius: 3, marginTop: 6, overflow: 'hidden' },
+  bar: { height: 5, backgroundColor: '#FDF4F4', borderRadius: 3, marginTop: 6, overflow: 'hidden' },
   barFill: { height: '100%', borderRadius: 3 },
 
   fastBanner: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
-    marginTop: 12, paddingTop: 10, borderTopWidth: 1, borderTopColor: '#F1F5F2',
+    marginTop: 12, paddingTop: 10, borderTopWidth: 1, borderTopColor: '#FDF4F4',
   },
   fastText: { fontSize: 12, color: '#6D28D9', fontWeight: '600' },
   hintRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 6 },

@@ -89,7 +89,7 @@ export function SmartProductBlock({ context, profileId, limit = 2, testIdPrefix 
             {p.image_url ? (
               <Image source={{ uri: p.image_url }} style={st.thumb} />
             ) : (
-              <MaterialCommunityIcons name="leaf" size={22} color="#2E7D52" />
+              <MaterialCommunityIcons name="leaf" size={22} color="#C2272F" />
             )}
           </View>
           <View style={{ flex: 1 }}>
@@ -141,7 +141,7 @@ const st = StyleSheet.create({
     padding: 12,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: '#F1F5F2',
+    borderColor: '#FDF4F4',
     gap: 12,
     ...Platform.select({
       ios: { shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 4, shadowOffset: { width: 0, height: 1 } },
@@ -151,7 +151,7 @@ const st = StyleSheet.create({
   },
   iconWrap: {
     width: 44, height: 44, borderRadius: 22,
-    backgroundColor: '#E8F5E9',
+    backgroundColor: '#FEE2E2',
     alignItems: 'center', justifyContent: 'center',
   },
   thumb: { width: 40, height: 40, borderRadius: 8 },

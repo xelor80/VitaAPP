@@ -14,7 +14,7 @@ const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 const VERO = require('../assets/images/vero-hallo.png');
 
 const CAT_COLORS: Record<string, string> = {
-  breathing: '#3B82F6', mini: '#8B5CF6', sleep: '#6366F1', focus: '#F59E0B', movement: '#10B981',
+  breathing: '#3B82F6', mini: '#8B5CF6', sleep: '#6366F1', focus: '#F59E0B', movement: '#DC2626',
 };
 const CAT_ICONS: Record<string, string> = {
   breathing: 'weather-windy', mini: 'timer-sand', sleep: 'moon-waning-crescent', focus: 'target', movement: 'human-handsup',
@@ -78,7 +78,7 @@ export default function StressScreen() {
   const quickExercises = exercises.filter(e => e.duration_seconds <= 180);
 
   if (loading) return (
-    <SafeAreaView style={s.safe}><View style={s.center}><ActivityIndicator size="large" color="#2E7D52" /></View></SafeAreaView>
+    <SafeAreaView style={s.safe}><View style={s.center}><ActivityIndicator size="large" color="#C2272F" /></View></SafeAreaView>
   );
 
   return (
@@ -115,13 +115,13 @@ export default function StressScreen() {
               </View>
             </View>
             <TouchableOpacity
-              style={[s.recExercise, { borderLeftColor: CAT_COLORS[recommendation.category] || '#2E7D52' }]}
+              style={[s.recExercise, { borderLeftColor: CAT_COLORS[recommendation.category] || '#C2272F' }]}
               onPress={() => startExercise(recommendation)}
               activeOpacity={0.8}
             >
               <MaterialCommunityIcons
                 name={(CAT_ICONS[recommendation.category] || 'meditation') as any}
-                size={24} color={CAT_COLORS[recommendation.category] || '#2E7D52'}
+                size={24} color={CAT_COLORS[recommendation.category] || '#C2272F'}
               />
               <View style={{ flex: 1 }}>
                 <Text style={s.recName}>{recommendation.name}</Text>
@@ -184,7 +184,7 @@ export default function StressScreen() {
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.quickRow}>
               {quickExercises.slice(0, 6).map(ex => (
                 <TouchableOpacity key={ex.id} style={s.quickCard} onPress={() => startExercise(ex)} activeOpacity={0.8}>
-                  <View style={[s.quickIcon, { backgroundColor: (CAT_COLORS[ex.category] || '#2E7D52') + '14' }]}>
+                  <View style={[s.quickIcon, { backgroundColor: (CAT_COLORS[ex.category] || '#C2272F') + '14' }]}>
                     <MaterialCommunityIcons name={(CAT_ICONS[ex.category] || 'meditation') as any} size={22} color={CAT_COLORS[ex.category]} />
                   </View>
                   <Text style={s.quickName} numberOfLines={2}>{ex.name}</Text>
@@ -204,7 +204,7 @@ export default function StressScreen() {
             key={ex.id} style={s.exCard} onPress={() => startExercise(ex)} activeOpacity={0.8}
             testID={`exercise-card-${ex.id}`}
           >
-            <View style={[s.exIcon, { backgroundColor: (CAT_COLORS[ex.category] || '#2E7D52') + '14' }]}>
+            <View style={[s.exIcon, { backgroundColor: (CAT_COLORS[ex.category] || '#C2272F') + '14' }]}>
               <MaterialCommunityIcons name={(CAT_ICONS[ex.category] || 'meditation') as any} size={24} color={CAT_COLORS[ex.category]} />
             </View>
             <View style={s.exInfo}>
@@ -253,7 +253,7 @@ const s = StyleSheet.create({
   recExercise: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#F9FAFB', borderRadius: 12, padding: 14, borderLeftWidth: 3 },
   recName: { fontSize: 15, fontWeight: '600', color: '#1F2937' },
   recMeta: { fontSize: 12, color: '#6B7280', marginTop: 2 },
-  playBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#2E7D52', justifyContent: 'center', alignItems: 'center' },
+  playBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#C2272F', justifyContent: 'center', alignItems: 'center' },
   // Stats
   statsRow: { flexDirection: 'row', marginHorizontal: 20, marginTop: 16, gap: 8 },
   statCard: { flex: 1, backgroundColor: '#fff', borderRadius: 12, padding: 12, alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 2, elevation: 1 },
@@ -263,7 +263,7 @@ const s = StyleSheet.create({
   catScroll: { marginTop: 20 },
   catRow: { paddingHorizontal: 20, gap: 8 },
   catChip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, backgroundColor: '#fff', borderWidth: 1, borderColor: '#E5E7EB' },
-  catChipActive: { backgroundColor: '#2E7D52', borderColor: '#2E7D52' },
+  catChipActive: { backgroundColor: '#C2272F', borderColor: '#C2272F' },
   catChipText: { fontSize: 13, fontWeight: '500', color: '#6B7280' },
   catChipTextActive: { color: '#fff' },
   // Quick

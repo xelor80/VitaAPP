@@ -71,7 +71,7 @@ export default function AdminScreen() {
           startInLoadingState
           renderLoading={() => (
             <View style={s.webviewLoading}>
-              <ActivityIndicator size="large" color="#4A8B71" />
+              <ActivityIndicator size="large" color="#D14953" />
             </View>
           )}
         />
@@ -88,7 +88,7 @@ export default function AdminScreen() {
         <Text style={s.headerTitle}>Admin</Text>
       </View>
       <View style={s.loginBox}>
-        <MaterialCommunityIcons name="shield-lock-outline" size={32} color="#4A8B71" />
+        <MaterialCommunityIcons name="shield-lock-outline" size={32} color="#D14953" />
         <TextInput
           style={s.input}
           placeholder="Passwort"
@@ -130,7 +130,7 @@ const s = StyleSheet.create({
   },
   error: { color: '#EF4444', fontSize: 13 },
   loginBtn: {
-    backgroundColor: '#4A8B71', borderRadius: 10,
+    backgroundColor: '#D14953', borderRadius: 10,
     paddingVertical: 12, paddingHorizontal: 32,
   },
   loginBtnText: { color: '#FFF', fontWeight: '700', fontSize: 15 },

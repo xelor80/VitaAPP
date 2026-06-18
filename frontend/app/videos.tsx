@@ -83,7 +83,7 @@ export default function VideosScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#4A8B71" testID="loading-indicator" />
+          <ActivityIndicator size="large" color="#D14953" testID="loading-indicator" />
         </View>
       </SafeAreaView>
     );
@@ -143,7 +143,7 @@ export default function VideosScreen() {
                 <MaterialCommunityIcons
                   name={CATEGORY_ICONS[cat.category_id] || 'information'}
                   size={22}
-                  color="#4A8B71"
+                  color="#D14953"
                 />
               </View>
               <Text style={styles.categoryTitle}>
@@ -295,7 +295,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 10,
-    backgroundColor: '#E8F5E9',
+    backgroundColor: '#FEE2E2',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -307,7 +307,7 @@ const styles = StyleSheet.create({
     color: '#1A2D26',
   },
   categoryBadge: {
-    backgroundColor: '#E8F5E9',
+    backgroundColor: '#FEE2E2',
     borderRadius: 12,
     paddingHorizontal: 10,
     paddingVertical: 4,
@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
   categoryBadgeText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#4A8B71',
+    color: '#D14953',
   },
   videosList: {
     borderTopWidth: 1,

@@ -24,7 +24,7 @@ export function TrustBanner({ lang }: Props) {
 
   return (
     <View style={s.wrap} testID="trust-banner">
-      <MaterialCommunityIcons name="shield-check" size={16} color="#4A8B71" />
+      <MaterialCommunityIcons name="shield-check" size={16} color="#D14953" />
       <Text style={s.text}>
         {lang === 'de'
           ? `Ueber ${formatted} Gesundheitsanalysen durchgefuehrt`

@@ -122,7 +122,7 @@ export default function ProductComparisonScreen() {
     return (
       <SafeAreaView style={s.safe}>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <ActivityIndicator size="large" color="#4A8B71" />
+          <ActivityIndicator size="large" color="#D14953" />
         </View>
       </SafeAreaView>
     );
@@ -159,7 +159,7 @@ export default function ProductComparisonScreen() {
         {qualityInfo && (
           <View style={s.qualityCard}>
             <Text style={s.qualityTitle}>
-              <MaterialCommunityIcons name="shield-check" size={16} color="#4A8B71" />
+              <MaterialCommunityIcons name="shield-check" size={16} color="#D14953" />
               {'  '}{texts.quality}
             </Text>
             <View style={s.qualityGrid}>
@@ -216,7 +216,7 @@ export default function ProductComparisonScreen() {
               {/* Price & Rating Row */}
               <View style={s.metaRow}>
                 <View style={s.metaItem}>
-                  <MaterialCommunityIcons name="tag" size={14} color="#4A8B71" />
+                  <MaterialCommunityIcons name="tag" size={14} color="#D14953" />
                   <Text style={s.metaLabel}>{texts.price}</Text>
                   <Text style={s.metaValue}>{p.price}</Text>
                 </View>
@@ -270,7 +270,7 @@ export default function ProductComparisonScreen() {
 
               {/* Affiliate CTA */}
               <TouchableOpacity
-                style={[s.affiliateBtn, { backgroundColor: '#4A8B71' }]}
+                style={[s.affiliateBtn, { backgroundColor: '#D14953' }]}
                 onPress={() => p.affiliate_url && Linking.openURL(p.affiliate_url)}
                 testID={`affiliate-btn-${i}`}
               >
@@ -290,11 +290,11 @@ export default function ProductComparisonScreen() {
                 <MaterialCommunityIcons
                   name={selectedProductId === p.product_id ? 'check-circle' : 'circle-outline'}
                   size={20}
-                  color={selectedProductId === p.product_id ? '#FFF' : '#1B6B45'}
+                  color={selectedProductId === p.product_id ? '#FFF' : '#8B1A20'}
                 />
                 <Text style={[
                   s.selectBtnText,
-                  { color: selectedProductId === p.product_id ? '#FFF' : '#1B6B45' }
+                  { color: selectedProductId === p.product_id ? '#FFF' : '#8B1A20' }
                 ]}>
                   {selectedProductId === p.product_id
                     ? (txl(lang, { de: 'Mein Produkt', it: 'Il mio prodotto', en: 'Mein Produkt' }))
@@ -336,15 +336,15 @@ const s = StyleSheet.create({
   qualityCard: { backgroundColor: '#FFF', borderRadius: 14, padding: 16, marginBottom: 16 },
   qualityTitle: { fontSize: 15, fontWeight: '700', color: '#1A2D26', marginBottom: 12 },
   qualityGrid: { flexDirection: 'row', gap: 12, marginBottom: 10 },
-  qualityItem: { flex: 1, backgroundColor: '#F0FDF4', borderRadius: 10, padding: 10 },
+  qualityItem: { flex: 1, backgroundColor: '#FEF2F2', borderRadius: 10, padding: 10 },
   qualityLabel: { fontSize: 11, color: '#5C7A6F', marginBottom: 4 },
   qualityValue: { fontSize: 14, fontWeight: '600', color: '#1A2D26' },
   tipRow: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#FFFBEB', borderRadius: 8, padding: 8 },
   tipText: { fontSize: 12, color: '#92400E', flex: 1 },
 
   productCard: { backgroundColor: '#FFF', borderRadius: 14, padding: 16, marginBottom: 12, borderWidth: 2, borderColor: 'transparent' },
-  productCardSelected: { borderColor: '#1B6B45', backgroundColor: '#FAFFF9' },
-  selectedBanner: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#1B6B45', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6, marginBottom: 10, alignSelf: 'flex-start' },
+  productCardSelected: { borderColor: '#8B1A20', backgroundColor: '#FAFFF9' },
+  selectedBanner: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#8B1A20', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6, marginBottom: 10, alignSelf: 'flex-start' },
   selectedBannerText: { fontSize: 12, fontWeight: '700', color: '#FFF' },
   productHeader: { flexDirection: 'row', gap: 12, marginBottom: 12 },
   productImg: { width: 60, height: 60, borderRadius: 10 },
@@ -363,8 +363,8 @@ const s = StyleSheet.create({
   affiliateBtnText: { color: '#FFF', fontSize: 14, fontWeight: '600' },
 
   selectBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderRadius: 10, paddingVertical: 12, marginTop: 8 },
-  selectBtnActive: { backgroundColor: '#1B6B45' },
-  selectBtnInactive: { backgroundColor: '#FFF', borderWidth: 2, borderColor: '#1B6B45' },
+  selectBtnActive: { backgroundColor: '#8B1A20' },
+  selectBtnInactive: { backgroundColor: '#FFF', borderWidth: 2, borderColor: '#8B1A20' },
   selectBtnText: { fontSize: 14, fontWeight: '700' },
 
   pricePerDayRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8, paddingHorizontal: 4 },

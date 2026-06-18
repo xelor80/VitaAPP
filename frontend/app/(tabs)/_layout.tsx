@@ -3,7 +3,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Platform, View } from 'react-native';
 import { useLang } from '../../src/LangContext';
 
-const ACTIVE_COLOR = '#2E7D52';
+const ACTIVE_COLOR = '#C2272F';
 const INACTIVE_COLOR = '#9CA3AF';
 
 export default function TabLayout() {

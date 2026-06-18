@@ -71,7 +71,7 @@ export default function RecipesTab() {
 
   return (
     <View style={s.container}>
-      <LinearGradient colors={['#1B6B45', '#2E9E6B', '#43C68A']} style={s.header}>
+      <LinearGradient colors={['#8B1A20', '#DC3540', '#EF4456']} style={s.header}>
         <Text style={s.headerTitle}>
           {tx(lang, { de: 'Deine Rezepte', it: 'Le tue ricette', en: 'Your Recipes' })}
         </Text>
@@ -90,7 +90,7 @@ export default function RecipesTab() {
           <MaterialCommunityIcons
             name="star-outline"
             size={16}
-            color={activeTab === 'personal' ? '#1B6B45' : '#6B7280'}
+            color={activeTab === 'personal' ? '#8B1A20' : '#6B7280'}
           />
           <Text style={[s.tabText, activeTab === 'personal' && s.tabTextActive]}>
             {tx(lang, { de: 'Fuer dich', it: 'Per te', en: 'For you' })}
@@ -104,7 +104,7 @@ export default function RecipesTab() {
           <MaterialCommunityIcons
             name="book-open-outline"
             size={16}
-            color={activeTab === 'all' ? '#1B6B45' : '#6B7280'}
+            color={activeTab === 'all' ? '#8B1A20' : '#6B7280'}
           />
           <Text style={[s.tabText, activeTab === 'all' && s.tabTextActive]}>
             {tx(lang, { de: 'Alle Rezepte', it: 'Tutte le ricette', en: 'All Recipes' })}
@@ -113,7 +113,7 @@ export default function RecipesTab() {
       </View>
 
       {loading ? (
-        <View style={s.center}><ActivityIndicator size="large" color="#2E7D52" /></View>
+        <View style={s.center}><ActivityIndicator size="large" color="#C2272F" /></View>
       ) : (
         <ScrollView contentContainerStyle={s.grid} showsVerticalScrollIndicator={false}>
           {recipes.map((r: any, i: number) => (
@@ -127,8 +127,8 @@ export default function RecipesTab() {
               {r.image_url ? (
                 <Image source={{ uri: r.image_url }} style={s.cardImg} />
               ) : (
-                <View style={[s.cardImg, { backgroundColor: '#E8F5E9', justifyContent: 'center', alignItems: 'center' }]}>
-                  <MaterialCommunityIcons name="food-variant" size={32} color="#2E7D52" />
+                <View style={[s.cardImg, { backgroundColor: '#FEE2E2', justifyContent: 'center', alignItems: 'center' }]}>
+                  <MaterialCommunityIcons name="food-variant" size={32} color="#C2272F" />
                 </View>
               )}
               <View style={s.cardInfo}>
@@ -212,7 +212,7 @@ const s = StyleSheet.create({
     shadowRadius: 3,
   },
   tabText: { fontSize: 14, fontWeight: '600', color: '#6B7280' },
-  tabTextActive: { color: '#1B6B45', fontWeight: '700' },
+  tabTextActive: { color: '#8B1A20', fontWeight: '700' },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -234,20 +234,20 @@ const s = StyleSheet.create({
   cardInfo: { padding: 10 },
   cardTitle: { fontSize: 14, fontWeight: '700', color: '#1A2E35', lineHeight: 18 },
   cardTag: { fontSize: 12, color: '#6B7280', marginTop: 3 },
-  reasonText: { fontSize: 11, color: '#1B6B45', fontStyle: 'italic', marginTop: 4, lineHeight: 15 },
+  reasonText: { fontSize: 11, color: '#8B1A20', fontStyle: 'italic', marginTop: 4, lineHeight: 15 },
   tagRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginTop: 6 },
   relevanceChip: {
-    backgroundColor: '#E8F5E9',
+    backgroundColor: '#FEE2E2',
     borderRadius: 6,
     paddingHorizontal: 6,
     paddingVertical: 2,
   },
-  relevanceChipText: { fontSize: 10, fontWeight: '600', color: '#2E9E6B' },
+  relevanceChipText: { fontSize: 10, fontWeight: '600', color: '#DC3540' },
   scoreBadge: {
     position: 'absolute',
     top: 8,
     right: 8,
-    backgroundColor: '#2E9E6B',
+    backgroundColor: '#DC3540',
     borderRadius: 10,
     flexDirection: 'row',
     alignItems: 'center',

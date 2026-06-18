@@ -167,7 +167,7 @@ export function GuideMascot({ currentRoute, firstName }: Props) {
     });
   };
 
-  const bubbleBorderColor = mascotState === 'highlight' ? '#F59E0B' : '#4A8B71';
+  const bubbleBorderColor = mascotState === 'highlight' ? '#F59E0B' : '#D14953';
 
   return (
     <>
@@ -260,7 +260,7 @@ export function GuideMascot({ currentRoute, firstName }: Props) {
                         onPress={() => handleQuickAction(t(action.response, lang))}
                         testID={`guide-action-${action.id}`}
                       >
-                        <MaterialCommunityIcons name="help-circle-outline" size={16} color="#4A8B71" />
+                        <MaterialCommunityIcons name="help-circle-outline" size={16} color="#D14953" />
                         <Text style={s.quickActionText}>{t(action.label, lang)}</Text>
                         <MaterialCommunityIcons name="chevron-right" size={16} color="#94A3B8" />
                       </TouchableOpacity>
@@ -362,7 +362,7 @@ function OnboardingTourModal({
             {/* Icon + Title */}
             <View style={s.onboardingTitleRow}>
               <View style={s.onboardingIconWrap}>
-                <MaterialCommunityIcons name={current.icon as any} size={20} color="#4A8B71" />
+                <MaterialCommunityIcons name={current.icon as any} size={20} color="#D14953" />
               </View>
               <Text style={s.onboardingTitle}>
                 {step === 0 && firstName
@@ -513,7 +513,7 @@ const s = StyleSheet.create({
     height: 48,
     borderRadius: 14,
     borderWidth: 1.5,
-    borderColor: '#E8F5E9',
+    borderColor: '#FEE2E2',
   },
   panelTitle: {
     fontSize: 17,
@@ -574,7 +574,7 @@ const s = StyleSheet.create({
     padding: 14,
     marginBottom: 12,
     borderLeftWidth: 3,
-    borderLeftColor: '#4A8B71',
+    borderLeftColor: '#D14953',
   },
   responseText: {
     fontSize: 13,
@@ -604,7 +604,7 @@ const s = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 6,
     borderWidth: 1,
-    borderColor: '#E8F5E9',
+    borderColor: '#FEE2E2',
   },
   quickActionText: {
     flex: 1,
@@ -699,7 +699,7 @@ const s = StyleSheet.create({
     backgroundColor: '#E2E8F0',
   },
   dotActive: {
-    backgroundColor: '#4A8B71',
+    backgroundColor: '#D14953',
     width: 20,
   },
   onboardingTitleRow: {
@@ -712,7 +712,7 @@ const s = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 10,
-    backgroundColor: '#E8F5E9',
+    backgroundColor: '#FEE2E2',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -749,7 +749,7 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#4A8B71',
+    backgroundColor: '#D14953',
     borderRadius: 14,
     paddingVertical: 12,
     paddingHorizontal: 20,

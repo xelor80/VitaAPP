@@ -38,7 +38,7 @@ export default function RecipeScreen() {
   if (loading) {
     return (
       <SafeAreaView style={[styles.safe, styles.centered]}>
-        <ActivityIndicator size="large" color="#4A8B71" />
+        <ActivityIndicator size="large" color="#D14953" />
       </SafeAreaView>
     );
   }
@@ -82,15 +82,15 @@ export default function RecipeScreen() {
         {/* Meta Badges */}
         <View style={styles.metaRow}>
           <View style={styles.metaBadge}>
-            <MaterialCommunityIcons name="clock-outline" size={16} color="#4A8B71" />
+            <MaterialCommunityIcons name="clock-outline" size={16} color="#D14953" />
             <Text style={styles.metaText}>{recipe.time_min} {lang === 'de' ? 'Min.' : 'Min.'}</Text>
           </View>
           <View style={styles.metaBadge}>
-            <MaterialCommunityIcons name="format-list-bulleted" size={16} color="#4A8B71" />
+            <MaterialCommunityIcons name="format-list-bulleted" size={16} color="#D14953" />
             <Text style={styles.metaText}>{recipe.ingredients?.length || 0} {lang === 'de' ? 'Zutaten' : 'Ingredienti'}</Text>
           </View>
           <View style={styles.metaBadge}>
-            <MaterialCommunityIcons name="shoe-print" size={16} color="#4A8B71" />
+            <MaterialCommunityIcons name="shoe-print" size={16} color="#D14953" />
             <Text style={styles.metaText}>{recipe.steps?.length || 0} {lang === 'de' ? 'Schritte' : 'Passi'}</Text>
           </View>
         </View>
@@ -109,7 +109,7 @@ export default function RecipeScreen() {
         {/* Ingredients */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <MaterialCommunityIcons name="basket-outline" size={22} color="#4A8B71" />
+            <MaterialCommunityIcons name="basket-outline" size={22} color="#D14953" />
             <Text style={styles.sectionTitle}>{lang === 'de' ? 'Zutaten' : 'Ingredienti'}</Text>
           </View>
           <View style={styles.card}>
@@ -125,7 +125,7 @@ export default function RecipeScreen() {
         {/* Steps */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <MaterialCommunityIcons name="format-list-numbered" size={22} color="#4A8B71" />
+            <MaterialCommunityIcons name="format-list-numbered" size={22} color="#D14953" />
             <Text style={styles.sectionTitle}>{lang === 'de' ? 'Zubereitung' : 'Preparazione'}</Text>
           </View>
           {recipe.steps?.map((step: string, i: number) => (
@@ -179,9 +179,9 @@ const styles = StyleSheet.create({
   metaRow: { flexDirection: 'row', gap: 10, marginBottom: 16 },
   metaBadge: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
-    backgroundColor: '#E8F5E9', borderRadius: 16, paddingVertical: 6, paddingHorizontal: 12,
+    backgroundColor: '#FEE2E2', borderRadius: 16, paddingVertical: 6, paddingHorizontal: 12,
   },
-  metaText: { fontSize: 13, fontWeight: '600', color: '#4A8B71' },
+  metaText: { fontSize: 13, fontWeight: '600', color: '#D14953' },
 
   // Tags
   tagsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 20 },
@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
   // Ingredients
   ingredientRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8 },
   ingredientBorder: { borderTopWidth: 1, borderTopColor: '#F0F4F1' },
-  ingredientDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#4A8B71' },
+  ingredientDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#D14953' },
   ingredientText: { fontSize: 15, color: '#1A2D26', flex: 1 },
 
   // Steps
@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
     shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.03, shadowRadius: 4, elevation: 1,
   },
   stepNumber: {
-    width: 32, height: 32, borderRadius: 16, backgroundColor: '#4A8B71',
+    width: 32, height: 32, borderRadius: 16, backgroundColor: '#D14953',
     justifyContent: 'center', alignItems: 'center',
   },
   stepNumberText: { fontSize: 15, fontWeight: '700', color: '#FFFFFF' },
@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
   // Empty/Link
   emptyText: { fontSize: 16, color: '#8FA39B', marginTop: 12 },
   linkBtn: { marginTop: 16, paddingVertical: 10, paddingHorizontal: 20 },
-  linkBtnText: { fontSize: 16, color: '#4A8B71', fontWeight: '600' },
+  linkBtnText: { fontSize: 16, color: '#D14953', fontWeight: '600' },
 
   // Disclaimer
   disclaimerWrap: {

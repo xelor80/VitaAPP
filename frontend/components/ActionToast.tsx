@@ -54,7 +54,7 @@ export function ActionToast() {
         <MaterialCommunityIcons
           name={(toast.icon || 'check-circle') as any}
           size={20}
-          color={toast.color || '#22C55E'}
+          color={toast.color || '#DC2626'}
         />
         <View style={s.textCol}>
           <Text style={s.message}>{toast.message}</Text>
@@ -81,12 +81,12 @@ const s = StyleSheet.create({
   toast: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
     backgroundColor: '#fff', borderRadius: 14, padding: 12, paddingHorizontal: 16,
-    borderLeftWidth: 4, borderLeftColor: '#22C55E',
+    borderLeftWidth: 4, borderLeftColor: '#DC2626',
     shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.12, shadowRadius: 12,
     elevation: 6, maxWidth: 360,
   },
   textCol: { flex: 1 },
   message: { fontSize: 14, fontWeight: '600', color: '#1F2937' },
-  points: { fontSize: 13, fontWeight: '700', color: '#22C55E', marginTop: 1 },
+  points: { fontSize: 13, fontWeight: '700', color: '#DC2626', marginTop: 1 },
   cheer: { fontSize: 13, fontWeight: '700', color: '#F59E0B' },
 });

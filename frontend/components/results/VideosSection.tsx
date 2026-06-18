@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   closeFullBtn: {
-    backgroundColor: '#4A8B71',
+    backgroundColor: '#D14953',
     borderRadius: 10,
     padding: 14,
     alignItems: 'center',

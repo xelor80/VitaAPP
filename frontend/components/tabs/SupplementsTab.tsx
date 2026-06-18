@@ -45,7 +45,7 @@ export function SupplementsTab({ analysis, onShopPress, lang }: { analysis: any;
               <Image source={{ uri: p.image_url }} style={styles.productImage} resizeMode="contain" />
             ) : (
               <View style={styles.productIcon}>
-                <MaterialCommunityIcons name="package-variant-closed" size={24} color="#4A8B71" />
+                <MaterialCommunityIcons name="package-variant-closed" size={24} color="#D14953" />
               </View>
             )}
             <View style={{ flex: 1 }}>

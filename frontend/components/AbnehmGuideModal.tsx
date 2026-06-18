@@ -53,8 +53,8 @@ const CARDS: Card[] = [
   {
     id: 'structure',
     icon: 'calendar-check',
-    color: '#2E7D52',
-    bg: '#E8F5E9',
+    color: '#C2272F',
+    bg: '#FEE2E2',
     title: { de: 'Struktur statt Verzicht', it: 'Struttura, non rinuncia', en: 'Structure, not denial' },
     text: {
       de: 'Ein klarer Tagesplan macht gesunde Ernährung einfacher und alltagstauglich.',
@@ -240,7 +240,7 @@ const st = StyleSheet.create({
     marginVertical: 10,
   },
   dot: { width: 7, height: 7, borderRadius: 4, backgroundColor: '#E5E7EB' },
-  dotActive: { backgroundColor: '#2E7D52', width: 22 },
+  dotActive: { backgroundColor: '#C2272F', width: 22 },
   footer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -253,7 +253,7 @@ const st = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#2E7D52',
+    backgroundColor: '#C2272F',
     paddingHorizontal: 22,
     paddingVertical: 12,
     borderRadius: 24,

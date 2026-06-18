@@ -7,10 +7,10 @@ import { TTSButton } from '../TTSButton';
 const PRIORITY_CONFIG: Record<string, { label: string; color: string; bg: string; icon: string }> = {
   hoch:    { label: 'Hohe Priorität',    color: '#D9534F', bg: '#FDF2F2', icon: 'alert-circle' },
   mittel:  { label: 'Mittlere Priorität', color: '#D97706', bg: '#FFFBEB', icon: 'alert-outline' },
-  niedrig: { label: 'Niedrige Priorität', color: '#4A8B71', bg: '#E8F5E9', icon: 'check-circle-outline' },
+  niedrig: { label: 'Niedrige Priorität', color: '#D14953', bg: '#FEE2E2', icon: 'check-circle-outline' },
   alta:    { label: 'Alta priorità',      color: '#D9534F', bg: '#FDF2F2', icon: 'alert-circle' },
   media:   { label: 'Media priorità',     color: '#D97706', bg: '#FFFBEB', icon: 'alert-outline' },
-  bassa:   { label: 'Bassa priorità',     color: '#4A8B71', bg: '#E8F5E9', icon: 'check-circle-outline' },
+  bassa:   { label: 'Bassa priorità',     color: '#D14953', bg: '#FEE2E2', icon: 'check-circle-outline' },
 };
 
 const TX = {
@@ -91,7 +91,7 @@ export function OverviewTab({ analysis, onShopPress, lang }: { analysis: any; on
       {/* ── SECTION 1: ZUSAMMENFASSUNG ─────────────────── */}
       <View style={s.section}>
         <View style={s.sectionHeader}>
-          <View style={[s.sectionNum, { backgroundColor: '#4A8B71' }]}>
+          <View style={[s.sectionNum, { backgroundColor: '#D14953' }]}>
             <Text style={s.sectionNumText}>1</Text>
           </View>
           <Text style={s.sectionTitle}>{tx.sec1}</Text>
@@ -192,7 +192,7 @@ export function OverviewTab({ analysis, onShopPress, lang }: { analysis: any; on
       {(analysis.supplement_schedule?.length > 0 || analysis.brand_products?.length > 0) && (
         <View style={s.section}>
           <View style={s.sectionHeader}>
-            <View style={[s.sectionNum, { backgroundColor: '#4A8B71' }]}>
+            <View style={[s.sectionNum, { backgroundColor: '#D14953' }]}>
               <Text style={s.sectionNumText}>3</Text>
             </View>
             <Text style={s.sectionTitle}>{tx.sec3}</Text>
@@ -208,7 +208,7 @@ export function OverviewTab({ analysis, onShopPress, lang }: { analysis: any; on
                       item.time?.includes('Mittags') || item.time?.includes('Mezzogiorno') ? 'white-balance-sunny' :
                       item.time?.includes('Abends') || item.time?.includes('Sera') ? 'weather-sunset-down' :
                       'weather-night' as any}
-                    size={16} color="#4A8B71"
+                    size={16} color="#D14953"
                   />
                   <Text style={s.strategyTimeText}>{item.time}</Text>
                 </View>
@@ -235,7 +235,7 @@ export function OverviewTab({ analysis, onShopPress, lang }: { analysis: any; on
                   <Image source={{ uri: p.image_url }} style={s.productImg} resizeMode="contain" />
                 ) : (
                   <View style={s.productImgPlaceholder}>
-                    <MaterialCommunityIcons name="package-variant-closed" size={20} color="#4A8B71" />
+                    <MaterialCommunityIcons name="package-variant-closed" size={20} color="#D14953" />
                   </View>
                 )}
                 <View style={{ flex: 1 }}>
@@ -291,7 +291,7 @@ export function OverviewTab({ analysis, onShopPress, lang }: { analysis: any; on
           )}
           {timeline.medium_term && (
             <View style={s.timelineRow}>
-              <MaterialCommunityIcons name="calendar-check" size={18} color="#4A8B71" />
+              <MaterialCommunityIcons name="calendar-check" size={18} color="#D14953" />
               <View style={{ flex: 1 }}>
                 <Text style={s.timelineLabel}>{tx.medTerm}</Text>
                 <Text style={s.timelineText}>{timeline.medium_term}</Text>
@@ -366,7 +366,7 @@ const s = StyleSheet.create({
   // Bullets
   bulletList: { marginTop: 10 },
   bulletRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: 4 },
-  bullet: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#4A8B71', marginTop: 7 },
+  bullet: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#D14953', marginTop: 7 },
   bulletText: { fontSize: 14, color: '#1A2D26', flex: 1, lineHeight: 20 },
 
   // Deficiency Cards
@@ -395,14 +395,14 @@ const s = StyleSheet.create({
   // Strategy Cards
   strategyCard: {
     backgroundColor: '#F7F9F6', borderRadius: 12, padding: 14, marginTop: 10,
-    borderLeftWidth: 3, borderLeftColor: '#4A8B71',
+    borderLeftWidth: 3, borderLeftColor: '#D14953',
   },
   strategyHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
   strategyTimeBadge: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
-    backgroundColor: '#E8F5E9', borderRadius: 10, paddingVertical: 4, paddingHorizontal: 10,
+    backgroundColor: '#FEE2E2', borderRadius: 10, paddingVertical: 4, paddingHorizontal: 10,
   },
-  strategyTimeText: { fontSize: 13, fontWeight: '700', color: '#4A8B71' },
+  strategyTimeText: { fontSize: 13, fontWeight: '700', color: '#D14953' },
   strategyProduct: { fontSize: 15, fontWeight: '700', color: '#1A2D26', marginBottom: 4 },
   strategyInstruction: { fontSize: 13, color: '#5C7A6F', marginTop: 4, lineHeight: 18 },
   strategyWhy: { fontSize: 12, color: '#8FA39B', marginTop: 4, fontStyle: 'italic' },
@@ -414,16 +414,16 @@ const s = StyleSheet.create({
   productHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 },
   productImg: { width: 50, height: 50, borderRadius: 8 },
   productImgPlaceholder: {
-    width: 50, height: 50, borderRadius: 8, backgroundColor: '#E8F5E9',
+    width: 50, height: 50, borderRadius: 8, backgroundColor: '#FEE2E2',
     justifyContent: 'center', alignItems: 'center',
   },
   productName: { fontSize: 15, fontWeight: '700', color: '#1A2D26' },
-  productPrice: { fontSize: 13, color: '#4A8B71', fontWeight: '600', marginTop: 2 },
+  productPrice: { fontSize: 13, color: '#D14953', fontWeight: '600', marginTop: 2 },
   adLabel: { fontSize: 10, color: '#8FA39B', fontWeight: '600', backgroundColor: '#F0F4F1', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 1 },
   productReason: { fontSize: 14, color: '#1A2D26', lineHeight: 20 },
   shopBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
-    backgroundColor: '#4A8B71', borderRadius: 10, paddingVertical: 10, marginTop: 10,
+    backgroundColor: '#D14953', borderRadius: 10, paddingVertical: 10, marginTop: 10,
   },
   shopBtnText: { fontSize: 14, fontWeight: '700', color: '#FFF' },
 

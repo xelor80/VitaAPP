@@ -225,7 +225,7 @@ const st = StyleSheet.create({
     borderRadius: 18,
     overflow: 'hidden',
     elevation: 4,
-    shadowColor: '#1B6B45',
+    shadowColor: '#8B1A20',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.1,
     shadowRadius: 10,
