@@ -154,3 +154,91 @@ async def get_videos_grouped_by_category(lang: str):
         grouped[cat]["videos"].append(video)
     
     return list(grouped.values())
+
+
+# ---------------------------------------------------------------------------
+# Seed defaults – Joachim Kaeser YouTube clips
+# ---------------------------------------------------------------------------
+DEFAULT_SEED_VIDEOS = [
+    {
+        "youtube_id": "ef9TLuF6OrM",
+        "title_de": "Gelenk Mobil – Beweglichkeit & Gelenke",
+        "title_it": "Gelenk Mobil – mobilità e articolazioni",
+        "title_en": "Joint Mobility – Movement & Joints",
+        "description_de": "Joachim Kaeser erklärt, welche Inhaltsstoffe deine Gelenke unterstützen können und wie Gelenk Mobil zusammengesetzt ist.",
+        "description_it": "Joachim Kaeser spiega quali ingredienti possono supportare le articolazioni e la composizione di Gelenk Mobil.",
+        "description_en": "Joachim Kaeser explains which ingredients can support your joints and how Gelenk Mobil is composed.",
+        "category": "articolazioni",
+    },
+    {
+        "youtube_id": "Ck6owor_I20",
+        "title_de": "Vitame Collagen Plus – Haut, Haare & Nägel",
+        "title_it": "Vitame Collagen Plus – pelle, capelli e unghie",
+        "title_en": "Vitame Collagen Plus – Skin, Hair & Nails",
+        "description_de": "Wie kann Collagen deine Haut, Haare und Nägel unterstützen? Joachim Kaeser zeigt es dir.",
+        "description_it": "Come può il collagene supportare pelle, capelli e unghie? Joachim Kaeser ti mostra.",
+        "description_en": "How can collagen support your skin, hair and nails? Joachim Kaeser shows you.",
+        "category": "pelle",
+    },
+    {
+        "youtube_id": "s5PBkODCPjg",
+        "title_de": "Nahrungsergänzungen – worauf es wirklich ankommt",
+        "title_it": "Integratori – cosa conta davvero",
+        "title_en": "Supplements – what really matters",
+        "description_de": "Qualität, Dosierung, Bioverfügbarkeit: Joachim Kaeser erklärt die wichtigsten Punkte bei Nahrungsergänzungsmitteln.",
+        "description_it": "Qualità, dosaggio, biodisponibilità: i punti chiave secondo Joachim Kaeser.",
+        "description_en": "Quality, dosage, bioavailability: the key points by Joachim Kaeser.",
+        "category": "allgemein",
+    },
+    {
+        "youtube_id": "UN7oMHCrobw",
+        "title_de": "Energie & Vitalität im Alltag",
+        "title_it": "Energia e vitalità nella vita quotidiana",
+        "title_en": "Energy & Vitality in Everyday Life",
+        "description_de": "Welche Nährstoffe helfen, wenn dir tagsüber die Energie fehlt? Praktische Tipps von Joachim Kaeser.",
+        "description_it": "Quali nutrienti aiutano quando manca energia durante il giorno? Consigli pratici di Joachim Kaeser.",
+        "description_en": "Which nutrients help when you lack energy during the day? Practical tips by Joachim Kaeser.",
+        "category": "energia",
+    },
+    {
+        "youtube_id": "eetnWsojN3M",
+        "title_de": "Verdauung & Darmgesundheit",
+        "title_it": "Digestione e salute intestinale",
+        "title_en": "Digestion & Gut Health",
+        "description_de": "Joachim Kaeser spricht über Verdauung, Darmflora und wie du dein Wohlbefinden unterstützen kannst.",
+        "description_it": "Joachim Kaeser parla di digestione, flora intestinale e come supportare il benessere.",
+        "description_en": "Joachim Kaeser talks about digestion, gut flora and how to support well-being.",
+        "category": "digestione",
+    },
+]
+
+
+async def seed_default_videos() -> int:
+    """Insert default Joachim Kaeser videos in DE + IT + EN if collection is empty.
+
+    Returns the number of inserted documents.
+    """
+    docs = []
+    now = datetime.now(timezone.utc).isoformat()
+    for idx, src in enumerate(DEFAULT_SEED_VIDEOS):
+        for lang_code in ("de", "it", "en"):
+            video_id = str(uuid.uuid4())[:8]
+            docs.append({
+                "video_id": video_id,
+                "title": src[f"title_{lang_code}"],
+                "youtube_url": f"https://www.youtube.com/watch?v={src['youtube_id']}",
+                "youtube_id": src["youtube_id"],
+                "description": src[f"description_{lang_code}"],
+                "category": src["category"],
+                "lang": lang_code,
+                "tags": ["joachim-kaeser"],
+                "duration": "",
+                "sort_order": idx,
+                "active": True,
+                "created_at": now,
+                "updated_at": now,
+            })
+    if not docs:
+        return 0
+    await db.videos.insert_many(docs)
+    return len(docs)

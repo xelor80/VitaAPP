@@ -80,6 +80,15 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="videos"
+        options={{
+          title: lang === 'de' ? 'Coach‑TV' : 'Coach‑TV',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="play-circle" size={size} color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }

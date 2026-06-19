@@ -10,6 +10,15 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - **AI**: OpenAI GPT-4o via Emergent LLM Key
 - **3rd Party**: Shopify (products), SMTP (emails), Unsplash (images), Emergent Google Auth
 
+
+### Coach‑TV Video Section (2026-06-19) – COMPLETED
+- **New Bottom-Tab**: `Coach‑TV` (play-circle icon, JK red `#C2272F`).
+- **Inline YouTube Player**: WebView modal on mobile, `<iframe>` on web. No more external browser jumps.
+- **Backend**: `videos` collection + full CRUD at `/api/videos` (already existed, now extended with seed function `seed_default_videos`).
+- **Trilingual seed data**: 5 Joachim Kaeser videos × DE/IT/EN = 15 entries, categorised across `articolazioni`, `digestione`, `energia`, `pelle`, `allgemein`.
+- **Admin Prompt**: `/app/memory/ADMIN_COACH_TV_PROMPT.md` describes how to expose Coach‑TV management in the Admin Dashboard.
+- **Frontend file**: `/app/frontend/app/(tabs)/videos.tsx` (replaces deleted stack route).
+
 ## What's Been Implemented
 
 ### Core Features

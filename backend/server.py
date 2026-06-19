@@ -159,6 +159,17 @@ async def seed_data():
                     logger.info(f"Seeded {len(recipes)} recipes into MongoDB")
     except Exception as e:
         logger.warning(f"Recipe seeding note: {e}")
+
+    # Seed Joachim Kaeser videos if collection is empty
+    try:
+        video_count = await db.videos.count_documents({})
+        if video_count == 0:
+            from routes.videos import seed_default_videos
+            inserted = await seed_default_videos()
+            if inserted:
+                logger.info(f"Seeded {inserted} Joachim Kaeser videos into MongoDB")
+    except Exception as e:
+        logger.warning(f"Video seeding note: {e}")
     
     # Create MongoDB indexes for performance
     try:
