@@ -11,6 +11,31 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - **3rd Party**: Shopify (products), SMTP (emails), Unsplash (images), Emergent Google Auth
 
 
+### HBand Wearable Integration – Grundgerüst (2026-08-04) – COMPLETED
+- **Vendor-agnostic architecture**: `WearableProvider` interface (see `/app/memory/HBAND_ARCHITECTURE.md`).
+- **Backend**: `routes/wearable.py` with `wearable_devices`, `health_measurements`, `sleep_sessions`, `wearable_sync_logs` collections.
+  Endpoints: POST/GET/PUT/DELETE `/api/wearable/devices`, POST/GET `/api/wearable/measurements(batch)`,
+  POST/GET `/api/wearable/sleep-sessions/batch`, POST/GET `/api/wearable/sync-status`, GET `/api/wearable/daily-summary/{user_id}`.
+- **Dedupe** via unique compound index `(user_id, device_id, metric_type, measured_at)` + $setOnInsert upserts.
+- **Frontend**:
+  - `src/wearable/types.ts` / `WearableProvider.ts` – abstract interface
+  - `src/wearable/DemoProvider.ts` – simulator (clearly labelled DEMO)
+  - `src/wearable/HBandProvider.stub.ts` – stub, real bridge later via EAS Dev-Client
+  - `src/WearableContext.tsx` – React context (state, sync, actions)
+  - `app/wearable/onboarding.tsx` – 7-step pairing assistant
+  - `app/wearable/device-settings.tsx` – "Mein VitaGuide Band"
+  - Link in Profile → "Mein VitaGuide Band"
+- **EAS-Config**: `frontend/eas.json` (dev/preview/prod), `expo-dev-client` installed.
+- **Permissions**: iOS `NSBluetoothAlwaysUsageDescription` + `bluetooth-central`; Android `BLUETOOTH_SCAN/CONNECT`, Location.
+- **Tests**: 16 pytest backend tests in `/app/backend/tests/test_wearable_api.py` – 100% pass.
+- **Docs**: `HBAND_OPEN_QUESTIONS.md`, `HBAND_INTEGRATION_CHANGELOG.md`, `HBAND_ARCHITECTURE.md` in `/app/memory/`.
+- **NOT yet done** (needs physical device + native module):
+  - Native Kotlin/Swift bridge to real HBand AAR / iOS Framework
+  - Dashboard cards, detail pages, VitaGuide-Scores, baselines
+  - HealthKit / Health Connect
+  - Real BLE connection (Demo Provider used in Expo Go)
+
+
 ### Coach‑TV Video Section (2026-06-19) – COMPLETED
 - **New Bottom-Tab**: `Coach‑TV` (play-circle icon, JK red `#C2272F`).
 - **Inline YouTube Player**: WebView modal on mobile, `<iframe>` on web. No more external browser jumps.
