@@ -198,6 +198,22 @@ export default function WearableDashboard() {
           </View>
           <MaterialCommunityIcons name="chevron-right" size={20} color="#FFFFFF" />
         </TouchableOpacity>
+
+        {/* Quick-Actions row */}
+        <View style={styles.quickRow}>
+          <TouchableOpacity style={styles.quickBtn} onPress={() => router.push('/wearable/coach-chat' as any)} testID="dashboard-open-chat">
+            <MaterialCommunityIcons name="robot-happy" size={20} color="#C2272F" />
+            <Text style={styles.quickText}>VERO fragen</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.quickBtn} onPress={() => router.push('/wearable/ecg-history' as any)} testID="dashboard-open-history">
+            <MaterialCommunityIcons name="history" size={20} color="#C2272F" />
+            <Text style={styles.quickText}>EKG‑Verlauf</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.quickBtn} onPress={() => router.push('/wearable/notifications' as any)} testID="dashboard-open-notif">
+            <MaterialCommunityIcons name="bell-outline" size={20} color="#C2272F" />
+            <Text style={styles.quickText}>Erinnerung</Text>
+          </TouchableOpacity>
+        </View>
         {metricCards.map(m => {
           const b = data.baselines[m.key];
           const hasBaseline = b?.sufficient;
@@ -339,4 +355,11 @@ const styles = StyleSheet.create({
   },
   ecgTitle: { fontSize: 14, fontWeight: '800', color: '#FFFFFF' },
   ecgSub: { fontSize: 11, color: 'rgba(255,255,255,0.85)', marginTop: 2 },
+  quickRow: { flexDirection: 'row', gap: 8, marginBottom: 14 },
+  quickBtn: {
+    flex: 1, backgroundColor: '#FFFFFF', borderRadius: 12,
+    paddingVertical: 12, alignItems: 'center', gap: 4,
+    borderWidth: 1, borderColor: '#E5E7EB',
+  },
+  quickText: { fontSize: 11, fontWeight: '700', color: '#1A2E35' },
 });

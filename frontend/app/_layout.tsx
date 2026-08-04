@@ -95,6 +95,9 @@ export default function RootLayout() {
                       <Stack.Screen name="wearable/dashboard" />
                       <Stack.Screen name="wearable/detail/[metric]" />
                       <Stack.Screen name="wearable/measure/ecg" />
+                      <Stack.Screen name="wearable/ecg-history" />
+                      <Stack.Screen name="wearable/notifications" />
+                      <Stack.Screen name="wearable/coach-chat" />
                     </Stack>
                     <GuideOverlay />
                     <ActionToast />

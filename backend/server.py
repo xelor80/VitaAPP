@@ -100,6 +100,8 @@ api_router.include_router(weight_metabolism.router)
 api_router.include_router(smart_products.router)
 api_router.include_router(branding.router)
 api_router.include_router(wearable.router)
+from routes import coach_chat  # noqa: E402
+api_router.include_router(coach_chat.router)
 
 # Serve uploaded files (labels)
 @api_router.get("/uploads/labels/{filename}")
