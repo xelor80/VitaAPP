@@ -1,0 +1,69 @@
+name: EAS Update (OTA JS-Fixes)
+
+# Für kleine JS-Änderungen: schneller OTA-Push zu allen installierten Apps.
+# KEIN neuer Store-Upload nötig. Dauer: ~30 Sekunden.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      # Nur bei JS/TS/React-Änderungen triggern — nicht bei Native-Änderungen
+      - 'frontend/app/**'
+      - 'frontend/src/**'
+      - 'frontend/components/**'
+      # NICHT bei Native-Änderungen — die brauchen einen echten Build
+      - '!frontend/plugins/**'
+      - '!frontend/app.json'
+      - '!frontend/eas.json'
+      - '!frontend/package.json'
+
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Update branch (preview | production)'
+        required: true
+        default: 'preview'
+      message:
+        description: 'Update message'
+        required: true
+        default: 'Small fixes'
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+          cache-dependency-path: frontend/yarn.lock
+
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: yarn install --frozen-lockfile
+
+      - name: Publish EAS Update
+        working-directory: frontend
+        run: |
+          eas update \
+            --branch ${{ github.event.inputs.branch || 'preview' }} \
+            --message "${{ github.event.inputs.message || github.event.head_commit.message }}" \
+            --non-interactive
+
+      - name: Post update to summary
+        if: always()
+        run: |
+          echo "### ⚡ OTA Update Published" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.event.inputs.branch || 'preview' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Message:** ${{ github.event.inputs.message || github.event.head_commit.message }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "User bekommen das Update beim nächsten App-Start." >> $GITHUB_STEP_SUMMARY
