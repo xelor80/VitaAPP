@@ -2,6 +2,29 @@
 
 > Jede substantielle Änderung im Rahmen der HBand-Wearable-Integration wird hier
 > als knapper Bullet vermerkt (Datum, betroffene Files, Zweck).
+## 2026-08-04 – Home-Widget + KI-Coach mit Wearable-Kontext
+
+### Backend
+- **UPDATE** `routes/coach.py` – neuer Helper `_load_wearable_context(profile_id)` liest gepaartes Gerät + berechnet Scores + Baselines.
+- Coach-Response enthaelt jetzt `wearable`-Block (Available-Flag, Readiness, Recovery, Sleep, HRV/RHR-Delta, Learning-Phase).
+- **5 neue automatische Insights** je nach Wearable-Werten:
+  - `readiness < 45` → Warnung "Heute ruhiger angehen"
+  - `readiness >= 75` → Lob "Bester Tag fuers Training"
+  - `HRV delta <= -15%` → Warnung "HRV unter deinem Normalwert"
+  - `RHR delta >= +10%` → Hinweis "Ruhepuls etwas erhoeht"
+  - `sleep score < 55` → Hinweis "Schlaf war heute knapp"
+- Alle Wearable-Insights mit `source='wearable'` + `action='wearable-dashboard'` fuer direkten Deep-Link.
+- Learning-Phase-Suppression: keine Insights waehrend `days_of_data < 7`.
+
+### Frontend
+- **NEU** `src/wearable/HomeWearableWidget.tsx` – kompakte JK-rote Karte fuer den Home-Tab:
+  - Ohne Geraet: dezente CTA-Karte "Verbinde dein VitaGuide Band"
+  - Mit Geraet: Readiness-Score + Akku + Vollstaendigkeit + HRV-Delta, Tap → Dashboard
+- **UPDATE** `app/(tabs)/index.tsx` – Widget zwischen Bereichen und "VERO empfiehlt" eingehaengt, `wearable-dashboard`-Action im Coach-Insight-Handler.
+
+### Tests
+- `backend/tests/test_coach_wearable.py` – 11 pytest-Cases, 100% grün.
+
 ## 2026-08-04 – VitaGuide Scores & Basislinien-Engine + Dashboard/Detailseiten
 
 ### Backend
