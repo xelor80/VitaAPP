@@ -1,0 +1,55 @@
+{
+  "notes": {
+    "de": "Zentral konfigurierbare Score-Gewichtungen. Jede Score-Berechnung liefert eine Datenvollständigkeit; unterhalb der Mindestwerte gibt es keinen Score, sondern nur einen Lernhinweis.",
+    "min_data_days_for_scores": 7,
+    "baseline_window_days": 28,
+    "baseline_min_days": 7
+  },
+  "recovery": {
+    "weights": {
+      "hrv_delta": 0.40,
+      "resting_hr_delta": 0.20,
+      "sleep_score": 0.30,
+      "temperature_delta": 0.10
+    },
+    "beta": true
+  },
+  "sleep": {
+    "weights": {
+      "total_hours": 0.35,
+      "deep_ratio": 0.25,
+      "rem_ratio": 0.20,
+      "interruptions_penalty": 0.10,
+      "consistency": 0.10
+    },
+    "targets": {
+      "total_hours": 8.0,
+      "deep_ratio": 0.20,
+      "rem_ratio": 0.22
+    },
+    "beta": true
+  },
+  "activity": {
+    "weights": {
+      "steps": 0.5,
+      "active_minutes": 0.3,
+      "calories": 0.2
+    },
+    "targets": {
+      "steps": 8000,
+      "active_minutes": 30,
+      "calories": 350
+    },
+    "beta": true
+  },
+  "readiness": {
+    "weights": {
+      "recovery": 0.45,
+      "sleep": 0.30,
+      "activity_yesterday_load": -0.10,
+      "vitals_ok": 0.25,
+      "data_completeness": 0.10
+    },
+    "beta": true
+  }
+}

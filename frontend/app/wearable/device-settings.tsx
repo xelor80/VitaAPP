@@ -95,6 +95,17 @@ export default function DeviceSettings() {
       </View>
 
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: 60 + insets.bottom }]}>
+        {/* Open dashboard */}
+        <TouchableOpacity
+          style={styles.dashboardBtn}
+          onPress={() => router.push('/wearable/dashboard' as any)}
+          testID="device-settings-open-dashboard"
+        >
+          <MaterialCommunityIcons name="view-dashboard-variant" size={20} color="#FFFFFF" />
+          <Text style={styles.dashboardBtnText}>Mein Tag – Dashboard öffnen</Text>
+          <MaterialCommunityIcons name="chevron-right" size={20} color="#FFFFFF" />
+        </TouchableOpacity>
+
         {/* Hero card */}
         <View style={styles.heroCard} testID="device-hero-card">
           <View style={styles.heroIconWrap}>
@@ -276,4 +287,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#C2272F', paddingVertical: 14, paddingHorizontal: 32, borderRadius: 12, alignItems: 'center',
   },
   primaryBtnText: { color: '#FFFFFF', fontSize: 16, fontWeight: '700' },
+  dashboardBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+    backgroundColor: '#1A2E35', paddingVertical: 14, paddingHorizontal: 16,
+    borderRadius: 14, marginBottom: 16,
+  },
+  dashboardBtnText: { flex: 1, color: '#FFFFFF', fontSize: 15, fontWeight: '700' },
 });

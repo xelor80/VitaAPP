@@ -1,0 +1,24 @@
+{
+  "summary": "Backend-only testing of new VitaGuide-Scores engine endpoints under /api/wearable/*: baselines, scores, timeseries. Created /app/backend/tests/test_wearable_scoring.py with 13 pytest cases across 4 classes (TestBaselines, TestScores, TestTimeseries, TestEstimateMetadata). All 13 tests passed (100%). Verified: 28-day rolling median baselines with correct per-metric fields (median, days_used, sufficient, latest_value, delta_pct); sufficient=false when <7 days (seeded 3 days) and sufficient=true when >=7 days (seeded 8 days); learning-phase gating on /scores with null values + German lernt-note when days_of_data<7; valid 0-100 recovery/sleep/activity/readiness numbers when >=7 days; beta=true on every score bucket; 400 on invalid date and invalid range; /timeseries?range=week returns granularity='daily' with points+stats{avg,min,max,days}; /timeseries?range=day returns granularity='raw' with individual samples; /scores.baselines equals /baselines output; scoring is deterministic across repeat calls; blood_glucose_estimated + blood_pressure_systolic get metadata.estimate=true and metadata.disclaimer auto-injected on POST /measurements/batch even when client omits metadata, while heart_rate does NOT.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_wearable_scoring.py",
+    "/app/test_reports/pytest/wearable_scoring_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "wearable_scoring.compute_user_baselines uses ISO string comparison (measured_at >= since) — measurements written with mixed timezones or naive strings can be silently included/excluded. Normalise measured_at to UTC on ingest.",
+    "compute_scores_for_date recomputes baselines and re-scans distinct measured_at on every call; for /timeseries+/scores on the dashboard this can be O(N) repeated. Consider caching baselines per (user_id, date) or precomputing nightly.",
+    "delta_pct in baselines is computed on latest_day median vs 28-day median — when days_used == 1 the latest equals the median so delta_pct == 0.0, which reads as 'no change' rather than 'insufficient'. Consider returning delta_pct=null until sufficient=true.",
+    "_readiness_score gates on 'recovery is None or sleep is None' but recovery requires HRV/RHR baselines. If a user provides only sleep+activity, readiness stays null even though partial-readiness could be surfaced. Consider soft-fallback.",
+    "scoring_config.json readiness weights sum to 0.45+0.30-0.10+0.25+0.10 = 1.00 only if activity_yesterday_load subtracts; but the code computes w['activity_yesterday_load'] * _clamp(load,0,1) (a subtraction because the weight itself is negative). This double-negation is subtle — worth documenting or renaming key to 'activity_load_penalty'."
+  ],
+  "updated_files": ["/app/backend/tests/test_wearable_scoring.py"],
+  "success_rate": {"backend": "100%", "frontend": "not tested (per request)"},
+  "seed_data_creation": "Ephemeral users 'e2e-scoring-<8hex>': one with 3 days (insufficient) of measurements + one with 8 days of measurements & sleep sessions + one empty user + one for estimate-metadata check. All devices purged with purge_data=true in teardown fixture.",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "New scoring layer (baselines/scores/timeseries) is green. If UI onboarding surfaces the learning-phase note or renders /timeseries charts, next iteration should add Playwright coverage for those views. Estimate-disclaimer enforcement is already covered here (previously flagged as untested in it_91).",
+  "rca_of_the_issue": "N/A — no failures."
+}

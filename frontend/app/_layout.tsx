@@ -92,6 +92,8 @@ export default function RootLayout() {
                       <Stack.Screen name="weight-metabolism" />
                       <Stack.Screen name="wearable/onboarding" />
                       <Stack.Screen name="wearable/device-settings" />
+                      <Stack.Screen name="wearable/dashboard" />
+                      <Stack.Screen name="wearable/detail/[metric]" />
                     </Stack>
                     <GuideOverlay />
                     <ActionToast />

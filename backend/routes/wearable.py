@@ -482,3 +482,93 @@ def _estimate_completeness(metrics: Dict[str, Any], sleep: Optional[Dict[str, An
     if sleep and sleep.get("total_minutes", 0) >= 60:
         score += 0.20
     return round(min(score, 1.0), 2)
+
+
+# ---------------------------------------------------------------------------
+# Baselines & scoring
+# ---------------------------------------------------------------------------
+from routes.wearable_scoring import compute_user_baselines, compute_scores_for_date  # noqa: E402
+
+
+@router.get("/baselines/{user_id}")
+async def get_baselines(user_id: str):
+    """Return 28-day rolling baselines per metric."""
+    return await compute_user_baselines(user_id)
+
+
+@router.get("/scores/{user_id}")
+async def get_scores(user_id: str, date: str = Query(..., description="YYYY-MM-DD")):
+    """Return VitaGuide Recovery/Sleep/Activity/Readiness scores for a day."""
+    try:
+        datetime.strptime(date, "%Y-%m-%d")
+    except ValueError:
+        raise HTTPException(400, "date must be YYYY-MM-DD")
+    return await compute_scores_for_date(user_id, date)
+
+
+@router.get("/timeseries/{user_id}/{metric}")
+async def timeseries(
+    user_id: str,
+    metric: str,
+    range_: str = Query("week", alias="range", description="day | week | month | 3month | year"),
+):
+    """Return aggregated daily buckets for charting."""
+    now = datetime.now(timezone.utc)
+    if range_ == "day":
+        days = 1
+    elif range_ == "week":
+        days = 7
+    elif range_ == "month":
+        days = 30
+    elif range_ == "3month":
+        days = 90
+    elif range_ == "year":
+        days = 365
+    else:
+        raise HTTPException(400, "range invalid")
+
+    since_dt = now - timedelta(days=days)
+    since = since_dt.isoformat()
+
+    if range_ == "day":
+        # Return raw samples for the last 24h (no bucketing)
+        docs = await db.health_measurements.find(
+            {"user_id": user_id, "metric_type": metric, "measured_at": {"$gte": since}},
+            {"_id": 0, "measured_at": 1, "value": 1},
+        ).sort("measured_at", 1).to_list(500)
+        return {"range": range_, "metric": metric, "granularity": "raw", "points": docs}
+
+    pipeline = [
+        {"$match": {
+            "user_id": user_id, "metric_type": metric,
+            "measured_at": {"$gte": since},
+        }},
+        {"$addFields": {"day": {"$substr": ["$measured_at", 0, 10]}}},
+        {"$group": {
+            "_id": "$day",
+            "avg": {"$avg": "$value"},
+            "min": {"$min": "$value"},
+            "max": {"$max": "$value"},
+            "count": {"$sum": 1},
+        }},
+        {"$sort": {"_id": 1}},
+    ]
+    points = []
+    async for row in db.health_measurements.aggregate(pipeline):
+        points.append({
+            "day": row["_id"],
+            "avg": round(row["avg"], 2) if row["avg"] is not None else None,
+            "min": row["min"], "max": row["max"], "count": row["count"],
+        })
+    # Compute stats for entire range
+    if points:
+        avg_all = round(sum(p["avg"] for p in points if p["avg"] is not None) / max(1, len(points)), 2)
+        min_all = min((p["min"] for p in points), default=None)
+        max_all = max((p["max"] for p in points), default=None)
+    else:
+        avg_all = min_all = max_all = None
+    return {
+        "range": range_, "metric": metric, "granularity": "daily",
+        "points": points,
+        "stats": {"avg": avg_all, "min": min_all, "max": max_all, "days": len(points)},
+    }
