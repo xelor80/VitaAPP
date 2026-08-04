@@ -2,6 +2,24 @@
 
 > Jede substantielle Änderung im Rahmen der HBand-Wearable-Integration wird hier
 > als knapper Bullet vermerkt (Datum, betroffene Files, Zweck).
+## 2026-08-04 – VitaGuide Scores & Basislinien-Engine + Dashboard/Detailseiten
+
+### Backend
+- **NEU** `backend/scoring_config.json` – zentral konfigurierbare Formeln (Recovery/Sleep/Activity/Readiness) mit `min_data_days_for_scores=7`, `baseline_window_days=28`.
+- **NEU** `backend/routes/wearable_scoring.py` – Baselines (28d gleitender Median pro Metrik) + Score-Engine mit Learning-Phase-Gating.
+- **NEU** Endpoints in `wearable.py`:
+  - `GET /api/wearable/baselines/{user_id}` → per-metric `{median, days_used, sufficient, latest_value, delta_pct}`
+  - `GET /api/wearable/scores/{user_id}?date=YYYY-MM-DD` → `{scores.{recovery,sleep,activity,readiness}, data_completeness, in_learning_phase, note, baselines}`
+  - `GET /api/wearable/timeseries/{user_id}/{metric}?range=day|week|month|3month|year` → aggregierte Tagesbuckets für Charts
+
+### Frontend
+- **NEU** `app/wearable/dashboard.tsx` – "Mein Tag" Dashboard mit Readiness-Hero-Karte, 3 Score-Karten (Recovery/Sleep/Activity), 5 Metric-Cards mit Delta vs. Basislinie, Learning-Phase-Banner, Refresh-Control, Pull-to-Sync
+- **NEU** `app/wearable/detail/[metric].tsx` – dynamische Detail-Route mit Line-Chart (Bezier, react-native-chart-kit), Range-Selector (Tag/Woche/Monat/3M/Jahr), Ø/Min/Max/Tage-Stats, Basislinien-Karte, Erklärungstext, `EstimateDisclaimer` für Blutzucker/Blutdruck
+- **UPDATE** `app/wearable/device-settings.tsx` – neuer prominenter "Mein Tag – Dashboard öffnen" Button
+
+### Tests
+- `backend/tests/test_wearable_scoring.py` – 13 pytest-Cases, 100% grün (Baselines, Scores, Timeseries, Estimate-Metadata-Injection, Determinismus, invalid inputs)
+
 ## 2026-08-04 – Mecoly E500 spezifisch (Task A+B+C+E)
 
 ### Docs
