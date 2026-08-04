@@ -11,6 +11,22 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - **3rd Party**: Shopify (products), SMTP (emails), Unsplash (images), Emergent Google Auth
 
 
+### iOS Framework für HBand Phase E vorbereitet (2026-02-04)
+- **6 iOS Frameworks (23 MB) aus offiziellem HBandSDK/iOS_Ble_SDK Repo (Apache-2.0)** geklont nach `/frontend/plugins/with-hband-sdk/ios-frameworks/`:
+  - `VeepooBleSDK.framework` 2.2.XX.15 (15 MB, 123 Header, iOS 10+)
+  - `iOSMcuManagerLibrary.framework`, `SwiftCBOR.framework`, `ZIPFoundation.framework` (Nordic OTA-Stack)
+  - `GRDFUSDK.framework`, `ABParTool.framework` (Chip-spezifische OTA)
+- **Swift/ObjC Bridge-Skeleton** (`ios-source/HBandBridge.swift` + `HBandBridge.m`) — spiegel-symmetrisch zum Kotlin-Modul, alle Methoden mit `TODO Phase E`-Markern
+- **Config-Plugin iOS-Zweig** (`withHBandIosFrameworks` + `withHBandIosPodfile`):
+  - Kopiert alle Frameworks nach `ios/Frameworks/` bei jedem `expo prebuild`
+  - Kopiert Swift/ObjC-Files nach `ios/{appName}/HBand/`
+  - Erzeugt lokale Podspec `HBandSdkLocal.podspec` (bündelt alle 6 Frameworks als `vendored_frameworks`, mit `-ObjC` linker flag)
+  - Patcht Podfile: `pod 'HBandSdkLocal', :path => './Frameworks'`
+- **Docs**: `/app/memory/HBAND_PHASE_E_PREP.md`
+- **Status**: Bereit für Phase E — sobald Android B/C/D getestet, aktiviert man die TODO-Blöcke im Swift-Code und der iOS-Build zieht das Framework automatisch
+
+
+
 ### HBand Native Bridge – Phase A (2026-02-04) – COMPLETED
 - **Config-Plugin `plugins/with-hband-sdk/`**: Expo-Prebuild-Hook injiziert bei `eas build`:
   - Alle 7 AARs (vpprotocol, vpbluetooth, JL_Watch, jl_rcsp, jl_bt_ota, BmpConvert, abpartool) → `android/app/libs`
