@@ -10,7 +10,12 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "app.emergent.personalizemeals3127497d"
+      "bundleIdentifier": "app.emergent.personalizemeals3127497d",
+      "infoPlist": {
+        "NSBluetoothAlwaysUsageDescription": "VitaGuide verwendet Bluetooth, um dein VitaGuide Band zu verbinden und Gesundheitswerte zu synchronisieren.",
+        "NSBluetoothPeripheralUsageDescription": "VitaGuide verwendet Bluetooth, um dein VitaGuide Band zu verbinden und Gesundheitswerte zu synchronisieren.",
+        "UIBackgroundModes": ["bluetooth-central"]
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -18,7 +23,15 @@
         "backgroundColor": "#4A8B71"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.emergent.stressreliefapp.xznvct"
+      "package": "com.emergent.stressreliefapp.xznvct",
+      "permissions": [
+        "android.permission.BLUETOOTH",
+        "android.permission.BLUETOOTH_ADMIN",
+        "android.permission.BLUETOOTH_CONNECT",
+        "android.permission.BLUETOOTH_SCAN",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION"
+      ]
     },
     "notification": {
       "icon": "./assets/icon.png",
@@ -42,7 +55,8 @@
       ],
       "expo-asset",
       "expo-web-browser",
-      "expo-font"
+      "expo-font",
+      "expo-dev-client"
     ],
     "experiments": {
       "typedRoutes": true

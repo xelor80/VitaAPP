@@ -14,7 +14,7 @@ from core.middleware import (
     RateLimitMiddleware, create_admin_token, verify_admin_token,
     cleanup_expired_tokens
 )
-from routes import analysis, products, tracking, diary, admin, settings, health_profile, supplement_plan, progress, videos, label_analysis, health_score, admin_health_stats, supplement_interactions, correlation_analysis, shop_import, email_export, tts, daily_tasks, achievements, trust_stats, price_alerts, water_tracking, medications, rewards, auth, stress, daily_plan, level, weekly_report, tts_elevenlabs, coach, weight_metabolism, smart_products, branding
+from routes import analysis, products, tracking, diary, admin, settings, health_profile, supplement_plan, progress, videos, label_analysis, health_score, admin_health_stats, supplement_interactions, correlation_analysis, shop_import, email_export, tts, daily_tasks, achievements, trust_stats, price_alerts, water_tracking, medications, rewards, auth, stress, daily_plan, level, weekly_report, tts_elevenlabs, coach, weight_metabolism, smart_products, branding, wearable
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
@@ -99,6 +99,7 @@ api_router.include_router(coach.router)
 api_router.include_router(weight_metabolism.router)
 api_router.include_router(smart_products.router)
 api_router.include_router(branding.router)
+api_router.include_router(wearable.router)
 
 # Serve uploaded files (labels)
 @api_router.get("/uploads/labels/{filename}")

@@ -570,6 +570,17 @@ export default function HealthProfileScreen() {
                 </View>
               </View>
               <TouchableOpacity
+                style={accountStyles.wearableRow}
+                onPress={() => router.push('/wearable/device-settings' as any)}
+                testID="open-wearable-settings-btn"
+              >
+                <MaterialCommunityIcons name="watch-variant" size={18} color="#C2272F" />
+                <Text style={accountStyles.wearableText}>
+                  {lang === 'de' ? 'Mein VitaGuide Band' : 'Il mio VitaGuide Band'}
+                </Text>
+                <MaterialCommunityIcons name="chevron-right" size={18} color="#9CA3AF" />
+              </TouchableOpacity>
+              <TouchableOpacity
                 style={accountStyles.logoutBtn}
                 onPress={() => {
                   Alert.alert(
@@ -647,6 +658,12 @@ const accountStyles = StyleSheet.create({
   syncText: { fontSize: 11, color: '#C2272F', fontWeight: '500' },
   logoutBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 14, paddingVertical: 10, borderTopWidth: 1, borderTopColor: '#F3F4F6' },
   logoutText: { fontSize: 14, color: '#EF4444', fontWeight: '500' },
+  wearableRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 8,
+    marginTop: 12, paddingVertical: 12, paddingHorizontal: 12,
+    backgroundColor: '#FEF2F2', borderRadius: 10,
+  },
+  wearableText: { flex: 1, fontSize: 14, color: '#1A2E35', fontWeight: '600' },
   loginCard: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#FFF', borderRadius: 14, padding: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 4, elevation: 2 },
   loginTitle: { fontSize: 14, fontWeight: '600', color: '#1F2937' },
   loginSubtitle: { fontSize: 12, color: '#6B7280', marginTop: 2 },

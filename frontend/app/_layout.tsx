@@ -9,6 +9,7 @@ import { SettingsProvider } from '../src/SettingsContext';
 import { BrandProvider } from '../src/BrandContext';
 import { GuideProvider, useGuide } from '../src/GuideContext';
 import { AuthProvider, useAuth } from '../src/AuthContext';
+import { WearableProviderCtx } from '../src/WearableContext';
 import { useSwipeBack } from '../src/useSwipeBack';
 import { GuideMascot } from '../components/GuideMascot';
 import { ActionToast } from '../components/ActionToast';
@@ -59,6 +60,7 @@ export default function RootLayout() {
             <AuthProvider>
               <GuideProvider>
                 <StatusBar style="dark" />
+                <WearableProviderCtx>
                 <SwipeWrapper>
                   <View style={{ flex: 1 }}>
                     <Stack screenOptions={{
@@ -88,11 +90,14 @@ export default function RootLayout() {
                       <Stack.Screen name="stress" />
                       <Stack.Screen name="stress-player" />
                       <Stack.Screen name="weight-metabolism" />
+                      <Stack.Screen name="wearable/onboarding" />
+                      <Stack.Screen name="wearable/device-settings" />
                     </Stack>
                     <GuideOverlay />
                     <ActionToast />
                   </View>
                 </SwipeWrapper>
+                </WearableProviderCtx>
               </GuideProvider>
             </AuthProvider>
           </BrandProvider>
