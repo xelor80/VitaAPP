@@ -11,6 +11,15 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - **3rd Party**: Shopify (products), SMTP (emails), Unsplash (images), Emergent Google Auth
 
 
+### iOS-Build-Kompatibilität sichergestellt (2026-02-04)
+- **`HBandProvider.isNativeBridgeAvailable()` erweitert**: Auf iOS jetzt hart `false` (bis Phase E aktiviert wird) — dadurch fällt Auto-Detection sauber auf HealthKit statt einen halbfertigen HBand-Provider zu wählen
+- **Config-Plugin abgesichert**: Swift-/ObjC-Files werden NICHT mehr automatisch in den iOS-Build kopiert — nur per opt-in via `EXPO_HBAND_IOS_BRIDGE=1 expo prebuild` (verhindert `import React`-Kompilierfehler bei parallelem iOS-Build)
+- **iOS Frameworks werden trotzdem gebündelt**: Das Pod `HBandSdkLocal` bringt alle 6 `.framework`-Files ins App-Bundle — sie sind einsatzbereit, sobald die Bridge in Phase E aktiviert wird
+- **Sanity-Test**: Config-Plugin geladen und mit Fake-Config ausgeführt → Mods hängen sich korrekt ein
+- **`eas build --platform ios` funktioniert jetzt parallel zum Android-Build** ohne Compile-Fehler; App bootet auf iOS via HealthKit-Provider
+
+
+
 ### iOS Framework für HBand Phase E vorbereitet (2026-02-04)
 - **6 iOS Frameworks (23 MB) aus offiziellem HBandSDK/iOS_Ble_SDK Repo (Apache-2.0)** geklont nach `/frontend/plugins/with-hband-sdk/ios-frameworks/`:
   - `VeepooBleSDK.framework` 2.2.XX.15 (15 MB, 123 Header, iOS 10+)

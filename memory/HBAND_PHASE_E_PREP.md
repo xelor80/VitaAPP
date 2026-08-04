@@ -35,21 +35,31 @@ Alle stammen aus Version **2.2.XX.15** (aktuellste offizielle Release, iOS 26.5 
 
 Wenn Android-Phase B/C/D fertig getestet ist, für iOS aktivieren:
 
-1. **In `HBandBridge.swift`**: `TODO Phase E`-Blöcke ausklammern, echte SDK-Calls aktivieren:
+1. **Env-Flag setzen und Prebuild neu laufen lassen**:
+   ```bash
+   EXPO_HBAND_IOS_BRIDGE=1 npx expo prebuild --platform ios --clean
+   ```
+   Dadurch werden `HBandBridge.swift` + `HBandBridge.m` automatisch nach
+   `ios/{appName}/HBand/` kopiert.
+
+2. **In `HBandBridge.swift`**: `TODO Phase E`-Blöcke aktivieren, echte SDK-Calls einbauen:
    ```swift
    import VeepooBleSDK
    VPBleCentralManage.share().scanForPeripherals { peripheral, advData, rssi in
      self.sendEvent(withName: "HBand:scanResult", body: [...])
    }
    ```
-2. **Bridging-Header** einrichten:
+
+3. **Bridging-Header** einrichten:
    - Xcode → Build Settings → `Swift Compiler - General` → `Objective-C Bridging Header`
    - Setzen auf `{appName}/HBand/HBand-Bridging-Header.h` mit:
      ```objc
      #import <VeepooBleSDK/VeepooBleSDK.h>
      ```
-3. **Test**: `eas build --profile preview --platform ios` → TestFlight
-4. **Falls Xcode das Framework nicht findet**: `Framework Search Paths` in Xcode = `$(PROJECT_DIR)/Frameworks`
+
+4. **In `HBandProvider.ts`**: `if (Platform.OS === 'ios') return false;` in `isNativeBridgeAvailable()` entfernen — dann greift Auto-Detection auf HBand statt HealthKit.
+
+5. **Test**: `eas build --profile preview --platform ios` → TestFlight
 
 ## Fun Fact
 Das iOS-Framework wurde mit **Xcode 26.5, min iOS 10.0** kompiliert — kompatibel mit

@@ -285,13 +285,17 @@ function withHBandIosFrameworks(config) {
         }
       }
 
-      // Swift/ObjC-Bridge-Files ins iOS-Projekt kopieren (unter <appName>/HBand/)
-      const iosSourceDir = path.join(projectRoot, 'plugins', 'with-hband-sdk', 'ios-source');
-      if (fs.existsSync(iosSourceDir)) {
-        const appTargetDir = path.join(iosRoot, cfg.modRequest.projectName || 'VitaGuide', 'HBand');
-        fs.mkdirSync(appTargetDir, { recursive: true });
-        for (const f of fs.readdirSync(iosSourceDir)) {
-          fs.copyFileSync(path.join(iosSourceDir, f), path.join(appTargetDir, f));
+      // Swift/ObjC-Bridge-Files werden ERST in Phase E in den Build gezogen.
+      // Bis dahin liegen sie nur im Plugin-Ordner. Um sie zu aktivieren:
+      //   setze env EXPO_HBAND_IOS_BRIDGE=1 und rerun `expo prebuild`.
+      if (process.env.EXPO_HBAND_IOS_BRIDGE === '1') {
+        const iosSourceDir = path.join(projectRoot, 'plugins', 'with-hband-sdk', 'ios-source');
+        if (fs.existsSync(iosSourceDir)) {
+          const appTargetDir = path.join(iosRoot, cfg.modRequest.projectName || 'VitaGuide', 'HBand');
+          fs.mkdirSync(appTargetDir, { recursive: true });
+          for (const f of fs.readdirSync(iosSourceDir)) {
+            fs.copyFileSync(path.join(iosSourceDir, f), path.join(appTargetDir, f));
+          }
         }
       }
 

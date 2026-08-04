@@ -9,7 +9,7 @@
  * Phase C (kommt):   startRealtimeMeasurement für HR/SpO2/HRV/ECG
  * Phase D (kommt):   synchronizeHealthData (Historie)
  */
-import { NativeModules, NativeEventEmitter } from 'react-native';
+import { NativeModules, NativeEventEmitter, Platform } from 'react-native';
 import type {
   WearableProvider, DiscoveredDevice, DeviceInfo, SyncResult,
   RealtimeMetric, RealtimeSample, UserWearableSettings, FirmwareUpdateResult,
@@ -20,7 +20,19 @@ import { MECOLY_E500_CAPABILITIES } from './types';
 const Native: any = (NativeModules as any).HBandBridge;
 const emitter: NativeEventEmitter | null = Native ? new NativeEventEmitter(Native) : null;
 
+/**
+ * Prüft ob die native HBand-Bridge auf diesem Gerät nutzbar ist.
+ *
+ * Regeln:
+ *  - Android: true, wenn NativeModules.HBandBridge existiert UND Reflection-Load
+ *    des VPOperateManager funktioniert (wird erst beim ersten init() geprüft).
+ *  - iOS: aktuell HART FALSE — Bridge ist erst ab Phase E aktiv.
+ *    Frameworks sind bereits im Build gebündelt, aber Swift-Modul ist noch nicht
+ *    im Xcode-Target registriert. Auto-Detection fällt sauber auf HealthKit.
+ *  - Web/Expo Go: false (Modul nicht vorhanden).
+ */
 export function isNativeBridgeAvailable(): boolean {
+  if (Platform.OS === 'ios') return false;   // Phase E aktiviert das später
   return Boolean(Native && typeof Native.startScan === 'function');
 }
 
