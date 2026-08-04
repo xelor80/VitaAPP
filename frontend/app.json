@@ -10,11 +10,20 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
+      "buildNumber": "2",
       "bundleIdentifier": "app.emergent.personalizemeals3127497d",
+      "entitlements": {
+        "com.apple.developer.healthkit": true,
+        "com.apple.developer.healthkit.access": []
+      },
       "infoPlist": {
         "NSBluetoothAlwaysUsageDescription": "VitaGuide verwendet Bluetooth, um dein VitaGuide Band zu verbinden und Gesundheitswerte zu synchronisieren.",
         "NSBluetoothPeripheralUsageDescription": "VitaGuide verwendet Bluetooth, um dein VitaGuide Band zu verbinden und Gesundheitswerte zu synchronisieren.",
-        "UIBackgroundModes": ["bluetooth-central"]
+        "NSHealthShareUsageDescription": "VitaGuide liest Herzfrequenz, HRV, SpO2, Schlaf, Schritte und Kalorien aus Apple Health, um dir personalisierte Readiness- und Recovery-Insights zu geben.",
+        "NSHealthUpdateUsageDescription": "VitaGuide schreibt optional Workouts, Achtsamkeits-Sessions und Trink-Erinnerungen zurück in Apple Health.",
+        "UIBackgroundModes": [
+          "bluetooth-central"
+        ]
       }
     },
     "android": {
@@ -23,6 +32,7 @@
         "backgroundColor": "#4A8B71"
       },
       "edgeToEdgeEnabled": true,
+      "versionCode": 2,
       "package": "com.emergent.stressreliefapp.xznvct",
       "permissions": [
         "android.permission.BLUETOOTH",
@@ -30,7 +40,22 @@
         "android.permission.BLUETOOTH_CONNECT",
         "android.permission.BLUETOOTH_SCAN",
         "android.permission.ACCESS_FINE_LOCATION",
-        "android.permission.ACCESS_COARSE_LOCATION"
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.health.READ_HEART_RATE",
+        "android.permission.health.READ_RESTING_HEART_RATE",
+        "android.permission.health.READ_HEART_RATE_VARIABILITY",
+        "android.permission.health.READ_OXYGEN_SATURATION",
+        "android.permission.health.READ_RESPIRATORY_RATE",
+        "android.permission.health.READ_BODY_TEMPERATURE",
+        "android.permission.health.READ_SKIN_TEMPERATURE",
+        "android.permission.health.READ_STEPS",
+        "android.permission.health.READ_DISTANCE",
+        "android.permission.health.READ_ACTIVE_CALORIES_BURNED",
+        "android.permission.health.READ_TOTAL_CALORIES_BURNED",
+        "android.permission.health.READ_SLEEP",
+        "android.permission.health.READ_EXERCISE",
+        "android.permission.health.READ_BLOOD_PRESSURE",
+        "android.permission.health.READ_BLOOD_GLUCOSE"
       ]
     },
     "notification": {
@@ -56,7 +81,16 @@
       "expo-asset",
       "expo-web-browser",
       "expo-font",
-      "expo-dev-client"
+      "expo-dev-client",
+      [
+        "react-native-health",
+        {
+          "isClinicalDataEnabled": false,
+          "healthSharePermission": "VitaGuide liest Herzfrequenz, HRV, SpO2, Schlaf, Schritte und Kalorien aus Apple Health, um dir personalisierte Readiness- und Recovery-Insights zu geben.",
+          "healthUpdatePermission": "VitaGuide schreibt optional Workouts, Achtsamkeits-Sessions und Trink-Erinnerungen zurück in Apple Health."
+        }
+      ],
+      "react-native-health-connect"
     ],
     "experiments": {
       "typedRoutes": true

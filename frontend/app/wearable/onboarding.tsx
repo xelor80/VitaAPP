@@ -7,6 +7,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useWearable } from '../../src/WearableContext';
+import { ProviderPicker } from '../../src/wearable/ProviderPicker';
 import type { DiscoveredDevice } from '../../src/wearable/types';
 
 type Step = 1 | 2 | 3 | 4 | 5 | 6 | 7;
@@ -57,7 +58,7 @@ export default function WearableOnboarding() {
         <View style={styles.demoBanner} testID="wearable-demo-banner">
           <MaterialCommunityIcons name="test-tube" size={14} color="#7C2D12" />
           <Text style={styles.demoBannerText}>
-            DEMO – simulierte Daten. Für echte Werte bitte einen Dev-/Prod-Build mit HBand-SDK installieren.
+            DEMO – simulierte Daten. Für echte Werte: VitaGuide Band koppeln oder Apple Health / Health Connect verbinden.
           </Text>
         </View>
       )}
@@ -78,11 +79,12 @@ export default function WearableOnboarding() {
         {step === 1 && (
           <View testID="wearable-step-1">
             <MaterialCommunityIcons name="watch-variant" size={72} color="#C2272F" style={styles.bigIcon} />
-            <Text style={styles.h1}>Band hinzufügen</Text>
+            <Text style={styles.h1}>Datenquelle wählen</Text>
             <Text style={styles.p}>
-              Verbinde dein VitaGuide Band, um Schlaf, Erholung, Aktivität und weitere Gesundheitswerte
-              automatisch zu erfassen.
+              VitaGuide arbeitet mit deinem VitaGuide Band, Apple Health, Health Connect oder
+              simulierten Demo-Daten. Wähle eine Quelle – du kannst später wechseln.
             </Text>
+            <ProviderPicker compact />
             <View style={styles.tipCard}>
               <MaterialCommunityIcons name="information-outline" size={18} color="#C2272F" />
               <Text style={styles.tipText}>

@@ -7,6 +7,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useWearable } from '../../src/WearableContext';
+import { ProviderPicker } from '../../src/wearable/ProviderPicker';
 
 export default function DeviceSettings() {
   const insets = useSafeAreaInsets();
@@ -82,7 +83,7 @@ export default function DeviceSettings() {
         <View style={styles.demoBanner} testID="device-settings-demo-banner">
           <MaterialCommunityIcons name="test-tube" size={14} color="#7C2D12" />
           <Text style={styles.demoBannerText}>
-            DEMO – simulierte Daten. Nur echte Bänder in Prod-Builds erfassen echte Werte.
+            DEMO – simulierte Daten. Wechsle unten die Datenquelle zu Apple Health, Health Connect oder deinem VitaGuide Band.
           </Text>
         </View>
       )}
@@ -186,6 +187,17 @@ export default function DeviceSettings() {
             onPress={() => Alert.alert('Info', 'Der Diagnose-Export wird im QA-Sprint bereitgestellt.')}
             isLast
           />
+        </View>
+
+        {/* Danger zone */}
+        <View style={styles.dangerCard}>
+          <Text style={styles.dangerTitle}>Datenquelle wechseln</Text>
+          <Text style={styles.dangerText}>
+            Aktuell aktiv: <Text style={{ fontWeight: '700' }}>
+              {w.availableProviders.find(p => p.id === w.providerId)?.label || w.providerId}
+            </Text>
+          </Text>
+          <ProviderPicker compact />
         </View>
 
         {/* Danger zone */}

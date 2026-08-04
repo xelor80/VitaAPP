@@ -1,10 +1,19 @@
 /**
  * WearableContext – single source of truth for the wearable UI.
  * Holds device info, connection state, sync stats and exposes actions.
+ *
+ * Provider-Auswahl:
+ *   Der User kann per `switchProvider(id)` zwischen HBand-Band, Apple Health,
+ *   Health Connect oder Demo umschalten. Die Wahl wird persistiert.
  */
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getWearableProvider, isNativeBridgeAvailable } from './wearable/index';
+import {
+  getWearableProvider, isNativeBridgeAvailable, isHealthKitAvailable,
+  isHealthConnectAvailable, preloadPreferredProvider, setPreferredProvider,
+  currentProviderId, resetWearableProvider, listAvailableProviders,
+  type ProviderId,
+} from './wearable/index';
 import type {
   ConnectionState, DeviceInfo, DiscoveredDevice, WearableProvider,
 } from './wearable/types';
@@ -15,8 +24,12 @@ const STORAGE_USER = 'vg_wearable_user_id';
 
 interface Ctx {
   provider: WearableProvider;
+  providerId: ProviderId;
   isDemo: boolean;
   isNativeAvailable: boolean;
+  isHealthKitAvailable: boolean;
+  isHealthConnectAvailable: boolean;
+  availableProviders: { id: ProviderId; label: string; native: boolean }[];
   state: ConnectionState;
   device: DeviceInfo | null;
   discovered: DiscoveredDevice[];
@@ -32,12 +45,14 @@ interface Ctx {
   unpair: (purgeData?: boolean) => Promise<void>;
   syncNow: (userId: string) => Promise<{ inserted: number; total: number } | null>;
   refreshBattery: () => Promise<void>;
+  switchProvider: (id: ProviderId) => Promise<void>;
 }
 
 const WearableCtx = createContext<Ctx | null>(null);
 
 export const WearableProviderCtx: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const providerRef = useRef<WearableProvider>(getWearableProvider());
+  const [providerId, setProviderId] = useState<ProviderId>(currentProviderId() || 'demo');
   const [state, setState] = useState<ConnectionState>('idle');
   const [device, setDevice] = useState<DeviceInfo | null>(null);
   const [discovered, setDiscovered] = useState<DiscoveredDevice[]>([]);
@@ -46,8 +61,14 @@ export const WearableProviderCtx: React.FC<{ children: React.ReactNode }> = ({ c
   const [batteryLevel, setBatteryLevel] = useState<number | null>(null);
   const [errorText, setErrorText] = useState<string | null>(null);
 
+  // Beim App-Start: bevorzugten Provider aus Storage laden
   useEffect(() => {
     (async () => {
+      try {
+        const pid = await preloadPreferredProvider();
+        providerRef.current = getWearableProvider();
+        setProviderId(pid);
+      } catch { /* fallback bleibt Demo */ }
       try {
         const saved = await AsyncStorage.getItem(STORAGE_DEVICE);
         if (saved) setDevice(JSON.parse(saved));
@@ -191,12 +212,30 @@ export const WearableProviderCtx: React.FC<{ children: React.ReactNode }> = ({ c
     } catch {}
   }, []);
 
+  const switchProvider = useCallback(async (id: ProviderId) => {
+    // Trenne aktuelle Verbindung, wechsle Provider, cleane discovery-Liste
+    try { await providerRef.current.disconnect(); } catch {}
+    await setPreferredProvider(id);
+    resetWearableProvider();
+    providerRef.current = getWearableProvider();
+    setProviderId(id);
+    setDiscovered([]);
+    setState('idle');
+    setErrorText(null);
+    // Device wird nicht automatisch entfernt – User muss neu koppeln
+  }, []);
+
   const value: Ctx = {
     provider: providerRef.current,
+    providerId,
     isDemo: providerRef.current.isDemo,
     isNativeAvailable: isNativeBridgeAvailable(),
+    isHealthKitAvailable: isHealthKitAvailable(),
+    isHealthConnectAvailable: isHealthConnectAvailable(),
+    availableProviders: listAvailableProviders(),
     state, device, discovered, lastSyncAt, lastSyncCount, batteryLevel, errorText,
     scan, stopScan, pairAndConnect, disconnect, unpair, syncNow, refreshBattery,
+    switchProvider,
   };
   return <WearableCtx.Provider value={value}>{children}</WearableCtx.Provider>;
 };

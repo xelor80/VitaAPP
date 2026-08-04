@@ -11,6 +11,38 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - **3rd Party**: Shopify (products), SMTP (emails), Unsplash (images), Emergent Google Auth
 
 
+### Health Connect / HealthKit Integration + EAS Preview-Build Prep (2026-02-04) – COMPLETED
+- **Deps installiert**: `react-native-health@1.19.0` (iOS) + `react-native-health-connect@4.1.2` (Android)
+  über `expo install`. Config-Plugins automatisch in `app.json` verlinkt.
+- **`app.json` erweitert**:
+  - iOS: `buildNumber: "2"`, `com.apple.developer.healthkit` Entitlement,
+    `NSHealthShareUsageDescription`, `NSHealthUpdateUsageDescription`
+  - Android: `versionCode: 2`, 15 zusätzliche `android.permission.health.READ_*`-Permissions
+- **`eas.json` erweitert**: Neue Profile `preview` (iOS Ad-hoc + Android APK),
+  `preview-simulator` (iOS Simulator), plus Channel-Definitionen für EAS Update.
+- **Neue Provider-Klassen (`src/wearable/`)**:
+  - `HealthKitProvider.ts` – iOS via `react-native-health` (HR, HRV, SpO2, Respiration,
+    Body-Temp, Steps, Distance, Active-Kcal, Sleep-Segments, Blood-Pressure, Glucose)
+  - `HealthConnectProvider.ts` – Android via `react-native-health-connect`
+    (dieselben Metriken + Skin-Temperature, Sleep-Stages)
+  - `ProviderPicker.tsx` – User-UI zur Auswahl der Datenquelle
+    (Band / Apple Health / Health Connect / Demo)
+- **`src/wearable/index.ts` aktualisiert**:
+  - Auto-Detection-Prio: HBand → HealthKit → Health Connect → Demo
+  - `setPreferredProvider(id)`, `getPreferredProvider()`, `preloadPreferredProvider()`
+  - `listAvailableProviders()` – nur Provider mit verlinkter Native-Bridge werden gezeigt
+- **`src/WearableContext.tsx` erweitert**: `providerId`, `switchProvider(id)`,
+  `availableProviders[]`. Beim Wechsel wird automatisch disconnected und der neue Provider geladen.
+- **Onboarding-Screen (Step 1)**: Provider-Picker vorgeschaltet, User wählt Datenquelle bevor gescannt wird.
+- **Device-Settings**: Neue Section "Datenquelle wechseln" mit ProviderPicker.
+- **Demo-Banner-Text**: aktualisiert – erwähnt jetzt Apple Health / Health Connect als Alternativen.
+- **Regressionstest**: Backend nimmt `provider="health_connect"` + `source="health_connect:samsung"` korrekt an (Batch-Insert getestet).
+- **Docs**:
+  - `/app/memory/EAS_BUILD_GUIDE.md` – Schritt-für-Schritt iOS TestFlight + Android APK
+  - `/app/memory/HEALTH_CONNECT_HEALTHKIT_ARCHITECTURE.md` – Datenfluss & Metric-Mapping
+
+
+
 ### HBand Wearable Integration – Grundgerüst (2026-08-04) – COMPLETED
 - **Vendor-agnostic architecture**: `WearableProvider` interface (see `/app/memory/HBAND_ARCHITECTURE.md`).
 - **Backend**: `routes/wearable.py` with `wearable_devices`, `health_measurements`, `sleep_sessions`, `wearable_sync_logs` collections.
