@@ -21,6 +21,7 @@ import type {
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 const STORAGE_DEVICE = 'vg_wearable_device';
 const STORAGE_USER = 'vg_wearable_user_id';
+const STORAGE_PWD = 'vg_wearable_device_pwd';   // Kopplungs-PIN, default "0000"
 
 interface Ctx {
   provider: WearableProvider;
@@ -40,7 +41,7 @@ interface Ctx {
 
   scan: () => Promise<void>;
   stopScan: () => Promise<void>;
-  pairAndConnect: (userId: string, dev: DiscoveredDevice) => Promise<void>;
+  pairAndConnect: (userId: string, dev: DiscoveredDevice, devicePwd?: string) => Promise<void>;
   disconnect: () => Promise<void>;
   unpair: (purgeData?: boolean) => Promise<void>;
   syncNow: (userId: string) => Promise<{ inserted: number; total: number } | null>;
@@ -103,9 +104,12 @@ export const WearableProviderCtx: React.FC<{ children: React.ReactNode }> = ({ c
     setState('idle');
   }, []);
 
-  const pairAndConnect = useCallback(async (userId: string, dev: DiscoveredDevice) => {
+  const pairAndConnect = useCallback(async (userId: string, dev: DiscoveredDevice, devicePwd?: string) => {
     setErrorText(null);
     setState('connecting');
+    // Passwort persistieren (später von HBandProvider.connect() verwendet)
+    const pwd = (devicePwd || '0000').trim();
+    try { await AsyncStorage.setItem(STORAGE_PWD, pwd); } catch {}
     try {
       const info = await providerRef.current.connect(dev.id);
       await saveDevice(info);

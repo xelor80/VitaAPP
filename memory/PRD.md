@@ -11,6 +11,28 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - **3rd Party**: Shopify (products), SMTP (emails), Unsplash (images), Emergent Google Auth
 
 
+### HBand Native Bridge – Phase A (2026-02-04) – COMPLETED
+- **Config-Plugin `plugins/with-hband-sdk/`**: Expo-Prebuild-Hook injiziert bei `eas build`:
+  - Alle 7 AARs (vpprotocol, vpbluetooth, JL_Watch, jl_rcsp, jl_bt_ota, BmpConvert, abpartool) → `android/app/libs`
+  - Kotlin-Sourcen (HBandBridgeModule, HBandBridgePackage, OperationQueue) → `android/app/src/main/java/{pkg}/hband/`
+  - Gradle: `flatDir`, `kotlin-android` plugin, 7 AAR-Deps + Maven (gson, localbroadcastmanager, Nordic scanner, mcumgr)
+  - AndroidManifest: `<service com.inuker.bluetooth.library.BluetoothService/>`
+  - MainApplication.kt: `add(HBandBridgePackage())` in `getPackages()`
+- **Kotlin Native-Modul (`HBandBridgeModule.kt`)**:
+  - `init()` lädt VPOperateManager via Reflection (crashsicher, kein Hard-Link)
+  - `requestPermissions()`, `isBluetoothEnabled()`, `startScan()`, `stopScan()` fertig
+  - Events: `HBand:scanResult`, `HBand:scanStopped`, `HBand:connectionState`, `HBand:realtimeSample`, `HBand:ecgWaveform`, `HBand:error`
+  - Stubs für Phase B (`connect`, `confirmPassword`, `syncPersonInfo`, `disconnect`, `readBattery`)
+  - Stubs für Phase C (`startDetect*/stopDetect*`) — rejecten mit `NOT_IMPLEMENTED`
+  - `OperationQueue.kt` — Serial-FIFO für SDK-Ops (Timeout-Handling, Main-Thread-safe)
+- **JS `HBandProvider.ts`** ersetzt Stub; implementiert AsyncIterable-Scan via NativeEventEmitter; Reconnect-Fähigkeit; Passwort-Storage
+- **Onboarding**: Neues **PIN-Feld in Step 3** — Default `0000`, User kann toggle & anderes PIN eingeben; persistiert in AsyncStorage
+- **`WearableContext.pairAndConnect(userId, dev, pwd?)`** — akzeptiert optionalen Device-PIN
+- **User-Aktion für Live-Test**: `cd frontend && eas build --profile preview --platform android`
+- **Docs**: `/app/memory/HBAND_PHASE_A_COMPLETE.md`, `/app/memory/HBAND_IMPLEMENTATION_PLAN.md`
+
+
+
 ### Health Connect / HealthKit Integration + EAS Preview-Build Prep (2026-02-04) – COMPLETED
 - **Deps installiert**: `react-native-health@1.19.0` (iOS) + `react-native-health-connect@4.1.2` (Android)
   über `expo install`. Config-Plugins automatisch in `app.json` verlinkt.

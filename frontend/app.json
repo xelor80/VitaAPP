@@ -82,6 +82,7 @@
       "expo-web-browser",
       "expo-font",
       "expo-dev-client",
+      "./plugins/with-hband-sdk",
       [
         "react-native-health",
         {

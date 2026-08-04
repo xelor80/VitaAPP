@@ -1,0 +1,7 @@
+{
+  "name": "with-hband-sdk",
+  "version": "0.1.0",
+  "description": "Expo Config Plugin for Veepoo/HBand Android SDK integration (VPOperateManager)",
+  "main": "index.js",
+  "private": true
+}

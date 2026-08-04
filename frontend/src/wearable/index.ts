@@ -13,7 +13,7 @@ import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { WearableProvider } from './types';
 import { DemoProvider } from './DemoProvider';
-import { HBandProvider, isNativeBridgeAvailable } from './HBandProvider.stub';
+import { HBandProvider, isNativeBridgeAvailable } from './HBandProvider';
 import { HealthKitProvider, isHealthKitAvailable } from './HealthKitProvider';
 import { HealthConnectProvider, isHealthConnectAvailable } from './HealthConnectProvider';
 

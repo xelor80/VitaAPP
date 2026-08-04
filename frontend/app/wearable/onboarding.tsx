@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator,
+  TextInput,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -21,6 +22,8 @@ export default function WearableOnboarding() {
   const [selected, setSelected] = useState<DiscoveredDevice | null>(null);
   const [syncing, setSyncing] = useState(false);
   const [syncResult, setSyncResult] = useState<{ inserted: number; total: number } | null>(null);
+  const [devicePwd, setDevicePwd] = useState<string>('0000');
+  const [showPwdField, setShowPwdField] = useState<boolean>(false);
 
   useEffect(() => {
     AsyncStorage.getItem('health_profile_id').then(v => setUserId(v || 'anonymous'));
@@ -36,7 +39,7 @@ export default function WearableOnboarding() {
   const doConnect = async (dev: DiscoveredDevice) => {
     setSelected(dev);
     goto(4);
-    await w.pairAndConnect(userId, dev);
+    await w.pairAndConnect(userId, dev, devicePwd);
     if (w.state !== 'connected' && !w.device) return;
     goto(5);
   };
@@ -117,6 +120,35 @@ export default function WearableOnboarding() {
             <Text style={styles.p}>
               Stelle sicher, dass dein Band eingeschaltet und in der Nähe ist.
             </Text>
+
+            {/* Passwort-Eingabe (optional) */}
+            <TouchableOpacity
+              style={styles.pwdToggle}
+              onPress={() => setShowPwdField(v => !v)}
+              testID="wearable-pwd-toggle"
+            >
+              <MaterialCommunityIcons name={showPwdField ? 'chevron-up' : 'chevron-down'} size={16} color="#6B7280" />
+              <Text style={styles.pwdToggleText}>
+                {showPwdField ? 'PIN ausblenden' : 'Kopplungs-PIN eingeben (falls nicht 0000)'}
+              </Text>
+            </TouchableOpacity>
+            {showPwdField && (
+              <View style={styles.pwdWrap}>
+                <MaterialCommunityIcons name="lock-outline" size={18} color="#6B7280" />
+                <TextInput
+                  style={styles.pwdInput}
+                  value={devicePwd}
+                  onChangeText={(t) => setDevicePwd(t.replace(/[^0-9]/g, '').slice(0, 4))}
+                  keyboardType="number-pad"
+                  maxLength={4}
+                  placeholder="0000"
+                  placeholderTextColor="#9CA3AF"
+                  testID="wearable-pwd-input"
+                />
+                <Text style={styles.pwdHint}>4-stellig, Werks-Default 0000</Text>
+              </View>
+            )}
+
             {w.state === 'scanning' && (
               <View style={styles.scanRow}>
                 <ActivityIndicator color="#C2272F" />
@@ -314,6 +346,21 @@ const styles = StyleSheet.create({
   permText: { fontSize: 14, color: '#1A2E35', fontWeight: '600' },
   scanRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, marginVertical: 20 },
   scanText: { fontSize: 14, color: '#6B7280', fontWeight: '600' },
+  pwdToggle: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    alignSelf: 'center', paddingVertical: 8, marginBottom: 6,
+  },
+  pwdToggleText: { fontSize: 12, color: '#6B7280', fontWeight: '600' },
+  pwdWrap: {
+    flexDirection: 'row', alignItems: 'center', gap: 8,
+    backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E5E7EB',
+    borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, marginBottom: 12,
+  },
+  pwdInput: {
+    fontSize: 18, fontWeight: '700', color: '#1A2E35',
+    letterSpacing: 6, minWidth: 78, paddingVertical: 4,
+  },
+  pwdHint: { flex: 1, fontSize: 11, color: '#9CA3AF', textAlign: 'right' },
   deviceCard: {
     backgroundColor: '#FFFFFF', padding: 14, borderRadius: 14, marginTop: 10,
     flexDirection: 'row', alignItems: 'center', gap: 12,
