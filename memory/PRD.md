@@ -11,6 +11,20 @@ Health Coach App (VitaGuide) - A comprehensive health management platform built 
 - **3rd Party**: Shopify (products), SMTP (emails), Unsplash (images), Emergent Google Auth
 
 
+### Prebuild-Trockentest bestanden + AAR-Pfad-Bugfix (2026-02-04)
+- **Bug entdeckt & gefixt**: `expo prebuild` löscht `/frontend/android/` komplett → AARs in `/frontend/android/libs/` gingen verloren
+- **Fix**: AARs verschoben nach `/frontend/plugins/with-hband-sdk/android-libs/` (prebuild-sicher, analog zu `ios-frameworks/`); Config-Plugin-Pfad angepasst
+- **Trockentest mit `expo prebuild` erfolgreich bestanden** — alle Injektionen sauber verifiziert:
+  - ✅ 7 AARs in `android/app/libs/`
+  - ✅ 6 iOS-Frameworks + Podspec in `ios/Frameworks/`
+  - ✅ `pod 'HBandSdkLocal'` in Podfile
+  - ✅ Kotlin-Files unter `com.emergent.stressreliefapp.xznvct.hband`
+  - ✅ `add(HBandBridgePackage())` in MainApplication.kt
+  - ✅ `<service com.inuker.bluetooth.library.BluetoothService/>` im Manifest
+- **Copy-Paste-Anleitung** für User: `/app/memory/HOW_TO_START_EAS_BUILD.md` (inkl. häufiger Build-Fehler + Fixes)
+
+
+
 ### iOS-Build-Kompatibilität sichergestellt (2026-02-04)
 - **`HBandProvider.isNativeBridgeAvailable()` erweitert**: Auf iOS jetzt hart `false` (bis Phase E aktiviert wird) — dadurch fällt Auto-Detection sauber auf HealthKit statt einen halbfertigen HBand-Provider zu wählen
 - **Config-Plugin abgesichert**: Swift-/ObjC-Files werden NICHT mehr automatisch in den iOS-Build kopiert — nur per opt-in via `EXPO_HBAND_IOS_BRIDGE=1 expo prebuild` (verhindert `import React`-Kompilierfehler bei parallelem iOS-Build)

@@ -65,13 +65,14 @@ function withHBandFiles(config) {
       const androidRoot = cfg.modRequest.platformProjectRoot;
 
       // AARs kopieren
-      const aarSrcDir = path.join(projectRoot, 'android', 'libs');
+      const aarSrcDir = path.join(projectRoot, 'plugins', 'with-hband-sdk', 'android-libs');
       const aarDstDir = path.join(androidRoot, 'app', 'libs');
       fs.mkdirSync(aarDstDir, { recursive: true });
       for (const aar of AARS) {
         const src = path.join(aarSrcDir, aar);
         const dst = path.join(aarDstDir, aar);
         if (fs.existsSync(src)) fs.copyFileSync(src, dst);
+        else console.warn(`[with-hband-sdk] AAR fehlt: ${src}`);
       }
 
       // Kotlin sources kopieren
