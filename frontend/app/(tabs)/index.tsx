@@ -18,6 +18,8 @@ import { eventBus } from '../../src/eventBus';
 import { setCurrentAnalysis } from '../../src/store';
 import { DisclaimerScreen } from '../../components/home/DisclaimerScreen';
 import { FeaturedProductsSlider } from '../../components/FeaturedProductsSlider';
+import { HomeWearableWidget } from '../../src/wearable/HomeWearableWidget';
+import { useWearable } from '../../src/WearableContext';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const SIDE_PAD = 16;
@@ -101,6 +103,7 @@ export default function DashboardHome() {
   const [levelData, setLevelData] = useState<any>(null);
   const [coachData, setCoachData] = useState<any>(null);
   const [todayCollapsed, setTodayCollapsed] = useState(true);
+  const wearable = useWearable();
 
   // Disclaimer
   useEffect(() => {
@@ -536,6 +539,15 @@ export default function DashboardHome() {
           </TouchableOpacity>
         )}
 
+        {/* ────────────── Wearable widget ────────────── */}
+        {hasProfile && (
+          <HomeWearableWidget
+            data={coachData?.wearable}
+            loading={!coachData}
+            isDemo={wearable.isDemo}
+          />
+        )}
+
         {/* ────────────── 5) VERO EMPFEHLUNGEN ────────────── */}
         {coachInsights.length > 0 && (
           <View style={{ marginTop: 8 }}>
@@ -555,6 +567,7 @@ export default function DashboardHome() {
                   else if (ins.action === 'stress') router.push('/stress' as any);
                   else if (ins.action === 'plan') router.push('/(tabs)/plan' as any);
                   else if (ins.action === 'weight') router.push('/weight-metabolism' as any);
+                  else if (ins.action === 'wearable-dashboard') router.push('/wearable/dashboard' as any);
                 }}
                 testID={`coach-insight-${i}`}
               >

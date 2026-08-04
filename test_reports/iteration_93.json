@@ -1,0 +1,24 @@
+{
+  "summary": "Backend-only testing of /api/coach/{profile_id} wearable integration. Created /app/backend/tests/test_coach_wearable.py with 11 pytest cases across 3 classes (TestWearableAvailability, TestWearableInsights, TestCoachRobustness). All 11 tests passed (100%). Verified: (1) 'wearable' key ALWAYS present in coach response; (2) unpaired profile → wearable.available=false, reason='no_device_paired', no wearable-tagged insights; (3) paired-with-no-data → wearable.available=true, in_learning_phase=true, readiness/recovery/sleep all null; (4) 10+ days of measurements + sleep → in_learning_phase=false with non-null numeric readiness/recovery/sleep in 0..100; (5) full wearable summary shape (device_name, battery_level, last_sync_at, in_learning_phase, days_of_data, data_completeness, readiness, recovery, sleep, activity, hrv_delta_pct, rhr_delta_pct, hrv_sufficient); (6) HRV baseline delta ≤ -15% adds warning 'HRV unter deinem Normalwert' with source='wearable' and action='wearable-dashboard'; (7) RHR delta ≥ +10% adds 'Ruhepuls etwas erhoeht' with source='wearable'; (8) readiness < 45 adds warning 'Heute ruhiger angehen' with source='wearable' action='wearable-dashboard'; (9) readiness ≥ 75 adds praise 'Bester Tag fuers Training' with source='wearable' type='praise'; (10) sleep score < 55 adds 'Schlaf war heute knapp' with source='wearable'; (11) learning phase suppresses ALL wearable insights (only after enough data).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_coach_wearable.py",
+    "/app/test_reports/pytest/coach_wearable_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "coach.get_coach_insights returns insights[:4] AFTER wearable insights are appended. If the profile has enough non-wearable warnings (water/stress/supplement/energy), high-priority wearable warnings can still be truncated below priority 4. Consider guaranteeing at least one wearable slot when wearable.available and any wearable insight has type='warning'.",
+    "_load_wearable_context swallows every exception into reason='scoring_error' but silently drops in-flight diagnostics. Consider logging the traceback with logger.exception and also returning available=false without hiding traceback for observability.",
+    "wearable.hrv_delta_pct / rhr_delta_pct are computed by wearable_scoring where the 'latest_day' is `max(by_day.keys())` — this is the last day WITH DATA, not necessarily today. If today has no HRV sample, an older day is treated as 'today' → the coach may emit a stale 'HRV unter deinem Normalwert' insight. Consider guarding delta_pct to only compare vs today's date.",
+    "The praise for high readiness uses priority + 20 to push it later; combined with insights[:4] truncation this praise is often dropped when the user also has a Mehr-trinken/Entspannung warning. Consider a dedicated positive-insights slot instead of sharing the same 4-item budget.",
+    "In-learning-phase gate lives inside `if wearable.get('available') and not wearable.get('in_learning_phase')`. This is correct, but relies on wearable_scoring flipping in_learning_phase=False as soon as days_of_data≥7. Ensure this stays consistent with MIN_DATA_DAYS_FOR_SCORES if the config value ever changes."
+  ],
+  "updated_files": ["/app/backend/tests/test_coach_wearable.py"],
+  "success_rate": {"backend": "100% (11/11)", "frontend": "not tested (per request)"},
+  "seed_data_creation": "Ephemeral profile_ids 'TEST-coach-<8hex>' with paired demo devices and measurements/sleep-sessions per scenario (no-device, paired-no-data, 10-day steady, low-HRV today, high-RHR today, low-readiness, high-readiness, poor-sleep-today, 3-day learning-phase). All devices purged with purge_data=true in module teardown.",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Coach wearable integration is green end-to-end. Next iterations could add: (a) 'it' language coverage (currently only 'de' titles are asserted); (b) verifying the exact priority ordering so wearable warnings out-rank generic ones; (c) frontend surface (SmartCoach card) once UI hooks the new wearable summary block.",
+  "rca_of_the_issue": "N/A — no failures."
+}

@@ -2,8 +2,52 @@ from fastapi import APIRouter
 from datetime import datetime, timezone, timedelta
 
 from core.config import db, logger
+from routes.wearable_scoring import compute_scores_for_date
 
 router = APIRouter(prefix="/coach", tags=["smart-coach"])
+
+
+async def _load_wearable_context(profile_id: str) -> dict:
+    """Fetch latest VitaGuide wearable scores + baselines for the coach.
+
+    Returns a compact dict `{ available, in_learning_phase, days_of_data,
+    readiness, recovery, sleep, activity, hrv_delta_pct, rhr_delta_pct,
+    battery_level, last_sync_at }` or `{ available: False, ... }`.
+    """
+    device = await db.wearable_devices.find_one(
+        {"user_id": profile_id}, {"_id": 0}, sort=[("paired_at", -1)]
+    )
+    if not device:
+        return {"available": False, "reason": "no_device_paired"}
+    try:
+        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        scores = await compute_scores_for_date(profile_id, today)
+    except Exception as e:  # noqa: BLE001
+        logger.warning(f"Wearable coach context error: {e}")
+        return {"available": False, "reason": "scoring_error"}
+
+    def _v(k: str):
+        return (scores.get("scores", {}).get(k) or {}).get("value")
+
+    hrv_b = (scores.get("baselines") or {}).get("hrv") or {}
+    rhr_b = (scores.get("baselines") or {}).get("resting_heart_rate") or {}
+
+    return {
+        "available": True,
+        "device_name": device.get("name"),
+        "battery_level": device.get("battery_level"),
+        "last_sync_at": device.get("last_sync_at"),
+        "in_learning_phase": scores.get("in_learning_phase"),
+        "days_of_data": scores.get("days_of_data"),
+        "data_completeness": scores.get("data_completeness"),
+        "readiness": _v("readiness"),
+        "recovery": _v("recovery"),
+        "sleep": _v("sleep"),
+        "activity": _v("activity"),
+        "hrv_delta_pct": hrv_b.get("delta_pct"),
+        "rhr_delta_pct": rhr_b.get("delta_pct"),
+        "hrv_sufficient": hrv_b.get("sufficient", False),
+    }
 
 
 @router.get("/{profile_id}")
@@ -173,6 +217,102 @@ async def get_coach_insights(profile_id: str, lang: str = "de"):
             "priority": priority,
         })
 
+    # ------------------------------------------------------------------
+    # Wearable-based insights (only when a band is paired)
+    # ------------------------------------------------------------------
+    wearable = await _load_wearable_context(profile_id)
+
+    if wearable.get("available") and not wearable.get("in_learning_phase"):
+        readiness = wearable.get("readiness")
+        recovery = wearable.get("recovery")
+        sleep_score = wearable.get("sleep")
+        hrv_delta = wearable.get("hrv_delta_pct") or 0
+        rhr_delta = wearable.get("rhr_delta_pct") or 0
+
+        # Low readiness → training-easy day
+        if readiness is not None and readiness < 45:
+            priority += 1
+            insights.append({
+                "type": "warning",
+                "icon": "flash-off",
+                "color": "#B45309",
+                "title": t("Heute ruhiger angehen", "Oggi meglio piu calmi"),
+                "text": t(
+                    f"Dein Readiness-Score liegt bei {int(readiness)}/100. Ein ruhiger Tag mit Yoga, Spaziergang oder Atemuebungen tut dir heute besser als hartes Training.",
+                    f"Il tuo Readiness e {int(readiness)}/100. Oggi yoga, camminata o esercizi di respirazione ti fanno bene piu di un allenamento duro."
+                ),
+                "action": "wearable-dashboard",
+                "priority": priority,
+                "source": "wearable",
+            })
+        # High readiness → good training day
+        elif readiness is not None and readiness >= 75:
+            priority += 1
+            insights.append({
+                "type": "praise",
+                "icon": "rocket-launch",
+                "color": "#059669",
+                "title": t("Bester Tag fuers Training", "Giorno ideale per allenarsi"),
+                "text": t(
+                    f"Readiness {int(readiness)}/100 – dein Koerper ist erholt. Wenn du heute Sport machen kannst, ist es ein guter Tag dafuer.",
+                    f"Readiness {int(readiness)}/100 – il tuo corpo e recuperato. Se puoi allenarti oggi, e un ottimo giorno."
+                ),
+                "action": "wearable-dashboard",
+                "priority": priority + 20,   # positive → later
+                "source": "wearable",
+            })
+
+        # HRV significantly below baseline
+        if wearable.get("hrv_sufficient") and hrv_delta <= -15:
+            priority += 1
+            insights.append({
+                "type": "warning",
+                "icon": "sine-wave",
+                "color": "#B45309",
+                "title": t("HRV unter deinem Normalwert", "HRV sotto il tuo valore normale"),
+                "text": t(
+                    f"Deine HRV ist {abs(hrv_delta):.0f}% niedriger als deine Basislinie. Achte heute auf Schlaf, sanfte Bewegung und ausreichend Wasser.",
+                    f"La tua HRV e piu bassa del {abs(hrv_delta):.0f}% rispetto alla tua baseline. Cura oggi il sonno, muoviti dolcemente, bevi acqua."
+                ),
+                "action": "wearable-dashboard",
+                "priority": priority,
+                "source": "wearable",
+            })
+
+        # Resting heart rate elevated → possible strain
+        if rhr_delta >= 10:
+            priority += 1
+            insights.append({
+                "type": "suggestion",
+                "icon": "heart-pulse",
+                "color": "#F97316",
+                "title": t("Ruhepuls etwas erhoeht", "Frequenza a riposo un po alta"),
+                "text": t(
+                    f"Dein Ruhepuls liegt {rhr_delta:.0f}% ueber deiner Basislinie. Das kann an Stress, wenig Schlaf oder beginnender Belastung liegen.",
+                    f"La tua frequenza a riposo e piu alta del {rhr_delta:.0f}% rispetto alla baseline. Puo dipendere da stress, poco sonno o affaticamento."
+                ),
+                "action": "wearable-dashboard",
+                "priority": priority,
+                "source": "wearable",
+            })
+
+        # Poor sleep score from band
+        if sleep_score is not None and sleep_score < 55:
+            priority += 1
+            insights.append({
+                "type": "suggestion",
+                "icon": "power-sleep",
+                "color": "#4338CA",
+                "title": t("Schlaf war heute knapp", "Sonno oggi scarso"),
+                "text": t(
+                    f"Dein Band bewertet den Schlaf mit {int(sleep_score)}/100. Ein 20-min-Powernap oder ein frueherer Feierabend kann helfen.",
+                    f"Il band valuta il sonno {int(sleep_score)}/100. Un powernap di 20 min o andare a dormire prima puo aiutare."
+                ),
+                "action": "wearable-dashboard",
+                "priority": priority,
+                "source": "wearable",
+            })
+
     insights.sort(key=lambda x: x["priority"])
 
     return {
@@ -186,4 +326,5 @@ async def get_coach_insights(profile_id: str, lang: str = "de"):
             "stress_sessions": stress_count,
             "avg_water_ml": round(avg_water),
         },
+        "wearable": wearable,
     }
