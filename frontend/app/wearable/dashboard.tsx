@@ -182,6 +182,22 @@ export default function WearableDashboard() {
 
         {/* Metric Cards */}
         <Text style={styles.sectionTitle}>Deine Werte heute</Text>
+
+        {/* ECG CTA */}
+        <TouchableOpacity
+          style={styles.ecgCta}
+          onPress={() => router.push('/wearable/measure/ecg' as any)}
+          testID="dashboard-ecg-cta"
+        >
+          <View style={styles.ecgIconWrap}>
+            <MaterialCommunityIcons name="heart-pulse" size={24} color="#FFFFFF" />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.ecgTitle}>30‑Sek. EKG aufzeichnen</Text>
+            <Text style={styles.ecgSub}>Live‑Waveform, manuelle Wellness‑Messung</Text>
+          </View>
+          <MaterialCommunityIcons name="chevron-right" size={20} color="#FFFFFF" />
+        </TouchableOpacity>
         {metricCards.map(m => {
           const b = data.baselines[m.key];
           const hasBaseline = b?.sufficient;
@@ -312,4 +328,15 @@ const styles = StyleSheet.create({
     padding: 10, marginTop: 16, alignItems: 'flex-start',
   },
   disclaimerText: { flex: 1, fontSize: 11, color: '#78350F', lineHeight: 15 },
+  ecgCta: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    backgroundColor: '#1A2E35', paddingVertical: 12, paddingHorizontal: 14,
+    borderRadius: 14, marginBottom: 10,
+  },
+  ecgIconWrap: {
+    width: 42, height: 42, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.15)',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  ecgTitle: { fontSize: 14, fontWeight: '800', color: '#FFFFFF' },
+  ecgSub: { fontSize: 11, color: 'rgba(255,255,255,0.85)', marginTop: 2 },
 });

@@ -168,6 +168,12 @@ export default function DeviceSettings() {
             onPress={() => Alert.alert('Info', 'Diese Funktion wird verfügbar, sobald das native HBand-SDK integriert ist.')}
           />
           <ActionRow
+            icon="heart-pulse"
+            label="EKG‑Aufzeichnung starten"
+            testID="device-action-ecg"
+            onPress={() => router.push('/wearable/measure/ecg' as any)}
+          />
+          <ActionRow
             icon="cellphone-arrow-down"
             label="Firmware aktualisieren"
             testID="device-action-firmware"

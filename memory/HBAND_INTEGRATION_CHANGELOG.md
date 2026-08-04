@@ -2,6 +2,25 @@
 
 > Jede substantielle Änderung im Rahmen der HBand-Wearable-Integration wird hier
 > als knapper Bullet vermerkt (Datum, betroffene Files, Zweck).
+## 2026-08-04 – Realtime-EKG + Veepoo-SDK-Beschaffung
+
+### Frontend – Realtime EKG
+- **NEU** `app/wearable/measure/ecg.tsx` – 30-Sekunden EKG-Aufzeichnung mit Live-SVG-Waveform (Cyan auf dunklem Grid), Countdown, Herz/Verbleibend/Samples-Stats, Signal-Qualitäts-Pill, Abbrechen-Möglichkeit, Speichern via `/api/wearable/measurements/batch` (metric_type=ecg, Down-Sampling auf max 2500 Werte).
+- **UPDATE** `src/wearable/types.ts` – neue RealtimeMetric `'ecg'`, `RealtimeSample.samples`/`samplingHz` für Burst-Delivery.
+- **UPDATE** `src/wearable/DemoProvider.ts` – synthetische QRS-Wellen mit 250 Hz, 40 ms Burst-Intervall, 72-80 bpm.
+- **UPDATE** `app/wearable/dashboard.tsx` + `device-settings.tsx` – prominenter EKG-CTA-Button.
+- Klar gekennzeichnet als **Wellness-Aufzeichnung**, kein medizinisches EKG.
+
+### Docs – SDK-Beschaffung
+- **NEU** `HBAND_SDK_PROCUREMENT.md` – vollständige Anleitung:
+  - Was du am Ende brauchst (AAR, Framework, Docs, PIN, NDA)
+  - Kontaktkanäle in Prio-Reihenfolge (Reseller → sales@veepoo.com → oem@veepoo.com)
+  - Copy-Paste-fertige E-Mail-Vorlage auf Englisch
+  - Vorbereitungs-Checkliste (Firmendaten, USt-ID, Seriennummer)
+  - Was üblicherweise im NDA steht + Klauseln zum Achten
+  - Nächste Schritte nach Erhalt der Files
+  - Fallback-Optionen wenn Veepoo nicht antwortet
+
 ## 2026-08-04 – Home-Widget + KI-Coach mit Wearable-Kontext
 
 ### Backend

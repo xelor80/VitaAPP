@@ -184,6 +184,40 @@ export class DemoProvider implements WearableProvider {
 
   async startRealtimeMeasurement(metric: RealtimeMetric) {
     if (this.rtInterval) clearInterval(this.rtInterval);
+    if (metric === 'ecg') {
+      // ECG bursts: every 40ms deliver 10 raw samples at 250Hz.
+      // Synthetic waveform: baseline + Q-R-S-T pulses ~74 bpm.
+      const hz = 250;
+      const bpm = 72 + Math.random() * 8;
+      const beatEvery = Math.round((60 / bpm) * hz);
+      let sampleIdx = 0;
+      this.rtInterval = setInterval(() => {
+        const burst: number[] = [];
+        for (let i = 0; i < 10; i++) {
+          const p = sampleIdx % beatEvery;
+          // Simple synthetic PQRST-like shape
+          let v = 0;
+          if (p < 20) v = Math.sin((p / 20) * Math.PI) * 0.10;                // P
+          else if (p >= 30 && p < 42) v = -0.15;                              // Q
+          else if (p >= 42 && p < 50) v = 1.2 * Math.exp(-((p - 46) ** 2) / 4); // R
+          else if (p >= 50 && p < 60) v = -0.25;                              // S
+          else if (p >= 80 && p < 120) v = Math.sin(((p - 80) / 40) * Math.PI) * 0.25; // T
+          else v = (Math.random() - 0.5) * 0.02;                              // baseline noise
+          burst.push(Number(v.toFixed(3)));
+          sampleIdx++;
+        }
+        this.rtCallbacks.forEach(cb => cb({
+          metric: 'ecg',
+          value: Math.round(bpm),
+          unit: 'bpm',
+          timestamp: new Date().toISOString(),
+          qualityOk: Math.random() > 0.03,
+          samples: burst,
+          samplingHz: hz,
+        }));
+      }, 40);
+      return;
+    }
     this.rtInterval = setInterval(() => {
       const sample: RealtimeSample = {
         metric,

@@ -159,14 +159,19 @@ export type RealtimeMetric =
   | 'heart_rate'
   | 'spo2'
   | 'hrv'
-  | 'skin_temperature';
+  | 'skin_temperature'
+  | 'ecg';
 
 export interface RealtimeSample {
   metric: RealtimeMetric;
-  value: number;
+  value: number;              // for ECG: current heart-rate derived from R-peaks
   unit: string;
   timestamp: string;
   qualityOk: boolean;
+  /** For burst-mode metrics like ECG: raw waveform samples since last callback. */
+  samples?: number[];
+  /** Sampling frequency for burst metrics. */
+  samplingHz?: number;
 }
 
 export interface UserWearableSettings {
