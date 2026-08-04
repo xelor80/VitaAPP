@@ -34,12 +34,21 @@ MetricType = Literal[
     "stress",
     "blood_pressure_systolic",
     "blood_pressure_diastolic",
+    "blood_glucose_estimated",   # ⚠️ Wellness-estimate only
+    "ecg",                        # waveform in metadata.samples
     "steps",
     "distance_m",
     "active_minutes",
     "calories_kcal",
     "battery",
 ]
+
+# Metrics that are non-medical estimates. Frontend MUST show a disclaimer.
+ESTIMATE_METRICS = {
+    "blood_glucose_estimated",
+    "blood_pressure_systolic",
+    "blood_pressure_diastolic",
+}
 
 CONNECTION_STATES = {"paired", "connected", "disconnected", "unreachable"}
 
@@ -241,12 +250,24 @@ async def delete_device(device_id: str, purge_data: bool = Query(False)):
 # ---------------------------------------------------------------------------
 @router.post("/measurements/batch")
 async def upload_measurements(payload: MeasurementBatchIn):
-    """Upsert-based bulk insert (dedupe on user+device+metric+measured_at)."""
+    """Upsert-based bulk insert (dedupe on user+device+metric+measured_at).
+
+    For metrics in ESTIMATE_METRICS a disclaimer is force-injected into metadata
+    to guarantee the app can never accidentally strip it.
+    """
     await _ensure_indexes()
     now = _now_iso()
     inserted = 0
     duplicates = 0
     for m in payload.measurements:
+        meta = dict(m.metadata or {})
+        if m.metric_type in ESTIMATE_METRICS:
+            meta["estimate"] = True
+            meta.setdefault("not_medical", True)
+            meta.setdefault(
+                "disclaimer",
+                "Wellness-Schätzung. Kein medizinischer Messwert.",
+            )
         key = {
             "user_id": payload.user_id,
             "device_id": payload.device_id,
@@ -259,7 +280,7 @@ async def upload_measurements(payload: MeasurementBatchIn):
             "unit": m.unit,
             "source": m.source or "wearable",
             "quality": m.quality,
-            "metadata": m.metadata or {},
+            "metadata": meta,
             "created_at": now,
         }
         res = await db.health_measurements.update_one(

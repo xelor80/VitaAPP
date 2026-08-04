@@ -14,11 +14,49 @@ export type MetricType =
   | 'stress'
   | 'blood_pressure_systolic'
   | 'blood_pressure_diastolic'
+  | 'blood_glucose_estimated'   // ⚠️ non-medical estimate
+  | 'ecg'                        // waveform, stored in metadata.samples
   | 'steps'
   | 'distance_m'
   | 'active_minutes'
   | 'calories_kcal'
   | 'battery';
+
+/** Metrics that are non-medical estimates and MUST be labelled in UI. */
+export const ESTIMATE_METRICS: MetricType[] = [
+  'blood_glucose_estimated',
+  'blood_pressure_systolic',
+  'blood_pressure_diastolic',
+];
+
+/** Human-readable, medically-safe label used in the UI. */
+export function labelForMetric(m: MetricType, lang: 'de' | 'it' | 'en' = 'de'): string {
+  const de: Record<MetricType, string> = {
+    heart_rate: 'Herzfrequenz',
+    resting_heart_rate: 'Ruhepuls',
+    hrv: 'HRV (Bandmesswert)',
+    spo2: 'Sauerstoffsättigung',
+    skin_temperature: 'Hauttemperatur',
+    respiration_rate: 'Atemfrequenz',
+    stress: 'Belastung (Bandwert)',
+    blood_pressure_systolic: 'Blutdruck systolisch (Wellness-Schätzung)',
+    blood_pressure_diastolic: 'Blutdruck diastolisch (Wellness-Schätzung)',
+    blood_glucose_estimated: 'Blutzucker (Wellness-Schätzung)',
+    ecg: 'EKG-Aufzeichnung',
+    steps: 'Schritte',
+    distance_m: 'Distanz',
+    active_minutes: 'Aktive Minuten',
+    calories_kcal: 'Kalorien',
+    battery: 'Akkustand',
+  };
+  return de[m] || m;
+}
+
+/** Non-medical disclaimer for estimate metrics. */
+export const ESTIMATE_DISCLAIMER_DE =
+  'Wellness-Schätzung durch das Band. Kein medizinischer Messwert.';
+export const ESTIMATE_DISCLAIMER_IT =
+  'Stima wellness dal band. Non è una misura medica.';
 
 export type ConnectionState =
   | 'unknown'
@@ -51,7 +89,42 @@ export interface DeviceInfo {
   hardwareVersion?: string;
   serialNumber?: string;
   batteryLevel?: number;
+  capabilities?: DeviceCapabilities;
 }
+
+/**
+ * Feature flags reported by the SDK for the connected band.
+ * For Mecoly E500 (display-less) we expect: ecg=true, hrv=true, spo2=true,
+ * temperature=skin, blood_glucose=estimate_only, blood_pressure=estimate_only,
+ * display=false.
+ */
+export interface DeviceCapabilities {
+  ecg: boolean;
+  hrv: boolean;
+  spo2Continuous: boolean;
+  skinTemperature: boolean;
+  respiration: boolean;
+  bloodPressure: 'none' | 'estimate' | 'validated';
+  bloodGlucose: 'none' | 'estimate' | 'validated';
+  display: boolean;
+  vibrationAlarm: boolean;
+  antiLost: boolean;
+  ota: boolean;
+}
+
+export const MECOLY_E500_CAPABILITIES: DeviceCapabilities = {
+  ecg: true,
+  hrv: true,
+  spo2Continuous: true,
+  skinTemperature: true,
+  respiration: true,
+  bloodPressure: 'estimate',
+  bloodGlucose: 'estimate',
+  display: false,
+  vibrationAlarm: true,
+  antiLost: true,
+  ota: true,
+};
 
 export interface WearableMeasurement {
   metric_type: MetricType;

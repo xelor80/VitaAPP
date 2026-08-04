@@ -2,6 +2,37 @@
 
 > Jede substantielle Änderung im Rahmen der HBand-Wearable-Integration wird hier
 > als knapper Bullet vermerkt (Datum, betroffene Files, Zweck).
+## 2026-08-04 – Mecoly E500 spezifisch (Task A+B+C+E)
+
+### Docs
+- **NEU** `HBAND_NATIVE_BRIDGE_SPEC.md` – vollständige Method-Signaturen für die
+  spätere Kotlin/Swift-Bridge (abgeleitet aus `flutter_veepoo_sdk_plus`).
+- **UPDATE** `HBAND_OPEN_QUESTIONS.md` – Bandmodell bestätigt (Mecoly E500,
+  display-lose Variante), Companion-App H Band verifiziert, kritische Blocker fokussiert.
+
+### Types & Provider (Task B)
+- `wearable/types.ts`
+  - Neue `MetricType`: `ecg`, `blood_glucose_estimated`
+  - `ESTIMATE_METRICS` Konstante (nicht-medizinische Schätzwerte)
+  - `labelForMetric()` mit medizinisch sauberen deutschen Bezeichnungen
+  - `DeviceCapabilities` Interface + `MECOLY_E500_CAPABILITIES` Preset
+- `wearable/HBandProvider.stub.ts`
+  - Erweiterter JSDoc mit vollständigem Native-Modul-Contract (25 Methoden)
+- `wearable/DemoProvider.ts`
+  - Simuliert jetzt zusätzlich ECG (10s @ 250Hz Waveform in metadata),
+    Respiration, Blutdruck (est.), Blutzucker (est.) – jeweils mit
+    `metadata.estimate=true` + `disclaimer`.
+  - `connect()` liefert echte Capability-Flags für das Demo-Gerät.
+
+### Blutzucker-/Blutdruck-Handling (Task C)
+- **NEU** `wearable/EstimateDisclaimer.tsx` – wiederverwendbare Warn-Komponente
+  ("Wellness-Schätzung, kein medizinischer Messwert").
+- Backend `routes/wearable.py`
+  - Neue MetricType-Literale: `ecg`, `blood_glucose_estimated`
+  - `ESTIMATE_METRICS` Set – in `/measurements/batch` wird der Disclaimer
+    zwangsweise in `metadata` injiziert. UI kann ihn nicht aus Versehen strippen.
+
+
 
 ## 2026-06-19 – Phase 1 & Grundgerüst
 

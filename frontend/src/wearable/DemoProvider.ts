@@ -53,6 +53,11 @@ export class DemoProvider implements WearableProvider {
       hardwareVersion: 'A1',
       serialNumber: 'DEMO-SERIAL-0001',
       batteryLevel: rand(45, 95),
+      capabilities: {
+        ecg: true, hrv: true, spo2Continuous: true, skinTemperature: true,
+        respiration: true, bloodPressure: 'estimate', bloodGlucose: 'estimate',
+        display: false, vibrationAlarm: true, antiLost: true, ota: false,
+      },
     };
   }
 
@@ -109,6 +114,48 @@ export class DemoProvider implements WearableProvider {
       metric_type: 'skin_temperature', value: rand(33.1, 34.4), unit: '°C',
       measured_at: new Date(now.getTime() - 8 * 3600 * 1000).toISOString(),
       source: 'demo:auto',
+    });
+    // Respiration rate
+    measurements.push({
+      metric_type: 'respiration_rate', value: Math.round(rand(13, 17)), unit: 'breaths/min',
+      measured_at: new Date(now.getTime() - 5 * 3600 * 1000).toISOString(),
+      source: 'demo:auto',
+    });
+    // Blood pressure – flagged as estimate (Wellness)
+    const sysAt = new Date(now.getTime() - 4 * 3600 * 1000).toISOString();
+    measurements.push({
+      metric_type: 'blood_pressure_systolic', value: Math.round(rand(112, 128)), unit: 'mmHg',
+      measured_at: sysAt, source: 'demo:auto',
+      metadata: { estimate: true, disclaimer: 'Wellness-Schätzung, kein medizinischer Wert.' },
+    });
+    measurements.push({
+      metric_type: 'blood_pressure_diastolic', value: Math.round(rand(72, 84)), unit: 'mmHg',
+      measured_at: sysAt, source: 'demo:auto',
+      metadata: { estimate: true, disclaimer: 'Wellness-Schätzung, kein medizinischer Wert.' },
+    });
+    // Blood glucose – strictly labelled as estimate
+    measurements.push({
+      metric_type: 'blood_glucose_estimated', value: Math.round(rand(88, 118)), unit: 'mg/dl',
+      measured_at: new Date(now.getTime() - 2 * 3600 * 1000).toISOString(),
+      source: 'demo:auto',
+      metadata: {
+        estimate: true,
+        not_medical: true,
+        disclaimer: 'Wellness-Schätzung. Nicht diagnostisch. Für medizinische Werte bitte ein zugelassenes Messgerät nutzen.',
+      },
+    });
+    // ECG – single 10-second recording, 250 Hz sampled → we store metadata only
+    measurements.push({
+      metric_type: 'ecg', value: rand(72, 76), unit: 'bpm',   // avg HR of recording
+      measured_at: new Date(now.getTime() - 90 * 60 * 1000).toISOString(),
+      source: 'demo:auto',
+      metadata: {
+        sampling_hz: 250,
+        duration_s: 10,
+        // A short synthetic sinus-rhythm wave. Kept small in demo to spare bandwidth.
+        samples: Array.from({ length: 40 }, (_, i) => Math.sin((i / 40) * Math.PI * 6) * 0.6),
+        notes: 'Demo-Aufzeichnung – nicht zur Diagnose geeignet.',
+      },
     });
 
     // A fake sleep session from last night

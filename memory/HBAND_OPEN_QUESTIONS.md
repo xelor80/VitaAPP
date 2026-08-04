@@ -1,79 +1,73 @@
 # HBand Integration – Offene Fragen
 
 > **Status:** Wird während der Integration laufend ergänzt.
-> **Verantwortlich:** Wird pro Frage geklärt (SDK-Support, eigene Tests, Herstellerkontakt).
+> **Bandmodell:** ✅ **Mecoly E500 (display-lose Variante)** – Veepoo/HBand-kompatibel
+> **Companion-App:** H Band (`com.veepoo.hband`)
+> **SDK-Base:** HBandSDK / Veepoo `com.veepoo.protocol.VPOperateManager`
 
 ---
 
-## 1. SDK-Zugang & Lizenz
+## ✅ Bereits geklärt (nach Web-Recherche)
 
-- [ ] **Vertrag / kooperative Partnerschaft mit Veepoo/HBand vorhanden?**
-  Android-Repo README sagt explizit: *„SDK provided only to cooperative customers."*
-  → Ohne Vertrag ist die eigentliche `.aar` (Android) evtl. nicht offiziell nutzbar.
-- [ ] **iOS `.framework` bereits verfügbar?** Public-Repo enthält Objective-C-Header + Demo, aber muss geprüft werden ob Framework-Datei enthalten oder separat.
-- [ ] **Welches konkrete Bandmodell wurde bestellt?** (Modellname, Firmware-Version, Feature-Set)
-- [ ] **Gibt es einen technischen Ansprechpartner beim Hersteller?**
+- Companion-App: **H Band** (Play Store `com.veepoo.hband`) → HBandSDK ist der offizielle Weg
+- BLE 5.1, Chip GR5515 (Goodix)
+- Sensoren laut Marketing: ECG, PPG (SFH2201), Temp, SpO₂, HRV, Blutdruck-Schätzung, Blutzucker-Schätzung
+- Community-Referenz: `geekswamp/flutter_veepoo_sdk_plus` (Apache-2.0) – enthält die kompletten Kotlin-Bridge-Signaturen für **20+ SDK-Methoden**. Details siehe `HBAND_NATIVE_BRIDGE_SPEC.md`.
 
-## 2. Unterstützte Messwerte
+## 🔴 Kritische Blocker (jetzt klären)
 
-Zu prüfen anhand der iOS/Android-SDK-Doku (siehe DeepWiki & Wiki-Seiten):
+- [ ] **AAR-Bibliothek für Android besorgen.**
+  Repo enthält nur Docs. Optionen:
+  1. Direkter Kontakt mit Veepoo (Cooperation Agreement) – offiziell
+  2. Über den Reseller/Distributor der Mecoly-Bänder (evtl. bereits mit dem Muster im Lieferumfang)
+  3. Community-AAR aus `vpht1/hband` (rechtliche Grauzone, nicht empfohlen für Prod)
+- [ ] **iOS-Framework besorgen.** Analog zu Android. Öffentliche Header sind da, aber die
+      kompilierte `VeepooSDK.framework`/`VeepooKit.framework` fehlt.
+- [ ] **Konkrete Firmware-Version** des gelieferten Mecoly E500
+- [ ] **Standard-Kopplungs-PIN** (üblich `0000` oder Geräteseriennummer – muss bestätigt werden)
 
-- [ ] Liefert das konkrete Modell **HRV**? Falls ja: als **RMSSD**, **SDNN** oder proprietärer Wert?
-- [ ] Liefert das Modell **SpO₂**? Kontinuierlich oder nur On-Demand?
-- [ ] **Temperatur**: Haut oder Körperkern? Genauigkeit?
-- [ ] **Blutdruck-Schätzung**: verfügbar? Als **Wellness-Schätzwert** oder ist medizinisch validiert?
-- [ ] **Stress-Wert**: verfügbar? Auf welcher Berechnungsbasis?
-- [ ] **Atemfrequenz**: verfügbar?
-- [ ] Schlaf-Phasen: nur `light/deep` oder auch `REM`?
-- [ ] **Trainingsmodi**: welche Sportarten werden erkannt?
+## 🟡 Bandmodell-spezifisch (nach Erhalt des Musters testen)
 
-## 3. Echtzeitmessung (Real-time)
+- [ ] Capability-Flags auslesen (`readCapabilities()`) und dokumentieren. Erwartet:
+  - ECG: ✅
+  - HRV: ✅
+  - SpO₂ (continuous): ✅
+  - Temp (Haut): ✅
+  - Blutdruck (Schätzung): ✅ – **muss als „Wellness-Schätzung" gelabelt werden**
+  - Blutzucker (Schätzung): ✅ – **muss als „nicht validiert" gelabelt werden**
+  - Display: ❌ (display-lose Version)
+- [ ] Sampling-Frequenz ECG (typisch 250 Hz)
+- [ ] Wie viele Tage historische Daten speichert das Band lokal?
+- [ ] Sync-Protokoll: Delta-Sync via `syncHealthData(since)` unterstützt?
+- [ ] Wecker (vibrations-basiert) verfügbar?
+- [ ] Anti-Lost / Find Band?
 
-- [ ] Welche Metriken können in Echtzeit gestreamt werden? (Herz, SpO₂, HRV, Temp?)
-- [ ] Maximale Streaming-Dauer / Timeouts?
-- [ ] Sampling-Frequenz?
-- [ ] Muss das Band still gehalten werden?
+## 🔵 SDK-Verhalten
 
-## 4. Historische Daten & Sync
+- [ ] Wie liefert das SDK HRV: als **RMSSD**, **SDNN** oder proprietärer Wert?
+      → wir labeln bis zur Klärung neutral als „HRV (Bandmesswert)"
+- [ ] Passwort/Auth-Flow für `bindDevice()` – wo genau kommt der PIN her?
+- [ ] Rate-Limits bei Streaming (Realtime-Events)?
+- [ ] Verhalten bei App-Kill: läuft Sync im Hintergrund weiter oder muss App laufen?
 
-- [ ] Wie viele Tage historische Daten speichert das Band lokal, bevor überschrieben wird?
-- [ ] Sync-Protokoll: Delta-Sync (nach `last_sync_at`) möglich?
-- [ ] Data-Chunk-Größe pro BLE-Transfer?
-- [ ] Kann ein abgebrochener Sync fortgesetzt werden?
+## 🟢 Für später (nach Prototyp)
 
-## 5. Firmware-OTA
-
-- [ ] Welches OTA-Protokoll wird verwendet? DFU-Standard oder proprietär?
-- [ ] Checksum-Prüfung durch SDK oder manuell?
-- [ ] Fallback / Recovery-Mode dokumentiert?
-
-## 6. Berechtigungen / Plattform
-
-- [ ] Android 12+: brauchen wir `BLUETOOTH_SCAN` mit `neverForLocation` oder mit Location-Permission?
-- [ ] iOS: benötigen wir **Background BLE**-Berechtigung für Auto-Sync?
-
-## 7. Datenschutz
-
-- [ ] Persistiert das SDK personenbezogene Daten in eigenen Files auf dem Gerät? Falls ja, wo & verschlüsselt?
-- [ ] Nutzt das SDK eigene Analytics / Netzwerkkommunikation nach Hause?
-- [ ] Werden BLE-Advertising-Daten gefiltert?
-
-## 8. Sonstiges
-
-- [ ] Unterstützt das Modell **Anti-Lost / Find Device**?
-- [ ] Weibliche Gesundheitsfunktionen (Zyklus)? – Fokus in VitaGuide+ zunächst nein.
-- [ ] Wecker / Notifications an das Band – erwünscht?
+- [ ] OTA-Firmware-Update-Protokoll (DFU-Standard oder proprietär?)
+- [ ] Bulk-Import bereits vom Band gesammelter Daten (Multi-Tage-Backfill)
+- [ ] Health Connect (Android) & HealthKit (iOS) – separates Modul
+- [ ] Weibliche Gesundheit / Zyklus – vorerst nein
 
 ---
 
 ## 📎 Referenzen
 
 - Repo Übersicht: https://github.com/HBandSDK
-- Android Docs (HTML): https://github.com/HBandSDK/Android_Ble_SDK
+- Android Docs: https://github.com/HBandSDK/Android_Ble_SDK
 - Android DeepWiki: https://deepwiki.com/HBandSDK/Android_Ble_SDK
 - iOS Header: https://github.com/HBandSDK/iOS_Ble_SDK
-- iOS Wiki (Veepoo SDK): https://github-wiki-see.page/m/HBandSDK/iOS_Ble_SDK/wiki/VeepooSDK-iOS-API-Document
+- iOS Wiki: https://deepwiki.com/HBandSDK/iOS_Ble_SDK
+- Community-Flutter-Plugin (Referenz-Bridge): https://github.com/geekswamp/flutter_veepoo_sdk_plus
+- Companion-App (Play Store): https://play.google.com/store/apps/details?id=com.veepoo.hband
+- Native-Bridge-Spec: `HBAND_NATIVE_BRIDGE_SPEC.md`
 
----
-
-**Letzte Aktualisierung:** 2026-06-19
+**Letzte Aktualisierung:** 2026-08-04

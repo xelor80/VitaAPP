@@ -6,8 +6,37 @@
  * available, so `isNativeBridgeAvailable()` returns false and the app
  * falls back to `DemoProvider`.
  *
- * Once the Android AAR + iOS Framework are wired up via native Kotlin/Swift
- * bridge modules named `HBandBridge`, this file will call into them.
+ * Method contracts documented in `/app/memory/HBAND_NATIVE_BRIDGE_SPEC.md`
+ * are directly derived from the community-maintained Flutter plugin
+ * `geekswamp/flutter_veepoo_sdk_plus` (Apache-2.0) which wraps the same
+ * `com.veepoo.protocol.VPOperateManager` we'll bridge to on Android/iOS.
+ *
+ * Expected native-side surface for the Mecoly E500 (display-less):
+ *   HBandBridge.requestBluetoothPermissions(): Promise<boolean>
+ *   HBandBridge.isBluetoothEnabled(): Promise<boolean>
+ *   HBandBridge.openBluetooth(): Promise<boolean>
+ *   HBandBridge.scan(): Promise<void>    // events: 'scanBluetoothResult'
+ *   HBandBridge.stopScan(): Promise<void>
+ *   HBandBridge.connect(address: string, password?: string, is24h?: boolean): Promise<DeviceInfo>
+ *   HBandBridge.bindDevice(password: string, is24h: boolean): Promise<boolean>
+ *   HBandBridge.disconnect(): Promise<void>
+ *   HBandBridge.isDeviceConnected(): Promise<boolean>
+ *   HBandBridge.readBattery(): Promise<{ level: number; isCharging: boolean }>
+ *   HBandBridge.readCapabilities(): Promise<DeviceCapabilities>
+ *   HBandBridge.startDetectHeart(): Promise<void>   // events: 'detectHeart'
+ *   HBandBridge.stopDetectHeart(): Promise<void>
+ *   HBandBridge.startDetectSpoh(): Promise<void>    // events: 'detectSpoh'
+ *   HBandBridge.stopDetectSpoh(): Promise<void>
+ *   HBandBridge.startDetectECG(): Promise<void>     // events: 'detectECG'
+ *   HBandBridge.stopDetectECG(): Promise<void>
+ *   HBandBridge.startDetectHRV(): Promise<void>     // events: 'detectHRV'
+ *   HBandBridge.stopDetectHRV(): Promise<void>
+ *   HBandBridge.startDetectTemperature(): Promise<void>
+ *   HBandBridge.stopDetectTemperature(): Promise<void>
+ *   HBandBridge.syncHealthData(sinceISO?: string): Promise<SyncPayload>
+ *   HBandBridge.pushUserSettings(json: object): Promise<void>
+ *   HBandBridge.startOTA(url: string): Promise<void>   // events: 'otaProgress'
+ *   HBandBridge.abortOTA(): Promise<void>
  */
 import { NativeModules, Platform } from 'react-native';
 import type {
