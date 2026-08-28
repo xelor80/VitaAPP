@@ -88,22 +88,37 @@ Legende: **RT** = Echtzeit-Messung (aktiv gestartet), **H** = Historie (aus Ger�
   → wie in [Dok. 08](08-ble-sync-konzept.md): Vordergrund-Sync als verlässlicher Weg annehmen.
 - **OTA/Firmware:** SDK unterstützt OTA (Dial/Firmware), Batterie >30 % empfohlen.
 
-## 7. Offene Punkte / noch zu verifizieren
+## 7. Zielgerät (PoC): Mecorly V500
 
+| Punkt | Stand |
+|-------|-------|
+| Modell | **Mecorly V500** (Referenz-/Testgerät vorhanden ✅) |
+| Hersteller-App | **HBand** → bestätigt Veepoo-/VPBluetooth-Kompatibilität |
+| Geräte-Passwort | **Standard `0000`** (unverändert ✅) |
+| Advertised-Metriken (typisch) | Herzfrequenz, Blutdruck, SpO2, Körpertemperatur, Schlaf, Schritte/Distanz/Kalorien |
+| Erwartung EKG | die meisten V500-Varianten haben **kein** medizinisches EKG → am Gerät via `ecgType` verifizieren, **nicht** annehmen |
+| Verbindliche Fähigkeiten | werden beim PoC per **Capability-Discovery** ausgelesen (maßgeblich, nicht die Werbung) |
+
+> Grundsatz „keine erfundenen Werte": Angezeigt wird **nur**, was das V500 laut
+> `DeviceFunctionPackage`/`ecgType`/`hrvType`/`temperatureType`/`sleepType` real liefert.
+
+## 8. Offene Punkte / noch zu verifizieren (am Gerät im PoC)
+
+- [ ] **Capability-Flags des V500** auslesen (`DeviceFunctionPackage1..5`, `ecgType`, `hrvType`,
+      `temperatureType`, `sleepType`) → finaler Metrik-Umfang.
 - [ ] **Genaue SDK-Version** (`vpprotocol`/`vpbluetooth` .aar bzw. iOS-Framework), die wir einbinden.
-- [ ] **Konkrete Gerätemodelle** und deren **Capability-Flags** (`DeviceFunctionPackage1..5`,
-      `ecgType/hrvType/temperatureType/sleepType`) – bestimmt, welche Metriken real erscheinen.
-- [ ] **Geräte-Passwort-Schema** (Standard, änderbar?) und 12/24h-Vorgaben.
-- [ ] **SpO2-Echtzeit**: existiert je Gerät ein RT-Interface (`startDetectSpo2h` o. ä.)?
-- [ ] **Blutdruck-Verfahren** (kalibriert/geschätzt) + Herstellerangabe zur Genauigkeit.
-- [ ] **ECG-Rohsignal**: Sample-Rate, ADC-Format, Speichergröße.
+- [ ] **SpO2-Echtzeit**: existiert am V500 ein RT-Interface (`startDetectSpo2h` o. ä.)?
+- [ ] **Blutdruck-Verfahren** (kalibriert/geschätzt) + Genauigkeit.
+- [ ] **ECG-Rohsignal** (falls `ecgType>0`): Sample-Rate, ADC-Format, Speichergröße.
 - [ ] **iOS-Mindestversion** und tatsächliches Background-Verhalten.
-- [ ] **Physisches Testgerät** für den PoC (Pairing + 1 realer Metrik-Sync auf iOS & Android).
+- [x] ~~Physisches Testgerät~~ – vorhanden (Mecorly V500).
+- [x] ~~Geräte-Passwort~~ – Standard `0000`.
 
-## 8. Empfohlene nächste Schritte
+## 9. Empfohlene nächste Schritte
 
-1. **PoC** je Plattform: `.aar`/`.framework` einbinden, Scan → Connect → `confirmDevicePwd` →
-   Capability-Discovery → **ein** Tages-Voll-Sync → normalisierte Messwerte im HAL.
+1. **PoC** je Plattform mit dem **Mecorly V500**: `.aar`/`.framework` einbinden, Scan → Connect →
+   `confirmDevicePwd("0000")` → Capability-Discovery → **ein** Tages-Voll-Sync → normalisierte
+   Messwerte im HAL.
 2. HAL-**Befehls-Queue** (Serialisierung) + `VeepooProvider` als erste `WearableProvider`-Impl.
-3. Mapping-Tabelle (Abschnitt 4) mit den **realen** Gerätemodellen final verifizieren.
+3. Mapping-Tabelle (Abschnitt 4) mit den **realen** V500-Fähigkeiten final verifizieren.
 4. Danach schrittweiser MVP-Aufbau ([Dok. 14](14-mvp-umfang.md)).
