@@ -14,11 +14,15 @@ Fitness-/Health-Armband mit Hersteller-SDK.
 >   Consent (DSGVO), Geräte, **idempotenter Sync**, Baseline-Engine, **Health-Score**, Metrik-
 >   Read-APIs, **Today-Dashboard**, Trends, **Rule-Engine + Alerts**, Insights, Push (Abstraktion),
 >   **Admin-API mit RBAC + Audit**.
+>   **BullMQ-Worker/Scheduler** (nächtliche Wartung), **FCM-Push** (iOS+Android).
 > - **Mobile** ([`mobile/`](mobile/README.md)) – Flutter-Gerüst mit **HAL** (`WearableProvider`,
->   serielle BLE-Queue, `VeepooProvider` + MethodChannel-Vertrag), Design-System (Light/Dark) und
->   App-Shell. Lokal mit Flutter zu bauen (hier kein SDK).
-> - **Offen:** echte FCM/APNs-Anbindung, BullMQ-Worker, native Veepoo-Wrapper (iOS/Android),
->   Geräte-PoC am Mecorly V500, Admin-WebApp.
+>   serielle BLE-Queue, `VeepooProvider` + MethodChannel-Vertrag), Design-System (Light/Dark),
+>   App-Shell **plus native Veepoo-Wrapper** (iOS/Android Referenz) und **PoC-Checkliste** für den
+>   Mecorly V500. Lokal mit Flutter zu bauen (hier kein SDK).
+> - **Admin-WebApp** ([`admin-web/`](admin-web/README.md)) – Next.js 14 + React 18, `next build`
+>   grün: Login (Admin-JWT), Dashboard, Benutzer, Regeln, Produkte, Inhalte, Config, Audit.
+> - **Offen:** native SDK-Anbindung real implementieren + **Geräte-PoC am V500**, Admin-CRUD-
+>   Formulare, getrennter Worker-Prozess, TimescaleDB-Hypertable.
 
 ## Was hier entsteht
 
