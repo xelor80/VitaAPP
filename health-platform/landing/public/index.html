@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VitaGuide – Deine persönliche Health- & Fitness-Plattform</title>
+  <meta name="description" content="VitaGuide verbindet dein Fitness-Armband mit persönlichen Gesundheits-Trends, einem individuellen Health-Score und verständlichen Insights – datenschutzfreundlich und ohne erfundene Werte." />
+  <meta name="theme-color" content="#0f766e" />
+  <meta property="og:title" content="VitaGuide – Deine persönliche Health- & Fitness-Plattform" />
+  <meta property="og:description" content="Wearable, Health-Tracking, persönliche Trends und verständliche Insights – Privacy by Design." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://vitaguide.app" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <style>
+    :root{
+      --bg:#f7faf9; --bg-elev:#ffffff; --fg:#0d1a17; --fg-muted:#4b5f5a;
+      --brand:#0f766e; --brand-strong:#0b5a54; --brand-soft:#d5efe9;
+      --accent:#f59e0b; --border:#e2ebe8; --shadow:0 10px 40px -12px rgba(13,26,23,.18);
+      --radius:18px; --maxw:1120px;
+    }
+    @media (prefers-color-scheme: dark){
+      :root{
+        --bg:#0a1512; --bg-elev:#111e1a; --fg:#eaf5f1; --fg-muted:#9db5ad;
+        --brand:#2dd4bf; --brand-strong:#5eead4; --brand-soft:#123832;
+        --accent:#fbbf24; --border:#1e302b; --shadow:0 10px 40px -12px rgba(0,0,0,.55);
+      }
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0; background:var(--bg); color:var(--fg);
+      font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      line-height:1.6; -webkit-font-smoothing:antialiased;
+    }
+    a{color:var(--brand);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px}
+    h1,h2,h3{line-height:1.2;letter-spacing:-.02em;margin:0 0 .5em}
+    h1{font-size:clamp(2rem,5vw,3.4rem);font-weight:800}
+    h2{font-size:clamp(1.5rem,3.2vw,2.2rem);font-weight:750}
+    p{margin:0 0 1em}
+    .muted{color:var(--fg-muted)}
+    .btn{
+      display:inline-flex;align-items:center;gap:.5em;font-weight:650;font-size:1rem;
+      padding:.8em 1.4em;border-radius:999px;border:1.5px solid transparent;cursor:pointer;transition:.2s;
+    }
+    .btn-primary{background:var(--brand);color:#fff}
+    .btn-primary:hover{background:var(--brand-strong);text-decoration:none}
+    .btn-ghost{background:transparent;border-color:var(--border);color:var(--fg)}
+    .btn-ghost:hover{border-color:var(--brand);color:var(--brand);text-decoration:none}
+
+    /* Header */
+    header{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+    .nav{display:flex;align-items:center;justify-content:space-between;height:66px}
+    .brand{display:flex;align-items:center;gap:.55em;font-weight:800;font-size:1.2rem;color:var(--fg)}
+    .brand:hover{text-decoration:none}
+    .brand .logo{width:30px;height:30px}
+    .nav-links{display:flex;align-items:center;gap:1.6em}
+    .nav-links a{color:var(--fg-muted);font-weight:550}
+    .nav-links a:hover{color:var(--fg)}
+    @media(max-width:820px){.nav-links a:not(.btn){display:none}}
+
+    /* Hero */
+    .hero{position:relative;overflow:hidden;padding:clamp(3rem,8vw,6rem) 0 clamp(2.5rem,6vw,4.5rem)}
+    .hero::before{content:"";position:absolute;inset:-30% -10% auto;height:70%;
+      background:radial-gradient(60% 60% at 70% 20%,var(--brand-soft),transparent 70%);z-index:0}
+    .hero .wrap{position:relative;z-index:1;display:grid;grid-template-columns:1.05fr .95fr;gap:3rem;align-items:center}
+    @media(max-width:900px){.hero .wrap{grid-template-columns:1fr;gap:2rem}}
+    .pill{display:inline-flex;align-items:center;gap:.5em;background:var(--brand-soft);color:var(--brand-strong);
+      font-weight:600;font-size:.85rem;padding:.35em .9em;border-radius:999px;margin-bottom:1.2em}
+    .hero-cta{display:flex;flex-wrap:wrap;gap:.8em;margin-top:1.6em}
+    .hero-note{margin-top:1.2em;font-size:.9rem}
+
+    /* Phone mockup */
+    .phone{margin:0 auto;width:min(300px,80vw);aspect-ratio:9/18.5;background:var(--bg-elev);
+      border:1px solid var(--border);border-radius:36px;box-shadow:var(--shadow);padding:16px;position:relative}
+    .phone::before{content:"";position:absolute;top:14px;left:50%;transform:translateX(-50%);
+      width:90px;height:6px;border-radius:99px;background:var(--border)}
+    .screen{height:100%;border-radius:24px;background:linear-gradient(160deg,var(--brand),var(--brand-strong));
+      color:#fff;padding:26px 18px 18px;display:flex;flex-direction:column;gap:14px;overflow:hidden}
+    .screen .greet{font-size:.8rem;opacity:.85}
+    .ring{width:118px;height:118px;margin:6px auto 2px;border-radius:50%;
+      background:conic-gradient(#fff 0 78%, rgba(255,255,255,.25) 78% 100%);
+      display:grid;place-items:center;position:relative}
+    .ring::after{content:"";position:absolute;inset:12px;border-radius:50%;background:var(--brand-strong)}
+    .ring span{position:relative;z-index:1;font-weight:800;font-size:1.9rem}
+    .ring small{position:relative;z-index:1;display:block;text-align:center;font-size:.62rem;opacity:.85;font-weight:600}
+    .metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+    .metric{background:rgba(255,255,255,.12);border-radius:14px;padding:10px 12px}
+    .metric b{display:block;font-size:1.15rem}
+    .metric small{font-size:.68rem;opacity:.85}
+    .metric.empty{display:flex;align-items:center;justify-content:center;text-align:center;font-size:.66rem;opacity:.8;font-style:italic}
+
+    /* Sections */
+    section{padding:clamp(3rem,7vw,5rem) 0}
+    .section-head{max-width:640px;margin:0 auto 2.6rem;text-align:center}
+    .grid{display:grid;gap:20px}
+    .grid-3{grid-template-columns:repeat(3,1fr)}
+    .grid-2{grid-template-columns:repeat(2,1fr)}
+    @media(max-width:860px){.grid-3{grid-template-columns:1fr}.grid-2{grid-template-columns:1fr}}
+    .card{background:var(--bg-elev);border:1px solid var(--border);border-radius:var(--radius);padding:26px;transition:.2s}
+    .card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+    .icon{width:44px;height:44px;border-radius:12px;background:var(--brand-soft);color:var(--brand-strong);
+      display:grid;place-items:center;margin-bottom:14px}
+    .icon svg{width:24px;height:24px}
+    .card h3{font-size:1.2rem;margin-bottom:.35em}
+    .card p{margin:0;color:var(--fg-muted);font-size:.96rem}
+
+    .alt{background:var(--bg-elev);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+
+    /* Principles list */
+    .principles{display:grid;grid-template-columns:repeat(2,1fr);gap:16px 30px;max-width:900px;margin:0 auto}
+    @media(max-width:760px){.principles{grid-template-columns:1fr}}
+    .principle{display:flex;gap:14px;align-items:flex-start}
+    .principle .dot{flex:none;width:26px;height:26px;border-radius:50%;background:var(--brand-soft);color:var(--brand-strong);display:grid;place-items:center;margin-top:2px}
+    .principle .dot svg{width:15px;height:15px}
+    .principle b{display:block}
+
+    /* Steps */
+    .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;counter-reset:step}
+    @media(max-width:860px){.steps{grid-template-columns:1fr}}
+    .step{position:relative;padding-left:0}
+    .step .num{width:38px;height:38px;border-radius:50%;background:var(--brand);color:#fff;font-weight:800;display:grid;place-items:center;margin-bottom:12px}
+
+    /* FAQ */
+    .faq{max-width:780px;margin:0 auto}
+    details{background:var(--bg-elev);border:1px solid var(--border);border-radius:14px;padding:2px 20px;margin-bottom:12px}
+    details[open]{border-color:var(--brand)}
+    summary{cursor:pointer;font-weight:650;padding:16px 0;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:1em}
+    summary::-webkit-details-marker{display:none}
+    summary::after{content:"+";font-size:1.4rem;color:var(--brand);transition:.2s}
+    details[open] summary::after{transform:rotate(45deg)}
+    details p{padding:0 0 16px;margin:0;color:var(--fg-muted)}
+
+    /* Store badges */
+    .stores{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:1.6em}
+    .store{display:inline-flex;align-items:center;gap:.7em;background:var(--fg);color:var(--bg);
+      padding:.7em 1.2em;border-radius:14px;font-weight:600;opacity:.55;cursor:default;position:relative}
+    .store svg{width:22px;height:22px}
+    .store small{display:block;font-size:.62rem;font-weight:500;opacity:.85}
+    .store b{display:block;font-size:.95rem;line-height:1.1}
+    .store .soon{position:absolute;top:-9px;right:-9px;background:var(--accent);color:#1a1400;font-size:.6rem;font-weight:700;padding:.2em .5em;border-radius:99px}
+
+    /* CTA band */
+    .cta-band{background:linear-gradient(135deg,var(--brand),var(--brand-strong));color:#fff;border-radius:var(--radius);padding:clamp(2rem,5vw,3.4rem);text-align:center}
+    .cta-band h2{color:#fff}
+    .cta-band .btn-primary{background:#fff;color:var(--brand-strong)}
+    .cta-band .btn-primary:hover{background:#eafffb}
+    .cta-band .btn-ghost{border-color:rgba(255,255,255,.5);color:#fff}
+
+    /* Footer */
+    footer{border-top:1px solid var(--border);padding:40px 0 30px;font-size:.9rem}
+    .foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:20px}
+    .foot-links{display:flex;flex-wrap:wrap;gap:1.4em}
+    .foot-links a{color:var(--fg-muted)}
+    .disclaimer{margin-top:22px;padding-top:18px;border-top:1px solid var(--border);color:var(--fg-muted);font-size:.82rem}
+    .badge-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:1.4em;justify-content:center}
+    .tag{font-size:.78rem;color:var(--fg-muted);border:1px solid var(--border);border-radius:99px;padding:.3em .8em}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap nav">
+      <a class="brand" href="/">
+        <svg class="logo" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <rect width="32" height="32" rx="8" fill="var(--brand)"/>
+          <path d="M6 17h4l2.2-5 3 10 2.4-7 1.8 3.5H26" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        VitaGuide
+      </a>
+      <nav class="nav-links">
+        <a href="#features">Funktionen</a>
+        <a href="#prinzipien">Prinzipien</a>
+        <a href="#so-gehts">So funktioniert's</a>
+        <a href="#faq">FAQ</a>
+        <a class="btn btn-ghost" href="https://admin.vitaguide.app">Admin-Login</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero">
+      <div class="wrap">
+        <div>
+          <span class="pill">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-4.35-9.5-8.5C.9 9.5 2.2 6 5.5 6 7.6 6 9 7.3 12 10c3-2.7 4.4-4 6.5-4 3.3 0 4.6 3.5 3 6.5C19 16.65 12 21 12 21Z" fill="currentColor"/></svg>
+            Deine Gesundheit. Dein Rhythmus. Deine Daten.
+          </span>
+          <h1>Verstehe deinen Körper – mit persönlichen Trends statt starrer Normwerte.</h1>
+          <p class="muted" style="font-size:1.12rem;max-width:38ch">
+            VitaGuide verbindet dein Fitness-Armband mit einem individuellen Health-Score,
+            verständlichen Insights und deiner ganz persönlichen Baseline. Ohne erfundene Werte.
+            Ohne medizinische Diagnose. Mit Datenschutz von Anfang an.
+          </p>
+          <div class="hero-cta">
+            <a class="btn btn-primary" href="#so-gehts">So funktioniert's</a>
+            <a class="btn btn-ghost" href="#features">Funktionen ansehen</a>
+          </div>
+          <p class="hero-note muted">🔒 Privacy by Design · DSGVO-konform · Server in der EU</p>
+        </div>
+
+        <div>
+          <div class="phone" role="img" aria-label="Vorschau der VitaGuide-App mit Health-Score und Tageswerten">
+            <div class="screen">
+              <div class="greet">Guten Morgen 👋</div>
+              <div class="ring"><div><span>78</span><small>HEALTH-SCORE</small></div></div>
+              <div class="metrics">
+                <div class="metric"><b>62</b><small>Ruhepuls Ø (bpm)</small></div>
+                <div class="metric"><b>7:12 h</b><small>Schlaf</small></div>
+                <div class="metric"><b>8.240</b><small>Schritte</small></div>
+                <div class="metric empty">Von diesem Gerät nicht unterstützt.</div>
+              </div>
+              <div class="metric" style="background:rgba(255,255,255,.16)"><b style="font-size:.9rem">↗ Über deiner 30-Tage-Baseline</b><small>Erholung heute leicht über deinem Schnitt.</small></div>
+            </div>
+          </div>
+          <p class="muted" style="text-align:center;font-size:.78rem;margin-top:1em">Illustration. Echte Werte erscheinen nur, wenn dein Gerät sie misst.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section id="features">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Eine Plattform, die mit dir wächst</h2>
+          <p class="muted">Kein weiterer Schrittzähler, sondern ein modulares Health-System – vom Wearable bis zum persönlichen Coach.</p>
+        </div>
+        <div class="grid grid-3">
+          <div class="card">
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none"><path d="M3 12h4l2-6 4 12 2-6h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <h3>Health-Tracking</h3>
+            <p>Puls, Schlaf, Aktivität, SpO₂ und mehr – automatisch synchronisiert von deinem Armband, sauber und ohne Datenverlust.</p>
+          </div>
+          <div class="card">
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none"><path d="M4 19V5m0 14h16M8 15l3-4 3 2 4-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <h3>Persönliche Trends</h3>
+            <p>7-, 30- und 90-Tage-Baselines zeigen, was für <em>dich</em> normal ist – Bewertung immer relativ zu deinem eigenen Verlauf.</p>
+          </div>
+          <div class="card">
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 12l4-2M12 12v-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+            <h3>Individueller Health-Score</h3>
+            <p>Ein verständlicher Tageswert, gewichtet aus deinen Messungen – transparent berechnet, nie geschätzt oder erfunden.</p>
+          </div>
+          <div class="card">
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3a6 6 0 0 0-6 6c0 4 3 5 3 8h6c0-3 3-4 3-8a6 6 0 0 0-6-6Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 21h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+            <h3>Verständliche Insights</h3>
+            <p>Klare Wellness-Hinweise in deiner Sprache – was auffällt und was du daraus machen kannst. Keine Diagnose, keine Angstmache.</p>
+          </div>
+          <div class="card">
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <h3>Warnsystem mit Fingerspitzengefühl</h3>
+            <p>Eine Regel-Engine erkennt ungewöhnliche Abweichungen von deiner Baseline und meldet sich – aber nur, wenn es wirklich relevant ist.</p>
+          </div>
+          <div class="card">
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="4" stroke="currentColor" stroke-width="2"/><path d="M8 12h8M12 8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+            <h3>Modular erweiterbar</h3>
+            <p>Ernährung, Waage, Content, Coach – neue Bausteine kommen dazu, ohne dass du neu anfangen musst. Auch weitere Wearables später.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRINZIPIEN -->
+    <section id="prinzipien" class="alt">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Worauf wir keine Kompromisse machen</h2>
+          <p class="muted">Vier Grundsätze, die in jeder Zeile Code stecken.</p>
+        </div>
+        <div class="principles">
+          <div class="principle">
+            <span class="dot"><svg viewBox="0 0 24 24" fill="none"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <div><b>Keine erfundenen Werte</b><span class="muted">Misst dein Gerät etwas nicht, steht dort ehrlich „Von diesem Gerät nicht unterstützt." – niemals Fake- oder Demo-Zahlen.</span></div>
+          </div>
+          <div class="principle">
+            <span class="dot"><svg viewBox="0 0 24 24" fill="none"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <div><b>Keine medizinische Diagnose</b><span class="muted">VitaGuide gibt Wellness-Hinweise mit klarer Abgrenzung zur ärztlichen Beratung – es ersetzt keinen Arzt.</span></div>
+          </div>
+          <div class="principle">
+            <span class="dot"><svg viewBox="0 0 24 24" fill="none"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <div><b>Deine persönliche Baseline</b><span class="muted">Bewertet wird immer relativ zu deinem eigenen Durchschnitt – nicht nur gegen allgemeine Normwerte.</span></div>
+          </div>
+          <div class="principle">
+            <span class="dot"><svg viewBox="0 0 24 24" fill="none"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <div><b>Privacy by Design</b><span class="muted">Gesundheitsdaten sind besonders sensibel (DSGVO Art. 9). Einwilligung, Verschlüsselung und Zugriffskontrolle von Anfang an.</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SO GEHTS -->
+    <section id="so-gehts">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>In drei Schritten startklar</h2>
+          <p class="muted">Vom Auspacken bis zum ersten persönlichen Insight.</p>
+        </div>
+        <div class="steps">
+          <div class="step">
+            <div class="num">1</div>
+            <h3>Armband koppeln</h3>
+            <p class="muted">App öffnen, dein Fitness-Armband per Bluetooth verbinden. VitaGuide erkennt automatisch, welche Werte dein Gerät liefert.</p>
+          </div>
+          <div class="step">
+            <div class="num">2</div>
+            <h3>Daten sammeln</h3>
+            <p class="muted">Trag dein Band einfach im Alltag. VitaGuide synchronisiert im Hintergrund und baut Schritt für Schritt deine persönliche Baseline auf.</p>
+          </div>
+          <div class="step">
+            <div class="num">3</div>
+            <h3>Dich besser verstehen</h3>
+            <p class="muted">Nach wenigen Tagen zeigt dir dein Health-Score und deine Insights, wie du dich im Vergleich zu deinem eigenen Schnitt entwickelst.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA / STORES -->
+    <section class="alt">
+      <div class="wrap">
+        <div class="cta-band">
+          <h2>Bald für iOS und Android</h2>
+          <p style="max-width:52ch;margin:0 auto 0;opacity:.95">Die VitaGuide-App befindet sich in der Entwicklung. Die Plattform läuft bereits – die mobilen Apps folgen.</p>
+          <div class="stores">
+            <span class="store"><span class="soon">bald</span>
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 12.7c0-2 1.6-2.9 1.7-3-1-1.4-2.4-1.6-2.9-1.6-1.2-.1-2.4.7-3 .7-.6 0-1.6-.7-2.6-.7-1.3 0-2.6.8-3.3 2-1.4 2.4-.4 6 1 8 .7 1 1.4 2 2.4 2 1 0 1.3-.6 2.5-.6s1.5.6 2.5.6c1 0 1.7-1 2.3-2 .8-1.1 1.1-2.2 1.1-2.3-.1 0-2.1-.8-2.2-3.1ZM14.6 6.3c.5-.7.9-1.6.8-2.6-.8 0-1.8.5-2.4 1.2-.5.6-.9 1.5-.8 2.5.9 0 1.8-.5 2.4-1.1Z"/></svg>
+              <span><small>Bald im</small><b>App Store</b></span></span>
+            <span class="store"><span class="soon">bald</span>
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.6 2.3c-.2.3-.3.6-.3 1v17.4c0 .4.1.7.3 1l.1.1 9.7-9.7v-.2L3.6 2.3Zm12.9 12.9-3.2-3.2-9.3 9.3c.4.2.9.1 1.4-.1l11.1-6Zm4-4.5-2.4-1.4-3.4 3.4 3.4 3.4 2.4-1.4c1-.7 1-2.9 0-4Zm-6.8-6.4-11.1-6c-.5-.3-1-.3-1.4-.1l9.3 9.3 3.2-3.2Z"/></svg>
+              <span><small>Bald bei</small><b>Google Play</b></span></span>
+          </div>
+          <p style="margin-top:1.4em;opacity:.85;font-size:.9rem">Betreibst du VitaGuide? → <a href="https://admin.vitaguide.app" style="color:#fff;text-decoration:underline">Zum Admin-Portal</a></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Häufige Fragen</h2>
+        </div>
+        <div class="faq">
+          <details open>
+            <summary>Ist VitaGuide ein medizinisches Produkt?</summary>
+            <p>Nein. VitaGuide ist eine Wellness- und Lifestyle-Anwendung. Sie liefert Hinweise und Trends zu deinen Fitness- und Gesundheitsdaten, stellt aber keine Diagnosen und ersetzt keine ärztliche Beratung. Bei gesundheitlichen Beschwerden wende dich bitte an medizinisches Fachpersonal.</p>
+          </details>
+          <details>
+            <summary>Woher kommen die angezeigten Werte?</summary>
+            <p>Ausschließlich aus deinem gekoppelten Fitness-Armband. Kann dein Gerät einen Wert nicht messen, zeigt VitaGuide das ehrlich an („Von diesem Gerät nicht unterstützt.") statt eine Zahl zu erfinden. Liegt noch keine Messung vor, steht dort „Noch keine Daten vorhanden.".</p>
+          </details>
+          <details>
+            <summary>Was ist eine „persönliche Baseline"?</summary>
+            <p>Statt dich nur mit allgemeinen Normwerten zu vergleichen, berechnet VitaGuide deinen individuellen Durchschnitt über 7, 30 und 90 Tage. So erkennst du Abweichungen, die für <em>dich</em> ungewöhnlich sind – auch wenn sie im allgemeinen Normbereich liegen.</p>
+          </details>
+          <details>
+            <summary>Wie steht es um den Datenschutz?</summary>
+            <p>Gesundheitsdaten sind besonders schützenswerte Daten nach Art. 9 DSGVO. VitaGuide ist nach dem Prinzip „Privacy by Design" gebaut: ausdrückliche Einwilligung, Verschlüsselung sensibler Daten, Zugriffskontrolle und Audit-Logs. Die Server stehen in der EU.</p>
+          </details>
+          <details>
+            <summary>Welche Armbänder werden unterstützt?</summary>
+            <p>Zum Start ein kompatibles BLE-Fitness-Armband mit Hersteller-SDK. Dank einer entkoppelten Geräte-Abstraktion (Hardware-Abstraction-Layer) lassen sich weitere Wearables später ergänzen, ohne die App neu zu bauen.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div class="foot">
+        <div>
+          <a class="brand" href="/" style="font-size:1.1rem">
+            <svg class="logo" viewBox="0 0 32 32" fill="none" aria-hidden="true"><rect width="32" height="32" rx="8" fill="var(--brand)"/><path d="M6 17h4l2.2-5 3 10 2.4-7 1.8 3.5H26" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            VitaGuide
+          </a>
+          <p class="muted" style="max-width:34ch;margin-top:.6em;font-size:.88rem">Deine persönliche Health- & Fitness-Plattform. Made in EU.</p>
+        </div>
+        <nav class="foot-links">
+          <a href="#features">Funktionen</a>
+          <a href="#faq">FAQ</a>
+          <a href="https://admin.vitaguide.app">Admin-Login</a>
+          <a href="/impressum.html">Impressum</a>
+          <a href="/datenschutz.html">Datenschutz</a>
+        </nav>
+      </div>
+      <div class="badge-row">
+        <span class="tag">🔒 DSGVO-konform</span>
+        <span class="tag">🇪🇺 Server in der EU</span>
+        <span class="tag">🚫 Kein Tracking</span>
+        <span class="tag">💚 Keine erfundenen Werte</span>
+      </div>
+      <p class="disclaimer">
+        <strong>Wichtiger Hinweis:</strong> VitaGuide ist ein Wellness- und Lifestyle-Angebot und kein Medizinprodukt.
+        Die dargestellten Informationen dienen nicht der Diagnose, Behandlung oder Heilung von Krankheiten und ersetzen
+        keine professionelle medizinische Beratung. © <span id="year">2026</span> VitaGuide.
+      </p>
+    </div>
+  </footer>
+  <script>document.getElementById('year').textContent=new Date().getFullYear();</script>
+</body>
+</html>
