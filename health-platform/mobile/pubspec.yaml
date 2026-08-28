@@ -1,0 +1,25 @@
+name: vitaguide
+description: VitaGuide – Health- & Fitness-App (Flutter). Siehe ../docs.
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+  flutter: ">=3.22.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  # Vorgesehener Stack (docs/02) – vor dem ersten Build via `flutter pub get`:
+  flutter_riverpod: ^2.5.1   # State-Management
+  dio: ^5.7.0                # API-Client (/api/v1)
+  flutter_secure_storage: ^9.2.2  # Tokens (Keychain/Keystore)
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true

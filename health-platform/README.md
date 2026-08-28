@@ -8,10 +8,17 @@ Dieser Ordner (`health-platform/`) ist **bewusst getrennt** von der übrigen Cod
 diesem Repository. Es entsteht eine eigenständige, modulare Plattform für ein eigenes
 Fitness-/Health-Armband mit Hersteller-SDK.
 
-> **Umsetzungsstand:** Das **Backend-Grundgerüst** ist angelegt und lauffähig
-> ([`backend/`](backend/README.md)): NestJS + Prisma + PostgreSQL, Auth (JWT + Refresh/Argon2id),
-> Nutzer/Profil, Consent (DSGVO), Geräte, **idempotenter Messwert-Sync** – `npm run build` und
-> `npm test` grün. Nächste Schritte: Baseline-Engine, Health-Score, Rule-Evaluator, Read-APIs.
+> **Umsetzungsstand:**
+> - **Backend** ([`backend/`](backend/README.md)) – NestJS + Prisma + PostgreSQL, lauffähig,
+>   `npm run build` und `npm test` (41 Tests) grün: Auth (JWT + Refresh/Argon2id), Nutzer/Profil,
+>   Consent (DSGVO), Geräte, **idempotenter Sync**, Baseline-Engine, **Health-Score**, Metrik-
+>   Read-APIs, **Today-Dashboard**, Trends, **Rule-Engine + Alerts**, Insights, Push (Abstraktion),
+>   **Admin-API mit RBAC + Audit**.
+> - **Mobile** ([`mobile/`](mobile/README.md)) – Flutter-Gerüst mit **HAL** (`WearableProvider`,
+>   serielle BLE-Queue, `VeepooProvider` + MethodChannel-Vertrag), Design-System (Light/Dark) und
+>   App-Shell. Lokal mit Flutter zu bauen (hier kein SDK).
+> - **Offen:** echte FCM/APNs-Anbindung, BullMQ-Worker, native Veepoo-Wrapper (iOS/Android),
+>   Geräte-PoC am Mecorly V500, Admin-WebApp.
 
 ## Was hier entsteht
 
