@@ -1,0 +1,88 @@
+# Codemagic CI/CD – VitaGuide Mobile (Flutter)
+#
+# Zweck: iOS-Build in der Cloud (macOS) und Auslieferung an TestFlight –
+# ohne eigenen Mac. Wird von codemagic.io gelesen, sobald das Repo dort
+# verbunden ist. Läuft NICHT über GitHub Actions.
+#
+# Voraussetzungen (einmalig, in Codemagic bzw. App Store Connect – siehe
+# health-platform/mobile/MOBILE-TESTFLIGHT.md):
+#   1. App-Store-Connect-API-Key in Codemagic als Team-Integration mit dem
+#      Namen "VitaGuide ASC Key" hinterlegen.
+#   2. Dieses Repo (xelor80/VitaAPP) in Codemagic verbinden.
+#
+# Die iOS-/Android-Plattformordner liegen bewusst NICHT im Repo (das Mobile-
+# Projekt ist ein Gerüst); sie werden hier im Build via `flutter create`
+# erzeugt. Sobald die App reift, werden sie eingecheckt (für Info.plist,
+# BLE-Berechtigungen, App-Icon etc.).
+
+workflows:
+  ios-testflight:
+    name: VitaGuide iOS → TestFlight
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    working_directory: health-platform/mobile
+    integrations:
+      # Muss dem in Codemagic angelegten Integrationsnamen entsprechen.
+      app_store_connect: VitaGuide ASC Key
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: app.vitaguide.mobile
+      vars:
+        BUNDLE_ID: "app.vitaguide.mobile"
+        APP_NAME: "VitaGuide"
+    scripts:
+      - name: Plattformordner erzeugen (ios/android fehlen im Repo)
+        script: |
+          flutter create --org app.vitaguide --project-name vitaguide \
+            --platforms=ios,android .
+      - name: Bundle-ID + Anzeigename setzen
+        script: |
+          set -e
+          # Bundle-Identifier im Xcode-Projekt auf $BUNDLE_ID vereinheitlichen
+          sed -i '' "s/PRODUCT_BUNDLE_IDENTIFIER = [^;]*;/PRODUCT_BUNDLE_IDENTIFIER = $BUNDLE_ID;/g" \
+            ios/Runner.xcodeproj/project.pbxproj
+          # Anzeigename auf "VitaGuide" (best effort – Build bricht sonst nicht ab)
+          plutil -replace CFBundleDisplayName -string "$APP_NAME" ios/Runner/Info.plist || true
+      - name: Flutter-Pakete holen
+        script: flutter pub get
+      - name: Signierprofile ins Xcode-Projekt übernehmen
+        script: xcode-project use-profiles
+      - name: IPA bauen
+        script: |
+          flutter build ipa --release \
+            --export-options-plist=/Users/builder/export_options.plist
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - flutter_drive.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        # Lädt den Build nach TestFlight (interne Tester). Externe Gruppen/
+        # Review erst nötig, wenn du über den internen Kreis hinaus testest.
+        submit_to_testflight: true
+
+  # Optionaler Android-APK-Build (kein Mac/Account nötig) – als Artefakt zum
+  # Sideloaden. Bei Bedarf in Codemagic separat starten.
+  android-apk:
+    name: VitaGuide Android APK (Test)
+    instance_type: linux_x2
+    max_build_duration: 45
+    working_directory: health-platform/mobile
+    environment:
+      flutter: stable
+    scripts:
+      - name: Plattformordner erzeugen
+        script: |
+          flutter create --org app.vitaguide --project-name vitaguide \
+            --platforms=ios,android .
+      - name: Flutter-Pakete holen
+        script: flutter pub get
+      - name: APK bauen (debug – ohne Signatur installierbar)
+        script: flutter build apk --debug
+    artifacts:
+      - build/app/outputs/**/*.apk
