@@ -1,8 +1,22 @@
 # 18 – Was ich von dir zur Fitnessband-SDK brauche
 
-Dies ist der **wichtigste nächste Schritt**. Ohne diese Informationen kann die Integration nicht
-seriös geplant werden – und laut Auftrag (Abschnitt 49/50) wird **nichts** implementiert, dessen
-technische Grundlage ungeklärt ist. Bitte liefere so viel wie möglich davon.
+> ✅ **Teilweise erledigt:** Die SDK ist bekannt – **Veepoo HBand / VPBluetooth**
+> ([github.com/HBandSDK](https://github.com/HBandSDK), Android + iOS, Apache-2.0, Binaries + Wiki
+> öffentlich). Die SDK-Analyse steht in [Dok. 19](19-sdk-mapping-veepoo-hband.md). Damit sind die
+> meisten SDK-/Plattform-Fragen unten **beantwortet**. Es bleiben v. a. **gerätespezifische** Punkte.
+
+## 🔴 Jetzt noch nötig (Restpunkte)
+
+- [ ] **Konkrete Bandmodelle** (Name/Modellnummer je Gerät), die wir unterstützen.
+- [ ] **Capability-Flags** je Modell (welche Metriken kann es real: ECG, BP, Temp, HRV, accurate
+      Sleep …) – lesen wir sonst am Testgerät aus (`DeviceFunctionPackage` / `ecgType` etc.).
+- [ ] **Physisches Testgerät** für den PoC (Pairing + realer Sync auf iOS & Android).
+- [ ] **Geräte-Passwort** (Standard `0000`? geändert?), 12/24h-Vorgabe.
+- [ ] Genaue **SDK-/Firmware-Version**, falls du eine bestimmte einsetzen willst.
+- [ ] Herstellerangaben zur **Messgenauigkeit** (v. a. Blutdruck/SpO2), falls vorhanden.
+
+Der Rest dieses Dokuments bleibt als **Checkliste/Referenz** stehen (vieles ist durch Dok. 19
+bereits geklärt). Bitte liefere so viel wie möglich der offenen Punkte.
 
 ## A. SDK-Dateien & Dokumentation
 

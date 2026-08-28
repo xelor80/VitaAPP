@@ -2,8 +2,12 @@
 
 **Wichtigste Regel des Auftrags (Abschnitt 49):** Vor der Integration wird die SDK vollständig
 analysiert und eine **SDK-Mapping-Dokumentation** erstellt. Erst danach Integration. Nichts wird
-implementiert, dessen technische Grundlage ungeklärt ist. Was ich dafür brauche →
-[Dok. 18](18-sdk-informationsbedarf.md).
+implementiert, dessen technische Grundlage ungeklärt ist.
+
+> ✅ **Update:** Die SDK ist identifiziert – **Veepoo HBand / VPBluetooth** (Android + iOS). Die
+> erste, konkrete SDK-Analyse und die ausgefüllte Mapping-Tabelle stehen in
+> [Dok. 19](19-sdk-mapping-veepoo-hband.md). Die generische Vorlage/Prinzipien unten bleiben gültig;
+> Restpunkte (Gerätemodelle, Capability-Flags, SDK-Version) in [Dok. 18](18-sdk-informationsbedarf.md).
 
 ## 1. Ziel: SDK entkoppeln
 
@@ -72,10 +76,15 @@ Dart-`VendorXProvider` in normalisierte Modelle mappt.
 
 ```dart
 final registry = WearableRegistry()
-  ..register('vendorX_v1', () => VendorXProvider());
+  ..register('veepoo_hband_v1', () => VeepooProvider());   // erste konkrete Impl.
 // später: ..register('vendorY_v1', () => VendorYProvider());
 ```
 Geräte tragen `provider_key` (DB, Dok. 03). Die App wählt anhand dessen den passenden Provider.
+
+> **Serialisierung (Veepoo-spezifisch, aber generell sinnvoll):** Die Veepoo-SDK verträgt **keine
+> gleichzeitigen** BLE-Operationen. Der HAL erhält daher eine **serielle Befehls-Queue** (ein
+> Kommando zur Zeit, mit Timeout), durch die alle Provider-Aufrufe laufen. Details in
+> [Dok. 19 §5](19-sdk-mapping-veepoo-hband.md).
 
 ## 5. SDK-Mapping-Dokumentation (Artefakt vor der Integration)
 

@@ -59,12 +59,16 @@ Dazwischen ein **Backend (NestJS/TypeScript)** mit PostgreSQL, Redis und Object-
 | 16 | [16 – Externe Services](docs/16-externe-services.md) | FCM/APNs, Storage, KI, u. a. |
 | 17 | [17 – Risiken & offene Fragen](docs/17-risiken-offene-fragen.md) | Technische Risiken, offene Punkte |
 | 18 | [18 – SDK-Informationsbedarf](docs/18-sdk-informationsbedarf.md) | Was ich von dir zur SDK brauche |
+| 19 | [19 – SDK-Mapping: Veepoo HBand](docs/19-sdk-mapping-veepoo-hband.md) | **Analyse der bereitgestellten SDK** + Mapping SDK→App |
 
-## Nächster Schritt
+## Stand & nächster Schritt
 
-1. Du prüfst dieses Konzept.
-2. **Wichtig:** Du lieferst mir die Informationen/Dateien aus
-   [Dokument 18](docs/18-sdk-informationsbedarf.md) zur Fitnessband-SDK.
-3. Nach deiner Freigabe erstellen wir zuerst die **SDK-Mapping-Dokumentation** (aus den realen
-   SDK-Daten) und beginnen dann mit **MVP Phase 1** – Schritt für Schritt, nichts, dessen
-   technische Grundlage ungeklärt ist.
+- ✅ **SDK identifiziert:** Veepoo **HBand / VPBluetooth** (Android + iOS, Apache-2.0). Erste
+  Analyse + Mapping in [Dokument 19](docs/19-sdk-mapping-veepoo-hband.md).
+- Offen: **Gerätemodell(e) + Capability-Flags**, SDK-Version, physisches Testgerät für den PoC
+  (Restpunkte in [Dok. 18 §neu](docs/18-sdk-informationsbedarf.md) / [Dok. 19 §7](docs/19-sdk-mapping-veepoo-hband.md)).
+
+1. Du prüfst dieses Konzept **und die SDK-Analyse (Dok. 19)**.
+2. Du nennst mir die **konkreten Bandmodelle** und stellst ein **Testgerät** bereit.
+3. Nach deiner Freigabe: **PoC** (Pairing + ein realer Metrik-Sync auf iOS & Android) → dann
+   **MVP Phase 1** – Schritt für Schritt, nichts, dessen technische Grundlage ungeklärt ist.

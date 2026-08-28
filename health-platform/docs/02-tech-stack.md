@@ -18,9 +18,10 @@ Eigenbetrieb.
 | Secure Storage | `flutter_secure_storage` (Keychain/Keystore) | Tokens, Consent-Status. |
 | Health-Sync (Phase 2) | `health` Package (HealthKit/Health Connect) | Import/Export getrennt (Auftrag Abschnitt 22). |
 
-> **Alternative React Native:** nur falls die Hersteller-SDK ausschließlich fertige RN-Bindings
-> liefert. Ansonsten bleibt Flutter die Empfehlung. Die Entscheidung hängt an der SDK
-> (siehe [Dok. 18](18-sdk-informationsbedarf.md)).
+> **SDK-Realität (Veepoo HBand):** Es gibt **kein offizielles Flutter- oder React-Native-Binding**
+> (nur Android/iOS nativ, WeChat, HarmonyOS, uni-app). Beide Frameworks brauchen also eigene native
+> Bridges. → **Flutter bleibt die Empfehlung**; wir schreiben eigene MethodChannel-Wrapper um
+> `.aar`/`.framework`. Details in [Dok. 19](19-sdk-mapping-veepoo-hband.md).
 
 ## 2. Backend
 

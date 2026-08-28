@@ -7,7 +7,8 @@ der **SDK** (→ [Dok. 18](18-sdk-informationsbedarf.md)) und an **rechtlichen**
 
 | # | Risiko | Auswirkung | Minderung |
 |---|--------|-----------|-----------|
-| R1 | **SDK-Reife/Doku unzureichend** (China-Hersteller) | Integration blockiert/aufwändig | Frühe Analyse + Beispielprojekt; HAL kapselt; PoC vor Zusagen |
+| R1 | **SDK-Reife/Doku** – **entschärft**: Veepoo HBand ist öffentlich (Android+iOS, Wiki, Apache-2.0), erste Analyse liegt vor (Dok. 19). Restrisiko: gerätespezifische Fähigkeiten | mittel | Capability-Discovery am Testgerät; HAL kapselt; PoC vor Zusagen |
+| R1b | **SDK verträgt keine parallelen BLE-Operationen** | Datenfehler bei gleichzeitigen Reads/Writes | **Serielle Befehls-Queue** im HAL (Dok. 19 §5) |
 | R2 | **iOS-Background-Sync stark limitiert** | „Dauer-Sync“ nicht wie erwartet | Ehrliche UX („App öffnen zum Sync“); nutzen, was OS/SDK erlauben |
 | R3 | **Regulatorik (Medizinprodukt?)** | Rechtliche/Marktzulassungs-Risiken (v. a. EKG/Blutdruck/Warnungen) | Rechtsberatung früh; klare Wellness-Positionierung; Disclaimer; ggf. Features gaten |
 | R4 | **Messgenauigkeit der Hardware** | Falsche Warnungen, Vertrauensverlust | Herstellerangaben dokumentieren; Qualitätsflag; konservative Regeln |
