@@ -55,8 +55,17 @@ npm test
 ```
 Enthält u. a. die Dedup-/Validierungslogik des Sync-Ingests (ohne DB lauffähig).
 
+## Worker/Scheduler (BullMQ)
+Nächtlicher Fan-out (`15 3 * * *`) reiht pro aktivem Nutzer einen Wartungsjob ein:
+Baselines + Score + Insights auffrischen und Regeln auswerten. Läuft im selben Prozess
+(Redis nötig). `JobsService.enqueueUserMaintenance()` für Ad-hoc-Läufe.
+
+## Push (FCM)
+`PUSH_PROVIDER=fcm` + `FCM_PROJECT_ID` + `GOOGLE_APPLICATION_CREDENTIALS` aktiviert den
+FCM-HTTP-v1-Provider (deckt iOS+Android via FCM-Token ab). Ohne Konfiguration: Noop-Provider.
+Payload ist Data-Only mit i18n-Keys (keine Gesundheitswerte, docs/16).
+
 ## Noch nicht enthalten (nächste Schritte)
-Echte FCM/APNs-Anbindung (aktuell Noop-Provider), BullMQ-Worker/Scheduler für periodische
-Baseline-/Score-/Insight-Jobs (aktuell nach Sync + on-demand), Blutdruck-/EKG-/Schlaf-Sync-
-Endpunkte (eigene Tabellen bestehen), Datenexport-Job, TimescaleDB-Hypertable-Umstellung.
+Blutdruck-/EKG-/Schlaf-Sync-Endpunkte (eigene Tabellen bestehen), Datenexport-Job,
+TimescaleDB-Hypertable-Umstellung, getrennter Worker-Prozess (aktuell in-process).
 Siehe [../docs/14-mvp-umfang.md](../docs/14-mvp-umfang.md).

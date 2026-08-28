@@ -11,6 +11,8 @@ export interface AppConfiguration {
   };
   encryptionKey: string;
   corsOrigins: string[];
+  redis: { host: string; port: number };
+  push: { provider: string; fcmProjectId: string };
 }
 
 export default (): AppConfiguration => ({
@@ -29,4 +31,12 @@ export default (): AppConfiguration => ({
     .split(',')
     .map((o) => o.trim())
     .filter(Boolean),
+  redis: {
+    host: process.env.REDIS_HOST ?? 'localhost',
+    port: parseInt(process.env.REDIS_PORT ?? '6379', 10),
+  },
+  push: {
+    provider: process.env.PUSH_PROVIDER ?? 'noop', // noop | fcm
+    fcmProjectId: process.env.FCM_PROJECT_ID ?? '',
+  },
 });
