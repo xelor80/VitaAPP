@@ -31,6 +31,15 @@ Health-Check: `GET /api/v1/health` → `{ "status": "ok" }`.
 | GET/POST/PATCH/DELETE | `/api/v1/devices` (+`/:id/connection-events`) | JWT |
 | POST | `/api/v1/sync/measurements` (idempotent, Batch) | JWT |
 | GET | `/api/v1/sync/status` | JWT |
+| GET | `/api/v1/today` (Begrüßung, Score, „Heute wichtig", Alerts) | JWT |
+| GET | `/api/v1/metrics/:metric/series` \| `/summary` | JWT |
+| GET | `/api/v1/baselines` · `/api/v1/trends` · `/api/v1/score` | JWT |
+| GET/POST | `/api/v1/insights` (+`/regenerate`) | JWT |
+| GET/POST | `/api/v1/alerts` (+`/:id/ack`) | JWT |
+| POST/DELETE | `/api/v1/push/tokens` · GET/PATCH `/api/v1/me/notification-preferences` | JWT |
+| POST | `/api/v1/admin/auth/login` | öffentlich |
+| GET | `/api/v1/admin/stats` · `/users` · `/config` · `/audit-logs` | Admin-JWT + RBAC |
+| CRUD | `/api/v1/admin/rules` · `/products` · `/articles` | Admin-JWT + RBAC |
 
 ## Prinzipien (aus dem Konzept)
 - **Nutzerdaten-Isolation:** jede Abfrage filtert nach `userId` des Token-Subjekts.
@@ -47,6 +56,7 @@ npm test
 Enthält u. a. die Dedup-/Validierungslogik des Sync-Ingests (ohne DB lauffähig).
 
 ## Noch nicht enthalten (nächste Schritte)
-Baseline-Engine, Health-Score, Rule-Evaluator/Worker (BullMQ), Read-APIs (`/today`,
-`/metrics/*`, `/trends`), Push (FCM/APNs), Admin-API. Siehe
-[../docs/14-mvp-umfang.md](../docs/14-mvp-umfang.md).
+Echte FCM/APNs-Anbindung (aktuell Noop-Provider), BullMQ-Worker/Scheduler für periodische
+Baseline-/Score-/Insight-Jobs (aktuell nach Sync + on-demand), Blutdruck-/EKG-/Schlaf-Sync-
+Endpunkte (eigene Tabellen bestehen), Datenexport-Job, TimescaleDB-Hypertable-Umstellung.
+Siehe [../docs/14-mvp-umfang.md](../docs/14-mvp-umfang.md).

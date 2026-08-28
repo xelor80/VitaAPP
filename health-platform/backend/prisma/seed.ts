@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import * as argon2 from 'argon2';
 
 const prisma = new PrismaClient();
 
@@ -49,6 +50,26 @@ async function main(): Promise<void> {
         },
       },
     });
+  }
+
+  // Start-Admin (superadmin) – nur anlegen, wenn ENV gesetzt ist.
+  const adminEmail = process.env.ADMIN_EMAIL;
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  if (adminEmail && adminPassword) {
+    const passwordHash = await argon2.hash(adminPassword, {
+      type: argon2.argon2id,
+    });
+    await prisma.adminUser.upsert({
+      where: { email: adminEmail.toLowerCase() },
+      update: {},
+      create: {
+        email: adminEmail.toLowerCase(),
+        passwordHash,
+        roles: ['superadmin'],
+      },
+    });
+    // eslint-disable-next-line no-console
+    console.log(`Start-Admin ${adminEmail} angelegt (Passwort ändern!).`);
   }
 
   // eslint-disable-next-line no-console

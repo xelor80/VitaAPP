@@ -18,6 +18,7 @@ import { RulesModule } from './modules/rules/rules.module';
 import { AlertsModule } from './modules/alerts/alerts.module';
 import { InsightsModule } from './modules/insights/insights.module';
 import { PushModule } from './modules/push/push.module';
+import { AdminModule } from './modules/admin/admin.module';
 import { HealthCheckController } from './health-check.controller';
 
 @Module({
@@ -38,6 +39,7 @@ import { HealthCheckController } from './health-check.controller';
     AlertsModule,
     InsightsModule,
     PushModule,
+    AdminModule,
   ],
   controllers: [HealthCheckController],
   providers: [
