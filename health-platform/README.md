@@ -21,8 +21,11 @@ Fitness-/Health-Armband mit Hersteller-SDK.
 >   Mecorly V500. Lokal mit Flutter zu bauen (hier kein SDK).
 > - **Admin-WebApp** ([`admin-web/`](admin-web/README.md)) – Next.js 14 + React 18, `next build`
 >   grün: Login (Admin-JWT), Dashboard, Benutzer, Regeln, Produkte, Inhalte, Config, Audit.
-> - **Offen:** native SDK-Anbindung real implementieren + **Geräte-PoC am V500**, Admin-CRUD-
->   Formulare, getrennter Worker-Prozess, TimescaleDB-Hypertable.
+> - **Deployment** ([`deploy/`](deploy/README.md)) – Produktions-Docker-Compose (Backend + Admin +
+>   eigene DB/Redis) hinter vorhandenem Traefik, **isoliert** von anderen VPS-Projekten. Backend-
+>   und Admin-**Dockerfiles** vorhanden; `docker compose config` validiert, Next-Standalone-Build grün.
+> - **Offen:** native SDK-Anbindung real implementieren + **Geräte-PoC am V500**, getrennter
+>   Worker-Prozess, TimescaleDB-Hypertable.
 
 ## Was hier entsteht
 

@@ -4,6 +4,9 @@
   "description": "VitaGuide Health-Plattform – Backend API (NestJS)",
   "license": "UNLICENSED",
   "private": true,
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
   "scripts": {
     "build": "nest build",
     "start": "nest start",

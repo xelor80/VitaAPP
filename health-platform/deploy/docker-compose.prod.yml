@@ -1,0 +1,98 @@
+# VitaGuide – Produktions-Stack (isoliert von anderen Projekten auf dem VPS).
+#
+# Isolation:
+#  - eigener COMPOSE_PROJECT_NAME (siehe .env.production) => eigene Container/Volumes
+#  - internes Netzwerk "vitaguide_internal" (DB/Redis NICHT nach außen exponiert)
+#  - öffentlich nur über das vorhandene Traefik-Netzwerk via Labels (Subdomains)
+#  - KEINE Host-Ports => keine Kollision mit bestehenden Projekten
+#
+# Start:  docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build
+
+name: ${COMPOSE_PROJECT_NAME:-vitaguide}
+
+services:
+  postgres:
+    image: timescale/timescaledb:2.17.0-pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks: [internal]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--save", "60", "1", "--appendonly", "no"]
+    volumes:
+      - redisdata:/data
+    networks: [internal]
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public"
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      JWT_ADMIN_SECRET: ${JWT_ADMIN_SECRET}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      CORS_ORIGINS: "https://${ADMIN_DOMAIN}"
+      PUSH_PROVIDER: ${PUSH_PROVIDER:-noop}
+      FCM_PROJECT_ID: ${FCM_PROJECT_ID:-}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      SEED_ON_START: ${SEED_ON_START:-false}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [internal, web]
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=${TRAEFIK_NETWORK}"
+      - "traefik.http.routers.vitaguide-api.rule=Host(`${API_DOMAIN}`)"
+      - "traefik.http.routers.vitaguide-api.entrypoints=websecure"
+      - "traefik.http.routers.vitaguide-api.tls.certresolver=${TRAEFIK_CERTRESOLVER}"
+      - "traefik.http.services.vitaguide-api.loadbalancer.server.port=3000"
+
+  admin:
+    build:
+      context: ../admin-web
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE: "https://${API_DOMAIN}/api/v1"
+    restart: unless-stopped
+    networks: [web]
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=${TRAEFIK_NETWORK}"
+      - "traefik.http.routers.vitaguide-admin.rule=Host(`${ADMIN_DOMAIN}`)"
+      - "traefik.http.routers.vitaguide-admin.entrypoints=websecure"
+      - "traefik.http.routers.vitaguide-admin.tls.certresolver=${TRAEFIK_CERTRESOLVER}"
+      - "traefik.http.services.vitaguide-admin.loadbalancer.server.port=3001"
+
+volumes:
+  pgdata:
+  redisdata:
+
+networks:
+  # Internes Netz – nur VitaGuide-Container, nichts nach außen.
+  internal:
+    name: ${COMPOSE_PROJECT_NAME:-vitaguide}_internal
+  # Vorhandenes Traefik-Netzwerk (extern, von deinem Reverse Proxy).
+  web:
+    external: true
+    name: ${TRAEFIK_NETWORK}
