@@ -16,6 +16,8 @@ import { TrendsModule } from './modules/trends/trends.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { RulesModule } from './modules/rules/rules.module';
 import { AlertsModule } from './modules/alerts/alerts.module';
+import { InsightsModule } from './modules/insights/insights.module';
+import { PushModule } from './modules/push/push.module';
 import { HealthCheckController } from './health-check.controller';
 
 @Module({
@@ -34,6 +36,8 @@ import { HealthCheckController } from './health-check.controller';
     DashboardModule,
     RulesModule,
     AlertsModule,
+    InsightsModule,
+    PushModule,
   ],
   controllers: [HealthCheckController],
   providers: [
