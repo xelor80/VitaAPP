@@ -1,0 +1,83 @@
+# VitaGuide – API-Deploy-Variante (zieht vorgebaute Images aus GHCR, kein Build).
+# Wird per Hostinger createNewProjectV1 als Projekt "vitaguide" deployt.
+# Traefik (host-Modus, Resolver letsencrypt) erkennt die Container per Labels.
+
+name: vitaguide
+
+services:
+  postgres:
+    image: timescale/timescaledb:2.17.0-pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--save", "60", "1", "--appendonly", "no"]
+    volumes:
+      - redisdata:/data
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+
+  backend:
+    image: ghcr.io/xelor80/vitaguide-backend:latest
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public"
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      JWT_ADMIN_SECRET: ${JWT_ADMIN_SECRET}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      CORS_ORIGINS: "https://${ADMIN_DOMAIN}"
+      PUSH_PROVIDER: ${PUSH_PROVIDER:-noop}
+      FCM_PROJECT_ID: ${FCM_PROJECT_ID:-}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      SEED_ON_START: ${SEED_ON_START:-false}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.vitaguide-api.rule=Host(`${API_DOMAIN}`)"
+      - "traefik.http.routers.vitaguide-api.entrypoints=websecure"
+      - "traefik.http.routers.vitaguide-api.tls.certresolver=letsencrypt"
+      - "traefik.http.services.vitaguide-api.loadbalancer.server.port=3000"
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+
+  admin:
+    image: ghcr.io/xelor80/vitaguide-admin:latest
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.vitaguide-admin.rule=Host(`${ADMIN_DOMAIN}`)"
+      - "traefik.http.routers.vitaguide-admin.entrypoints=websecure"
+      - "traefik.http.routers.vitaguide-admin.tls.certresolver=letsencrypt"
+      - "traefik.http.services.vitaguide-admin.loadbalancer.server.port=3001"
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+
+volumes:
+  pgdata:
+  redisdata:
