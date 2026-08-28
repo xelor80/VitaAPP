@@ -9,6 +9,11 @@ import { UsersModule } from './modules/users/users.module';
 import { ConsentModule } from './modules/consent/consent.module';
 import { DevicesModule } from './modules/devices/devices.module';
 import { SyncModule } from './modules/sync/sync.module';
+import { BaselinesModule } from './modules/baselines/baselines.module';
+import { MetricsModule } from './modules/metrics/metrics.module';
+import { ScoreModule } from './modules/score/score.module';
+import { TrendsModule } from './modules/trends/trends.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { HealthCheckController } from './health-check.controller';
 
 @Module({
@@ -20,6 +25,11 @@ import { HealthCheckController } from './health-check.controller';
     ConsentModule,
     DevicesModule,
     SyncModule,
+    BaselinesModule,
+    MetricsModule,
+    ScoreModule,
+    TrendsModule,
+    DashboardModule,
   ],
   controllers: [HealthCheckController],
   providers: [
