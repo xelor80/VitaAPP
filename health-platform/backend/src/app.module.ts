@@ -14,6 +14,8 @@ import { MetricsModule } from './modules/metrics/metrics.module';
 import { ScoreModule } from './modules/score/score.module';
 import { TrendsModule } from './modules/trends/trends.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { RulesModule } from './modules/rules/rules.module';
+import { AlertsModule } from './modules/alerts/alerts.module';
 import { HealthCheckController } from './health-check.controller';
 
 @Module({
@@ -30,6 +32,8 @@ import { HealthCheckController } from './health-check.controller';
     ScoreModule,
     TrendsModule,
     DashboardModule,
+    RulesModule,
+    AlertsModule,
   ],
   controllers: [HealthCheckController],
   providers: [

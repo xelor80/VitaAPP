@@ -1,5 +1,7 @@
 import { Test } from '@nestjs/testing';
 import { PrismaService } from '../../prisma/prisma.service';
+import { BaselinesService } from '../baselines/baselines.service';
+import { EvaluationService } from '../alerts/evaluation.service';
 import { SyncService } from './sync.service';
 import { IngestMeasurementsDto } from './dto/ingest-measurements.dto';
 
@@ -20,6 +22,8 @@ describe('SyncService.ingest', () => {
           provide: PrismaService,
           useValue: { healthMeasurement: { findMany, createMany } },
         },
+        { provide: BaselinesService, useValue: { recompute: jest.fn() } },
+        { provide: EvaluationService, useValue: { evaluateMetrics: jest.fn() } },
       ],
     }).compile();
 

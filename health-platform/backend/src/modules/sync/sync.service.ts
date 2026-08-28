@@ -1,6 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { MeasurementSource, Quality } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
+import { BaselinesService } from '../baselines/baselines.service';
+import { EvaluationService } from '../alerts/evaluation.service';
 import { IngestMeasurementsDto } from './dto/ingest-measurements.dto';
 import {
   classifyMeasurements,
@@ -16,7 +18,13 @@ export interface IngestSummary {
 
 @Injectable()
 export class SyncService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(SyncService.name);
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly baselines: BaselinesService,
+    private readonly evaluation: EvaluationService,
+  ) {}
 
   async ingest(
     userId: string,
@@ -53,10 +61,30 @@ export class SyncService {
       });
     }
 
+    // Nach dem Ingest: Baselines auffrischen + Regeln prüfen (nur betroffene
+    // Metriken). Fehler hier dürfen den Sync nicht scheitern lassen.
+    if (accepted.length > 0) {
+      const metrics = [...new Set(accepted.map((m) => m.metric))];
+      void this.postIngest(userId, metrics);
+    }
+
     const summary = { accepted: 0, duplicate: 0, rejected: 0 };
     for (const r of results) summary[r.status] += 1;
 
     return { ...summary, results };
+  }
+
+  private async postIngest(userId: string, metrics: string[]): Promise<void> {
+    try {
+      for (const metric of metrics) {
+        await this.baselines.recompute(userId, metric, '30d');
+      }
+      await this.evaluation.evaluateMetrics(userId, metrics);
+    } catch (err) {
+      this.logger.error(
+        `postIngest fehlgeschlagen für ${userId}: ${String(err)}`,
+      );
+    }
   }
 
   async status(userId: string) {
