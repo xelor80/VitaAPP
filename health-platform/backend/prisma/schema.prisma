@@ -1,0 +1,570 @@
+// VitaGuide – Datenmodell (Kern). Siehe health-platform/docs/03-datenbankmodell.md.
+// Hochvolumige Messwerte (HealthMeasurement) werden später als TimescaleDB-Hypertable
+// betrieben. Hinweis: TimescaleDB verlangt, dass die Partitionsspalte (`time`) Teil
+// JEDES Unique-Index ist. Für die Umstellung wird daher der Primärschlüssel auf
+// (time, id) bzw. die Idempotenz auf (userId, ingestKey, time) angepasst und
+// `create_hypertable('HealthMeasurement','time')` in einer eigenen Migration ergänzt.
+// Solange als normale Tabelle betrieben (funktional identisch), Umstellung = reine Infra.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+enum UserStatus {
+  active
+  suspended
+  deleted
+}
+
+enum Entitlement {
+  free
+  premium
+  premium_plus
+}
+
+enum Sex {
+  female
+  male
+  diverse
+  unspecified
+}
+
+enum ActivityLevel {
+  low
+  moderate
+  high
+}
+
+enum MeasurementSource {
+  wearable
+  manual
+  healthkit
+  health_connect
+}
+
+enum Quality {
+  good
+  fair
+  poor
+  unknown
+}
+
+enum ConnectionEvent {
+  connected
+  disconnected
+  sync_ok
+  sync_error
+  ble_error
+}
+
+enum ConsentType {
+  health_processing
+  terms
+  privacy
+  marketing
+  ai_analysis
+}
+
+enum AlertSeverity {
+  info
+  hint
+  notable
+  important
+}
+
+enum ContentStatus {
+  draft
+  published
+  archived
+}
+
+enum AffiliateEventType {
+  click
+  conversion
+}
+
+// ---------------------------------------------------------------------------
+// Nutzer & Profil
+// ---------------------------------------------------------------------------
+model User {
+  id              String       @id @default(uuid())
+  email           String       @unique
+  passwordHash    String
+  status          UserStatus   @default(active)
+  emailVerifiedAt DateTime?
+  locale          String       @default("de-DE")
+  country         String?
+  entitlement     Entitlement  @default(free)
+  lastLoginAt     DateTime?
+  deletedAt       DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  profile                 UserProfile?
+  devices                 Device[]
+  measurements            HealthMeasurement[]
+  bloodPressure           BloodPressureMeasurement[]
+  ecgRecordings           EcgRecording[]
+  sleepSessions           SleepSession[]
+  activitySessions        ActivitySession[]
+  dailyScores             DailyHealthScore[]
+  baselines               PersonalBaseline[]
+  insights                HealthInsight[]
+  alerts                  HealthAlert[]
+  notificationPreference  NotificationPreference?
+  pushTokens              PushToken[]
+  pushNotifications       PushNotification[]
+  consents                Consent[]
+  diaryEntries            DiaryEntry[]
+  refreshTokens           RefreshToken[]
+
+  @@index([status])
+}
+
+model UserProfile {
+  userId        String        @id
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  firstName     String?
+  lastName      String?
+  birthYear     Int?
+  sex           Sex           @default(unspecified)
+  heightCm      Float?
+  weightKg      Float?
+  activityLevel ActivityLevel @default(moderate)
+  goals         String[]      @default([])
+  updatedAt     DateTime      @updatedAt
+}
+
+// Refresh-Token-Rotation (widerrufbar, gerätegebunden). Nur Hash gespeichert.
+model RefreshToken {
+  id         String    @id @default(uuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash  String    @unique
+  deviceInfo String?
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([userId])
+}
+
+// ---------------------------------------------------------------------------
+// Geräte
+// ---------------------------------------------------------------------------
+model Device {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vendor      String
+  model       String
+  serial      String?
+  firmware    String?
+  providerKey String   // z. B. "veepoo_hband_v1"
+  capabilities Json    @default("{}")
+  pairedAt    DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  connections DeviceConnection[]
+
+  @@index([userId])
+}
+
+model DeviceConnection {
+  id       String          @id @default(uuid())
+  deviceId String
+  device   Device          @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  event    ConnectionEvent
+  battery  Int?
+  detail   Json?
+  at       DateTime        @default(now())
+
+  @@index([deviceId, at])
+}
+
+// ---------------------------------------------------------------------------
+// Messwerte (Zeitreihe)
+// ---------------------------------------------------------------------------
+model HealthMeasurement {
+  id        String            @id @default(uuid())
+  userId    String
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deviceId  String?
+  metric    String            // heart_rate | hrv | spo2 | temperature | stress | steps | met ...
+  value     Float
+  unit      String
+  time      DateTime
+  source    MeasurementSource @default(wearable)
+  quality   Quality           @default(unknown)
+  rawRef    String?
+  ingestKey String
+  createdAt DateTime          @default(now())
+
+  @@unique([userId, ingestKey])
+  @@index([userId, metric, time])
+}
+
+model BloodPressureMeasurement {
+  id        String            @id @default(uuid())
+  userId    String
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deviceId  String?
+  systolic  Int
+  diastolic Int
+  pulse     Int?
+  time      DateTime
+  source    MeasurementSource @default(wearable)
+  quality   Quality           @default(unknown)
+  ingestKey String
+  createdAt DateTime          @default(now())
+
+  @@unique([userId, ingestKey])
+  @@index([userId, time])
+}
+
+model EcgRecording {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deviceId   String?
+  durationS  Int
+  sampleRate Int
+  s3Key      String
+  label      String?
+  time       DateTime
+  createdAt  DateTime @default(now())
+
+  @@index([userId, time])
+}
+
+model SleepSession {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deviceId   String?
+  start      DateTime
+  end        DateTime
+  totalMin   Int
+  deepMin    Int?
+  lightMin   Int?
+  remMin     Int?
+  awakeMin   Int?
+  latencyMin Int?
+  efficiency Float?
+  sleepScore Int?
+  regularity Float?
+  ingestKey  String
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, ingestKey])
+  @@index([userId, start])
+}
+
+model ActivitySession {
+  id         String            @id @default(uuid())
+  userId     String
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deviceId   String?
+  type       String
+  start      DateTime
+  end        DateTime
+  steps      Int?
+  distanceM  Float?
+  activeKcal Float?
+  avgHr      Int?
+  met        Float?
+  source     MeasurementSource @default(wearable)
+  ingestKey  String
+  createdAt  DateTime          @default(now())
+
+  @@unique([userId, ingestKey])
+  @@index([userId, start])
+}
+
+// ---------------------------------------------------------------------------
+// Ableitungen & Analytik
+// ---------------------------------------------------------------------------
+model PersonalBaseline {
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  metric     String
+  window     String   // 7d | 30d | 90d
+  avg        Float
+  stddev     Float
+  n          Int
+  computedAt DateTime @default(now())
+
+  @@id([userId, metric, window])
+}
+
+model DailyHealthScore {
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date          DateTime @db.Date
+  total         Int
+  components    Json
+  explanations  Json
+  configVersion Int
+  createdAt     DateTime @default(now())
+
+  @@id([userId, date])
+}
+
+model HealthInsight {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        String
+  period      String
+  textKey     String
+  params      Json     @default("{}")
+  generatedAt DateTime @default(now())
+
+  @@index([userId, generatedAt])
+}
+
+// ---------------------------------------------------------------------------
+// Regeln, Warnungen, Benachrichtigungen
+// ---------------------------------------------------------------------------
+model HealthRule {
+  id         String        @id @default(uuid())
+  metric     String
+  definition Json
+  severity   AlertSeverity
+  notify     Boolean       @default(false)
+  contentKey Json
+  scope      Json?
+  active     Boolean       @default(true)
+  version    Int           @default(1)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  alerts HealthAlert[]
+
+  @@index([metric, active])
+}
+
+model HealthAlert {
+  id             String        @id @default(uuid())
+  userId         String
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ruleId         String
+  rule           HealthRule    @relation(fields: [ruleId], references: [id])
+  severity       AlertSeverity
+  metric         String
+  triggeredAt    DateTime      @default(now())
+  context        Json
+  acknowledgedAt DateTime?
+
+  @@index([userId, triggeredAt])
+}
+
+model NotificationPreference {
+  userId     String   @id
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  channels   Json     @default("{}")  // { push: true, email: false }
+  categories Json     @default("{}")  // je Kategorie an/aus
+  quietHours Json?                     // { from: "22:00", to: "07:00" }
+  updatedAt  DateTime @updatedAt
+}
+
+model PushToken {
+  id       String   @id @default(uuid())
+  userId   String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token    String   @unique
+  platform String   // ios | android
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model PushNotification {
+  id         String    @id @default(uuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  titleKey   String
+  bodyKey    String
+  params     Json      @default("{}")
+  campaignId String?
+  sentAt     DateTime?
+  delivered  Boolean   @default(false)
+  openedAt   DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([userId])
+}
+
+// ---------------------------------------------------------------------------
+// Content, Produkte, Affiliate, Empfehlungen
+// ---------------------------------------------------------------------------
+model Article {
+  id          String        @id @default(uuid())
+  slug        String        @unique
+  title       String
+  body        String
+  category    String
+  tags        String[]      @default([])
+  status      ContentStatus @default(draft)
+  locale      String        @default("de-DE")
+  publishedAt DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([category, status, locale])
+}
+
+model Recipe {
+  id          String        @id @default(uuid())
+  title       String
+  image       String?
+  prepTimeMin Int?
+  kcal        Int?
+  protein     Float?
+  fat         Float?
+  carbs       Float?
+  fiber       Float?
+  ingredients Json          @default("[]")
+  steps       Json          @default("[]")
+  servings    Int?
+  tags        String[]      @default([])
+  locale      String        @default("de-DE")
+  status      ContentStatus @default(draft)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model Product {
+  id                  String   @id @default(uuid())
+  name                String
+  manufacturer        String?
+  image               String?
+  description         String?
+  category            String?
+  ingredients         String?
+  price               Float?
+  country             String[] @default([])
+  locale              String[] @default([])
+  active              Boolean  @default(true)
+  priority            Int      @default(0)
+  recommendationWeight Int     @default(0)
+  tags                String[] @default([])
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  affiliateLinks AffiliateLink[]
+
+  @@index([category, active])
+}
+
+model AffiliateLink {
+  id        String   @id @default(uuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  network   String
+  url       String
+  campaign  String?
+  createdAt DateTime @default(now())
+
+  events AffiliateEvent[]
+}
+
+model AffiliateEvent {
+  id           String             @id @default(uuid())
+  userPseudonym String
+  productId    String
+  linkId       String
+  link         AffiliateLink      @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  event        AffiliateEventType
+  screen       String?
+  source       String?
+  revenue      Float?
+  at           DateTime           @default(now())
+
+  @@index([productId, at])
+}
+
+model RecommendationRule {
+  id        String   @id @default(uuid())
+  trigger   Json
+  targets   Json
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Plattform, Compliance, i18n
+// ---------------------------------------------------------------------------
+model Consent {
+  id        String      @id @default(uuid())
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      ConsentType
+  version   String
+  granted   Boolean
+  source    String?
+  at        DateTime    @default(now())
+  revokedAt DateTime?
+
+  @@index([userId, type])
+}
+
+model AdminUser {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String
+  roles        String[]  @default([])
+  status       String    @default("active")
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  actor      String   // admin_user_id | "system"
+  action     String
+  targetType String?
+  targetId   String?
+  meta       Json?
+  at         DateTime @default(now())
+
+  @@index([actor, at])
+}
+
+model Translation {
+  key    String
+  locale String
+  value  String
+
+  @@id([key, locale])
+}
+
+model AppConfig {
+  key       String   @id
+  value     Json
+  version   Int      @default(1)
+  updatedAt DateTime @updatedAt
+}
+
+model DiaryEntry {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date      DateTime @db.Date
+  fields    Json     @default("{}")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, date])
+}

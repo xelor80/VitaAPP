@@ -8,6 +8,11 @@ Dieser Ordner (`health-platform/`) ist **bewusst getrennt** von der übrigen Cod
 diesem Repository. Es entsteht eine eigenständige, modulare Plattform für ein eigenes
 Fitness-/Health-Armband mit Hersteller-SDK.
 
+> **Umsetzungsstand:** Das **Backend-Grundgerüst** ist angelegt und lauffähig
+> ([`backend/`](backend/README.md)): NestJS + Prisma + PostgreSQL, Auth (JWT + Refresh/Argon2id),
+> Nutzer/Profil, Consent (DSGVO), Geräte, **idempotenter Messwert-Sync** – `npm run build` und
+> `npm test` grün. Nächste Schritte: Baseline-Engine, Health-Score, Rule-Evaluator, Read-APIs.
+
 ## Was hier entsteht
 
 Keine reine Fitnessband-App, sondern eine **skalierbare Health-Plattform**:
