@@ -209,7 +209,7 @@ Screen 3 „Verstehe deinen Körper.“  · 4 „Erhalte persönliche Einblicke.
 ## Admin-WebApp (Auszug)
 
 ```
-┌── admin.<domain> ──────────────────────────────────────────┐
+┌── admin.vitaguide.app ──────────────────────────────────────────┐
 │ [Logo]  Dashboard Benutzer Geräte Metriken Regeln Warnungen│
 │         Inhalte Tipps Produkte Affiliate Rezepte Push …     │
 ├────────────────────────────────────────────────────────────┤

@@ -1,6 +1,6 @@
-# Health- & Fitness-Plattform – Konzept & Architektur
+# VitaGuide – Health- & Fitness-Plattform · Konzept & Architektur
 
-> **Arbeitstitel:** *VitaPulse* (Projektname noch offen – siehe [Offene Fragen](docs/17-risiken-offene-fragen.md))
+> **Projektname:** **VitaGuide** · **Domain:** [vitaguide.app](https://vitaguide.app) (reserviert)
 > **Status:** Konzeptphase – **noch keine Implementierung**. Dieses Dokument ist die
 > Entscheidungsgrundlage für deine Freigabe. Erst nach Freigabe beginnt die schrittweise Umsetzung.
 

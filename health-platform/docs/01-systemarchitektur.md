@@ -10,7 +10,7 @@ Schnittstellen entkoppelt, damit Teile unabhängig weiterentwickelt oder ersetzt
 │  PRÄSENTATION                                                       │
 │  ┌────────────────────────┐        ┌───────────────────────────┐   │
 │  │  Mobile App (Flutter)  │        │  Admin-WebApp (Next.js)   │   │
-│  │  iOS + Android         │        │  admin.<domain>           │   │
+│  │  iOS + Android         │        │  admin.vitaguide.app           │   │
 │  └───────────┬────────────┘        └──────────────┬────────────┘   │
 └──────────────┼───────────────────────────────────┼────────────────┘
                │  HTTPS / REST /api/v1 (JWT)        │
@@ -85,8 +85,8 @@ SDK-spezifische Typen. Ein zweiter Hersteller = ein zweiter `WearableProvider`, 
 
 ```
 Internet ─► Reverse Proxy / TLS (Traefik oder Nginx)
-             ├─► api.<domain>      → Backend (mehrere Instanzen, zustandslos)
-             ├─► admin.<domain>    → Admin-WebApp (SSR)
+             ├─► api.vitaguide.app      → Backend (mehrere Instanzen, zustandslos)
+             ├─► admin.vitaguide.app    → Admin-WebApp (SSR)
              └─► cdn/S3            → Statische Assets, Bilder
 Backend-Instanzen ─► PostgreSQL (primary + read replica später)
                   ─► Redis (Cache + BullMQ)

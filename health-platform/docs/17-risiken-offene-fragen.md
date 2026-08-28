@@ -33,7 +33,7 @@ der **SDK** (→ [Dok. 18](18-sdk-informationsbedarf.md)) und an **rechtlichen**
 - Health-Score im MVP zeigen oder erst Phase 2? (Empfehlung: erst mit belastbarer Baseline.)
 - Konkrete Referenzbereiche/Grenzwerte je Metrik (medizinisch geprüft) – Quelle?
 - Zielmärkte/-sprachen zum Start (beeinflusst Recht + i18n)?
-- Projekt-/Markenname (Arbeitstitel „VitaPulse“) und Domain?
+- Projekt-/Markenname und Domain: **geklärt → VitaGuide / vitaguide.app** (reserviert).
 
 **Rechtlich / Compliance**
 - Einstufung als Medizinprodukt in Zielmärkten? (EKG/Blutdruck/Warnsystem prüfen.)

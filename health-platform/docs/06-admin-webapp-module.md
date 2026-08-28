@@ -1,6 +1,6 @@
 # 06 – Admin-WebApp-Modulstruktur (Next.js)
 
-Separate, geschützte Web-Anwendung unter `admin.<domain>`. Modernes SaaS-Dashboard.
+Separate, geschützte Web-Anwendung unter `admin.vitaguide.app`. Modernes SaaS-Dashboard.
 Eigene Admin-Auth + RBAC, alle sensiblen Zugriffe im Audit-Log.
 
 ## 1. Navigation (Auftrag Abschnitt 23)
