@@ -12,6 +12,12 @@ RUN npx prisma generate
 COPY tsconfig*.json nest-cli.json ./
 COPY src ./src
 RUN npm run build
+# Seed nach reinem JS vorkompilieren, damit er zur Laufzeit ohne ts-node läuft
+# (ts-node ist eine Dev-Abhängigkeit und im schlanken Prod-Image nicht als
+# PATH-Binary verfügbar → `prisma db seed` schlug bisher mit ENOENT fehl).
+RUN npx tsc prisma/seed.ts --outDir dist/prisma-seed \
+  --module commonjs --target ES2021 --moduleResolution node \
+  --esModuleInterop --skipLibCheck
 
 # --- Laufzeit-Stufe ---
 FROM node:22-bookworm-slim AS runtime
